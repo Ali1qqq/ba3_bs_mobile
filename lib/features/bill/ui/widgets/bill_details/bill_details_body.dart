@@ -31,37 +31,37 @@ class BillDetailsBody extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Expanded(
-          flex: 2,
-          child: Container(
-            margin: const EdgeInsets.symmetric(horizontal: 8),
-            child: GetBuilder<BillDetailsPlutoController>(
-                tag: tag,
-                builder: (_) {
-                  return FocusScope(
-                    autofocus: true,
-                    child: PlutoWithEdite(
-                      columns: billDetailsPlutoController.recordsTableColumns,
-                      rows: billDetailsPlutoController.recordsTableRows,
-                      onRowSecondaryTap: (PlutoGridOnRowSecondaryTapEvent event) {
-                        billDetailsPlutoController.onMainTableRowSecondaryTap(event, context);
-                      },
-                      onChanged: billDetailsPlutoController.onMainTableStateManagerChanged,
-                      onLoaded: billDetailsPlutoController.onMainTableLoaded,
-                      shortCut: customPlutoShortcut(GetProductByEnterAction(billDetailsPlutoController, context)),
-                      evenRowColor: Color(billTypeModel.color!),
-                    ),
-                  );
-                }),
-          ),
+        Container(
+          height: 200,
+          margin: const EdgeInsets.symmetric(horizontal: 8),
+          child: GetBuilder<BillDetailsPlutoController>(
+              tag: tag,
+              builder: (_) {
+                billDetailsPlutoController.setContext(context);
+                return PlutoWithEdite(
+                  columns: billDetailsPlutoController.recordsTableColumns,
+                  rows: billDetailsPlutoController.recordsTableRows,
+                  onRowSecondaryTap: (PlutoGridOnRowSecondaryTapEvent event) {
+                    billDetailsPlutoController.onMainTableRowSecondaryTap(event, context);
+                  },
+                  onRowDoubleTap:(PlutoGridOnRowDoubleTapEvent event) {
+                    billDetailsPlutoController.onMainTableRowDoubleTap(event, context);
+
+                  } ,
+                  onChanged: billDetailsPlutoController.onMainTableStateManagerChanged,
+                  onLoaded: billDetailsPlutoController.onMainTableLoaded,
+                  shortCut: customPlutoShortcut(GetProductByEnterAction(billDetailsPlutoController, context)),
+                  evenRowColor: Color(billTypeModel.color!),
+                );
+              }),
         ),
         const VerticalSpace(),
-        GetBuilder<BillDetailsPlutoController>(
-            tag: tag,
-            builder: (_) {
-              return Expanded(
-                flex: 1,
-                child: BillGridWidget(
+        SizedBox(
+          height: 150,
+          child: GetBuilder<BillDetailsPlutoController>(
+              tag: tag,
+              builder: (_) {
+                return BillGridWidget(
                   rowColor: Colors.grey,
                   columns: billDetailsPlutoController.additionsDiscountsColumns,
                   rows: billDetailsPlutoController.additionsDiscountsRows,
@@ -72,9 +72,9 @@ class BillDetailsBody extends StatelessWidget {
                     textFieldName: AppConstants.id,
                     context: context,
                   )),
-                ),
-              );
-            }),
+                );
+              }),
+        ),
       ],
     );
   }

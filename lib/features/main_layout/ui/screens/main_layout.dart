@@ -23,13 +23,12 @@ class MainLayout extends StatelessWidget {
         return Directionality(
           textDirection: TextDirection.rtl,
           child: Scaffold(
+            key: mainController.scaffoldKey,
+            drawer:    RightMainWidget(mainController: mainController),
+   //         drawer:    RightMainWidget(mainController: mainController),
+
             backgroundColor: AppColors.whiteColor,
-            body: Row(
-              children: [
-                RightMainWidget(mainController: mainController),
-                LeftMainWidget(mainController: mainController)
-              ],
-            ),
+            body: LeftMainWidget(mainController: mainController),
           ),
         );
       }),

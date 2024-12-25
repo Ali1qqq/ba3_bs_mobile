@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../managers/overlay_entry_with_priority_manager.dart';
+import '../ui/custom_drawer_overly.dart';
 import '../ui/custom_dropdown_overly.dart';
 import '../ui/custom_popup_menu_overly.dart';
 
@@ -41,6 +42,8 @@ class OverlayService {
     );
   }
 
+
+
   static Widget showDropdown<T>({
     required T value,
     required List<T> items,
@@ -70,6 +73,37 @@ class OverlayService {
       onCloseCallback: onCloseCallback,
       back: back,
       overlayEntryWithPriorityInstance: _entryWithPriorityInstance,
+    );
+  }
+
+  static Widget showDrawer<T>({
+    required T value,
+    required List<T> items,
+    BorderRadius? borderRadius,
+    EdgeInsets? contentPadding,
+    Alignment? dropdownAlignment,
+    required ValueChanged<T>? onChanged,
+    required String Function(T item) itemLabelBuilder,
+    double? height,
+    BoxDecoration? decoration,
+    int? priority,
+    VoidCallback? onCloseCallback,
+    TextStyle? textStyle,
+    required Widget child,
+  }) {
+    return CustomDrawerOverly<T>(
+      borderRadius: borderRadius,
+      contentPadding: contentPadding,
+      dropdownAlignment: dropdownAlignment,
+      onChanged: onChanged,
+      textStyle: textStyle,
+      height: height,
+      decoration: decoration,
+      priority: priority,
+      onCloseCallback: onCloseCallback,
+      back: back,
+      overlayEntryWithPriorityInstance: _entryWithPriorityInstance,
+      child:child ,
     );
   }
 

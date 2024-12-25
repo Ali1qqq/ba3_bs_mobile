@@ -52,7 +52,6 @@ class ChequesDetailsScreen extends StatelessWidget {
                               mainAxisAlignment: MainAxisAlignment.end,
                               children: [
                                 const Divider(),
-                                const VerticalSpace(),
                                 AddChequeButtons(
                                   chequesDetailsController: chequesDetailsController,
                                   chequesSearchController: chequesSearchController,

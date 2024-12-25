@@ -26,7 +26,7 @@ class LoginScreen extends StatelessWidget {
               spacing: 15,
               children: [
                 SizedBox(
-                  width: .3.sw,
+                  width:  .6.sw,
                   child: TextFormField(
                     decoration: const InputDecoration(
                       label: Text('اسم الحساب'),
@@ -37,7 +37,7 @@ class LoginScreen extends StatelessWidget {
                   ),
                 ),
                 SizedBox(
-                  width: .3.sw,
+                  width:  .6.sw,
                   child: Obx(
                     () => TextFormField(
                       maxLength: 6,
@@ -75,7 +75,7 @@ class LoginScreen extends StatelessWidget {
             },
             child: Container(
               height: 32.h,
-              width: .3.sw,
+              width: .6.sw,
               alignment: Alignment.center,
               decoration: BoxDecoration(borderRadius: BorderRadius.circular(5), color: AppColors.blueColor),
               child: Text(

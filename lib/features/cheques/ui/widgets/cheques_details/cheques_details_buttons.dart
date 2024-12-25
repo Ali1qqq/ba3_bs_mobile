@@ -3,7 +3,6 @@ import 'package:ba3_bs_mobile/features/cheques/controllers/cheques/cheques_detai
 import 'package:ba3_bs_mobile/features/cheques/controllers/cheques/cheques_search_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-
 import '../../../../../core/widgets/app_button.dart';
 import '../../../data/models/cheques_model.dart';
 
@@ -30,7 +29,7 @@ class AddChequeButtons extends StatelessWidget {
           Obx(() {
             return AppButton(
                 title: 'إضافة',
-                height: 20,
+
                 color: chequesDetailsController.isChequesSaved.value ? Colors.green : Colors.blue.shade700,
                 onPressed: chequesDetailsController.isChequesSaved.value
                     ? () {}
@@ -42,7 +41,7 @@ class AddChequeButtons extends StatelessWidget {
         if (!chequesSearchController.isNew) ...[
           AppButton(
             title: "تعديل",
-            height: 20,
+
             onPressed: () async {
               chequesDetailsController.updateCheques(
                 chequesModel: chequesModel,
@@ -75,15 +74,18 @@ class AddChequeButtons extends StatelessWidget {
             },
             title: chequesDetailsController.isPayed!?"تراجع عن الدفع":"دفع",
             color: Colors.black,
+            width: 150,
             iconData: Icons.paid,
           ),
           if(chequesDetailsController.isPayed!)
           AppButton(
+
             onPressed: () {
 
               chequesDetailsController.launchPayEntryBondWindow(chequesModel, context);
 
             },
+            width: 120,
             title: "سند الدفع",
             iconData: Icons.view_list_outlined,
           ),

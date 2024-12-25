@@ -25,7 +25,7 @@ class DatePicker extends StatelessWidget {
         onTap: () {
           OverlayService.showDialog(
             context: context,
-            height: .6.sh,
+            height: 0.8.sh,
             width: .5.sw,
             title: 'أختر يوم',
             content: Column(
@@ -33,7 +33,8 @@ class DatePicker extends StatelessWidget {
                 Expanded(
                   child: SfDateRangePicker(
                     initialDisplayDate: DateTime.tryParse(initDate ?? ""),
-                    enableMultiView: true,
+                    enableMultiView: false,
+                    headerHeight: 30,
                     backgroundColor: Colors.transparent,
                     headerStyle: const DateRangePickerHeaderStyle(backgroundColor: Colors.transparent),
                     navigationDirection: DateRangePickerNavigationDirection.vertical,

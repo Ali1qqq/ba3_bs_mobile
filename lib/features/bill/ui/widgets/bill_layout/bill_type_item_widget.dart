@@ -16,12 +16,11 @@ class BillTypeItemWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return SizedBox(
         width: 350,
-        height: 100,
+        height: 130,
         child: Stack(
-          clipBehavior: Clip.none,
           children: [
             Container(
-              height: 100 + 35,
+              height: 100 ,
               width: 350,
               padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
               decoration: BoxDecoration(
@@ -86,7 +85,7 @@ class BillTypeItemWidget extends StatelessWidget {
               ),
             ),
             Positioned(
-              bottom: -35 / 2,
+              bottom: 15,
               right: 0,
               left: 0,
               child: Center(

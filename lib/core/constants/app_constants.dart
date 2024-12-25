@@ -370,11 +370,11 @@ abstract class AppConstants {
   static const String chequesAccount2Name = "chequesAccount2Name";
   static const String isPayed = "isPayed";
 
-  static const double bottomWindowWidth = 200;
+  static const double bottomWindowWidth = 170;
   static const double bottomWindowHeight = 40;
 
-  static const double deviceFullWidth = 1680.0;
-  static const double deviceFullHeight = 930.0;
+  static const double deviceFullWidth = 390.0;
+  static const double deviceFullHeight = 850.0;
 
   static const String status = 'status';
   static const String userPassword = 'userPassword';

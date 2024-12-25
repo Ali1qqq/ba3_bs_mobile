@@ -132,6 +132,11 @@ class BillDetailsPlutoController extends IPlutoController<InvoiceRecordModel> {
     final newRows = additionsDiscountsStateManager.getNewRows(count: 2);
     additionsDiscountsStateManager.appendRows(newRows);
   }
+ late BuildContext context;
+
+  setContext(BuildContext context){
+    this.context=context;
+  }
 
   void onMainTableStateManagerChanged(PlutoGridOnChangedEvent event) {
     if (recordsTableStateManager.currentRow == null) return;
@@ -142,20 +147,26 @@ class BillDetailsPlutoController extends IPlutoController<InvoiceRecordModel> {
     final subTotal = _getSubTotal();
     final total = _getTotal();
     final vat = _getVat();
+    final product = _getProduct();
+
+
 
     // Handle updates based on the changed column
-    _handleColumnUpdate(field, quantity, subTotal, total, vat);
+    _handleColumnUpdate(field, quantity, subTotal, total, vat,product );
 
     safeUpdateUI();
   }
 
-  void _handleColumnUpdate(String columnField, int quantity, double subTotal, double total, double vat) {
+  void _handleColumnUpdate(String columnField, int quantity, double subTotal, double total, double vat,String product) {
     if (columnField == AppConstants.invRecSubTotal) {
       _gridService.updateInvoiceValues(subTotal, quantity);
     } else if (columnField == AppConstants.invRecTotal) {
       _gridService.updateInvoiceValuesByTotal(total, quantity);
     } else if (columnField == AppConstants.invRecQuantity && quantity > 0) {
       _gridService.updateInvoiceValuesByQuantity(quantity, subTotal, vat);
+    }else if(columnField==AppConstants.invRecProduct)
+    {
+      _gridService.getProduct(product,recordsTableStateManager,this,context);
     }
     updateAdditionDiscountCell(computeWithVatTotal);
   }
@@ -179,6 +190,10 @@ class BillDetailsPlutoController extends IPlutoController<InvoiceRecordModel> {
     final vatStr = _extractCellValueAsNumber(AppConstants.invRecVat);
     return vatStr.toDouble ?? 0;
   }
+  String _getProduct() {
+    final product =recordsTableStateManager.currentRow!.cells[AppConstants.invRecProduct]?.value?.toString(); ;
+    return product ??'';
+  }
 
   String _extractCellValueAsNumber(String field) {
     final cellValue = recordsTableStateManager.currentRow!.cells[field]?.value?.toString() ?? '';
@@ -192,10 +207,19 @@ class BillDetailsPlutoController extends IPlutoController<InvoiceRecordModel> {
     final materialModel = read<MaterialController>().getMaterialByName(materialName);
     if (materialModel == null) return;
 
-    _handleContextMenu(event, materialModel, context);
+    // _handleContextMenu(event, materialModel, context);
   }
 
-  void _handleContextMenu(PlutoGridOnRowSecondaryTapEvent event, MaterialModel materialModel, BuildContext context) {
+  void onMainTableRowDoubleTap(PlutoGridOnRowDoubleTapEvent event, BuildContext context) {
+    final materialName = event.row.cells[AppConstants.invRecProduct]?.value;
+    if (materialName == null) return;
+
+    final materialModel = read<MaterialController>().getMaterialByName(materialName);
+    if (materialModel == null) return;
+
+    _handleContextMenu(event, materialModel, context);
+  }
+  void _handleContextMenu(PlutoGridOnRowDoubleTapEvent event, MaterialModel materialModel, BuildContext context) {
     final field = event.cell.column.field;
     if (field == AppConstants.invRecSubTotal) {
       _showPriceTypeMenu(event, materialModel, context);
@@ -204,12 +228,12 @@ class BillDetailsPlutoController extends IPlutoController<InvoiceRecordModel> {
     }
   }
 
-  void _showPriceTypeMenu(event, MaterialModel materialModel, BuildContext context) {
+  void _showPriceTypeMenu(PlutoGridOnRowDoubleTapEvent event, MaterialModel materialModel, BuildContext context) {
     _contextMenu.showPriceTypeMenu(
         context: context,
         index: event.rowIdx,
         materialModel: materialModel,
-        tapPosition: event.offset,
+        tapPosition: Offset(1, 1),
         invoiceUtils: _plutoUtils,
         gridService: _gridService);
   }

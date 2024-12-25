@@ -37,7 +37,6 @@ class BondDetailsButtons extends StatelessWidget {
             Obx(() {
               return AppButton(
                   title: 'إضافة',
-                  height: 20,
                   color: bondDetailsController.isBondSaved.value ? Colors.green : Colors.blue.shade700,
                   onPressed: bondDetailsController.isBondSaved.value
                       ? () {}

@@ -104,7 +104,7 @@ class PlutoGridWithAppBar<T> extends StatelessWidget {
             icon: Icon(icon),
           ),
         Padding(
-            padding: const EdgeInsets.fromLTRB(16, 16, 8, 16),
+            padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
             child: Text('عدد العناصر المتأثرة: ${tableSourceModels.length}')),
       ],
     );

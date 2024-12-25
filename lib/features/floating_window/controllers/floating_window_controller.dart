@@ -24,6 +24,11 @@ class FloatingWindowController extends GetxController with CursorUpdateMixin {
     defaultHeightRatio = defaultHeight != null ? defaultHeight / 1.sh : 0.85;
 
     _initializeWindow(defaultHeight: defaultHeight, defaultWidth: defaultWidth);
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.landscapeLeft,
+      DeviceOrientation.landscapeRight,
+
+    ]);
   }
 
   final ResizeManager resizeManager = ResizeManager(edgeSize: 8.0);
@@ -58,8 +63,9 @@ class FloatingWindowController extends GetxController with CursorUpdateMixin {
   late double defaultHeightRatio;
 
   void _initializeWindow({double? defaultWidth, double? defaultHeight}) {
-    const double minWidthRatio = 0.5;
-    const double minHeightRatio = 0.6;
+    const double minWidthRatio = 1;
+    const double minHeightRatio = 1;
+
 
     final double adjustedWidthRatio = defaultWidthRatio < minWidthRatio ? minWidthRatio : defaultWidthRatio;
     final double adjustedHeightRatio = defaultHeightRatio < minHeightRatio ? minHeightRatio : defaultHeightRatio;
@@ -108,8 +114,8 @@ class FloatingWindowController extends GetxController with CursorUpdateMixin {
   }
 
   void _updateMaximizedState(Size newParentSize) {
-    const double minWidthRatio = 0.5;
-    const double minHeightRatio = 0.6;
+    const double minWidthRatio = 1;
+    const double minHeightRatio = 1;
 
     final double adjustedWidthRatio = defaultWidthRatio < minWidthRatio ? minWidthRatio : defaultWidthRatio;
     final double adjustedHeightRatio = defaultHeightRatio < minHeightRatio ? minHeightRatio : defaultHeightRatio;
@@ -136,8 +142,14 @@ class FloatingWindowController extends GetxController with CursorUpdateMixin {
 
   /// Resize to 95% of the parent container
   void maximize() {
-    width = parentSize.value.width * 0.95;
-    height = parentSize.value.height * 0.95;
+
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.landscapeLeft,
+      DeviceOrientation.landscapeRight,
+
+    ]);
+    width = parentSize.value.width ;
+    height = parentSize.value.height;
 
     // Ensure the window stays within bounds
     x = x.clamp(0, parentSize.value.width - width);
@@ -161,6 +173,11 @@ class FloatingWindowController extends GetxController with CursorUpdateMixin {
   void minimize(Offset position) {
     isMinimized = true;
 
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+
+    ]);
     width = bottomWindowWidthRatio * parentSize.value.width; // Width for the minimized container
     height = bottomWindowHeightRatio * parentSize.value.height; // Height for the minimized container
 

@@ -1,10 +1,18 @@
+import 'dart:developer';
+
+import 'package:flutter/cupertino.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pluto_grid/pluto_grid.dart';
 
 import '../../../../core/constants/app_constants.dart';
+import '../../../../core/dialogs/product_selection_dialog_content.dart';
 import '../../../../core/helper/enums/enums.dart';
 import '../../../../core/helper/extensions/getx_controller_extensions.dart';
 import '../../../../core/i_controllers/i_pluto_controller.dart';
 import '../../../accounts/controllers/accounts_controller.dart';
+import '../../../floating_window/services/overlay_service.dart';
+import '../../../materials/controllers/material_controller.dart';
+import '../../../materials/data/models/material_model.dart';
 import '../../data/models/discount_addition_account_model.dart';
 import '../../data/models/invoice_record_model.dart';
 import 'bill_pluto_utils.dart';
@@ -251,6 +259,102 @@ class BillPlutoGridService {
     } else {
       accounts[accountType] = [accountModel];
     }
+  }
+
+  void updateInvoiceValuesByProduct(String productText) {
+
+
+  }
+
+
+  void getProduct(String productText,PlutoGridStateManager stateManager, IPlutoController plutoController,BuildContext context) {
+
+    // Initialize variables
+
+    final productTextController = TextEditingController()..text = productText;
+    final materialController = read<MaterialController>();
+
+    // Search for matching materials
+    var searchedMaterials = materialController.searchOfProductByText(productText);
+    MaterialModel? selectedMaterial;
+
+    if (searchedMaterials.length == 1) {
+      // Single match
+      selectedMaterial = searchedMaterials.first;
+      updateWithSelectedMaterial(selectedMaterial, stateManager, plutoController);
+    } else if (searchedMaterials.isEmpty) {
+      // No matches
+      updateWithSelectedMaterial(null, stateManager, plutoController);
+    } else {
+      // Clear focus from PlutoWithEdite before showing the dialog
+      FocusScope.of(context).unfocus();
+
+      // Multiple matches, show search dialog
+      _showSearchDialog(
+        context: context,
+        productTextController: productTextController,
+        searchedMaterials: searchedMaterials,
+        materialController: materialController,
+        stateManager: stateManager,
+        plutoController: plutoController,
+      );
+    }
+  }
+
+  void _showSearchDialog({
+    required TextEditingController productTextController,
+    required List<MaterialModel> searchedMaterials,
+    required MaterialController materialController,
+    required PlutoGridStateManager stateManager,
+    required IPlutoController plutoController,required BuildContext context
+  }) {
+    OverlayService.showDialog(
+      context: context,
+      height: 1.sh,
+      width: .8.sw,
+      content: ProductSelectionDialogContent(
+        searchedMaterials: searchedMaterials,
+        onRowSelected: (PlutoGridOnSelectedEvent onSelectedEvent) {
+          final materialId = onSelectedEvent.row?.cells['الرقم التعريفي']?.value;
+
+          final selectedMaterial = materialId != null ? materialController.getMaterialById(materialId) : null;
+
+          updateWithSelectedMaterial(selectedMaterial, stateManager, plutoController);
+
+          OverlayService.back();
+        },
+        onSubmitted: (_) {
+          searchedMaterials = materialController.searchOfProductByText(productTextController.text);
+          materialController.update();
+        },
+        productTextController: productTextController,
+      ),
+      onCloseCallback: () {
+        log('Product Selection Dialog Closed.');
+      },
+    );
+  }
+
+  void updateWithSelectedMaterial(
+      MaterialModel? materialModel,
+      PlutoGridStateManager stateManager,
+      IPlutoController plutoController,
+      ) {
+    if (materialModel != null) {
+      _updateRowWithMaterial(materialModel, stateManager);
+      plutoController.moveToNextRow(stateManager, AppConstants.invRecProduct);
+    } else {
+      plutoController.restoreCurrentCell(stateManager);
+    }
+
+    stateManager.notifyListeners();
+    plutoController.update();
+  }
+
+  void _updateRowWithMaterial(MaterialModel materialModel, PlutoGridStateManager stateManager) {
+    updateCellValue(stateManager, AppConstants.invRecProduct, materialModel.matName);
+    updateCellValue(stateManager, AppConstants.invRecSubTotal, materialModel.endUserPrice);
+    updateCellValue(stateManager, AppConstants.invRecQuantity, 1);
   }
 }
 

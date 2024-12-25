@@ -1,4 +1,5 @@
 import 'package:ba3_bs_mobile/core/widgets/app_menu_item.dart';
+import 'package:ba3_bs_mobile/core/widgets/general_app_bar_widget.dart';
 import 'package:ba3_bs_mobile/features/accounts/controllers/accounts_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -14,7 +15,7 @@ class AccountLayout extends StatelessWidget {
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
-        appBar: AppBar(title: const Text('الحسابات')),
+        appBar: generalAppBar(),
         body: Column(
           children: [
             AppMenuItem(

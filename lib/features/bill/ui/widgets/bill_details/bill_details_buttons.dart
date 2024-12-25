@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:ba3_bs_mobile/core/helper/extensions/role_item_type_extension.dart';
 import 'package:ba3_bs_mobile/features/bill/controllers/bill/bill_search_controller.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
 import '../../../../../core/helper/enums/enums.dart';
@@ -32,7 +33,8 @@ class BillDetailsButtons extends StatelessWidget {
   Widget build(BuildContext context) {
     log('isPending ${billSearchController.isPending}');
 
-    return Padding(
+    return Container(
+      width: 1.sw,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Wrap(
         crossAxisAlignment: WrapCrossAlignment.end,
@@ -54,7 +56,6 @@ class BillDetailsButtons extends StatelessWidget {
     return Obx(() {
       return AppButton(
         title: 'إضافة',
-        height: 20,
         width: 100,
         fontSize: 14,
         color: billDetailsController.isBillSaved.value ? Colors.green : Colors.blue.shade700,
@@ -72,7 +73,6 @@ class BillDetailsButtons extends StatelessWidget {
     if (billSearchController.isPending) {
       return AppButton(
         title: 'قبول',
-        height: 20,
         width: 100,
         fontSize: 14,
         onPressed: () async {
@@ -83,7 +83,6 @@ class BillDetailsButtons extends StatelessWidget {
     } else {
       return AppButton(
         title: 'السند',
-        height: 20,
         width: 100,
         fontSize: 14,
         onPressed: () async {
@@ -98,7 +97,6 @@ class BillDetailsButtons extends StatelessWidget {
     return AppButton(
       iconData: Icons.print_outlined,
       title: 'طباعة',
-      height: 20,
       width: 100,
       fontSize: 14,
       onPressed: () async {
@@ -113,8 +111,8 @@ class BillDetailsButtons extends StatelessWidget {
   Widget _buildEInvoiceButton(BuildContext context) {
     return AppButton(
       title: 'E-Invoice',
-      height: 20,
-      width: 100,
+      color: Colors.blue.shade700,
+      width: 110,
       fontSize: 14,
       onPressed: () {
         billDetailsController.showEInvoiceDialog(billModel, context);
@@ -126,7 +124,6 @@ class BillDetailsButtons extends StatelessWidget {
   Widget _buildPdfEmailButton() {
     return AppButton(
       title: 'Pdf-Email',
-      height: 20,
       width: 100,
       fontSize: 14,
       onPressed: () {
@@ -139,7 +136,6 @@ class BillDetailsButtons extends StatelessWidget {
   Widget _buildDeleteButton() {
     return AppButton(
       iconData: Icons.delete_outline,
-      height: 20,
       width: 100,
       fontSize: 14,
       color: Colors.red,

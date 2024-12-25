@@ -1,5 +1,7 @@
 import 'dart:ui';
 
+import 'package:flutter/services.dart';
+
 /// Manages window positions as ratios relative to the parent window dimensions.
 class WindowPositionManager {
   /// Padding for vertical space between windows.
@@ -74,6 +76,11 @@ class WindowPositionManager {
 
   /// Removes a specific window position ratio from the list.
   void removeWindowPosition(Offset position) {
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+
+    ]);
     windowPositionRatios.remove(position);
   }
 }

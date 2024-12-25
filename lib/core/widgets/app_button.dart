@@ -24,32 +24,31 @@ class AppButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ElevatedButton(
-        style: ButtonStyle(
-          backgroundColor: WidgetStatePropertyAll(color),
-          padding: WidgetStateProperty.all(const EdgeInsets.symmetric(horizontal: 12, vertical: 8)),
-          shape: const WidgetStatePropertyAll(
-            RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(5))),
+    return InkWell(
+      onTap:onPressed ,
+      child: Container(
+        padding: EdgeInsets.symmetric(vertical: 5, horizontal: 12),
+        decoration: BoxDecoration(
+            borderRadius: BorderRadius.all(Radius.circular(5)),
+                color: color?? Colors.blue.shade700
+        ),
+        width: width ?? 110,
+        height: height ?? 30,
+        child: Center(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                title,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(fontSize: fontSize ?? 15,color: Colors.white),
+              ),
+              Icon(iconData, size: iconSize ?? 18, color: Colors.white),
+            ],
           ),
         ),
-        onPressed: onPressed,
-        child: SizedBox(
-          width: width ?? 110,
-          height: height ?? 35,
-          child: Center(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  title,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(fontSize: fontSize ?? 15),
-                ),
-                Icon(iconData, size: iconSize ?? 18, color: Colors.white),
-              ],
-            ),
-          ),
-        ));
+      ),
+    );
   }
 }

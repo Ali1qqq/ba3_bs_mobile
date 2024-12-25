@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../constants/app_constants.dart';
+
 class CustomTextFieldWithoutIcon extends StatefulWidget {
   const CustomTextFieldWithoutIcon({
     super.key,
@@ -69,7 +71,7 @@ class _CustomTextFieldWithoutIconState extends State<CustomTextFieldWithoutIcon>
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: widget.height,
+      height: AppConstants.constHeightTextField,
       child: TextFormField(
         maxLines: widget.maxLine,
         onChanged: widget.onChanged,

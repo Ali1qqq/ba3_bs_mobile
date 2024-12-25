@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:ba3_bs_mobile/core/helper/extensions/getx_controller_extensions.dart';
+import 'package:ba3_bs_mobile/core/widgets/app_spacer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -18,11 +19,11 @@ class MainHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
-      spacing:(Platform.isWindows || Platform.isMacOS)? 10:4,
+
       children: [
         SizedBox(
-          height:(Platform.isWindows || Platform.isMacOS)?  0.025.sh:0.035.sh,
-          width: 0.15.sw,
+          height:0.035.sh,
+          width: 0.4.sw,
           child: Row(
             children: [
               Text(
@@ -50,6 +51,7 @@ class MainHeader extends StatelessWidget {
             ],
           ),
         ),
+        VerticalSpace(5),
         GestureDetector(
           onTap: () {
             read<UserManagementController>().userStatus = UserManagementStatus.first;
@@ -57,7 +59,7 @@ class MainHeader extends StatelessWidget {
           },
           child: Container(
             height: (Platform.isWindows || Platform.isMacOS)? 0.05.sh:0.06.sh,
-            width: 0.15.sw,
+            width: 0.4.sw,
             alignment: Alignment.center,
             decoration: BoxDecoration(borderRadius: BorderRadius.circular(5), color: AppColors.blueColor),
             child: const Text(
@@ -70,6 +72,7 @@ class MainHeader extends StatelessWidget {
             ),
           ),
         ),
+        VerticalSpace(5),
       ],
     );
   }

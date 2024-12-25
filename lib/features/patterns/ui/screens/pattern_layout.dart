@@ -11,6 +11,7 @@ import 'package:get/get.dart';
 import '../../../../core/styling/app_colors.dart';
 import '../../../../core/styling/app_text_style.dart';
 import '../../../../core/widgets/app_button.dart';
+import '../../../../core/widgets/general_app_bar_widget.dart';
 
 class PatternLayout extends StatelessWidget {
   const PatternLayout({super.key});
@@ -19,7 +20,7 @@ class PatternLayout extends StatelessWidget {
   Widget build(BuildContext context) => Directionality(
         textDirection: TextDirection.rtl,
         child:  Scaffold(
-          appBar: AppBar(),
+          appBar: generalAppBar(),
           body: Padding(
             padding: const EdgeInsets.all(8.0),
             child: OrganizedWidget(

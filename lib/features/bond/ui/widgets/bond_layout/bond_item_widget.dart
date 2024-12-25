@@ -1,4 +1,3 @@
-
 import 'package:ba3_bs_mobile/core/styling/app_colors.dart';
 import 'package:ba3_bs_mobile/core/styling/app_text_style.dart';
 import 'package:ba3_bs_mobile/core/widgets/app_button.dart';
@@ -14,18 +13,18 @@ class BondItemWidget extends StatelessWidget {
   final VoidCallback onTap;
   final BondType bondType;
 
-
   @override
   Widget build(BuildContext context) {
     return Container(
         padding: EdgeInsets.all(15),
-        width: 67.w,
-        height: 170.h,
+        width: 220.w,
+        height: 150.h,
         alignment: Alignment.center,
         decoration: BoxDecoration(
           // color: Colors.white,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(width: 0.2,
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(
+            width: 0.2,
             color: AppColors.grayColor,
           ),
         ),
@@ -43,8 +42,8 @@ class BondItemWidget extends StatelessWidget {
                 ),
                 Image.asset(
                   bondType.icon,
-                  width: 0.035.sw,
-                  height: 0.035.sh,
+                  width: 0.05.sw,
+                  height: 0.05.sh,
                   // color: index == tabIndex ? AppColors.whiteColor : AppColors.grayColor,
                 ),
               ],
@@ -54,7 +53,13 @@ class BondItemWidget extends StatelessWidget {
             BodyBondLayoutWidget(firstText: "من  ${bondType.from}", secondText: "الى  ${bondType.to}"),
             // BodyBondLayoutWidget(firstText: "العدد الكلي :", secondText: ((bondType.to-bondType.from)+1).toString()),
             Spacer(),
-            AppButton(title: "جديد", onPressed: onTap, iconData: Icons.add,color: Color(int.parse("0xff${bondType.color}")).withAlpha(220),)
+            AppButton(
+              title: "جديد",
+              onPressed: onTap,
+              iconData: Icons.add,
+
+              color: Color(int.parse("0xff${bondType.color}")).withAlpha(220),
+            )
           ],
         ));
   }

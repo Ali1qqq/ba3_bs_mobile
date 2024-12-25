@@ -45,6 +45,7 @@ dependencies:
   pdf: ^3.11.1
   equatable: ^2.0.7
   flutter_riverpod: ^2.6.1
+  flutter_keyboard_visibility: ^6.0.0
 
 
 

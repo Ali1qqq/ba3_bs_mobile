@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/helper/extensions/getx_controller_extensions.dart';
 import '../../../../core/widgets/app_menu_item.dart';
+import '../../../../core/widgets/general_app_bar_widget.dart';
 
 class UserManagementLayout extends StatelessWidget {
   const UserManagementLayout({super.key});
@@ -19,9 +20,7 @@ class UserManagementLayout extends StatelessWidget {
           child: Directionality(
             textDirection: TextDirection.rtl,
             child: Scaffold(
-              appBar: AppBar(
-                title: const Text('الإدارة'),
-              ),
+              appBar: generalAppBar(),
               body: !userManagementController.isAdmin
                   ? const Center(
                       child: Text('غير مصرح لك بالدخول'),

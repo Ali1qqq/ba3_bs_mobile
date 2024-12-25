@@ -109,7 +109,7 @@ class GetProductByEnterAction extends PlutoGridShortcutAction {
   }) {
     OverlayService.showDialog(
       context: context,
-      height: .7.sh,
+      height: 1.sh,
       width: .8.sw,
       content: ProductSelectionDialogContent(
         searchedMaterials: searchedMaterials,

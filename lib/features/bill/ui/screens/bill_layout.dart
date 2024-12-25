@@ -11,6 +11,7 @@ import 'package:get/get.dart';
 
 import '../../../../core/helper/extensions/getx_controller_extensions.dart';
 import '../../../../core/widgets/app_button.dart';
+import '../../../../core/widgets/general_app_bar_widget.dart';
 import '../widgets/bill_layout/bill_layout_app_bar.dart';
 import '../widgets/bill_layout/bill_type_item_widget.dart';
 
@@ -22,7 +23,7 @@ class BillLayout extends StatelessWidget {
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
-          appBar: billLayoutAppBar(),
+          appBar: generalAppBar(),
           body: Padding(
             padding: const EdgeInsets.all(8.0),
             child: SingleChildScrollView(
@@ -36,15 +37,14 @@ class BillLayout extends StatelessWidget {
                 bodyWidget: GetBuilder<AllBillsController>(
                     builder: (controller) => Column(
                           spacing: 10,
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
                             Wrap(
                               spacing: 10,
-                              runSpacing: 30,
+                              runSpacing: 10,
                               alignment: WrapAlignment.center,
-                              crossAxisAlignment: WrapCrossAlignment.start,
-                              children: [
-                                ...controller.billsTypes.map((billTypeModel) => BillTypeItemWidget(
+                              crossAxisAlignment: WrapCrossAlignment.center,
+                              children: controller.billsTypes.map((billTypeModel) => BillTypeItemWidget(
                                       text: billTypeModel.fullName!,
                                       color: Color(billTypeModel.color!),
                                       onTap: () {
@@ -52,8 +52,8 @@ class BillLayout extends StatelessWidget {
                                           ..fetchAllBills()
                                           ..openFloatingBillDetails(context, billTypeModel);
                                       },
-                                    )),
-                              ],
+                                    )).toList(),
+
                             ),
                             VerticalSpace(),
                             Row(
@@ -69,7 +69,7 @@ class BillLayout extends StatelessWidget {
                                       ..navigateToAllBillsScreen();
                                   },
                                   iconData: Icons.view_list_outlined,
-                                  width: max(45.w, 140),
+                                  width: 150.w,
                                   // width: 40.w,
                                 ),
                                 Padding(
@@ -77,6 +77,7 @@ class BillLayout extends StatelessWidget {
                                   child: AppButton(
                                     title: 'عرض الفواتير المعلقة',
                                     fontSize: 13.sp,
+
                                     color: AppColors.grayColor,
                                     onPressed: () {
                                       read<AllBillsController>()
@@ -84,7 +85,7 @@ class BillLayout extends StatelessWidget {
                                         ..navigateToPendingBillsScreen();
                                     },
                                     iconData: Icons.view_list_outlined,
-                                    width: max(45.w, 140),
+                                    width: 170.w,
                                     // width: 40.w,
                                   ),
                                 )

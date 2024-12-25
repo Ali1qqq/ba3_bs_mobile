@@ -5,6 +5,7 @@ import 'package:ba3_bs_mobile/core/widgets/app_button.dart';
 import 'package:ba3_bs_mobile/features/patterns/data/models/bill_type_model.dart';
 import 'package:ba3_bs_mobile/features/patterns/ui/widgets/pattern_layout/body_pattern_widget.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class PatternTypeItemWidget extends StatelessWidget {
   const PatternTypeItemWidget({super.key, required this.onTap, required this.billTypeModel, this.color = Colors.white});
@@ -18,7 +19,7 @@ class PatternTypeItemWidget extends StatelessWidget {
     return SizedBox(
         width: 500,
         child: Container(
-          height: 300,
+          height: 300.h,
 
           padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
           decoration: BoxDecoration(

@@ -20,7 +20,8 @@ class BondDetailsBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
+    return SizedBox(
+      height: 200,
       child: GetBuilder<BondDetailsPlutoController>(
         tag: tag,
         builder: (_) {

@@ -7,6 +7,7 @@ import 'package:get/get.dart';
 
 import '../../../../core/styling/app_colors.dart';
 import '../../../../core/styling/app_text_style.dart';
+import '../../../../core/widgets/general_app_bar_widget.dart';
 import '../widgets/cheques_layout/cheques_type_item_widget.dart';
 
 
@@ -27,7 +28,7 @@ class _ChequeLayoutState extends State<ChequeLayout> {
       textDirection: TextDirection.rtl,
       child: GetBuilder<AllChequesController>(builder: (controller) {
         return Scaffold(
-          appBar: chequesLayoutAppBar(),
+          appBar: generalAppBar(),
           body: Padding(
             padding: const EdgeInsets.all(8.0),
             child: OrganizedWidget(

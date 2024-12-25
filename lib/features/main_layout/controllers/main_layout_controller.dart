@@ -12,6 +12,18 @@ import '../../patterns/ui/screens/pattern_layout.dart';
 import '../../users_management/ui/screens/user_management_layout.dart';
 
 class MainLayoutController extends GetxController {
+
+  final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
+
+
+
+  void openDrawer(){
+    scaffoldKey.currentState?.openDrawer();
+  }
+  void closeDrawer(){
+    scaffoldKey.currentState?.closeDrawer();
+  }
+
   List<({String name, Widget layout, RoleItemType role, String icon, String unSelectedIcon})> appLayouts = [
     (
       name: 'الفواتير',

@@ -12,7 +12,7 @@ class BodyPatternWidget extends StatelessWidget {
 
       children: [
         SizedBox(
-          width: 200,
+          width: 100,
           child: Text(
             firstText,
             style: AppTextStyles.headLineStyle3,
