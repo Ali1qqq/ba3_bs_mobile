@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>API_KEY</key>
+	<string>AIzaSyBXyLX6KNjdLQQmDDd3YCMbwOn5iDsaWjc</string>
+	<key>GCM_SENDER_ID</key>
+	<string>307353344258</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.ba3bsmobile.ba3BsMobile</string>
+	<key>PROJECT_ID</key>
+	<string>ba3-bs</string>
+	<key>NSBluetoothAlwaysUsageDescription</key>
+    <string>Bluetooth access to connect 58mm or 80mm thermal printers</string>
+	<key>STORAGE_BUCKET</key>
+	<string>ba3-bs.firebasestorage.app</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:307353344258:ios:ef75fba2d87be174f78a1b</string>
+</dict>
+</plist>

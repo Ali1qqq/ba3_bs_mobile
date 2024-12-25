@@ -1,0 +1,225 @@
+import 'package:ba3_bs_mobile/core/helper/enums/enums.dart';
+import 'package:ba3_bs_mobile/core/helper/extensions/string_extension.dart';
+import 'package:ba3_bs_mobile/features/accounts/controllers/accounts_controller.dart';
+import 'package:ba3_bs_mobile/features/cheques/data/models/cheques_model.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:get/get.dart';
+
+import '../../../../core/helper/extensions/getx_controller_extensions.dart';
+import '../../../../core/helper/validators/app_validator.dart';
+import '../../../../core/services/firebase/implementations/datasource_repo.dart';
+import '../../../../core/utils/app_ui_utils.dart';
+import '../../../accounts/data/models/account_model.dart';
+import '../../../bond/controllers/entry_bond/entry_bond_controller.dart';
+import '../../service/cheques/cheques_service.dart';
+import 'cheques_search_controller.dart';
+
+class ChequesDetailsController extends GetxController with AppValidator {
+  ChequesDetailsController(
+    this._chequesFirebaseRepo, {
+    required this.chequesSearchController,
+    required this.chequesType,
+  });
+
+  // Repositories
+
+  final DataSourceRepository<ChequesModel> _chequesFirebaseRepo;
+  final ChequesSearchController chequesSearchController;
+
+  // Services
+  late final ChequesService _chequesService;
+
+  final formKey = GlobalKey<FormState>();
+
+  ///controller
+  final TextEditingController chequesNumberController = TextEditingController();
+
+  final TextEditingController chequesNumController = TextEditingController();
+
+  final TextEditingController chequesAmountController = TextEditingController();
+
+  final TextEditingController chequesAccPtrController = TextEditingController();
+
+  final TextEditingController chequesToAccountController = TextEditingController();
+
+  final TextEditingController chequesNoteController = TextEditingController();
+
+  AccountModel? chequesAccPtr, chequesToAccountModel;
+  bool? isPayed;
+
+  EntryBondController get bondController => read<EntryBondController>();
+
+  RxString chequesDate = DateTime.now().toString().split(" ")[0].obs,
+      chequesDueDate = DateTime.now().toString().split(" ")[0].obs;
+  bool isLoading = true;
+  RxBool isChequesSaved = false.obs;
+
+  late ChequesType chequesType;
+
+  void setFirstAccount(AccountModel setAccount) {
+    chequesAccPtr = setAccount;
+    chequesAccPtrController.text = setAccount.accName ?? '';
+  }
+
+  void setTowAccount(AccountModel setAccount) {
+    chequesToAccountModel = setAccount;
+    chequesToAccountController.text = setAccount.accName ?? '';
+  }
+
+  @override
+  void onInit() {
+    super.onInit();
+    _initializeServices();
+  }
+
+  void setIsPayed(bool pay) {
+    isPayed = pay;
+  }
+
+  // Initializer
+  void _initializeServices() {
+    _chequesService = ChequesService();
+  }
+
+  bool validateForm() => formKey.currentState?.validate() ?? false;
+
+  String? validator(String? value, String fieldName) => isFieldValid(value, fieldName);
+
+  void setChequesDate(DateTime newDate) {
+    chequesDate.value = newDate.toString().split(" ")[0];
+    update();
+  }
+
+  void setChequesDueDate(DateTime newDate) {
+    chequesDueDate.value = newDate.toString().split(" ")[0];
+    update();
+  }
+
+  Future<void> deleteCheques(ChequesModel chequesModel, {bool fromChequesById = false}) async {
+    final result = await _chequesFirebaseRepo.delete(chequesModel.chequesGuid!);
+
+    result.fold(
+      (failure) => AppUIUtils.onFailure(failure.message),
+      (success) => _chequesService.handleDeleteSuccess(chequesModel, chequesSearchController, fromChequesById),
+    );
+  }
+
+  Future<void> saveCheques(ChequesType chequesType) async {
+    await _saveOrUpdateCheques(chequesType: chequesType);
+  }
+
+  Future<void> updateCheques({required ChequesType chequesType, required ChequesModel chequesModel}) async {
+    await _saveOrUpdateCheques(chequesType: chequesType, existingChequesModel: chequesModel);
+  }
+
+  Future<void> _saveOrUpdateCheques({required ChequesType chequesType, ChequesModel? existingChequesModel}) async {
+    // Validate the form first
+    if (!validateForm()) return;
+
+    // Create the cheques model from the provided data
+    final updatedChequesModel = _createChequesModelFromChequesData(chequesType, existingChequesModel);
+
+    // Handle null cheques model
+    if (updatedChequesModel == null) {
+      AppUIUtils.onFailure('من فضلك يرجى اضافة الحساب!');
+      return;
+    }
+
+    // Save the cheques to Firestore
+    final result = await _chequesFirebaseRepo.save(updatedChequesModel);
+
+    // Handle the result (success or failure)
+    result.fold(
+      (failure) => AppUIUtils.onFailure(failure.message),
+      (chequesModel) {
+        _chequesService.handleSaveOrUpdateSuccess(
+            chequesModel: chequesModel,
+            chequesSearchController: chequesSearchController,
+            isSave: existingChequesModel == null,
+            chequesDetailsController: this);
+      },
+    );
+  }
+
+  void launchEntryBondWindow(ChequesModel chequesModel, BuildContext context) {
+    if (!validateForm()) return;
+
+    _chequesService.launchChequesEntryBondScreen(
+      chequesModel: chequesModel,
+      context: context,
+    );
+  }
+
+  void launchPayEntryBondWindow(ChequesModel chequesModel, BuildContext context) {
+    if (!validateForm()) return;
+
+    _chequesService.launchChequesPayEntryBondScreen(
+      chequesModel: chequesModel,
+      context: context,
+    );
+  }
+
+  updateIsChequesSaved(bool newValue) {
+    isChequesSaved.value = newValue;
+  }
+
+  ChequesModel? _createChequesModelFromChequesData(ChequesType chequesType, [ChequesModel? chequesModel]) {
+    // Validate customer accounts
+
+    if (!_chequesService.validateAccount(chequesAccPtr) || !_chequesService.validateAccount(chequesToAccountModel)) {
+      return null;
+    }
+
+    // Create and return the cheques model
+    return _chequesService.createChequesModel(
+        isPayed: isPayed!,
+        accPtrName: chequesAccPtr!.accName!,
+        chequesAccount2Name: chequesToAccountModel!.accName!,
+        chequesModel: chequesModel,
+        chequesType: chequesType,
+        chequesAccount2Guid: chequesToAccountModel!.id!,
+        accPtr: chequesAccPtr!.id!,
+        chequesDate: chequesDate.value,
+        chequesDueDate: chequesDueDate.value,
+        chequesNote: chequesNoteController.text,
+        chequesNum: int.parse(chequesNumController.text),
+        chequesVal: double.parse(chequesAmountController.text),
+        chequesTypeGuid: chequesType.typeGuide);
+  }
+
+  initChequesNumberController(int? chequesNumber) {
+    if (chequesNumber != null) {
+      chequesNumberController.text = chequesNumber.toString();
+    } else {
+      chequesNumberController.text = '';
+    }
+  }
+
+  void updateChequesDetailsOnScreen(
+    ChequesModel cheques,
+  ) {
+    setChequesDate(cheques.chequesDate!.toDate!);
+    setChequesDueDate(cheques.chequesDueDate!.toDate!);
+    setIsPayed(cheques.isPayed ?? false);
+    setTowAccount(read<AccountsController>().getAccountModelById(cheques.chequesAccount2Guid)!);
+    setFirstAccount(read<AccountsController>().getAccountModelById(cheques.accPtr) ?? AccountModel());
+    stChequesFormDate(cheques);
+    initChequesNumberController(cheques.chequesNumber);
+  }
+
+  void stChequesFormDate(ChequesModel cheques) {
+    chequesNoteController.text = cheques.chequesNote ?? '';
+    chequesNumController.text = (cheques.chequesNum ?? '').toString();
+    chequesAmountController.text = (cheques.chequesVal ?? '').toString();
+  }
+
+  void savePayCheques(ChequesModel chequesModel) async {
+    setIsPayed(true);
+    _saveOrUpdateCheques(chequesType: chequesType, existingChequesModel: chequesModel);
+  }
+
+  void saveClearPayCheques(ChequesModel chequesModel) {
+    setIsPayed(false);
+    _saveOrUpdateCheques(chequesType: chequesType, existingChequesModel: chequesModel);
+  }
+}
