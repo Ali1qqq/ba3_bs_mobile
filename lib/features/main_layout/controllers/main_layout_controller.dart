@@ -9,71 +9,25 @@ import '../../bond/ui/screens/bond_layout.dart';
 import '../../cheques/ui/screens/cheque_layout.dart';
 import '../../materials/ui/screens/materials_layout.dart';
 import '../../patterns/ui/screens/pattern_layout.dart';
+import '../../user_time/ui/user_time_layout.dart';
 import '../../users_management/ui/screens/user_management_layout.dart';
 
 class MainLayoutController extends GetxController {
+  final RxBool isDrawerOpen = false.obs;
 
-  final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
+  void openDrawer() => isDrawerOpen.value = true;
 
-
-
-  void openDrawer(){
-    scaffoldKey.currentState?.openDrawer();
-  }
-  void closeDrawer(){
-    scaffoldKey.currentState?.closeDrawer();
-  }
+  void closeDrawer() => isDrawerOpen.value = false;
 
   List<({String name, Widget layout, RoleItemType role, String icon, String unSelectedIcon})> appLayouts = [
-    (
-      name: 'الفواتير',
-      layout: const BillLayout(),
-      role: RoleItemType.viewBill,
-      icon: AppAssets.billsIcon,
-      unSelectedIcon: AppAssets.billsUnselectedIcon
-    ),
-    (
-      name: 'أنماط البيع',
-      layout: const PatternLayout(),
-      role: RoleItemType.viewPattern,
-      icon: AppAssets.patternsIcon,
-      unSelectedIcon: AppAssets.patternsUnselectedIcon
-    ),
-    (
-      name: 'المواد',
-      layout: const MaterialLayout(),
-      role: RoleItemType.viewProduct,
-      icon: AppAssets.materialIcon,
-      unSelectedIcon: AppAssets.materialUnselectedIcon
-    ),
-    (
-      name: 'الحسابات',
-      layout: const AccountLayout(),
-      role: RoleItemType.viewAccount,
-      icon: AppAssets.accountsIcon,
-      unSelectedIcon: AppAssets.accountsUnselectedIcon
-    ),
-    (
-      name: 'السندات',
-      layout: const BondLayout(),
-      role: RoleItemType.viewBond,
-      icon: AppAssets.bondsIcon,
-      unSelectedIcon: AppAssets.bondsUnselectedIcon
-    ),
-    (
-      name: 'الشيكات',
-      layout: const ChequeLayout(),
-      role: RoleItemType.viewCheques,
-      icon: AppAssets.chequesIcon,
-      unSelectedIcon: AppAssets.chequesUnselectedIcon
-    ),
-    (
-      name: 'إدارة المستخدمين',
-      layout: const UserManagementLayout(),
-      role: RoleItemType.viewUserManagement,
-      icon: AppAssets.usersIcon,
-      unSelectedIcon: AppAssets.usersUnselectedIcon
-    ),
+    (name: 'الفواتير', layout: const BillLayout(), role: RoleItemType.viewBill, icon: AppAssets.billsIcon, unSelectedIcon: AppAssets.billsUnselectedIcon),
+    (name: 'أنماط البيع', layout: const PatternLayout(), role: RoleItemType.viewPattern, icon: AppAssets.patternsIcon, unSelectedIcon: AppAssets.patternsUnselectedIcon),
+    (name: 'المواد', layout: const MaterialLayout(), role: RoleItemType.viewProduct, icon: AppAssets.materialIcon, unSelectedIcon: AppAssets.materialUnselectedIcon),
+    (name: 'الحسابات', layout: const AccountLayout(), role: RoleItemType.viewAccount, icon: AppAssets.accountsIcon, unSelectedIcon: AppAssets.accountsUnselectedIcon),
+    (name: 'السندات', layout: const BondLayout(), role: RoleItemType.viewBond, icon: AppAssets.bondsIcon, unSelectedIcon: AppAssets.bondsUnselectedIcon),
+    (name: 'الشيكات', layout: const ChequeLayout(), role: RoleItemType.viewCheques, icon: AppAssets.chequesIcon, unSelectedIcon: AppAssets.chequesUnselectedIcon),
+    (name: 'إدارة المستخدمين', layout: const UserManagementLayout(), role: RoleItemType.viewUserManagement, icon: AppAssets.usersIcon, unSelectedIcon: AppAssets.usersUnselectedIcon),
+    (name: 'الدوام', layout: const UserTimeLayout(), role: RoleItemType.viewUserManagement, icon: AppAssets.usersIcon, unSelectedIcon: AppAssets.usersUnselectedIcon),
   ];
 
   PageController pageController = PageController();

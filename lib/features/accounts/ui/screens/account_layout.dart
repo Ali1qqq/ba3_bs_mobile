@@ -14,9 +14,7 @@ class AccountLayout extends StatelessWidget {
   Widget build(BuildContext context) {
     return Directionality(
       textDirection: TextDirection.rtl,
-      child: Scaffold(
-        appBar: generalAppBar(),
-        body: Column(
+      child:  Column(
           children: [
             AppMenuItem(
               text: 'معاينة الحسابات',
@@ -35,7 +33,7 @@ class AccountLayout extends StatelessWidget {
             ),
           ],
         ),
-      ),
+
     );
   }
 }

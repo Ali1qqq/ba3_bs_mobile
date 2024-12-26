@@ -46,6 +46,7 @@ dependencies:
   equatable: ^2.0.7
   flutter_riverpod: ^2.6.1
   flutter_keyboard_visibility: ^6.0.0
+  shared_preferences: ^2.3.4
 
 
 

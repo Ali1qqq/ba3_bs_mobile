@@ -16,41 +16,43 @@ class RightMainWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: Colors.white,
-
-      padding: const EdgeInsets.symmetric(horizontal: 25.0),
-      child: Column(
-        spacing: 10,
-        children: [
-          SizedBox(
-            height: 0.15.sh,
-            width: 0.4.sw,
-            child: Image.asset(AppAssets.logo),
-          ),
-          Expanded(
-            child: SizedBox(
-            
+    return Drawer(
+      child: Container(
+        color: Colors.white,
+      
+        padding: const EdgeInsets.symmetric(horizontal: 25.0),
+        child: Column(
+          spacing: 10,
+          children: [
+            SizedBox(
+              height: 0.15.sh,
               width: 0.4.sw,
-              child: ListView.separated(
-                padding: EdgeInsets.zero,
-                itemCount: mainController.appLayouts.length,
-                separatorBuilder: (context, index) => const VerticalSpace(),
-                itemBuilder: (context, index) => DrawerListTile(
-                  index: index,
-                  tabIndex: mainController.tabIndex,
-                  title: mainController.appLayouts[index].name,
-                  icon: mainController.appLayouts[index].icon,
-                  unSelectedIcon: mainController.appLayouts[index].unSelectedIcon,
-                  onTap: () {
-                    mainController.setIndex = index;
-                  },
+              child: Image.asset(AppAssets.logo),
+            ),
+            Expanded(
+              child: SizedBox(
+              
+                width: 0.4.sw,
+                child: ListView.separated(
+                  padding: EdgeInsets.zero,
+                  itemCount: mainController.appLayouts.length,
+                  separatorBuilder: (context, index) => const VerticalSpace(),
+                  itemBuilder: (context, index) => DrawerListTile(
+                    index: index,
+                    tabIndex: mainController.tabIndex,
+                    title: mainController.appLayouts[index].name,
+                    icon: mainController.appLayouts[index].icon,
+                    unSelectedIcon: mainController.appLayouts[index].unSelectedIcon,
+                    onTap: () {
+                      mainController.setIndex = index;
+                    },
+                  ),
                 ),
               ),
             ),
-          ),
-          const MainHeader(),
-        ],
+            const MainHeader(),
+          ],
+        ),
       ),
     );
   }

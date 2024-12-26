@@ -15,19 +15,16 @@ class MainLayout extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (!kIsWeb && (Platform.isWindows || Platform.isMacOS)) {
-      Get.put(WindowCloseController());
-    }
     return SafeArea(
       child: GetBuilder<MainLayoutController>(builder: (mainController) {
         return Directionality(
           textDirection: TextDirection.rtl,
           child: Scaffold(
-            key: mainController.scaffoldKey,
-            drawer:    RightMainWidget(mainController: mainController),
-   //         drawer:    RightMainWidget(mainController: mainController),
+            appBar: AppBar(),
+            drawer: RightMainWidget(mainController: mainController),
+            //         drawer:    RightMainWidget(mainController: mainController),
 
-            backgroundColor: AppColors.whiteColor,
+            backgroundColor: AppColors.backGroundColor,
             body: LeftMainWidget(mainController: mainController),
           ),
         );

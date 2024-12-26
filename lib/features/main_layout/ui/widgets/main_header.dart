@@ -54,8 +54,7 @@ class MainHeader extends StatelessWidget {
         VerticalSpace(5),
         GestureDetector(
           onTap: () {
-            read<UserManagementController>().userStatus = UserManagementStatus.first;
-            Get.offAllNamed(AppRoutes.loginScreen);
+         read<UserManagementController>().logOut();
           },
           child: Container(
             height: (Platform.isWindows || Platform.isMacOS)? 0.05.sh:0.06.sh,

@@ -184,7 +184,7 @@ enum BondType {
     color: "6D7DC2",
   );
 
-  final int from, to, taxType ;
+  final int from, to, taxType;
 
   final String label;
   final String color;
@@ -300,6 +300,23 @@ enum BondItemType {
     return BondItemType.values.firstWhere(
       (type) => type.label == label,
       orElse: () => throw ArgumentError('No matching BondItemType for label: $label'),
+    );
+  }
+}
+
+enum TimeType {
+  logIn('دخول'),
+  logout('خروج');
+
+  final String label;
+
+  const TimeType(this.label);
+
+  // Factory constructor with error handling for unmatched labels
+  factory TimeType.byLabel(String label) {
+    return TimeType.values.firstWhere(
+      (type) => type.label == label,
+      orElse: () => throw ArgumentError('No matching TimeType for label: $label'),
     );
   }
 }

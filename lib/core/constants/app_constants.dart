@@ -18,6 +18,8 @@ abstract class AppConstants {
   static const minMobileTarget = 1000;
   static const minOtherTarget = 1000;
 
+
+
   ////////////--------------------------------------------------
   static String changesCollection = "$dataName-Changes";
   static const recordCollection = 'Record';
@@ -378,4 +380,12 @@ abstract class AppConstants {
 
   static const String status = 'status';
   static const String userPassword = 'userPassword';
+
+
+
+
+  static const String userIdKey = 'userIdKey';
+
+
+
 }

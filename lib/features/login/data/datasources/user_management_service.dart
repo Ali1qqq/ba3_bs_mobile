@@ -113,7 +113,7 @@ class UserManagementService {
   Future<void> logLogoutTime(String? userId) {
     return _firestore.collection(AppConstants.usersCollection).doc(userId).update({
       "logOutDateList": FieldValue.arrayUnion([Timestamp.now().toDate()]),
-      "userStatus": AppConstants.userStatusOnline,
+      "userStatus": AppConstants.userStatusAway,
     });
   }
 }

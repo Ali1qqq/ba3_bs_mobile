@@ -22,9 +22,7 @@ class BillLayout extends StatelessWidget {
   Widget build(BuildContext context) {
     return Directionality(
       textDirection: TextDirection.rtl,
-      child: Scaffold(
-          appBar: generalAppBar(),
-          body: Padding(
+      child:  Container(
             padding: const EdgeInsets.all(8.0),
             child: SingleChildScrollView(
               child: OrganizedWidget(
@@ -95,7 +93,7 @@ class BillLayout extends StatelessWidget {
                         )),
               ),
             ),
-          )),
+          ),
     );
   }
 }

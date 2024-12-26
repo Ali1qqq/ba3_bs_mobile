@@ -6,10 +6,11 @@ import 'package:ba3_bs_mobile/features/users_management/services/role_service.da
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../../../core/helper/enums/enums.dart';
+import '../../../core/helper/extensions/getx_controller_extensions.dart';
 import '../../../core/router/app_routes.dart';
 import '../../../core/services/firebase/implementations/datasource_repo.dart';
 import '../../../core/services/firebase/implementations/filterable_data_source_repo.dart';
+import '../../../core/services/get_x/shared_preferences_service.dart';
 import '../../../core/utils/app_ui_utils.dart';
 import '../../login/data/repositories/user_repo.dart';
 import '../data/models/role_model.dart';
@@ -23,6 +24,8 @@ class UserManagementController extends GetxController with AppNavigator {
   final DataSourceRepository<RoleModel> _rolesFirebaseRepo;
 
   final FilterableDataSourceRepository<UserModel> _usersFirebaseRepo;
+
+  final prefsService = read<SharedPreferencesService>();
 
   UserManagementController(this._userRepository, this._rolesFirebaseRepo, this._usersFirebaseRepo);
 
@@ -41,7 +44,6 @@ class UserManagementController extends GetxController with AppNavigator {
 
   UserModel? loggedInUserModel;
   UserModel? selectedUserModel;
-  UserManagementStatus? userStatus;
 
   TextEditingController loginPasswordController = TextEditingController();
   TextEditingController loginNameController = TextEditingController();
@@ -71,12 +73,10 @@ class UserManagementController extends GetxController with AppNavigator {
   bool hasPermission(RoleItemType roleItemType) => _roleService.hasPermission(roleItemType);
 
   // Check if all roles are selected
-  bool areAllRolesSelected() =>
-      RoleItemType.values.every((type) => roleFormHandler.rolesMap[type]?.length == RoleItem.values.length);
+  bool areAllRolesSelected() => RoleItemType.values.every((type) => roleFormHandler.rolesMap[type]?.length == RoleItem.values.length);
 
   // Check if all roles are selected for a specific RoleItemType
-  bool areAllRolesSelectedForType(RoleItemType type) =>
-      roleFormHandler.rolesMap[type]?.length == RoleItem.values.length;
+  bool areAllRolesSelectedForType(RoleItemType type) => roleFormHandler.rolesMap[type]?.length == RoleItem.values.length;
 
   // Select all roles
   void selectAllRoles() {
@@ -134,6 +134,20 @@ class UserManagementController extends GetxController with AppNavigator {
     update();
   }
 
+  // Fetch roles using the repository
+  Future<void> getUserById(String userId) async {
+    final result = await _usersFirebaseRepo.getById(userId);
+    result.fold(
+      (failure) => AppUIUtils.onFailure(failure.message),
+      (fetchedUser) => _handelGetUserByIdSuccess(fetchedUser),
+    );
+  }
+
+  _handelGetUserByIdSuccess(UserModel userModel) {
+    loggedInUserModel = userModel;
+    offAll(AppRoutes.mainLayout);
+  }
+
   void checkUserStatus() async {
     final loginName = loginNameController.text.trim();
     final loginPassword = loginPasswordController.text.trim();
@@ -157,8 +171,6 @@ class UserManagementController extends GetxController with AppNavigator {
       return;
     }
 
-    if (userStatus == UserManagementStatus.login) return;
-
     loggedInUserModel = fetchedUsers.first;
 
     final isLoginNameMatch = loggedInUserModel?.userName?.trim() == loginNameController.text;
@@ -166,12 +178,12 @@ class UserManagementController extends GetxController with AppNavigator {
       AppUIUtils.onFailure('أسم المستخدم غير صحيح!');
       return;
     }
+    prefsService.setString(AppConstants.userIdKey, loggedInUserModel?.userId ?? '');
     offAll(AppRoutes.mainLayout);
   }
 
   Future<void> _checkUserByPin() async {
-    final result =
-        await _usersFirebaseRepo.fetchWhere(field: AppConstants.userPassword, value: loginPasswordController.text);
+    final result = await _usersFirebaseRepo.fetchWhere(field: AppConstants.userPassword, value: loginPasswordController.text);
 
     result.fold(
       (failure) => AppUIUtils.onFailure(failure.message),
@@ -179,16 +191,11 @@ class UserManagementController extends GetxController with AppNavigator {
     );
   }
 
-  void navigateToLogin([bool waitUntilFirstFrameRasterized = false]) {
-    if (waitUntilFirstFrameRasterized) {
-      WidgetsFlutterBinding.ensureInitialized().waitUntilFirstFrameRasterized.then((_) {
-        userStatus = UserManagementStatus.first;
-
-        offAll(AppRoutes.loginScreen);
-      });
-    } else {
-      userStatus = UserManagementStatus.first;
+  void navigateToLogin() async {
+    if (prefsService.getString(AppConstants.userIdKey) == null) {
       offAll(AppRoutes.loginScreen);
+    } else {
+      getUserById(prefsService.getString(AppConstants.userIdKey)!);
     }
   }
 
@@ -207,7 +214,6 @@ class UserManagementController extends GetxController with AppNavigator {
   void navigateToLAllPermissionsScreen() => to(AppRoutes.showAllPermissionsScreen);
 
   Future<void> _handleNoMatch() async {
-    userStatus = null; // Setting userStatus to null in case of no match
     if (Get.currentRoute != AppRoutes.loginScreen) {
       navigateToLogin();
     } else {
@@ -319,5 +325,10 @@ class UserManagementController extends GetxController with AppNavigator {
     userFormHandler.dispose();
     roleFormHandler.dispose();
     super.onClose();
+  }
+
+  void logOut() {
+    prefsService.remove(AppConstants.userIdKey);
+    navigateToLogin();
   }
 }

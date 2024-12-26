@@ -38,11 +38,13 @@ import '../../features/patterns/controllers/pattern_controller.dart';
 import '../../features/patterns/data/datasources/patterns_data_source.dart';
 import '../../features/patterns/data/models/bill_type_model.dart';
 import '../../features/pluto/controllers/pluto_controller.dart';
+import '../../features/user_time/controller/user_time_controller.dart';
 import '../../features/users_management/controllers/user_management_controller.dart';
 import '../../features/users_management/data/datasources/users_data_source.dart';
 import '../network/api_constants.dart';
 import '../services/firebase/implementations/datasource_repo.dart';
 import '../services/firebase/implementations/firestore_service.dart';
+import '../services/get_x/shared_preferences_service.dart';
 import '../services/json_file_operations/implementations/export/json_export_repo.dart';
 import '../services/translation/implementations/dio_client.dart';
 import '../services/translation/implementations/google_translation.dart';
@@ -51,7 +53,10 @@ import '../services/translation/interfaces/i_api_client.dart';
 
 class AppBindings extends Bindings {
   @override
-  void dependencies() {
+  void dependencies() async{
+
+
+
     // Initialize RemoteApiService instance
     IDatabaseService<Map<String, dynamic>> fireStoreService = FireStoreService();
 
@@ -103,6 +108,10 @@ class AppBindings extends Bindings {
 
     final TranslationRepository translationRepo = TranslationRepository(googleTranslation);
 
+    await Get.putAsync(() => SharedPreferencesService().init());
+    Get.put(UserManagementController(userManagementRepo, rolesFirebaseRepo, usersFirebaseRepo), permanent: true);
+    Get.put(UserTimeController(userManagementRepo), permanent: true);
+
     Get.lazyPut(() => translationRepo, fenix: true);
 
     Get.lazyPut(() => billsFirebaseRepo, fenix: true);
@@ -117,7 +126,6 @@ class AppBindings extends Bindings {
     Get.lazyPut(() => PlutoController(), fenix: true);
     Get.lazyPut(() => EntryBondController(entryBondsFirebaseRepo, accountsStatementsRepo), fenix: true);
 
-    Get.put(UserManagementController(userManagementRepo, rolesFirebaseRepo, usersFirebaseRepo), permanent: true);
 
     Get.lazyPut(() => PatternController(patternsFirebaseRepo), fenix: true);
 
@@ -132,8 +140,11 @@ class AppBindings extends Bindings {
     Get.lazyPut(() => AccountsController(AccountsRepository()), fenix: true);
     Get.lazyPut(() => SellerController(SellersRepository()), fenix: true);
 
+
+
+
     Get.lazyPut(() => PrintingController(translationRepo), fenix: true);
-    Get.put(MainLayoutController());
+    Get.lazyPut(() =>MainLayoutController(), fenix: true);
     Get.lazyPut(() => BillSearchController(), fenix: true);
     Get.lazyPut(() => AccountStatementController(accountsStatementsRepo), fenix: true);
   }

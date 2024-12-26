@@ -15,9 +15,7 @@ class BondLayout extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: generalAppBar(),
-      body: GetBuilder<AllBondsController>(builder: (controller) {
+    return  GetBuilder<AllBondsController>(builder: (controller) {
         return Container(
           padding: EdgeInsets.all(8),
           width: 1.sw,
@@ -49,7 +47,7 @@ class BondLayout extends StatelessWidget {
             ),
           ),
         );
-      }),
+      }
     );
   }
 }

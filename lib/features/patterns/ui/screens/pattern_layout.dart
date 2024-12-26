@@ -19,9 +19,7 @@ class PatternLayout extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Directionality(
         textDirection: TextDirection.rtl,
-        child:  Scaffold(
-          appBar: generalAppBar(),
-          body: Padding(
+        child:  Padding(
             padding: const EdgeInsets.all(8.0),
             child: OrganizedWidget(
               titleWidget: Align(
@@ -73,7 +71,7 @@ class PatternLayout extends StatelessWidget {
                   )),
             ),
           ),
-        ),
+
 
       );
 }

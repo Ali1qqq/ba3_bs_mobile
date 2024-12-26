@@ -19,9 +19,7 @@ class UserManagementLayout extends StatelessWidget {
         Expanded(
           child: Directionality(
             textDirection: TextDirection.rtl,
-            child: Scaffold(
-              appBar: generalAppBar(),
-              body: !userManagementController.isAdmin
+            child: !userManagementController.isAdmin
                   ? const Center(
                       child: Text('غير مصرح لك بالدخول'),
                     )
@@ -41,7 +39,7 @@ class UserManagementLayout extends StatelessWidget {
                     ),
             ),
           ),
-        ),
+
       ],
     );
   }

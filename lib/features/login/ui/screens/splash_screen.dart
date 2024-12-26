@@ -8,7 +8,12 @@ class SplashScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    _checkUserStatus();
+
+
+    WidgetsFlutterBinding.ensureInitialized().waitUntilFirstFrameRasterized.then((value) {
+      _checkUserStatus();
+    },);
+
 
     return const Scaffold(
       body: Center(
@@ -18,6 +23,6 @@ class SplashScreen extends StatelessWidget {
   }
 
   void _checkUserStatus() {
-    read<UserManagementController>().navigateToLogin(true);
+    read<UserManagementController>().navigateToLogin();
   }
 }

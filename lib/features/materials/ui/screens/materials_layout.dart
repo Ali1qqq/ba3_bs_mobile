@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/helper/extensions/getx_controller_extensions.dart';
 import '../../../../core/widgets/app_menu_item.dart';
-import '../../../../core/widgets/general_app_bar_widget.dart';
 
 class MaterialLayout extends StatelessWidget {
   const MaterialLayout({super.key});
@@ -12,9 +11,7 @@ class MaterialLayout extends StatelessWidget {
   Widget build(BuildContext context) {
     return Directionality(
       textDirection: TextDirection.rtl,
-      child: Scaffold(
-        appBar: generalAppBar(),
-        body: Column(
+      child: Column(
           children: [
             AppMenuItem(
                 text: "معاينة المواد",
@@ -25,7 +22,7 @@ class MaterialLayout extends StatelessWidget {
                 }),
           ],
         ),
-      ),
+
     );
   }
 }

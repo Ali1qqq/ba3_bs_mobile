@@ -27,9 +27,7 @@ class _ChequeLayoutState extends State<ChequeLayout> {
     return Directionality(
       textDirection: TextDirection.rtl,
       child: GetBuilder<AllChequesController>(builder: (controller) {
-        return Scaffold(
-          appBar: generalAppBar(),
-          body: Padding(
+        return  Padding(
             padding: const EdgeInsets.all(8.0),
             child: OrganizedWidget(
               titleWidget: Align(
@@ -59,7 +57,7 @@ class _ChequeLayoutState extends State<ChequeLayout> {
                 ],
               ),
             ),
-          ),
+
         );
       }),
     );
