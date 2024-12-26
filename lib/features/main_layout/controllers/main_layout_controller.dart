@@ -20,14 +20,62 @@ class MainLayoutController extends GetxController {
   void closeDrawer() => isDrawerOpen.value = false;
 
   List<({String name, Widget layout, RoleItemType role, String icon, String unSelectedIcon})> appLayouts = [
-    (name: 'الفواتير', layout: const BillLayout(), role: RoleItemType.viewBill, icon: AppAssets.billsIcon, unSelectedIcon: AppAssets.billsUnselectedIcon),
-    (name: 'أنماط البيع', layout: const PatternLayout(), role: RoleItemType.viewPattern, icon: AppAssets.patternsIcon, unSelectedIcon: AppAssets.patternsUnselectedIcon),
-    (name: 'المواد', layout: const MaterialLayout(), role: RoleItemType.viewProduct, icon: AppAssets.materialIcon, unSelectedIcon: AppAssets.materialUnselectedIcon),
-    (name: 'الحسابات', layout: const AccountLayout(), role: RoleItemType.viewAccount, icon: AppAssets.accountsIcon, unSelectedIcon: AppAssets.accountsUnselectedIcon),
-    (name: 'السندات', layout: const BondLayout(), role: RoleItemType.viewBond, icon: AppAssets.bondsIcon, unSelectedIcon: AppAssets.bondsUnselectedIcon),
-    (name: 'الشيكات', layout: const ChequeLayout(), role: RoleItemType.viewCheques, icon: AppAssets.chequesIcon, unSelectedIcon: AppAssets.chequesUnselectedIcon),
-    (name: 'إدارة المستخدمين', layout: const UserManagementLayout(), role: RoleItemType.viewUserManagement, icon: AppAssets.usersIcon, unSelectedIcon: AppAssets.usersUnselectedIcon),
-    (name: 'الدوام', layout: const UserTimeLayout(), role: RoleItemType.viewUserManagement, icon: AppAssets.usersIcon, unSelectedIcon: AppAssets.usersUnselectedIcon),
+    (
+      name: 'الفواتير',
+      layout: const BillLayout(),
+      role: RoleItemType.viewBill,
+      icon: AppAssets.billsIcon,
+      unSelectedIcon: AppAssets.billsUnselectedIcon
+    ),
+    (
+      name: 'انماط الفواتير',
+      layout: const PatternLayout(),
+      role: RoleItemType.viewPattern,
+      icon: AppAssets.patternsIcon,
+      unSelectedIcon: AppAssets.patternsUnselectedIcon
+    ),
+    (
+      name: 'المواد',
+      layout: const MaterialLayout(),
+      role: RoleItemType.viewProduct,
+      icon: AppAssets.materialIcon,
+      unSelectedIcon: AppAssets.materialUnselectedIcon
+    ),
+    (
+      name: 'الحسابات',
+      layout: const AccountLayout(),
+      role: RoleItemType.viewAccount,
+      icon: AppAssets.accountsIcon,
+      unSelectedIcon: AppAssets.accountsUnselectedIcon
+    ),
+    (
+      name: 'السندات',
+      layout: const BondLayout(),
+      role: RoleItemType.viewBond,
+      icon: AppAssets.bondsIcon,
+      unSelectedIcon: AppAssets.bondsUnselectedIcon
+    ),
+    (
+      name: 'الشيكات',
+      layout: const ChequeLayout(),
+      role: RoleItemType.viewCheques,
+      icon: AppAssets.chequesIcon,
+      unSelectedIcon: AppAssets.chequesUnselectedIcon
+    ),
+    (
+      name: 'إدارة المستخدمين',
+      layout: const UserManagementLayout(),
+      role: RoleItemType.viewUserManagement,
+      icon: AppAssets.usersIcon,
+      unSelectedIcon: AppAssets.usersUnselectedIcon
+    ),
+    (
+      name: 'الدوام',
+      layout: const UserTimeLayout(),
+      role: RoleItemType.viewUserManagement,
+      icon: AppAssets.usersIcon,
+      unSelectedIcon: AppAssets.usersUnselectedIcon
+    ),
   ];
 
   PageController pageController = PageController();

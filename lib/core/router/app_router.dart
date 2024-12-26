@@ -5,7 +5,6 @@ import 'package:ba3_bs_mobile/features/bill/ui/screens/pending_bills_screen.dart
 import 'package:ba3_bs_mobile/features/login/ui/screens/splash_screen.dart';
 import 'package:ba3_bs_mobile/features/main_layout/ui/screens/main_layout.dart';
 import 'package:ba3_bs_mobile/features/materials/ui/screens/all_materials_screen.dart';
-import 'package:ba3_bs_mobile/features/patterns/ui/screens/add_pattern_page.dart';
 import 'package:ba3_bs_mobile/features/patterns/ui/screens/pattern_layout.dart';
 import 'package:ba3_bs_mobile/features/users_management/ui/screens/role_management/add_role_screen.dart';
 import 'package:ba3_bs_mobile/features/users_management/ui/screens/user_management/add_user_screen.dart';
@@ -16,6 +15,7 @@ import '../../features/bill/ui/screens/bill_details_screen.dart';
 import '../../features/bond/ui/screens/bond_details_screen.dart';
 import '../../features/cheques/ui/screens/all_cheques_view.dart';
 import '../../features/login/ui/screens/login_screen.dart';
+import '../../features/patterns/ui/screens/add_pattern_screen.dart';
 import '../../features/patterns/ui/screens/all_pattern_screen.dart';
 import '../../features/users_management/ui/screens/role_management/all_permissions_screen.dart';
 import '../bindings/middlewares.dart';
@@ -26,7 +26,7 @@ List<GetPage<dynamic>>? appRouter = [
   GetPage(name: AppRoutes.mainLayout, page: () => const MainLayout()),
   GetPage(name: AppRoutes.loginScreen, page: () => const LoginScreen()),
   GetPage(name: AppRoutes.patternsScreen, page: () => const PatternLayout()),
-  GetPage(name: AppRoutes.addPatternsScreen, page: () => const AddPatternPage()),
+  GetPage(name: AppRoutes.addPatternsScreen, page: () => const AddPatternScreen()),
   GetPage(name: AppRoutes.showAllPatternsScreen, page: () => const AllPatternScreen()),
   GetPage(name: AppRoutes.showAllMaterialsScreen, page: () => const AllMaterialsScreen()),
   GetPage(name: AppRoutes.showAllAccountsScreen, page: () => const AllAccountScreen()),

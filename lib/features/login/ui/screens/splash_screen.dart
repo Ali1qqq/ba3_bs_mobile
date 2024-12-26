@@ -17,7 +17,7 @@ class SplashScreen extends StatelessWidget {
 
     return const Scaffold(
       body: Center(
-        child: Text("يتم تسجيل الدخول"), // "Logging in" in Arabic
+        child: Text('يتم تسجيل الدخول'),
       ),
     );
   }

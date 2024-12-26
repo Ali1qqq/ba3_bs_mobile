@@ -50,9 +50,7 @@ class AccountsController extends GetxController with AppNavigator {
     to(AppRoutes.showAllAccountsScreen);
   }
 
-  void navigateToAccountDetailsScreen(String accountId) {
-    to(AppRoutes.showAccountDetailsScreen, arguments: accountId);
-  }
+  void navigateToAccountDetailsScreen(String accountId) {}
 
   List<AccountModel> searchAccountsByNameOrCode(text) {
     if (accounts.isEmpty) {
@@ -118,6 +116,10 @@ class AccountsController extends GetxController with AppNavigator {
     if (accountId == null || accountId.isEmpty) return [];
 
     return accounts.where((account) => account.accParentGuid == accountId).map((child) => child.accName ?? '').toList();
+  }
+
+  set setSelectedAccounts(Map<Account, AccountModel>? accounts) {
+    selectedAccounts = accounts ?? {};
   }
 
   void openAccountSelectionDialog({

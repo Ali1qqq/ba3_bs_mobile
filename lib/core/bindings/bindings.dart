@@ -62,7 +62,6 @@ class AppBindings extends Bindings {
     final DataSourceRepository<BillTypeModel> patternsFirebaseRepo = DataSourceRepository(
       PatternsDataSource(databaseService: fireStoreService),
     );
-
     // Instantiate InvoicesDataSource and FirebaseRepositoryConcrete of BillModel
     final FilterableDataSourceRepository<BillModel> billsFirebaseRepo = FilterableDataSourceRepository(BillsDataSource(databaseService: fireStoreService));
 

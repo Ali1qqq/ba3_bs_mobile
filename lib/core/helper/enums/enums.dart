@@ -8,7 +8,8 @@ enum UserManagementStatus { first, login, block, auth }
 
 enum RecordType { bond, invoice, product, account, pattern, undefined, store, cheque, costCenter, sellers, user, role, task, inventory, entryBond, accCustomer, warrantyInv, changes, fProduct }
 
-enum InvoiceType {
+
+enum BillPatternType {
   purchase(label: 'شراء', value: 'purchase'),
   sales(label: 'مبيع', value: 'sales'),
   buyReturn(label: 'مرتجع شراء', value: 'purchaseReturn'),
@@ -19,10 +20,18 @@ enum InvoiceType {
   final String label;
   final String value;
 
-  const InvoiceType({
+  const BillPatternType({
     required this.label,
     required this.value,
   });
+
+  // Factory constructor with error handling for unmatched labels
+  factory BillPatternType.byValue(String label) {
+    return BillPatternType.values.firstWhere(
+          (type) => type.value == label,
+      orElse: () => throw ArgumentError('No matching BillPatternType for label: $label'),
+    );
+  }
 }
 
 enum RequestState { initial, loading, error, success }

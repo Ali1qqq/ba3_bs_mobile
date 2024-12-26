@@ -7,8 +7,8 @@ import '../widgets/add_pattern/add_pattern_bottom_buttons.dart';
 import '../widgets/add_pattern/add_pattern_form.dart';
 import '../widgets/add_pattern/colors_picker.dart';
 
-class AddPatternPage extends StatelessWidget {
-  const AddPatternPage({super.key});
+class AddPatternScreen extends StatelessWidget {
+  const AddPatternScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -27,11 +27,11 @@ class AddPatternPage extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(horizontal: 15),
                     child: ListView(
                       children: [
-                        const VerticalSpace(20),
+                        const VerticalSpace(10),
                         AddPatternForm(patternController: patternController),
-                        const VerticalSpace(40),
+                        const VerticalSpace(20),
                         ColorsPicker(patternController: patternController),
-                        const VerticalSpace(40),
+                        const VerticalSpace(20),
                         AddPatternBottomButtons(patternController: patternController),
                       ],
                     ),

@@ -18,6 +18,7 @@ class AddRoleScreen extends StatelessWidget {
             textDirection: TextDirection.rtl,
             child: GetBuilder<UserManagementController>(builder: (controller) {
               return Scaffold(
+
                 appBar: AppBar(
                   title: Text(controller.roleModel?.roleName ?? 'دور جديد'),
                   actions: [

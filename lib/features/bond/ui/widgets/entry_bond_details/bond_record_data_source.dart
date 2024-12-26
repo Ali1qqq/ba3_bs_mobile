@@ -2,7 +2,6 @@ import 'package:ba3_bs_mobile/core/helper/extensions/entry_bond_model_ectensions
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
-import '../../../../../core/constants/app_constants.dart';
 import '../../../data/models/entry_bond_model.dart';
 
 class BondDataGridSource extends DataGridSource {
@@ -19,13 +18,11 @@ class BondDataGridSource extends DataGridSource {
       cells: row
           .getCells()
           .map<Widget>((dataGridCell) => Container(
-                alignment: dataGridCell.columnName == AppConstants.rowBondDescription
-                    ? Alignment.centerRight
-                    : Alignment.center,
+                alignment: Alignment.center,
                 color: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
                 child: Text(
-                  textAlign: TextAlign.right,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 12),
                   dataGridCell.value == null
                       ? ''
                       : dataGridCell.value is double

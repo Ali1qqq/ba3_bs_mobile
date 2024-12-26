@@ -4,14 +4,11 @@ import 'package:get/get.dart';
 
 AppBar generalAppBar() {
   return AppBar(
-
-    leading:    IconButton(
+    leading: IconButton(
         onPressed: () {
           Get.find<MainLayoutController>().openDrawer();
         },
         icon: Icon(Icons.menu)),
-    actions: [
-
-    ],
+    actions: [],
   );
 }

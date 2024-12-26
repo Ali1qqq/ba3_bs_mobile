@@ -6,7 +6,8 @@ import '../../../accounts/data/models/account_model.dart';
 import '../../../bill/data/models/discount_addition_account_model.dart';
 import '../../../pluto/data/models/pluto_adaptable.dart';
 
-class BillTypeModel extends PlutoAdaptable with EquatableMixin{
+class BillTypeModel extends PlutoAdaptable with EquatableMixin {
+  final String? id;
   final String? billTypeId;
   final String? shortName;
   final String? fullName;
@@ -20,6 +21,7 @@ class BillTypeModel extends PlutoAdaptable with EquatableMixin{
   final Map<Account, List<DiscountAdditionAccountModel>>? discountAdditionAccounts;
 
   BillTypeModel({
+    this.id,
     this.billTypeId,
     this.shortName,
     this.fullName,
@@ -34,6 +36,7 @@ class BillTypeModel extends PlutoAdaptable with EquatableMixin{
   factory BillTypeModel.fromJson(Map<String, dynamic> json) {
     return BillTypeModel(
       billTypeId: json['billTypeId'],
+      id: json['docId'],
       shortName: json['shortName'],
       fullName: json['fullName'],
       latinShortName: json['latinShortName'],
@@ -64,6 +67,7 @@ class BillTypeModel extends PlutoAdaptable with EquatableMixin{
   }
 
   Map<String, dynamic> toJson() => {
+        'docId': id,
         'billTypeId': billTypeId,
         'shortName': shortName,
         'fullName': fullName,
@@ -86,18 +90,21 @@ class BillTypeModel extends PlutoAdaptable with EquatableMixin{
     });
   }
 
-  BillTypeModel copyWith(
-          {String? billTypeId,
-          String? shortName,
-          String? fullName,
-          String? latinShortName,
-          String? latinFullName,
-          String? billTypeLabel,
-          int? color,
-          String? store,
-          Map<Account, AccountModel>? accounts,
-          Map<Account, List<DiscountAdditionAccountModel>>? discountAdditionAccounts}) =>
+  BillTypeModel copyWith({
+    String? id,
+    String? billTypeId,
+    String? shortName,
+    String? fullName,
+    String? latinShortName,
+    String? latinFullName,
+    String? billTypeLabel,
+    int? color,
+    String? store,
+    Map<Account, AccountModel>? accounts,
+    Map<Account, List<DiscountAdditionAccountModel>>? discountAdditionAccounts,
+  }) =>
       BillTypeModel(
+        id: id ?? this.id,
         billTypeId: billTypeId ?? this.billTypeId,
         shortName: shortName ?? this.shortName,
         fullName: fullName ?? this.fullName,
@@ -124,16 +131,17 @@ class BillTypeModel extends PlutoAdaptable with EquatableMixin{
 
   @override
   List<Object?> get props => [
-    billTypeId,
-    shortName,
-    fullName,
-    latinShortName,
-    latinFullName,
-    billTypeLabel,
-    color,
-    accounts,
-    discountAdditionAccounts,
-  ];
+        id,
+        billTypeId,
+        shortName,
+        fullName,
+        latinShortName,
+        latinFullName,
+        billTypeLabel,
+        color,
+        accounts,
+        discountAdditionAccounts,
+      ];
 }
 
 // Utility function to get an Account object from a string

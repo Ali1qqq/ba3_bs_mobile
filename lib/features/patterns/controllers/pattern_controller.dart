@@ -1,42 +1,23 @@
-import 'package:ba3_bs_mobile/core/utils/app_ui_utils.dart';
-import 'package:ba3_bs_mobile/features/accounts/controllers/accounts_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../../core/helper/enums/enums.dart';
 import '../../../core/helper/extensions/getx_controller_extensions.dart';
-import '../../../core/helper/validators/app_validator.dart';
-import '../../../core/interfaces/i_store_selection_handler.dart';
+import '../../../core/helper/mixin/app_navigator.dart';
+import '../../../core/router/app_routes.dart';
 import '../../../core/services/firebase/implementations/datasource_repo.dart';
+import '../../../core/utils/app_ui_utils.dart';
+import '../../accounts/controllers/accounts_controller.dart';
 import '../../accounts/data/models/account_model.dart';
 import '../data/models/bill_type_model.dart';
+import '../services/pattern_form_handler.dart';
 
-class PatternController extends GetxController with AppValidator implements IStoreSelectionHandler {
+class PatternController extends GetxController with AppNavigator {
   final DataSourceRepository<BillTypeModel> _repository;
 
   PatternController(this._repository) {
     getAllBillTypes();
   }
-
-  TextEditingController latinShortNameController = TextEditingController();
-  TextEditingController latinFullNameController = TextEditingController();
-  TextEditingController shortNameController = TextEditingController();
-  TextEditingController fullNameController = TextEditingController();
-  TextEditingController giftsController = TextEditingController();
-  TextEditingController exchangeForGiftsController = TextEditingController();
-  TextEditingController discountsController = TextEditingController();
-  TextEditingController materialsController = TextEditingController();
-  TextEditingController additionsController = TextEditingController();
-  TextEditingController cachesController = TextEditingController();
-  TextEditingController storeController = TextEditingController();
-
-  final formKey = GlobalKey<FormState>();
-
-  InvoiceType selectedBillType = InvoiceType.purchase;
-
-
-  // ignore: deprecated_member_use
-  int selectedColorValue = Colors.red.value;
 
   List<BillTypeModel> billsTypes = [];
 
@@ -44,79 +25,43 @@ class PatternController extends GetxController with AppValidator implements ISto
 
   final Map<TextEditingController, BillAccounts> controllerToBillAccountsMap = {};
 
-  @override
-  Rx<StoreAccount> selectedStore = StoreAccount.main.obs;
-
-  @override
-  void onSelectedStoreChanged(StoreAccount? newStore) {
-    if (newStore != null) {
-      selectedStore.value = newStore;
-      //  update();
-    }
-  }
+  // Form Handlers
+  late final PatternFormHandler patternFormHandler;
 
   @override
   void onInit() {
     super.onInit();
-
-    autoFillControllers(InvoiceType.purchase);
-
-    controllerToBillAccountsMap.addAll({
-      giftsController: BillAccounts.gifts,
-      exchangeForGiftsController: BillAccounts.exchangeForGifts,
-      discountsController: BillAccounts.discounts,
-      materialsController: BillAccounts.materials,
-      additionsController: BillAccounts.additions,
-      cachesController: BillAccounts.caches,
-      storeController: BillAccounts.store,
-    });
+    _initializeServices();
   }
 
-  bool validateForm() => formKey.currentState!.validate();
-
-  void onMainColorChanged(int? newColorValue) {
-    if (newColorValue != null) {
-      selectedColorValue = newColorValue;
-      update();
-    }
+  // Initializer
+  void _initializeServices() {
+    patternFormHandler = PatternFormHandler();
   }
 
-  void onSelectedTypeChanged(InvoiceType? newType) {
-    if (newType != null) {
-      selectedBillType = newType;
-      autoFillControllers(newType);
-      update();
-    }
-  }
-
-  void autoFillControllers(InvoiceType newType) {
-    // Clear previous values
-    clearControllers();
-
+  void autoFillControllers(BillPatternType newType) {
     switch (newType) {
-      case InvoiceType.sales:
+      case BillPatternType.sales:
         fillControllers(
             shortName: 'مبيعات', fullName: 'فاتورة مبيعات', latinShortName: 'Sales', latinFullName: 'Sales Invoice');
-
         break;
 
-      case InvoiceType.purchase:
+      case BillPatternType.purchase:
         fillControllers(
             shortName: 'شراء', fullName: 'فاتورة مشتريات', latinShortName: 'Buy', latinFullName: 'Purchase Invoice');
-
         break;
 
-      case InvoiceType.add:
+      case BillPatternType.add:
         fillControllers(
             shortName: 'إضافة', fullName: 'فاتورة إضافة', latinShortName: 'Add', latinFullName: 'Addition Invoice');
         break;
 
-      case InvoiceType.remove:
+      case BillPatternType.remove:
         fillControllers(
             shortName: 'سحب', fullName: 'فاتورة سحب', latinShortName: 'Remove', latinFullName: 'Removal Invoice');
         break;
 
-      case InvoiceType.buyReturn:
+      case BillPatternType.buyReturn:
         fillControllers(
             shortName: 'مرتجع شراء',
             fullName: 'فاتورة مرتجع مشتريات',
@@ -124,7 +69,7 @@ class PatternController extends GetxController with AppValidator implements ISto
             latinFullName: 'Purchase Return Invoice');
         break;
 
-      case InvoiceType.salesReturn:
+      case BillPatternType.salesReturn:
         fillControllers(
             shortName: 'مرتجع مبيعات',
             fullName: 'فاتورة مرتجع مبيعات',
@@ -140,19 +85,17 @@ class PatternController extends GetxController with AppValidator implements ISto
     required String latinShortName,
     required String latinFullName,
   }) {
-    shortNameController.text = shortName;
-    fullNameController.text = fullName;
-    latinShortNameController.text = latinShortName;
-    latinFullNameController.text = latinFullName;
+    patternFormHandler.shortNameController.text = shortName;
+    patternFormHandler.fullNameController.text = fullName;
+    patternFormHandler.latinShortNameController.text = latinShortName;
+    patternFormHandler.latinFullNameController.text = latinFullName;
 
     update();
   }
 
-  void clearControllers() {
-    shortNameController.clear();
-    fullNameController.clear();
-    latinShortNameController.clear();
-    latinFullNameController.clear();
+  void navigateToAddPatternScreen([BillTypeModel? billType]) {
+    patternFormHandler.init(billType);
+    to(AppRoutes.addPatternsScreen);
   }
 
   Future<void> getAllBillTypes() async {
@@ -168,7 +111,12 @@ class PatternController extends GetxController with AppValidator implements ISto
   }
 
   Future<void> addNewPattern() async {
-    if (!validateForm()) return;
+    if (!patternFormHandler.validate()) return;
+
+    if (patternFormHandler.selectedBillPatternType == null) {
+      AppUIUtils.onFailure('من فضلك قم بادخال نوع النمط!');
+      return;
+    }
 
     final billTypeModel = _createBillTypeModel();
 
@@ -176,26 +124,45 @@ class PatternController extends GetxController with AppValidator implements ISto
 
     result.fold(
       (failure) => AppUIUtils.onFailure(failure.message),
-      (success) => AppUIUtils.onFailure('تم حفظ النموذج بنجاح!'),
+      (success) => AppUIUtils.onSuccess('تم حفظ النموذج بنجاح!'),
     );
   }
 
   BillTypeModel _createBillTypeModel() {
     Map<Account, AccountModel> accounts = read<AccountsController>().selectedAccounts;
 
-    accounts[BillAccounts.store] = selectedStore.value.toStoreAccountModel;
+    accounts[BillAccounts.store] = patternFormHandler.selectedStore.value.toStoreAccountModel;
 
-    return BillTypeModel(
-      shortName: shortNameController.text,
-      latinShortName: latinShortNameController.text,
-      fullName: fullNameController.text,
-      latinFullName: latinFullNameController.text,
-      billTypeLabel: selectedBillType.value,
-      billTypeId: BillType.byLabel(selectedBillType.value).typeGuide,
-      accounts: accounts,
-      color: selectedColorValue,
-    );
+    final selectedBillTypeModel = patternFormHandler.selectedBillTypeModel;
+
+    if (selectedBillTypeModel != null) {
+      return selectedBillTypeModel.copyWith(
+        shortName: patternFormHandler.shortNameController.text,
+        latinShortName: patternFormHandler.latinShortNameController.text,
+        fullName: patternFormHandler.fullNameController.text,
+        latinFullName: patternFormHandler.latinFullNameController.text,
+        billTypeLabel: patternFormHandler.selectedBillPatternType!.value,
+        billTypeId: BillType.byLabel(patternFormHandler.selectedBillPatternType!.value).typeGuide,
+        accounts: accounts,
+        color: patternFormHandler.selectedColorValue,
+      );
+    } else {
+      return BillTypeModel(
+        shortName: patternFormHandler.shortNameController.text,
+        latinShortName: patternFormHandler.latinShortNameController.text,
+        fullName: patternFormHandler.fullNameController.text,
+        latinFullName: patternFormHandler.latinFullNameController.text,
+        billTypeLabel: patternFormHandler.selectedBillPatternType!.value,
+        billTypeId: BillType.byLabel(patternFormHandler.selectedBillPatternType!.value).typeGuide,
+        accounts: accounts,
+        color: patternFormHandler.selectedColorValue,
+      );
+    }
   }
 
-  String? validator(String? value, String fieldName) => isFieldValid(value, fieldName);
+  @override
+  void onClose() {
+    patternFormHandler.dispose();
+    super.onClose();
+  }
 }

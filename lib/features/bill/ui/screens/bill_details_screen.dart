@@ -42,16 +42,16 @@ class BillDetailsScreen extends StatelessWidget {
               tag: tag,
               builder: (_) {
                 return Scaffold(
-                  appBar: BillDetailsAppBar(
-                    billTypeModel: currentBill.billTypeModel,
-                    billDetailsController: billDetailsController,
-                    billSearchController: billSearchController,
-                  ),
                   body: CustomScrollView(
                     slivers: [
                       SliverToBoxAdapter(
                         child: Column(
                           children: [
+                            BillDetailsCustomAppBar(
+                              billDetailsController: billDetailsController,
+                              billSearchController: billSearchController,
+                              billTypeModel: currentBill.billTypeModel,
+                            ),
                             BillDetailsHeader(billDetailsController: billDetailsController, billModel: currentBill),
                             const VerticalSpace(5),
                             BillDetailsBody(
@@ -62,11 +62,12 @@ class BillDetailsScreen extends StatelessWidget {
                             ),
                             const VerticalSpace(10),
                             Align(
-                                alignment: Alignment.centerLeft,
-                                child: BillDetailsCalculations(
-                                  billDetailsPlutoController: billDetailsPlutoController,
-                                  tag: tag,
-                                )),
+                              alignment: Alignment.centerLeft,
+                              child: BillDetailsCalculations(
+                                billDetailsPlutoController: billDetailsPlutoController,
+                                tag: tag,
+                              ),
+                            ),
                             const Divider(height: 10),
                             BillDetailsButtons(
                               billDetailsController: billDetailsController,
@@ -75,11 +76,9 @@ class BillDetailsScreen extends StatelessWidget {
                               billModel: currentBill,
                               fromBillById: fromBillById,
                             ),
-
                           ],
                         ),
                       ),
-
                     ],
                   ),
                 );

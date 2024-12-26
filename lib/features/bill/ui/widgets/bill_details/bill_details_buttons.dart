@@ -124,7 +124,7 @@ class BillDetailsButtons extends StatelessWidget {
   Widget _buildPdfEmailButton() {
     return AppButton(
       title: 'Pdf-Email',
-      width: 100,
+      width: 120,
       fontSize: 14,
       onPressed: () {
         billDetailsController.generateAndSendBillPdf(billModel);

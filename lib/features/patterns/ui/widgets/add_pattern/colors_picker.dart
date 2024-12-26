@@ -13,11 +13,12 @@ class ColorsPicker extends StatelessWidget {
     return Center(
       child: MaterialColorPicker(
           allowShades: false,
+          circleSize: 32,
           onMainColorChange: (ColorSwatch? color) {
             // ignore: deprecated_member_use
-            patternController.onMainColorChanged(color?.value);
+            patternController.patternFormHandler.onMainColorChanged(color?.value);
           },
-          selectedColor: Color(patternController.selectedColorValue)),
+          selectedColor: Color(patternController.patternFormHandler.selectedColorValue!)),
     );
   }
 }

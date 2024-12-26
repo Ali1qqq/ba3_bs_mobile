@@ -1,5 +1,7 @@
-import 'package:ba3_bs_mobile/core/styling/app_text_style.dart';
+
 import 'package:flutter/material.dart';
+
+import '../../../../../core/styling/app_text_style.dart';
 
 class BodyPatternWidget extends StatelessWidget {
   const BodyPatternWidget({super.key, required this.firstText, required this.secondText});
@@ -8,24 +10,25 @@ class BodyPatternWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-
-      children: [
-        SizedBox(
-          width: 100,
-          child: Text(
-            firstText,
-            style: AppTextStyles.headLineStyle3,
+    return SizedBox(
+      child: Row(
+        children: [
+          SizedBox(
+            width: 120,
+            child: Text(
+              firstText,
+              style: AppTextStyles.headLineStyle3,
+            ),
           ),
-        ),
-        SizedBox(
-          width: 200,
-          child: Text(
-            secondText,
-            style: AppTextStyles.headLineStyle3,
+          Expanded(
+            child: Text(
+              secondText,
+              textAlign: TextAlign.start,
+              style: AppTextStyles.headLineStyle3,
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

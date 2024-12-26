@@ -34,12 +34,12 @@ class DraggableFloatingWindow extends StatelessWidget {
           return LayoutBuilder(
             builder: (BuildContext context, BoxConstraints constraints) {
               final newParentSize = Size(constraints.maxWidth, constraints.maxHeight);
-      
+
               if (controller.parentSize.value != newParentSize) {
                 log('controller.parentSize.value != newParentSize');
                 controller.updateWindowForSizeChange(newParentSize: newParentSize, positionRatio: targetPositionRatio);
               }
-      
+
               return GestureDetector(
                 onPanUpdate: controller.isMinimized ? null : controller.onPanUpdate,
                 onPanStart: controller.isMinimized ? null : controller.onPanStart,
@@ -83,13 +83,13 @@ class DraggableFloatingWindow extends StatelessWidget {
                                                 child: Row(
                                                   mainAxisAlignment: MainAxisAlignment.start,
                                                   children: [
-                                                    const HorizontalSpace(),
+                                                    const HorizontalSpace(16),
                                                     InkWell(
                                                       onTap: onClose,
                                                       child: const CircleAvatar(
                                                         backgroundColor: Color(0xFFFF605C),
-                                                        radius: 12,
-                                                        child: Icon(Icons.close, color: Colors.black, size: 24),
+                                                        radius: 10,
+                                                        child: Icon(Icons.close, color: Colors.black, size: 20),
                                                       ),
                                                     ),
                                                     const HorizontalSpace(20),
@@ -99,8 +99,8 @@ class DraggableFloatingWindow extends StatelessWidget {
                                                       },
                                                       child: const CircleAvatar(
                                                         backgroundColor: Color(0xFFFFBD44),
-                                                        radius: 12,
-                                                        child: Icon(Icons.remove, color: Colors.black, size: 24),
+                                                        radius: 10,
+                                                        child: Icon(Icons.remove, color: Colors.black, size: 20),
                                                       ),
                                                     ),
 

@@ -14,13 +14,7 @@ class AddPatternBottomButtons extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: [
         AppButton(
-            title: "جديد",
-            onPressed: () {
-              //      patternController.clearController();
-            },
-            iconData: Icons.open_in_new_outlined),
-        AppButton(
-          title: "اضافة",
+          title: patternController.patternFormHandler.selectedBillPatternType == null ? 'إضافة' : 'تعديل',
           onPressed: () {
             patternController.addNewPattern();
           },
