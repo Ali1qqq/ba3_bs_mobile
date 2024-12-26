@@ -9,4 +9,9 @@ class AppStrings {
   static const String bankAccountId = 'a3fe9771-c9cf-4790-b782-c1c3977bcd99';
   static const String bankToAccountName = 'المصرف';
 
+
+  static const double targetLatitude = 25.793679566610773; // Latitude المنطقة المستهدفة
+  static const double targetLongitude = 55.948330278435; // Longitude المنطقة المستهدفة
+  static const double radiusInMeters = 25; // نصف القطر بالمتر
+
 }

@@ -26,7 +26,7 @@ class DrawerListTile extends StatelessWidget {
       onTap: onTap,
       child: AnimatedContainer(
         duration: Durations.medium2,
-        width: 0.15.sw,
+
         padding: const EdgeInsets.all(15),
         decoration: BoxDecoration(
             color: index == tabIndex ? AppColors.blueColor : AppColors.whiteColor,

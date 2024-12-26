@@ -82,18 +82,7 @@ class AllBillsController extends FloatingBillDetailsLauncher with AppNavigator {
     update();
   }
 
-  Future<void> fetchAccountBills(String accId) async {
-    log('fetchAccount $accId Bills');
-    final result = await _billsFirebaseRepo.getById(accId);
 
-    result.fold(
-      (failure) => AppUIUtils.onFailure(failure.message),
-      (fetchedBills) => bills.add(fetchedBills),
-    );
-
-    isLoading = false;
-    update();
-  }
 
   Future<void> fetchBillTypes() async {
     final result = await _patternsFirebaseRepo.getAll();

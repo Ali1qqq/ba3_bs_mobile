@@ -12,6 +12,7 @@ import 'package:ba3_bs_mobile/features/materials/controllers/material_controller
 import 'package:ba3_bs_mobile/features/print/controller/print_controller.dart';
 import 'package:ba3_bs_mobile/features/sellers/controllers/sellers_controller.dart';
 import 'package:ba3_bs_mobile/features/sellers/data/repositories/sellers_repository.dart';
+import 'package:ba3_bs_mobile/features/user_time/data/repositories/user_time_repo.dart';
 import 'package:ba3_bs_mobile/features/users_management/data/datasources/roles_data_source.dart';
 import 'package:ba3_bs_mobile/features/users_management/data/models/role_model.dart';
 import 'package:ba3_bs_mobile/features/users_management/data/models/user_model.dart';
@@ -31,8 +32,6 @@ import '../../features/bond/controllers/entry_bond/entry_bond_controller.dart';
 import '../../features/bond/data/datasources/bond_data_source.dart';
 import '../../features/bond/data/models/bond_model.dart';
 import '../../features/bond/data/models/entry_bond_model.dart';
-import '../../features/login/data/datasources/user_management_service.dart';
-import '../../features/login/data/repositories/user_repo.dart';
 import '../../features/materials/data/repositories/materials_repository.dart';
 import '../../features/patterns/controllers/pattern_controller.dart';
 import '../../features/patterns/data/datasources/patterns_data_source.dart';
@@ -53,15 +52,11 @@ import '../services/translation/interfaces/i_api_client.dart';
 
 class AppBindings extends Bindings {
   @override
-  void dependencies() async{
-
-
-
+  void dependencies() async {
     // Initialize RemoteApiService instance
     IDatabaseService<Map<String, dynamic>> fireStoreService = FireStoreService();
 
     // Initialize repositories
-    final userManagementRepo = UserManagementRepository(UserManagementService());
 
     // Instantiate PatternsDataSource and FirebaseRepositoryConcrete of BillTypeModel
     final DataSourceRepository<BillTypeModel> patternsFirebaseRepo = DataSourceRepository(
@@ -69,8 +64,7 @@ class AppBindings extends Bindings {
     );
 
     // Instantiate InvoicesDataSource and FirebaseRepositoryConcrete of BillModel
-    final FilterableDataSourceRepository<BillModel> billsFirebaseRepo =
-        FilterableDataSourceRepository(BillsDataSource(databaseService: fireStoreService));
+    final FilterableDataSourceRepository<BillModel> billsFirebaseRepo = FilterableDataSourceRepository(BillsDataSource(databaseService: fireStoreService));
 
     // Instantiate InvoicesDataSource and FirebaseRepositoryConcrete of BondModel
     final DataSourceRepository<BondModel> bondsFirebaseRepo = DataSourceRepository(
@@ -98,19 +92,19 @@ class AppBindings extends Bindings {
     final AccountsStatementsRepository accountsStatementsRepo = AccountsStatementsRepository(
       AccountsStatementsDataSource(),
     );
+    final UserTimeRepository userTimeRepo = UserTimeRepository();
 
     // Instantiate Api client, GoogleTranslationDataSource and TranslationRepository
     // final IAPiClient httpClient = HttpClient<Map<String, dynamic>>(Client());
     final IAPiClient dioClient = DioClient<Map<String, dynamic>>(Dio());
 
-    final ITranslationService googleTranslation = GoogleTranslation(
-        baseUrl: ApiConstants.translationBaseUrl, apiKey: ApiConstants.translationApiKey, client: dioClient);
+    final ITranslationService googleTranslation = GoogleTranslation(baseUrl: ApiConstants.translationBaseUrl, apiKey: ApiConstants.translationApiKey, client: dioClient);
 
     final TranslationRepository translationRepo = TranslationRepository(googleTranslation);
 
     await Get.putAsync(() => SharedPreferencesService().init());
-    Get.put(UserManagementController(userManagementRepo, rolesFirebaseRepo, usersFirebaseRepo), permanent: true);
-    Get.put(UserTimeController(userManagementRepo), permanent: true);
+    Get.put(UserManagementController( rolesFirebaseRepo, usersFirebaseRepo), permanent: true);
+    Get.put(UserTimeController(usersFirebaseRepo, userTimeRepo), permanent: true);
 
     Get.lazyPut(() => translationRepo, fenix: true);
 
@@ -126,7 +120,6 @@ class AppBindings extends Bindings {
     Get.lazyPut(() => PlutoController(), fenix: true);
     Get.lazyPut(() => EntryBondController(entryBondsFirebaseRepo, accountsStatementsRepo), fenix: true);
 
-
     Get.lazyPut(() => PatternController(patternsFirebaseRepo), fenix: true);
 
     Get.lazyPut(() => AllBillsController(patternsFirebaseRepo, billsFirebaseRepo, billJsonExportRepo), fenix: true);
@@ -140,11 +133,8 @@ class AppBindings extends Bindings {
     Get.lazyPut(() => AccountsController(AccountsRepository()), fenix: true);
     Get.lazyPut(() => SellerController(SellersRepository()), fenix: true);
 
-
-
-
     Get.lazyPut(() => PrintingController(translationRepo), fenix: true);
-    Get.lazyPut(() =>MainLayoutController(), fenix: true);
+    Get.lazyPut(() => MainLayoutController(), fenix: true);
     Get.lazyPut(() => BillSearchController(), fenix: true);
     Get.lazyPut(() => AccountStatementController(accountsStatementsRepo), fenix: true);
   }

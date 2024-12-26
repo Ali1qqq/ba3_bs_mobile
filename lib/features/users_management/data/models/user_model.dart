@@ -1,4 +1,4 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:ba3_bs_mobile/core/helper/enums/enums.dart';
 
 class UserModel {
   final String? userId;
@@ -7,7 +7,9 @@ class UserModel {
   final String? userRoleId;
   final String? userSellerId;
 
-  final UserTimeModel? userTimeModel;
+  final UserStatus? userStatus;
+
+  final Map<String, UserTimeModel>? userTimeModel;
 
   UserModel({
     this.userId,
@@ -16,6 +18,7 @@ class UserModel {
     this.userRoleId,
     this.userSellerId,
     this.userTimeModel,
+    this.userStatus,
   });
 
   Map<String, dynamic> toJson() {
@@ -25,18 +28,24 @@ class UserModel {
       'userName': userName,
       'userPassword': userPassword,
       'userRoleId': userRoleId,
-      "userTimeModel": userTimeModel?.toJson(),
+      'userStatus': userStatus!.label,
+      "userTimeModel": Map.fromEntries(userTimeModel!.entries.map((e) => MapEntry(e.key, e.value.toJson())).toList()),
     };
   }
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
+    Map<String, UserTimeModel> userTime = <String, UserTimeModel>{};
+    (json['employeeTime'] ?? {}).forEach((k, v) {
+      userTime[k] = UserTimeModel.fromJson(v);
+    });
     return UserModel(
       userId: json['docId'],
       userSellerId: json['userSellerId'],
       userName: json['userName'],
       userPassword: json['userPassword'],
       userRoleId: json['userRoleId'],
-      userTimeModel: UserTimeModel.fromJson(json['userTimeModel'] ?? {}),
+      userStatus: UserStatus.byLabel(json['userStatus'] ?? UserStatus.away.label),
+      userTimeModel: userTime,
     );
   }
 
@@ -47,7 +56,8 @@ class UserModel {
     String? userPassword,
     String? userRoleId,
     String? userSellerId,
-    UserTimeModel? userTimeModel,
+    UserStatus? userStatus,
+    Map<String, UserTimeModel>? userTimeModel,
   }) {
     return UserModel(
       userId: userId ?? this.userId,
@@ -56,11 +66,10 @@ class UserModel {
       userRoleId: userRoleId ?? this.userRoleId,
       userSellerId: userSellerId ?? this.userSellerId,
       userTimeModel: userTimeModel ?? this.userTimeModel,
+      userStatus: userStatus ?? this.userStatus,
     );
   }
 }
-
-
 
 class UserTimeModel {
   final String? dayName;
@@ -76,8 +85,8 @@ class UserTimeModel {
   Map<String, dynamic> toJson() {
     return {
       'dayName': dayName,
-      if (logInDateList != null) 'logInDateList': FieldValue.arrayUnion(logInDateList!.map((e) => e.toIso8601String()).toList()),
-      if (logOutDateList != null) 'logOutDateList': FieldValue.arrayUnion(logOutDateList!.map((e) => e.toIso8601String()).toList()),
+      if (logInDateList != null) 'logInDateList': logInDateList!.map((e) => e.toIso8601String()).toList(),
+      if (logOutDateList != null) 'logOutDateList': logOutDateList!.map((e) => e.toIso8601String()).toList(),
     };
   }
 

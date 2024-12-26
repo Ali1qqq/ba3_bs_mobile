@@ -191,7 +191,7 @@ class BillDetailsPlutoController extends IPlutoController<InvoiceRecordModel> {
     return vatStr.toDouble ?? 0;
   }
   String _getProduct() {
-    final product =recordsTableStateManager.currentRow!.cells[AppConstants.invRecProduct]?.value?.toString(); ;
+    final product =recordsTableStateManager.currentRow!.cells[AppConstants.invRecProduct]?.value?.toString();
     return product ??'';
   }
 

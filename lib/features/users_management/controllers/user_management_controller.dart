@@ -12,22 +12,19 @@ import '../../../core/services/firebase/implementations/datasource_repo.dart';
 import '../../../core/services/firebase/implementations/filterable_data_source_repo.dart';
 import '../../../core/services/get_x/shared_preferences_service.dart';
 import '../../../core/utils/app_ui_utils.dart';
-import '../../login/data/repositories/user_repo.dart';
 import '../data/models/role_model.dart';
 import '../data/models/user_model.dart';
 import '../services/role_form_handler.dart';
 import '../services/user_form_handler.dart';
 
 class UserManagementController extends GetxController with AppNavigator {
-  final UserManagementRepository _userRepository;
-
   final DataSourceRepository<RoleModel> _rolesFirebaseRepo;
 
   final FilterableDataSourceRepository<UserModel> _usersFirebaseRepo;
 
   final prefsService = read<SharedPreferencesService>();
 
-  UserManagementController(this._userRepository, this._rolesFirebaseRepo, this._usersFirebaseRepo);
+  UserManagementController(this._rolesFirebaseRepo, this._usersFirebaseRepo);
 
   // Services
   late final RoleService _roleService;
@@ -280,44 +277,6 @@ class UserManagementController extends GetxController with AppNavigator {
         getAllUsers();
       },
     );
-  }
-
-  void startTimeReport({required String userId, DateTime? customDate}) async {
-    final result = await _userRepository.startTimeReport(userId, customDate: customDate);
-    result.fold(
-      (failure) => Get.snackbar("Error", failure.message),
-      (success) => Get.snackbar("Success", "Time report start successfully!"),
-    );
-  }
-
-  void sendTimeReport({required String userId, int? customTime}) async {
-    final result = await _userRepository.sendTimeReport(userId, customTime: customTime);
-    result.fold(
-      (failure) => Get.snackbar("Error", failure.message),
-      (success) => Get.snackbar("Success", "Time report sent successfully!"),
-    );
-  }
-
-  // Log login time
-  Future<void> logInTime() async {
-    if (loggedInUserModel != null) {
-      final result = await _userRepository.logLoginTime(loggedInUserModel!.userId);
-      result.fold(
-        (failure) => Get.snackbar("Error", "جرب طفي التطبيق ورجاع شغلو او تأكد من اتصال النت  ${failure.message} \n"),
-        (success) => Get.snackbar("Success", "Login time logged successfully!"),
-      );
-    }
-  }
-
-  // Log logout time
-  Future<void> logOutTime() async {
-    if (loggedInUserModel != null) {
-      final result = await _userRepository.logLogoutTime(loggedInUserModel!.userId);
-      result.fold(
-        (failure) => Get.snackbar("Error", "جرب طفي التطبيق ورجاع شغلو او تأكد من اتصال النت  ${failure.message} \n"),
-        (success) => Get.snackbar("Success", "Logout time logged successfully!"),
-      );
-    }
   }
 
   @override

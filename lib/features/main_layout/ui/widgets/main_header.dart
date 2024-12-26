@@ -1,13 +1,8 @@
 import 'dart:io';
-
 import 'package:ba3_bs_mobile/core/helper/extensions/getx_controller_extensions.dart';
 import 'package:ba3_bs_mobile/core/widgets/app_spacer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:get/get.dart';
-
-import '../../../../core/helper/enums/enums.dart';
-import '../../../../core/router/app_routes.dart';
 import '../../../../core/styling/app_colors.dart';
 import '../../../users_management/controllers/user_management_controller.dart';
 
@@ -23,7 +18,7 @@ class MainHeader extends StatelessWidget {
       children: [
         SizedBox(
           height:0.035.sh,
-          width: 0.4.sw,
+          width: 0.3.sw,
           child: Row(
             children: [
               Text(
@@ -58,7 +53,7 @@ class MainHeader extends StatelessWidget {
           },
           child: Container(
             height: (Platform.isWindows || Platform.isMacOS)? 0.05.sh:0.06.sh,
-            width: 0.4.sw,
+            width: 0.3.sw,
             alignment: Alignment.center,
             decoration: BoxDecoration(borderRadius: BorderRadius.circular(5), color: AppColors.blueColor),
             child: const Text(

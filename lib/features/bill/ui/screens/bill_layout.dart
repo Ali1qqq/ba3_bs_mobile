@@ -1,4 +1,3 @@
-import 'dart:math';
 
 import 'package:ba3_bs_mobile/core/styling/app_colors.dart';
 import 'package:ba3_bs_mobile/core/styling/app_text_style.dart';
@@ -11,8 +10,6 @@ import 'package:get/get.dart';
 
 import '../../../../core/helper/extensions/getx_controller_extensions.dart';
 import '../../../../core/widgets/app_button.dart';
-import '../../../../core/widgets/general_app_bar_widget.dart';
-import '../widgets/bill_layout/bill_layout_app_bar.dart';
 import '../widgets/bill_layout/bill_type_item_widget.dart';
 
 class BillLayout extends StatelessWidget {

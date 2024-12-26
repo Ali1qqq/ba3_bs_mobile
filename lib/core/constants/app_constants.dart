@@ -217,8 +217,7 @@ abstract class AppConstants {
   static const paidStatusSemiUsed = "paidStatusSemiUsed";
 
   ////////////----------------------------------------------------
-  static const userStatusOnline = "userStatusOnline";
-  static const userStatusAway = "userStatusAway";
+
 
   ////////////----------------------------------------------------
   static const invPayTypeDue = "invPayTypeDue";

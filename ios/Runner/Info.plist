@@ -6,6 +6,9 @@
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
 	<string>Ba3 Bs Mobile</string>
+
+	<key>NSLocationWhenInUseUsageDescription</key>
+    <string>This app needs access to location when logIn to where you logIn.</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>

@@ -7,7 +7,6 @@ import 'package:get/get_state_manager/src/simple/get_state.dart';
 
 import '../../../../core/styling/app_colors.dart';
 import '../../../../core/styling/app_text_style.dart';
-import '../../../../core/widgets/general_app_bar_widget.dart';
 import '../widgets/bond_layout/bond_item_widget.dart';
 
 class BondLayout extends StatelessWidget {

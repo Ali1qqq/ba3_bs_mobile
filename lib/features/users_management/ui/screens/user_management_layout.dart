@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/helper/extensions/getx_controller_extensions.dart';
 import '../../../../core/widgets/app_menu_item.dart';
-import '../../../../core/widgets/general_app_bar_widget.dart';
 
 class UserManagementLayout extends StatelessWidget {
   const UserManagementLayout({super.key});

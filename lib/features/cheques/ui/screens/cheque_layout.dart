@@ -1,13 +1,11 @@
 import 'package:ba3_bs_mobile/core/helper/enums/enums.dart';
 import 'package:ba3_bs_mobile/core/widgets/organized_widget.dart';
 import 'package:ba3_bs_mobile/features/cheques/controllers/cheques/all_cheques_controller.dart';
-import 'package:ba3_bs_mobile/features/cheques/ui/widgets/cheques_layout/cheques_layout_app_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../../../core/styling/app_colors.dart';
 import '../../../../core/styling/app_text_style.dart';
-import '../../../../core/widgets/general_app_bar_widget.dart';
 import '../widgets/cheques_layout/cheques_type_item_widget.dart';
 
 

@@ -11,7 +11,6 @@ import 'package:get/get.dart';
 import '../../../../core/styling/app_colors.dart';
 import '../../../../core/styling/app_text_style.dart';
 import '../../../../core/widgets/app_button.dart';
-import '../../../../core/widgets/general_app_bar_widget.dart';
 
 class PatternLayout extends StatelessWidget {
   const PatternLayout({super.key});

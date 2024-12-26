@@ -6,6 +6,7 @@ list(APPEND FLUTTER_PLUGIN_LIST
   cloud_firestore
   firebase_core
   flutter_platform_alert
+  geolocator_windows
   print_bluetooth_thermal
   screen_retriever_windows
   window_manager

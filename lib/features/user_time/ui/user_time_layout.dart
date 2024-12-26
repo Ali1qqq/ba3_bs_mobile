@@ -9,12 +9,24 @@ class UserTimeLayout extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GetBuilder<UserTimeController>(builder: (logic) {
+    return GetBuilder<UserTimeController>(builder: (userTimeController) {
       return Column(
+        spacing: 50,
         children: [
-
-          AppButton(title: "دخول", onPressed:() => logic.addUserTime(TimeType.logIn), iconData: Icons.login),
-          AppButton(title: "خروج", onPressed:() => logic.addUserTime(TimeType.logout), iconData: Icons.logout)
+          Obx(() {
+            return AppButton(
+              title: "دخول",
+              onPressed: () => userTimeController.saveLogInTime(),
+              isLoading: userTimeController.logInState.value == RequestState.loading,
+            );
+          }),
+          Obx(() {
+            return AppButton(
+              title: "خروج",
+              onPressed: () => userTimeController.saveLogOutTime(),
+              isLoading: userTimeController.logOutState.value == RequestState.loading,
+            );
+          }),
         ],
       );
     });
