@@ -1,15 +1,10 @@
 import 'package:ba3_bs_mobile/core/network/error/failure.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dartz/dartz.dart';
 import 'package:geolocator/geolocator.dart';
 
 import '../../../../core/network/error/error_handler.dart';
 
 class UserTimeRepository {
-  DateTime getCurrentTime() => Timestamp.now().toDate();
-
-  String getCurrentDayName() => getCurrentTime().toString().split(" ")[0];
-
   Future<Either<Failure, Position>> getCurrentLocation() async {
     try {
       bool serviceEnabled;
@@ -35,8 +30,7 @@ class UserTimeRepository {
       }
 
       // Get current location
-      return right(
-          await Geolocator.getCurrentPosition(locationSettings: LocationSettings(accuracy: LocationAccuracy.high)));
+      return right(await Geolocator.getCurrentPosition(locationSettings: LocationSettings(accuracy: LocationAccuracy.high)));
     } catch (e) {
       return Left(ErrorHandler(e).failure); // Return error
     }

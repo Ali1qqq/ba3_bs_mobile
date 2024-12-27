@@ -31,7 +31,7 @@ class UserTimeController extends GetxController {
     initialize();
   }
 
-  Future<bool> checkLogin() async {
+  Future<bool> isWithinRegion() async {
     final result = await _userTimeRepo.getCurrentLocation();
     bool isWithinRegion = false;
     result.fold(
@@ -52,22 +52,28 @@ class UserTimeController extends GetxController {
     getLastOutTime();
   }
 
-  Future<void> checkUserLog({required UserStatus logStatus, required Function(UserModel) onSuccess, required String errorMessage}) async {
+  Future<void> checkUserLog({required UserStatus logStatus, required Function(UserModel) onChecked, required String errorMessage}) async {
     if (logStatus == UserStatus.online) {
       logInState.value = RequestState.loading;
     } else {
       logOutState.value = RequestState.loading;
     }
 
-    UserModel? userModel = await getUserById();
+    UserModel? userModel = getUserById();
 
-    if (!await checkLogin()) {
+    /// check if user in regin
+    if (!await isWithinRegion()) {
       handleError('خطأ في المنطقة الجغرافية', logStatus);
       return;
     }
 
+    /// check if user want to login again before logout
+    /// or
+    /// check if user want to logout again before login
     if (userModel!.userStatus != logStatus) {
-      final updatedUserModel = onSuccess(userModel);
+      final updatedUserModel = onChecked(userModel);
+
+      /// check if user want to log in
       if (logStatus == UserStatus.online) {
         _saveLogInTime(updatedUserModel);
       } else {
@@ -78,29 +84,16 @@ class UserTimeController extends GetxController {
     }
   }
 
-  Future<UserModel?> getUserById() async {
-    late UserModel userModel;
-    UserModel currentUser = read<UserManagementController>().loggedInUserModel!;
-    final result = await _usersFirebaseRepo.getById(currentUser.userId!);
-    result.fold(
-      (failure) {
-        return AppUIUtils.onFailure(failure.message);
-      },
-      (fetchedUser) {
-        userModel = fetchedUser;
-      },
-    );
-
-    return userModel;
-  }
+  UserModel? getUserById() => read<UserManagementController>().loggedInUserModel!;
 
   Future<void> checkLogInAndSave() async {
     await checkUserLog(
+      /// This is the user's status after the operation
       logStatus: UserStatus.online,
-      onSuccess: (userModel) => _userTimeServices.addLoginTimeToUserModel(
+
+      /// After confirming the possibility of lo
+      onChecked: (userModel) => _userTimeServices.addLoginTimeToUserModel(
         userModel: userModel,
-        dayName: _userTimeRepo.getCurrentDayName(),
-        timeNow: _userTimeRepo.getCurrentTime(),
       ),
       errorMessage: "يجب تسجيل الخروج أولا",
     );
@@ -108,11 +101,12 @@ class UserTimeController extends GetxController {
 
   Future<void> checkLogOutAndSave() async {
     await checkUserLog(
+      /// This is the user's status after the operation
       logStatus: UserStatus.away,
-      onSuccess: (userModel) => _userTimeServices.addLogOutTimeToUserModel(
+
+      /// After confirming the possibility of lo
+      onChecked: (userModel) => _userTimeServices.addLogOutTimeToUserModel(
         userModel: userModel,
-        dayName: _userTimeRepo.getCurrentDayName(),
-        timeNow: _userTimeRepo.getCurrentTime(),
       ),
       errorMessage: "يجب تسجيل الدخول أولا",
     );
@@ -126,7 +120,7 @@ class UserTimeController extends GetxController {
       },
       (fetchedUser) {
         handleSuccess('تم تسجيل الخروج بنجاح', UserStatus.away);
-        setLastOutTime = AppServiceUtils.formatDateTime(_userTimeRepo.getCurrentTime());
+        setLastOutTime = AppServiceUtils.formatDateTime(_userTimeServices.getCurrentTime());
       },
     );
   }
@@ -141,22 +135,20 @@ class UserTimeController extends GetxController {
       (fetchedUser) {
         handleSuccess('تم تسجيل الدخول بنجاح', UserStatus.online);
 
-        setLastEnterTime = AppServiceUtils.formatDateTime(_userTimeRepo.getCurrentTime());
+        setLastEnterTime = AppServiceUtils.formatDateTime(_userTimeServices.getCurrentTime());
       },
     );
   }
 
   getLastEnterTime() async {
-    UserModel? userModel = await getUserById();
-    List<DateTime> enterTimeList = _userTimeServices.getEnterTimes(userModel, _userTimeRepo.getCurrentDayName()) ?? [];
+    List<DateTime> enterTimeList = _userTimeServices.getEnterTimes(getUserById()) ?? [];
     if (enterTimeList.isNotEmpty) {
       setLastEnterTime = AppServiceUtils.formatDateTime(enterTimeList.last);
     }
   }
 
   getLastOutTime() async {
-    UserModel? userModel = await getUserById();
-    List<DateTime> outTimeList = _userTimeServices.getOutTimes(userModel, _userTimeRepo.getCurrentDayName()) ?? [];
+    List<DateTime> outTimeList = _userTimeServices.getOutTimes(getUserById()) ?? [];
     if (outTimeList.isNotEmpty) {
       setLastOutTime = AppServiceUtils.formatDateTime(outTimeList.last);
     }
