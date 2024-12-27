@@ -1,10 +1,12 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:geolocator/geolocator.dart';
 
 import '../../../../core/constants/app_strings.dart';
 
 class UserTimeRepository {
+  DateTime getCurrentTime() => Timestamp.now().toDate();
 
-
+  String getCurrentDayName() => getCurrentTime().toString().split(" ")[0];
 
   bool isWithinRegion(Position location, double targetLatitude, double targetLongitude, double radiusInMeters) {
     double distanceInMeters = Geolocator.distanceBetween(
@@ -54,10 +56,4 @@ class UserTimeRepository {
     // Get current location
     return await Geolocator.getCurrentPosition(locationSettings: LocationSettings(accuracy: LocationAccuracy.high));
   }
-
-
-
-
-
-
 }
