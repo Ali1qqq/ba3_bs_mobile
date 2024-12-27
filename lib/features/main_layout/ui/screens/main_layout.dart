@@ -3,6 +3,7 @@ import 'package:ba3_bs_mobile/features/main_layout/ui/widgets/right_main_widget.
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../../../core/helper/extensions/getx_controller_extensions.dart';
 import '../../../../core/styling/app_colors.dart';
 import '../../../../core/styling/app_text_style.dart';
 import '../widgets/left_main_widget.dart';
@@ -12,6 +13,8 @@ class MainLayout extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    put(MainLayoutController());
+
     return SafeArea(
       child: GetBuilder<MainLayoutController>(builder: (mainController) {
         return Directionality(

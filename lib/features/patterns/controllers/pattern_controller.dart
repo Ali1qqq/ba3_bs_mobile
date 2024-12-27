@@ -159,10 +159,4 @@ class PatternController extends GetxController with AppNavigator {
       );
     }
   }
-
-  @override
-  void onClose() {
-    patternFormHandler.dispose();
-    super.onClose();
-  }
 }

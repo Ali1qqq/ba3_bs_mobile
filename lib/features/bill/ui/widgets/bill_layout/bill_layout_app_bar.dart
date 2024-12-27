@@ -8,13 +8,11 @@ AppBar billLayoutAppBar() {
     //   "الفواتير و انماط البيع",
     //   style: TextStyle(fontWeight: FontWeight.w700),
     // ),
-    leading:    IconButton(
+    leading: IconButton(
         onPressed: () {
           Get.find<MainLayoutController>().openDrawer();
         },
         icon: Icon(Icons.menu)),
-    actions: [
-
-    ],
+    actions: [],
   );
 }

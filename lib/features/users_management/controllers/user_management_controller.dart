@@ -6,7 +6,6 @@ import 'package:ba3_bs_mobile/features/users_management/services/role_service.da
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../../../core/helper/extensions/getx_controller_extensions.dart';
 import '../../../core/router/app_routes.dart';
 import '../../../core/services/firebase/implementations/datasource_repo.dart';
 import '../../../core/services/firebase/implementations/filterable_data_source_repo.dart';
@@ -22,9 +21,9 @@ class UserManagementController extends GetxController with AppNavigator {
 
   final FilterableDataSourceRepository<UserModel> _usersFirebaseRepo;
 
-  final prefsService = read<SharedPreferencesService>();
+  final SharedPreferencesService _sharedPreferencesService;
 
-  UserManagementController(this._rolesFirebaseRepo, this._usersFirebaseRepo);
+  UserManagementController(this._rolesFirebaseRepo, this._usersFirebaseRepo, this._sharedPreferencesService);
 
   // Services
   late final RoleService _roleService;
@@ -65,15 +64,21 @@ class UserManagementController extends GetxController with AppNavigator {
     roleFormHandler = RoleFormHandler();
   }
 
-  RoleModel getRoleById(String id) => allRoles.firstWhere((role) => role.roleId == id);
-
-  bool hasPermission(RoleItemType roleItemType) => _roleService.hasPermission(roleItemType);
+  RoleModel? getRoleById(String id) {
+    try {
+      return allRoles.firstWhere((role) => role.roleId == id);
+    } catch (e) {
+      return null;
+    }
+  }
 
   // Check if all roles are selected
-  bool areAllRolesSelected() => RoleItemType.values.every((type) => roleFormHandler.rolesMap[type]?.length == RoleItem.values.length);
+  bool areAllRolesSelected() =>
+      RoleItemType.values.every((type) => roleFormHandler.rolesMap[type]?.length == RoleItem.values.length);
 
   // Check if all roles are selected for a specific RoleItemType
-  bool areAllRolesSelectedForType(RoleItemType type) => roleFormHandler.rolesMap[type]?.length == RoleItem.values.length;
+  bool areAllRolesSelectedForType(RoleItemType type) =>
+      roleFormHandler.rolesMap[type]?.length == RoleItem.values.length;
 
   // Select all roles
   void selectAllRoles() {
@@ -175,12 +180,13 @@ class UserManagementController extends GetxController with AppNavigator {
       AppUIUtils.onFailure('أسم المستخدم غير صحيح!');
       return;
     }
-    prefsService.setString(AppConstants.userIdKey, loggedInUserModel?.userId ?? '');
+    _sharedPreferencesService.setString(AppConstants.userIdKey, loggedInUserModel?.userId ?? '');
     offAll(AppRoutes.mainLayout);
   }
 
   Future<void> _checkUserByPin() async {
-    final result = await _usersFirebaseRepo.fetchWhere(field: AppConstants.userPassword, value: loginPasswordController.text);
+    final result =
+        await _usersFirebaseRepo.fetchWhere(field: AppConstants.userPassword, value: loginPasswordController.text);
 
     result.fold(
       (failure) => AppUIUtils.onFailure(failure.message),
@@ -189,10 +195,10 @@ class UserManagementController extends GetxController with AppNavigator {
   }
 
   void navigateToLogin() async {
-    if (prefsService.getString(AppConstants.userIdKey) == null) {
+    if (_sharedPreferencesService.getString(AppConstants.userIdKey) == null) {
       offAll(AppRoutes.loginScreen);
     } else {
-      getUserById(prefsService.getString(AppConstants.userIdKey)!);
+      getUserById(_sharedPreferencesService.getString(AppConstants.userIdKey)!);
     }
   }
 
@@ -279,15 +285,15 @@ class UserManagementController extends GetxController with AppNavigator {
     );
   }
 
+  void logOut() {
+    _sharedPreferencesService.remove(AppConstants.userIdKey);
+    navigateToLogin();
+  }
+
   @override
   void onClose() {
     userFormHandler.dispose();
     roleFormHandler.dispose();
     super.onClose();
-  }
-
-  void logOut() {
-    prefsService.remove(AppConstants.userIdKey);
-    navigateToLogin();
   }
 }

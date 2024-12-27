@@ -114,19 +114,19 @@ class PatternFormHandler with AppValidator implements IStoreSelectionHandler {
 
   bool validate() => formKey.currentState?.validate() ?? false;
 
-  void dispose() {
-    shortNameController.dispose();
-    fullNameController.dispose();
-    latinShortNameController.dispose();
-    latinFullNameController.dispose();
-    giftsController.dispose();
-    exchangeForGiftsController.dispose();
-    discountsController.dispose();
-    materialsController.dispose();
-    additionsController.dispose();
-    cachesController.dispose();
-    storeController.dispose();
-  }
+  // void dispose() {
+  //   shortNameController.dispose();
+  //   fullNameController.dispose();
+  //   latinShortNameController.dispose();
+  //   latinFullNameController.dispose();
+  //   giftsController.dispose();
+  //   exchangeForGiftsController.dispose();
+  //   discountsController.dispose();
+  //   materialsController.dispose();
+  //   additionsController.dispose();
+  //   cachesController.dispose();
+  //   storeController.dispose();
+  // }
 
   @override
   Rx<StoreAccount> selectedStore = StoreAccount.main.obs;

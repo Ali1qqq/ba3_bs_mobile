@@ -98,6 +98,25 @@ class BillService with PdfBase, BillBondService, FloatingLauncher {
     bondController.deleteEntryBondModel(entryId: billModel.billId!);
   }
 
+  Future<void> handleUpdateBillStatusSuccess({
+    required BillModel updatedBillModel,
+    required Map<Account, List<DiscountAdditionAccountModel>> discountsAndAdditions,
+    required BillSearchController billSearchController,
+  }) async {
+    AppUIUtils.onSuccess('تم القبول بنجاح');
+    billSearchController.updateBill(updatedBillModel);
+
+    if (updatedBillModel.status == Status.approved) {
+      bondController.saveEntryBondModel(
+        entryBondModel: createEntryBondModel(
+          originType: EntryBondType.bill,
+          billModel: updatedBillModel,
+          discountsAndAdditions: discountsAndAdditions,
+        ),
+      );
+    }
+  }
+
   Future<void> handleSaveOrUpdateSuccess({
     required BillModel billModel,
     required Map<Account, List<DiscountAdditionAccountModel>> discountsAndAdditions,
@@ -122,13 +141,15 @@ class BillService with PdfBase, BillBondService, FloatingLauncher {
       pdfGenerator: BillPdfGenerator(),
     );
 
-    bondController.saveEntryBondModel(
-      entryBondModel: createEntryBondModel(
-        originType: EntryBondType.bill,
-        billModel: billModel,
-        discountsAndAdditions: discountsAndAdditions,
-      ),
-    );
+    if (billModel.status == Status.approved) {
+      bondController.saveEntryBondModel(
+        entryBondModel: createEntryBondModel(
+          originType: EntryBondType.bill,
+          billModel: billModel,
+          discountsAndAdditions: discountsAndAdditions,
+        ),
+      );
+    }
   }
 
   showEInvoiceDialog(BillModel billModel, BuildContext context) {
