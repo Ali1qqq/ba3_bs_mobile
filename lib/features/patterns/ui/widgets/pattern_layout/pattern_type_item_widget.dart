@@ -1,5 +1,5 @@
-
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../../../core/helper/enums/enums.dart';
 import '../../../../../core/styling/app_colors.dart';
@@ -20,12 +20,11 @@ class PatternTypeItemWidget extends StatelessWidget {
     return SizedBox(
         width: 500,
         child: Container(
-          height: 300,
+          height: 300.h,
           padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: const BorderRadius.only(
-                bottomLeft: Radius.circular(12), bottomRight: Radius.circular(12), topLeft: Radius.circular(12)),
+            borderRadius: const BorderRadius.only(bottomLeft: Radius.circular(12), bottomRight: Radius.circular(12), topLeft: Radius.circular(12)),
             border: Border.all(color: AppColors.grayColor, width: 2),
           ),
           child: Column(
@@ -48,27 +47,13 @@ class PatternTypeItemWidget extends StatelessWidget {
                   ),
                 ),
               ),
-              BodyPatternWidget(
-                  firstText: '${BillAccounts.caches.label} :',
-                  secondText: billTypeModel.accounts![BillAccounts.caches]?.accName ?? ""),
-              BodyPatternWidget(
-                  firstText: '${BillAccounts.materials.label} :',
-                  secondText: billTypeModel.accounts![BillAccounts.materials]?.accName ?? ""),
-              BodyPatternWidget(
-                  firstText: '${BillAccounts.additions.label} :',
-                  secondText: billTypeModel.accounts![BillAccounts.additions]?.accName ?? ""),
-              BodyPatternWidget(
-                  firstText: '${BillAccounts.discounts.label} :',
-                  secondText: billTypeModel.accounts![BillAccounts.discounts]?.accName ?? ""),
-              BodyPatternWidget(
-                  firstText: '${BillAccounts.gifts.label} :',
-                  secondText: billTypeModel.accounts![BillAccounts.gifts]?.accName ?? ""),
-              BodyPatternWidget(
-                  firstText: "${BillAccounts.exchangeForGifts.label} :",
-                  secondText: billTypeModel.accounts![BillAccounts.exchangeForGifts]?.accName ?? ""),
-              BodyPatternWidget(
-                  firstText: "${BillAccounts.store.label} :",
-                  secondText: billTypeModel.accounts![BillAccounts.store]?.accName ?? ""),
+              BodyPatternWidget(firstText: '${BillAccounts.caches.label} :', secondText: billTypeModel.accounts![BillAccounts.caches]?.accName ?? ""),
+              BodyPatternWidget(firstText: '${BillAccounts.materials.label} :', secondText: billTypeModel.accounts![BillAccounts.materials]?.accName ?? ""),
+              BodyPatternWidget(firstText: '${BillAccounts.additions.label} :', secondText: billTypeModel.accounts![BillAccounts.additions]?.accName ?? ""),
+              BodyPatternWidget(firstText: '${BillAccounts.discounts.label} :', secondText: billTypeModel.accounts![BillAccounts.discounts]?.accName ?? ""),
+              BodyPatternWidget(firstText: '${BillAccounts.gifts.label} :', secondText: billTypeModel.accounts![BillAccounts.gifts]?.accName ?? ""),
+              BodyPatternWidget(firstText: "${BillAccounts.exchangeForGifts.label} :", secondText: billTypeModel.accounts![BillAccounts.exchangeForGifts]?.accName ?? ""),
+              BodyPatternWidget(firstText: "${BillAccounts.store.label} :", secondText: billTypeModel.accounts![BillAccounts.store]?.accName ?? ""),
               const Spacer(),
               AppButton(
                 title: 'تعديل',

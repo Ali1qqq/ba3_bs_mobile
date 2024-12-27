@@ -1,4 +1,5 @@
 import 'package:ba3_bs_mobile/core/helper/enums/enums.dart';
+import 'package:ba3_bs_mobile/core/styling/app_text_style.dart';
 import 'package:ba3_bs_mobile/core/widgets/app_button.dart';
 import 'package:ba3_bs_mobile/features/user_time/controller/user_time_controller.dart';
 import 'package:flutter/material.dart';
@@ -14,17 +15,35 @@ class UserTimeLayout extends StatelessWidget {
         spacing: 50,
         children: [
           Obx(() {
-            return AppButton(
-              title: "دخول",
-              onPressed: () => userTimeController.saveLogInTime(),
-              isLoading: userTimeController.logInState.value == RequestState.loading,
+            return Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                AppButton(
+                  title: "دخول",
+                  onPressed: () => userTimeController.checkSaveLogIn(),
+                  isLoading: userTimeController.logInState.value == RequestState.loading,
+                ),
+                Text(
+                  userTimeController.lastEnterTime.value,
+                  style: AppTextStyles.headLineStyle3,
+                ),
+              ],
             );
           }),
           Obx(() {
-            return AppButton(
-              title: "خروج",
-              onPressed: () => userTimeController.saveLogOutTime(),
-              isLoading: userTimeController.logOutState.value == RequestState.loading,
+            return Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                AppButton(
+                  title: "خروج",
+                  onPressed: () => userTimeController.checkSaveLogOut(),
+                  isLoading: userTimeController.logOutState.value == RequestState.loading,
+                ),
+                Text(
+                  userTimeController.lastOutTime.value,
+                  style: AppTextStyles.headLineStyle3,
+                ),
+              ],
             );
           }),
         ],

@@ -29,13 +29,13 @@ class UserModel {
       'userPassword': userPassword,
       'userRoleId': userRoleId,
       'userStatus': userStatus!.label,
-      "userTimeModel": Map.fromEntries(userTimeModel!.entries.map((e) => MapEntry(e.key, e.value.toJson())).toList()),
+      "userTime": Map.fromEntries(userTimeModel!.entries.map((e) => MapEntry(e.key, e.value.toJson())).toList()),
     };
   }
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
     Map<String, UserTimeModel> userTime = <String, UserTimeModel>{};
-    (json['employeeTime'] ?? {}).forEach((k, v) {
+    (json['userTime'] ?? {}).forEach((k, v) {
       userTime[k] = UserTimeModel.fromJson(v);
     });
     return UserModel(

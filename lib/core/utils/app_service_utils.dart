@@ -152,8 +152,7 @@ class AppServiceUtils {
     }
   }
 
-  static double toFixedDouble(double? value, [int fractionDigits = 2]) =>
-      double.tryParse(value?.toStringAsFixed(fractionDigits) ?? '0') ?? 0.0;
+  static double toFixedDouble(double? value, [int fractionDigits = 2]) => double.tryParse(value?.toStringAsFixed(fractionDigits) ?? '0') ?? 0.0;
 
   static double calcSub(int vatRatio, double total) {
     double sub = total / (1 + (vatRatio / 100));
@@ -191,5 +190,18 @@ class AppServiceUtils {
 
   static String generateUniqueId() {
     return DateTime.now().microsecondsSinceEpoch.toString();
+  }
+
+  static String formatDateTime(DateTime dateTime) {
+    // DateTime dateTime = DateTime.parse(isoString);
+    // print(dateTime);
+    String period = dateTime.hour >= 12 ? "PM" : "AM";
+
+    int hour = dateTime.hour % 12;
+    if (hour == 0) hour = 12;
+
+    String formattedDateTime = "${dateTime.year}-${dateTime.month.toString().padLeft(2, '0')}-${dateTime.day.toString().padLeft(2, '0')} \n"
+        "${hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')} $period";
+    return formattedDateTime;
   }
 }

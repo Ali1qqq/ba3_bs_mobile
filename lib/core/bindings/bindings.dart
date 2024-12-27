@@ -83,8 +83,7 @@ class AppBindings extends Bindings {
       );
 
 // Repositories Initialization
-  _Repositories _initializeRepositories(
-      IDatabaseService<Map<String, dynamic>> fireStoreService, ITranslationService translationService) {
+  _Repositories _initializeRepositories(IDatabaseService<Map<String, dynamic>> fireStoreService, ITranslationService translationService) {
     return _Repositories(
       translationRepo: TranslationRepository(translationService),
       patternsRepo: DataSourceRepository(PatternsDataSource(databaseService: fireStoreService)),
@@ -106,7 +105,6 @@ class AppBindings extends Bindings {
       UserManagementController(repositories.rolesRepo, repositories.usersRepo, sharedPreferencesService),
       permanent: true,
     );
-    put(UserTimeController(repositories.usersRepo, repositories.userTimeRepo), permanent: true);
   }
 
 // Lazy Controllers Initialization
@@ -124,6 +122,7 @@ class AppBindings extends Bindings {
     lazyPut(PrintingController(repositories.translationRepo));
     lazyPut(BillSearchController());
     lazyPut(AccountStatementController(repositories.accountsStatementsRepo));
+    lazyPut(UserTimeController(repositories.usersRepo, repositories.userTimeRepo));
   }
 }
 
