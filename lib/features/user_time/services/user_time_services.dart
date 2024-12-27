@@ -1,5 +1,6 @@
 import 'package:ba3_bs_mobile/core/helper/enums/enums.dart';
 import 'package:ba3_bs_mobile/features/users_management/data/models/user_model.dart';
+import 'package:geolocator/geolocator.dart';
 
 class UserTimeServices {
   // add user logIn time
@@ -42,5 +43,16 @@ class UserTimeServices {
 
   List<DateTime>? getOutTimes(UserModel? userModel, String dayName) {
     return userModel?.userTimeModel![dayName]?.logOutDateList;
+  }
+
+  bool isWithinRegion(Position location, double targetLatitude, double targetLongitude, double radiusInMeters) {
+    double distanceInMeters = Geolocator.distanceBetween(
+      location.latitude,
+      location.longitude,
+      targetLatitude,
+      targetLongitude,
+    );
+
+    return distanceInMeters <= radiusInMeters;
   }
 }

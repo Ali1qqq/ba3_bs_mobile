@@ -20,7 +20,7 @@ class UserTimeLayout extends StatelessWidget {
               children: [
                 AppButton(
                   title: "دخول",
-                  onPressed: () => userTimeController.checkSaveLogIn(),
+                  onPressed: () => userTimeController.checkLogInAndSave(),
                   isLoading: userTimeController.logInState.value == RequestState.loading,
                 ),
                 Text(
@@ -36,7 +36,7 @@ class UserTimeLayout extends StatelessWidget {
               children: [
                 AppButton(
                   title: "خروج",
-                  onPressed: () => userTimeController.checkSaveLogOut(),
+                  onPressed: () => userTimeController.checkLogOutAndSave(),
                   isLoading: userTimeController.logOutState.value == RequestState.loading,
                 ),
                 Text(

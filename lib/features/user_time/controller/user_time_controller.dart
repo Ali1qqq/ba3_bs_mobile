@@ -3,6 +3,7 @@ import 'package:ba3_bs_mobile/features/user_time/data/repositories/user_time_rep
 import 'package:ba3_bs_mobile/features/user_time/services/user_time_services.dart';
 import 'package:get/get.dart';
 
+import '../../../core/constants/app_strings.dart';
 import '../../../core/helper/extensions/getx_controller_extensions.dart';
 import '../../../core/services/firebase/implementations/filterable_data_source_repo.dart';
 import '../../../core/utils/app_service_utils.dart';
@@ -30,40 +31,50 @@ class UserTimeController extends GetxController {
     initialize();
   }
 
+  Future<bool> checkLogin() async {
+    final result = await _userTimeRepo.getCurrentLocation();
+    bool isWithinRegion = false;
+    result.fold(
+      (failure) {
+        return AppUIUtils.onFailure(failure.message);
+      },
+      (location) {
+        return isWithinRegion = _userTimeServices.isWithinRegion(location, AppStrings.targetLatitude, AppStrings.targetLongitude, AppStrings.radiusInMeters);
+      },
+    );
+
+    return isWithinRegion;
+  }
+
   void initialize() {
     _userTimeServices = UserTimeServices();
-
     getLastEnterTime();
     getLastOutTime();
   }
 
-  Future<void> checkUserLog({required UserStatus requiredStatus, required Function(UserModel) onSuccess, required String errorMessage}) async {
-    try {
-      if (requiredStatus == UserStatus.online) {
-        logInState.value = RequestState.loading;
+  Future<void> checkUserLog({required UserStatus logStatus, required Function(UserModel) onSuccess, required String errorMessage}) async {
+    if (logStatus == UserStatus.online) {
+      logInState.value = RequestState.loading;
+    } else {
+      logOutState.value = RequestState.loading;
+    }
+
+    UserModel? userModel = await getUserById();
+
+    if (!await checkLogin()) {
+      handleError('خطأ في المنطقة الجغرافية', logStatus);
+      return;
+    }
+
+    if (userModel!.userStatus != logStatus) {
+      final updatedUserModel = onSuccess(userModel);
+      if (logStatus == UserStatus.online) {
+        _saveLogInTime(updatedUserModel);
       } else {
-        logOutState.value = RequestState.loading;
+        _saveLogOutTime(updatedUserModel);
       }
-
-      UserModel? userModel = await getUserById();
-
-      if (!await _userTimeRepo.checkLogin()) {
-        handleError('خطأ في المنطقة الجغرافية', requiredStatus);
-        return;
-      }
-
-      if (userModel!.userStatus == requiredStatus) {
-        final updatedUserModel = onSuccess(userModel);
-        if (requiredStatus == UserStatus.online) {
-          _saveLogInTime(updatedUserModel);
-        } else {
-          _saveLogOutTime(updatedUserModel);
-        }
-      } else {
-        handleError(errorMessage, requiredStatus);
-      }
-    } catch (e) {
-      handleError("حدث خطأ أثناء العملية: $e", requiredStatus);
+    } else {
+      handleError(errorMessage, logStatus);
     }
   }
 
@@ -83,15 +94,40 @@ class UserTimeController extends GetxController {
     return userModel;
   }
 
-  Future<void> checkSaveLogIn() async {
+  Future<void> checkLogInAndSave() async {
     await checkUserLog(
-      requiredStatus: UserStatus.online,
+      logStatus: UserStatus.online,
       onSuccess: (userModel) => _userTimeServices.addLoginTimeToUserModel(
         userModel: userModel,
         dayName: _userTimeRepo.getCurrentDayName(),
         timeNow: _userTimeRepo.getCurrentTime(),
       ),
       errorMessage: "يجب تسجيل الخروج أولا",
+    );
+  }
+
+  Future<void> checkLogOutAndSave() async {
+    await checkUserLog(
+      logStatus: UserStatus.away,
+      onSuccess: (userModel) => _userTimeServices.addLogOutTimeToUserModel(
+        userModel: userModel,
+        dayName: _userTimeRepo.getCurrentDayName(),
+        timeNow: _userTimeRepo.getCurrentTime(),
+      ),
+      errorMessage: "يجب تسجيل الدخول أولا",
+    );
+  }
+
+  void _saveLogOutTime(UserModel updatedUserModel) async {
+    final result = await _usersFirebaseRepo.save(updatedUserModel);
+    result.fold(
+      (failure) {
+        handleError(failure.message, UserStatus.away);
+      },
+      (fetchedUser) {
+        handleSuccess('تم تسجيل الخروج بنجاح', UserStatus.away);
+        setLastOutTime = AppServiceUtils.formatDateTime(_userTimeRepo.getCurrentTime());
+      },
     );
   }
 
@@ -110,31 +146,6 @@ class UserTimeController extends GetxController {
     );
   }
 
-  Future<void> checkSaveLogOut() async {
-    await checkUserLog(
-      requiredStatus: UserStatus.away,
-      onSuccess: (userModel) => _userTimeServices.addLogOutTimeToUserModel(
-        userModel: userModel,
-        dayName: _userTimeRepo.getCurrentDayName(),
-        timeNow: _userTimeRepo.getCurrentTime(),
-      ),
-      errorMessage: "يجب تسجيل الدخول أولا",
-    );
-  }
-
-  void _saveLogOutTime(UserModel updatedUserModel) async {
-    final result = await _usersFirebaseRepo.save(updatedUserModel);
-    result.fold(
-      (failure) {
-        handleError(failure.message, UserStatus.away);
-      },
-      (fetchedUser) {
-        handleError('تم تسجيل الخروج بنجاح', UserStatus.away);
-        setLastOutTime = AppServiceUtils.formatDateTime(_userTimeRepo.getCurrentTime());
-      },
-    );
-  }
-
   getLastEnterTime() async {
     UserModel? userModel = await getUserById();
     List<DateTime> enterTimeList = _userTimeServices.getEnterTimes(userModel, _userTimeRepo.getCurrentDayName()) ?? [];
@@ -145,7 +156,6 @@ class UserTimeController extends GetxController {
 
   getLastOutTime() async {
     UserModel? userModel = await getUserById();
-
     List<DateTime> outTimeList = _userTimeServices.getOutTimes(userModel, _userTimeRepo.getCurrentDayName()) ?? [];
     if (outTimeList.isNotEmpty) {
       setLastOutTime = AppServiceUtils.formatDateTime(outTimeList.last);
@@ -167,7 +177,7 @@ class UserTimeController extends GetxController {
     } else {
       logOutState.value = RequestState.success;
     }
-    AppUIUtils.onFailure(successMessage);
+    AppUIUtils.onSuccess(successMessage);
   }
 
   set setLastEnterTime(String time) {
