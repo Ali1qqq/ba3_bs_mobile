@@ -35,8 +35,9 @@ class UserTimeRepository {
       }
 
       // Get current location
-      return right(await Geolocator.getCurrentPosition(locationSettings: LocationSettings(accuracy: LocationAccuracy.high)));
-    } on Exception catch (e) {
+      return right(
+          await Geolocator.getCurrentPosition(locationSettings: LocationSettings(accuracy: LocationAccuracy.high)));
+    } catch (e) {
       return Left(ErrorHandler(e).failure); // Return error
     }
   }
