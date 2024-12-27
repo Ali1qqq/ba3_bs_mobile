@@ -204,4 +204,12 @@ class AppServiceUtils {
         "${hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')} $period";
     return formattedDateTime;
   }
+
+  static String getDayNameAndMonthName(String inputDate) {
+    DateTime date = DateTime.parse(inputDate);
+    String dayName = DateFormat.EEEE().format(date);
+    String monthName = DateFormat.MMMM().format(date);
+    String year = DateFormat.y().format(date);
+    return "$dayName - $monthName -  $year";
+  }
 }

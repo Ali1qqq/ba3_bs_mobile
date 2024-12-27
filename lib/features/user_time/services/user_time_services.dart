@@ -1,22 +1,27 @@
 import 'package:ba3_bs_mobile/core/helper/enums/enums.dart';
 import 'package:ba3_bs_mobile/features/users_management/data/models/user_model.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:geolocator/geolocator.dart';
 
 class UserTimeServices {
+  DateTime getCurrentTime() => Timestamp.now().toDate();
+
+  String getCurrentDayName() => getCurrentTime().toString().split(" ")[0];
+
   // add user logIn time
-  UserModel addLoginTimeToUserModel({required UserModel userModel, required String dayName, required DateTime timeNow}) {
+  UserModel addLoginTimeToUserModel({required UserModel userModel}) {
 // Check if the current day exists in userTimeModel
-    if (userModel.userTimeModel![dayName] != null) {
-      userModel.userTimeModel![dayName] = userModel.userTimeModel![dayName]!.copyWith(
+    if (userModel.userTimeModel![getCurrentDayName()] != null) {
+      userModel.userTimeModel![getCurrentDayName()] = userModel.userTimeModel![getCurrentDayName()]!.copyWith(
         logInDateList: [
-          ...(userModel.userTimeModel![dayName]!.logInDateList ?? []), // Merge the old list with the new date
-          timeNow,
+          ...(userModel.userTimeModel![getCurrentDayName()]!.logInDateList ?? []), // Merge the old list with the new date
+          getCurrentTime(),
         ],
       );
     } else {
-      userModel.userTimeModel![dayName] = UserTimeModel(
-        dayName: dayName,
-        logInDateList: [timeNow],
+      userModel.userTimeModel![getCurrentDayName()] = UserTimeModel(
+        dayName: getCurrentDayName(),
+        logInDateList: [getCurrentTime()],
       );
     }
 
@@ -24,12 +29,12 @@ class UserTimeServices {
   }
 
   // add user logout time
-  UserModel addLogOutTimeToUserModel({required UserModel userModel, required String dayName, required DateTime timeNow}) {
-    if (userModel.userTimeModel![dayName] != null) {
-      userModel.userTimeModel![dayName] = userModel.userTimeModel![dayName]!.copyWith(
+  UserModel addLogOutTimeToUserModel({required UserModel userModel}) {
+    if (userModel.userTimeModel![getCurrentDayName()] != null) {
+      userModel.userTimeModel![getCurrentDayName()] = userModel.userTimeModel![getCurrentDayName()]!.copyWith(
         logOutDateList: [
-          ...(userModel.userTimeModel![dayName]!.logOutDateList ?? []), // إضافة الوقت الحالي إلى القائمة الحالية
-          timeNow,
+          ...(userModel.userTimeModel![getCurrentDayName()]!.logOutDateList ?? []), // إضافة الوقت الحالي إلى القائمة الحالية
+          getCurrentTime(),
         ],
       );
     }
@@ -37,12 +42,12 @@ class UserTimeServices {
     return userModel.copyWith(userStatus: UserStatus.away);
   }
 
-  List<DateTime>? getEnterTimes(UserModel? userModel, String dayName) {
-    return userModel?.userTimeModel![dayName]?.logInDateList;
+  List<DateTime>? getEnterTimes(UserModel? userModel) {
+    return userModel?.userTimeModel![getCurrentDayName()]?.logInDateList;
   }
 
-  List<DateTime>? getOutTimes(UserModel? userModel, String dayName) {
-    return userModel?.userTimeModel![dayName]?.logOutDateList;
+  List<DateTime>? getOutTimes(UserModel? userModel) {
+    return userModel?.userTimeModel![getCurrentDayName()]?.logOutDateList;
   }
 
   bool isWithinRegion(Position location, double targetLatitude, double targetLongitude, double radiusInMeters) {

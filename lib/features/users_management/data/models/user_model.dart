@@ -9,6 +9,9 @@ class UserModel {
 
   final UserStatus? userStatus;
 
+  final List<String>? userHolidays;
+  final Map<String, UserDailyTime>? userDailyTime;
+
   final Map<String, UserTimeModel>? userTimeModel;
 
   UserModel({
@@ -19,6 +22,8 @@ class UserModel {
     this.userSellerId,
     this.userTimeModel,
     this.userStatus,
+    this.userHolidays,
+    this.userDailyTime,
   });
 
   Map<String, dynamic> toJson() {
@@ -29,14 +34,21 @@ class UserModel {
       'userPassword': userPassword,
       'userRoleId': userRoleId,
       'userStatus': userStatus!.label,
+      'userHolidays': userHolidays?.toList(),
+      'userDailyTime': Map.fromEntries(userDailyTime!.entries.map((e) => MapEntry(e.key, e.value.toJson())).toList()),
       "userTime": Map.fromEntries(userTimeModel!.entries.map((e) => MapEntry(e.key, e.value.toJson())).toList()),
     };
   }
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
-    Map<String, UserTimeModel> userTime = <String, UserTimeModel>{};
+    Map<String, UserTimeModel> userTimeModel = <String, UserTimeModel>{};
     (json['userTime'] ?? {}).forEach((k, v) {
-      userTime[k] = UserTimeModel.fromJson(v);
+      userTimeModel[k] = UserTimeModel.fromJson(v);
+    });
+
+    Map<String, UserDailyTime> userDailyTime = <String, UserDailyTime>{};
+    (json['userDailyTime'] ?? {}).forEach((k, v) {
+      userDailyTime[k] = UserDailyTime.fromJson(v);
     });
     return UserModel(
       userId: json['docId'],
@@ -44,8 +56,10 @@ class UserModel {
       userName: json['userName'],
       userPassword: json['userPassword'],
       userRoleId: json['userRoleId'],
+      userHolidays: json['userHolidays'] ?? [],
+      userDailyTime: userDailyTime,
       userStatus: UserStatus.byLabel(json['userStatus'] ?? UserStatus.away.label),
-      userTimeModel: userTime,
+      userTimeModel: userTimeModel,
     );
   }
 
@@ -57,7 +71,9 @@ class UserModel {
     String? userRoleId,
     String? userSellerId,
     UserStatus? userStatus,
+    List<String>? userHolidays,
     Map<String, UserTimeModel>? userTimeModel,
+    Map<String, UserDailyTime>? userDailyTime,
   }) {
     return UserModel(
       userId: userId ?? this.userId,
@@ -67,6 +83,51 @@ class UserModel {
       userSellerId: userSellerId ?? this.userSellerId,
       userTimeModel: userTimeModel ?? this.userTimeModel,
       userStatus: userStatus ?? this.userStatus,
+      userHolidays: userHolidays ?? this.userHolidays,
+      userDailyTime: userDailyTime ?? this.userDailyTime,
+    );
+  }
+}
+
+class UserDailyTime {
+  String? id;
+  String? enterTime;
+  String? outTime;
+
+  UserDailyTime({
+    this.id,
+    this.enterTime,
+    this.outTime,
+  });
+
+  // Convert object to JSON
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'enterTime': enterTime,
+      'outTime': outTime,
+    };
+  }
+
+  // Create object from JSON
+  factory UserDailyTime.fromJson(Map<String, dynamic> json) {
+    return UserDailyTime(
+      id: json['id'] as String?,
+      enterTime: json['enterTime'] as String?,
+      outTime: json['outTime'] as String?,
+    );
+  }
+
+  // Create a copy of the object with modified fields
+  UserDailyTime copyWith({
+    String? id,
+    String? enterTime,
+    String? outTime,
+  }) {
+    return UserDailyTime(
+      id: id ?? this.id,
+      enterTime: enterTime ?? this.enterTime,
+      outTime: outTime ?? this.outTime,
     );
   }
 }
