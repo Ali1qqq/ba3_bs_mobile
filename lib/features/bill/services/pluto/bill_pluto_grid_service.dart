@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:ba3_bs_mobile/core/helper/extensions/string_extension.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pluto_grid/pluto_grid.dart';
@@ -261,14 +262,10 @@ class BillPlutoGridService {
     }
   }
 
-  void updateInvoiceValuesByProduct(String productText) {
+  void updateInvoiceValuesByProduct(String productText) {}
 
-
-  }
-
-
-  void getProduct(String productText,PlutoGridStateManager stateManager, IPlutoController plutoController,BuildContext context) {
-
+  void getProduct(
+      String productText, PlutoGridStateManager stateManager, IPlutoController plutoController, BuildContext context) {
     // Initialize variables
 
     final productTextController = TextEditingController()..text = productText;
@@ -301,13 +298,13 @@ class BillPlutoGridService {
     }
   }
 
-  void _showSearchDialog({
-    required TextEditingController productTextController,
-    required List<MaterialModel> searchedMaterials,
-    required MaterialController materialController,
-    required PlutoGridStateManager stateManager,
-    required IPlutoController plutoController,required BuildContext context
-  }) {
+  void _showSearchDialog(
+      {required TextEditingController productTextController,
+      required List<MaterialModel> searchedMaterials,
+      required MaterialController materialController,
+      required PlutoGridStateManager stateManager,
+      required IPlutoController plutoController,
+      required BuildContext context}) {
     OverlayService.showDialog(
       context: context,
       height: 1.sh,
@@ -336,10 +333,10 @@ class BillPlutoGridService {
   }
 
   void updateWithSelectedMaterial(
-      MaterialModel? materialModel,
-      PlutoGridStateManager stateManager,
-      IPlutoController plutoController,
-      ) {
+    MaterialModel? materialModel,
+    PlutoGridStateManager stateManager,
+    IPlutoController plutoController,
+  ) {
     if (materialModel != null) {
       _updateRowWithMaterial(materialModel, stateManager);
       plutoController.moveToNextRow(stateManager, AppConstants.invRecProduct);
@@ -352,9 +349,18 @@ class BillPlutoGridService {
   }
 
   void _updateRowWithMaterial(MaterialModel materialModel, PlutoGridStateManager stateManager) {
+    final subTotal = materialModel.endUserPrice?.toDouble ?? 0;
+
+    final isZeroSubtotal = subTotal == 0;
+
+    final vat = isZeroSubtotal ? '' : (subTotal * 0.05).toStringAsFixed(2);
+    final total = isZeroSubtotal ? '' : ((subTotal + subTotal * 0.05) * 1).toStringAsFixed(2);
+
     updateCellValue(stateManager, AppConstants.invRecProduct, materialModel.matName);
-    updateCellValue(stateManager, AppConstants.invRecSubTotal, materialModel.endUserPrice);
+    updateCellValue(stateManager, AppConstants.invRecSubTotal, subTotal);
     updateCellValue(stateManager, AppConstants.invRecQuantity, 1);
+    updateCellValue(stateManager, AppConstants.invRecVat, vat);
+    updateCellValue(stateManager, AppConstants.invRecTotal, total);
   }
 }
 

@@ -5,8 +5,8 @@ import 'package:get/get.dart';
 
 import '../constants/app_assets.dart';
 import '../constants/app_strings.dart';
-import '../services/mailer_messaging_service/implementations/gmail_messaging_service.dart';
-import '../services/mailer_messaging_service/implementations/mailer_messaging_repo.dart';
+import '../services/mailer_messaging/implementations/gmail_messaging_service.dart';
+import '../services/mailer_messaging/implementations/mailer_messaging_repo.dart';
 import '../services/pdf_generator/implementations/pdf_generator_repo.dart';
 import '../services/pdf_generator/interfaces/i_pdf_generator.dart';
 import '../utils/app_ui_utils.dart';

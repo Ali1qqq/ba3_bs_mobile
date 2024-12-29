@@ -15,6 +15,7 @@ import '../data/models/role_model.dart';
 import '../data/models/user_model.dart';
 import '../services/role_form_handler.dart';
 import '../services/user_form_handler.dart';
+import '../services/user_service.dart';
 
 class UserManagementController extends GetxController with AppNavigator {
   final DataSourceRepository<RoleModel> _rolesFirebaseRepo;
@@ -27,6 +28,7 @@ class UserManagementController extends GetxController with AppNavigator {
 
   // Services
   late final RoleService _roleService;
+  late final UserService _userService;
 
   // Form Handlers
   late final UserFormHandler userFormHandler;
@@ -60,6 +62,9 @@ class UserManagementController extends GetxController with AppNavigator {
   // Initializer
   void _initializeServices() {
     _roleService = RoleService();
+
+    _userService = UserService();
+
     userFormHandler = UserFormHandler();
     roleFormHandler = RoleFormHandler();
   }
@@ -260,7 +265,7 @@ class UserManagementController extends GetxController with AppNavigator {
     if (!userFormHandler.validate()) return;
 
     // Create the user model from the provided data
-    final updatedUserModel = _roleService.createUserModel(
+    final updatedUserModel = _userService.createUserModel(
       userModel: existingUserModel,
       userName: userFormHandler.userNameController.text,
       userPassword: userFormHandler.passController.text,

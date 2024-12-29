@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:ba3_bs_mobile/core/constants/app_constants.dart';
 import 'package:ba3_bs_mobile/core/helper/extensions/string_extension.dart';
 import 'package:ba3_bs_mobile/features/materials/controllers/material_controller.dart';
@@ -99,6 +101,14 @@ class BillDetailsPlutoController extends IPlutoController<InvoiceRecordModel> {
   void restoreCurrentCell(PlutoGridStateManager stateManager) => _gridService.restoreCurrentCell(stateManager);
 
   @override
+  void updateWithSelectedMaterial({
+    required MaterialModel? materialModel,
+    required PlutoGridStateManager stateManager,
+    required IPlutoController plutoController,
+  }) =>
+      _gridService.updateWithSelectedMaterial(materialModel, stateManager, plutoController);
+
+  @override
   void onInit() {
     super.onInit();
     _initializeServices();
@@ -132,13 +142,15 @@ class BillDetailsPlutoController extends IPlutoController<InvoiceRecordModel> {
     final newRows = additionsDiscountsStateManager.getNewRows(count: 2);
     additionsDiscountsStateManager.appendRows(newRows);
   }
- late BuildContext context;
 
-  setContext(BuildContext context){
-    this.context=context;
+  late BuildContext context;
+
+  setContext(BuildContext context) {
+    this.context = context;
   }
 
   void onMainTableStateManagerChanged(PlutoGridOnChangedEvent event) {
+    log('onMainTableStateManagerChanged');
     if (recordsTableStateManager.currentRow == null) return;
     final String field = event.column.field;
 
@@ -149,24 +161,22 @@ class BillDetailsPlutoController extends IPlutoController<InvoiceRecordModel> {
     final vat = _getVat();
     final product = _getProduct();
 
-
-
     // Handle updates based on the changed column
-    _handleColumnUpdate(field, quantity, subTotal, total, vat,product );
+    _handleColumnUpdate(field, quantity, subTotal, total, vat, product);
 
     safeUpdateUI();
   }
 
-  void _handleColumnUpdate(String columnField, int quantity, double subTotal, double total, double vat,String product) {
+  void _handleColumnUpdate(
+      String columnField, int quantity, double subTotal, double total, double vat, String product) {
     if (columnField == AppConstants.invRecSubTotal) {
       _gridService.updateInvoiceValues(subTotal, quantity);
     } else if (columnField == AppConstants.invRecTotal) {
       _gridService.updateInvoiceValuesByTotal(total, quantity);
     } else if (columnField == AppConstants.invRecQuantity && quantity > 0) {
       _gridService.updateInvoiceValuesByQuantity(quantity, subTotal, vat);
-    }else if(columnField==AppConstants.invRecProduct)
-    {
-      _gridService.getProduct(product,recordsTableStateManager,this,context);
+    } else if (columnField == AppConstants.invRecProduct) {
+      _gridService.getProduct(product, recordsTableStateManager, this, context);
     }
     updateAdditionDiscountCell(computeWithVatTotal);
   }
@@ -190,9 +200,10 @@ class BillDetailsPlutoController extends IPlutoController<InvoiceRecordModel> {
     final vatStr = _extractCellValueAsNumber(AppConstants.invRecVat);
     return vatStr.toDouble ?? 0;
   }
+
   String _getProduct() {
-    final product =recordsTableStateManager.currentRow!.cells[AppConstants.invRecProduct]?.value?.toString();
-    return product ??'';
+    final product = recordsTableStateManager.currentRow!.cells[AppConstants.invRecProduct]?.value?.toString();
+    return product ?? '';
   }
 
   String _extractCellValueAsNumber(String field) {
@@ -219,6 +230,7 @@ class BillDetailsPlutoController extends IPlutoController<InvoiceRecordModel> {
 
     _handleContextMenu(event, materialModel, context);
   }
+
   void _handleContextMenu(PlutoGridOnRowDoubleTapEvent event, MaterialModel materialModel, BuildContext context) {
     final field = event.cell.column.field;
     if (field == AppConstants.invRecSubTotal) {

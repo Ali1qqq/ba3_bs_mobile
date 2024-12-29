@@ -70,7 +70,7 @@ enum RoleItemType {
   viewUserManagement('إدارة المستخدمين'),
   viewDue('الاستحقاق'),
   viewStatistics('التقارير'),
-  viewTime('المؤقت'),
+  viewTime('الدوام'),
   viewDataBase('ادارة قواعد البيانات'),
   viewCard('ادارة البطاقات'),
   viewHome('الصفحة الرئيسية');

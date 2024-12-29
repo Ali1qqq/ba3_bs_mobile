@@ -13,6 +13,7 @@ class CustomTextFieldWithIcon extends StatefulWidget {
     this.inputFormatters,
     this.isNumeric = false,
     this.textStyle,
+    required this.readOnly,
   });
 
   final TextEditingController textEditingController;
@@ -25,6 +26,7 @@ class CustomTextFieldWithIcon extends StatefulWidget {
   final bool isNumeric;
 
   final TextStyle? textStyle;
+  final bool readOnly;
 
   @override
   State<CustomTextFieldWithIcon> createState() => _CustomTextFieldWithIconState();
@@ -63,6 +65,7 @@ class _CustomTextFieldWithIconState extends State<CustomTextFieldWithIcon> {
   @override
   Widget build(BuildContext context) {
     return TextFormField(
+      readOnly: widget.readOnly,
       onFieldSubmitted: widget.onSubmitted,
       validator: widget.validator,
       onChanged: widget.onChanged,

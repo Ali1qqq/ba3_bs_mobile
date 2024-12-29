@@ -109,16 +109,31 @@ class BillDetailsCustomAppBar extends StatelessWidget {
         child: Row(
           children: [
             Expanded(
-              flex: 3,
-              child: Text(
-                '${billTypeModel.fullName}',
-                style: Theme.of(context).appBarTheme.titleTextStyle,
-                overflow: TextOverflow.ellipsis, // Avoid overflow
+              flex: 2,
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      '${billTypeModel.fullName}',
+                      style: Theme.of(context).appBarTheme.titleTextStyle,
+                      overflow: TextOverflow.ellipsis, // Avoid overflow
+                    ),
+                  ),
+                  Expanded(
+                    child: IconButton(
+                      onPressed: () {
+                        billDetailsController.showBarCodeScanner(context);
+                      },
+                      icon: Icon(Icons.qr_code_scanner_outlined, color: Colors.black),
+                    ),
+                  ),
+                ],
               ),
             ),
-            const SizedBox(width: 8),
+            // const HorizontalSpace(8),
+            Spacer(flex: 2),
             const Text('نوع الفاتورة: ', textDirection: TextDirection.rtl),
-            const SizedBox(width: 8),
+            const HorizontalSpace(8),
             SizedBox(
               width: 200,
               child: Obx(() {

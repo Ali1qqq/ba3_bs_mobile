@@ -323,6 +323,14 @@ class AddBillPlutoController extends IPlutoController<InvoiceRecordModel> {
     prepareAdditionsDiscountsRows([]);
     update();
   }
+
+  @override
+  void updateWithSelectedMaterial({
+    required MaterialModel? materialModel,
+    required PlutoGridStateManager stateManager,
+    required IPlutoController plutoController,
+  }) =>
+      _gridService.updateWithSelectedMaterial(materialModel, stateManager, plutoController);
 }
 
 // 530

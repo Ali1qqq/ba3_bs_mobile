@@ -319,8 +319,6 @@ class BillDetailsController extends IBillController with AppValidator implements
     }
   }
 
-  void initSellerAccount(String? billSellerId) => read<SellerController>().initSellerAccount(billSellerId, this);
-
   void updateBillDetailsOnScreen(BillModel bill, BillDetailsPlutoController billPlutoController) {
     onPayTypeChanged(InvPayType.fromIndex(bill.billDetails.billPayType!));
 
@@ -330,7 +328,7 @@ class BillDetailsController extends IBillController with AppValidator implements
 
     initCustomerAccount(bill.billTypeModel.accounts?[BillAccounts.caches]);
 
-    initSellerAccount(bill.billDetails.billSellerId);
+    read<SellerController>().initSellerAccount(sellerId: bill.billDetails.billSellerId, billDetailsController: this);
 
     prepareBillRecords(bill.items, billPlutoController);
     prepareAdditionsDiscountsRecords(bill, billPlutoController);
@@ -338,19 +336,21 @@ class BillDetailsController extends IBillController with AppValidator implements
     billPlutoController.update();
   }
 
-  generateAndSendBillPdf(BillModel billModel) {
-    _billService.generateAndSendPdf(
-      fileName: AppStrings.bill,
-      itemModel: billModel,
-      itemModelId: billModel.billId,
-      items: billModel.items.itemList,
-      pdfGenerator: BillPdfGenerator(),
-    );
-  }
+  generateAndSendBillPdf(BillModel billModel) => _billService.generateAndSendPdf(
+        fileName: AppStrings.bill,
+        itemModel: billModel,
+        itemModelId: billModel.billId,
+        items: billModel.items.itemList,
+        pdfGenerator: BillPdfGenerator(),
+      );
 
-  showEInvoiceDialog(BillModel billModel, BuildContext context) {
-    _billService.showEInvoiceDialog(billModel, context);
-  }
+  showEInvoiceDialog(BillModel billModel, BuildContext context) => _billService.showEInvoiceDialog(billModel, context);
+
+  showBarCodeScanner(BuildContext context) => _billService.showBarCodeScanner(
+        context: context,
+        stateManager: billDetailsPlutoController.recordsTableStateManager,
+        plutoController: billDetailsPlutoController,
+      );
 }
 
 // 300 - 193

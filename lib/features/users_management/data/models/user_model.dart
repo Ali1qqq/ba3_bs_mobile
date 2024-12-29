@@ -1,4 +1,4 @@
-import 'package:ba3_bs_mobile/core/helper/enums/enums.dart';
+import '../../../../core/helper/enums/enums.dart';
 
 class UserModel {
   final String? userId;
@@ -10,7 +10,7 @@ class UserModel {
   final UserStatus? userStatus;
 
   final List<String>? userHolidays;
-  final Map<String, UserDailyTime>? userDailyTime;
+  final Map<String, UserWorkingHours>? userWorkingHours;
 
   final Map<String, UserTimeModel>? userTimeModel;
 
@@ -23,7 +23,7 @@ class UserModel {
     this.userTimeModel,
     this.userStatus,
     this.userHolidays,
-    this.userDailyTime,
+    this.userWorkingHours,
   });
 
   Map<String, dynamic> toJson() {
@@ -33,10 +33,13 @@ class UserModel {
       'userName': userName,
       'userPassword': userPassword,
       'userRoleId': userRoleId,
-      'userStatus': userStatus!.label,
-      'userHolidays': userHolidays?.toList(),
-      'userDailyTime': Map.fromEntries(userDailyTime!.entries.map((e) => MapEntry(e.key, e.value.toJson())).toList()),
-      "userTime": Map.fromEntries(userTimeModel!.entries.map((e) => MapEntry(e.key, e.value.toJson())).toList()),
+      if (userStatus != null) 'userStatus': userStatus?.label,
+      if (userHolidays != null) 'userHolidays': userHolidays?.toList(),
+      if (userWorkingHours != null)
+        'userWorkingHours':
+            Map.fromEntries(userWorkingHours!.entries.map((e) => MapEntry(e.key, e.value.toJson())).toList()),
+      if (userTimeModel != null)
+        "userTime": Map.fromEntries(userTimeModel!.entries.map((e) => MapEntry(e.key, e.value.toJson())).toList()),
     };
   }
 
@@ -46,18 +49,22 @@ class UserModel {
       userTimeModel[k] = UserTimeModel.fromJson(v);
     });
 
-    Map<String, UserDailyTime> userDailyTime = <String, UserDailyTime>{};
-    (json['userDailyTime'] ?? {}).forEach((k, v) {
-      userDailyTime[k] = UserDailyTime.fromJson(v);
-    });
+    Map<String, UserWorkingHours> userDailyTime = <String, UserWorkingHours>{};
+
+    (json['userWorkingHours'] ?? {}).forEach(
+      (String workingHourId, dynamic workingHourJson) {
+        userDailyTime[workingHourId] = UserWorkingHours.fromJson(workingHourJson);
+      },
+    );
+
     return UserModel(
       userId: json['docId'],
       userSellerId: json['userSellerId'],
       userName: json['userName'],
       userPassword: json['userPassword'],
       userRoleId: json['userRoleId'],
-      userHolidays: json['userHolidays'] ?? [],
-      userDailyTime: userDailyTime,
+      userHolidays: List<String>.from(json['userHolidays'] ?? []),
+      userWorkingHours: userDailyTime,
       userStatus: UserStatus.byLabel(json['userStatus'] ?? UserStatus.away.label),
       userTimeModel: userTimeModel,
     );
@@ -73,7 +80,7 @@ class UserModel {
     UserStatus? userStatus,
     List<String>? userHolidays,
     Map<String, UserTimeModel>? userTimeModel,
-    Map<String, UserDailyTime>? userDailyTime,
+    Map<String, UserWorkingHours>? userWorkingHours,
   }) {
     return UserModel(
       userId: userId ?? this.userId,
@@ -84,17 +91,17 @@ class UserModel {
       userTimeModel: userTimeModel ?? this.userTimeModel,
       userStatus: userStatus ?? this.userStatus,
       userHolidays: userHolidays ?? this.userHolidays,
-      userDailyTime: userDailyTime ?? this.userDailyTime,
+      userWorkingHours: userWorkingHours ?? this.userWorkingHours,
     );
   }
 }
 
-class UserDailyTime {
+class UserWorkingHours {
   String? id;
   String? enterTime;
   String? outTime;
 
-  UserDailyTime({
+  UserWorkingHours({
     this.id,
     this.enterTime,
     this.outTime,
@@ -110,8 +117,8 @@ class UserDailyTime {
   }
 
   // Create object from JSON
-  factory UserDailyTime.fromJson(Map<String, dynamic> json) {
-    return UserDailyTime(
+  factory UserWorkingHours.fromJson(Map<String, dynamic> json) {
+    return UserWorkingHours(
       id: json['id'] as String?,
       enterTime: json['enterTime'] as String?,
       outTime: json['outTime'] as String?,
@@ -119,12 +126,12 @@ class UserDailyTime {
   }
 
   // Create a copy of the object with modified fields
-  UserDailyTime copyWith({
+  UserWorkingHours copyWith({
     String? id,
     String? enterTime,
     String? outTime,
   }) {
-    return UserDailyTime(
+    return UserWorkingHours(
       id: id ?? this.id,
       enterTime: enterTime ?? this.enterTime,
       outTime: outTime ?? this.outTime,

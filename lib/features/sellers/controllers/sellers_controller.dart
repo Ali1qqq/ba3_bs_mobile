@@ -6,8 +6,10 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../../core/dialogs/seller_selection_dialog_content.dart';
+import '../../../core/helper/extensions/getx_controller_extensions.dart';
 import '../../../core/utils/app_ui_utils.dart';
 import '../../floating_window/services/overlay_service.dart';
+import '../../users_management/controllers/user_management_controller.dart';
 import '../data/models/seller_model.dart';
 import '../data/repositories/sellers_repository.dart';
 
@@ -87,7 +89,12 @@ class SellerController extends GetxController {
     }
   }
 
-  void initSellerAccount(String? billSellerId, BillDetailsController billDetailsController) {
+  void initSellerAccount({
+    required String? sellerId,
+    required BillDetailsController billDetailsController,
+  }) {
+    final String? billSellerId = sellerId ?? read<UserManagementController>().loggedInUserModel?.userSellerId;
+
     if (billSellerId == null) {
       selectedSellerAccount = null;
 

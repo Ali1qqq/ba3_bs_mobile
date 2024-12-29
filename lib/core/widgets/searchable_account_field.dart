@@ -22,6 +22,7 @@ class SearchableAccountField extends StatelessWidget {
   final BondDetailsController? bondDetailsController;
   final ChequesDetailsController? chequesDetailsController;
   final bool isFirstAccountCheque;
+  final bool readOnly;
 
   const SearchableAccountField({
     super.key,
@@ -37,6 +38,7 @@ class SearchableAccountField extends StatelessWidget {
     this.bondDetailsController,
     this.chequesDetailsController,
     this.isFirstAccountCheque = false,
+    this.readOnly = false,
   });
 
   @override
@@ -49,6 +51,7 @@ class SearchableAccountField extends StatelessWidget {
           SizedBox(width: 100, child: Text(label)),
           Expanded(
             child: CustomTextFieldWithIcon(
+              readOnly: readOnly,
               textEditingController: textEditingController,
               validator: validator,
               onSubmitted: onSubmitted ??

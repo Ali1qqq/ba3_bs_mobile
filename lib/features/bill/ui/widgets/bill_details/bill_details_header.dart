@@ -1,9 +1,7 @@
 import 'package:ba3_bs_mobile/core/widgets/store_dropdown.dart';
-import 'package:ba3_bs_mobile/features/sellers/controllers/sellers_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../../../../../core/helper/extensions/getx_controller_extensions.dart';
 import '../../../../../core/widgets/app_spacer.dart';
 import '../../../../../core/widgets/custom_text_field_without_icon.dart';
 import '../../../../../core/widgets/date_picker.dart';
@@ -66,14 +64,15 @@ class BillDetailsHeader extends StatelessWidget {
             FormFieldRow(
               firstItem: SearchableAccountField(
                 label: 'البائع',
+                readOnly: true,
                 textEditingController: billDetailsController.sellerAccountController,
                 validator: (value) => billDetailsController.validator(value, 'البائع'),
                 onSubmitted: (text) {
-                  read<SellerController>().openSellerSelectionDialog(
-                    query: text,
-                    textEditingController: billDetailsController.sellerAccountController,
-                    context: context,
-                  );
+                  // read<SellerController>().openSellerSelectionDialog(
+                  //   query: text,
+                  //   textEditingController: billDetailsController.sellerAccountController,
+                  //   context: context,
+                  // );
                 },
               ),
               secondItem: TextAndExpandedChildField(

@@ -48,8 +48,8 @@ dependencies:
   flutter_keyboard_visibility: ^6.0.0
   shared_preferences: ^2.3.4
   geolocator: ^13.0.2
-
-
+  simple_barcode_scanner: ^0.2.5
+  flutter_barcode_scanner: ^2.0.0
 
 dev_dependencies:
   flutter_test:
