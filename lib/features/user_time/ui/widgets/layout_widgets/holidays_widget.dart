@@ -33,20 +33,22 @@ class HolidaysWidget extends StatelessWidget {
                 physics: ClampingScrollPhysics(),
                 itemCount: userTimeController.userHolidaysLength,
                 padding: EdgeInsets.zero,
-                itemBuilder: (context, index) => Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      userTimeController.userHolidays!.elementAt(index),
-                      style: AppTextStyles.headLineStyle3,
-                    ),
-                    HorizontalSpace(),
-                    Text(
-                      userTimeController.userHolidaysWithDay!.elementAt(index),
-                      style: AppTextStyles.headLineStyle3,
-                    ),
-                  ],
-                ),
+                itemBuilder: (context, index) {
+                  return Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        userTimeController.userHolidays!.elementAt(index),
+                        style: AppTextStyles.headLineStyle3,
+                      ),
+                      HorizontalSpace(),
+                      Text(
+                        userTimeController.userHolidaysWithDay!.elementAt(index),
+                        style: AppTextStyles.headLineStyle3,
+                      ),
+                    ],
+                  );
+                },
               ),
             ],
           )),

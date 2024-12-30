@@ -7,9 +7,9 @@ import 'package:ba3_bs_mobile/core/i_controllers/i_pluto_controller.dart';
 import 'package:ba3_bs_mobile/features/bill/controllers/bill/bill_search_controller.dart';
 import 'package:ba3_bs_mobile/features/users_management/data/models/role_model.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:get/get.dart';
 import 'package:pluto_grid/pluto_grid.dart';
+import 'package:simple_barcode_scanner/simple_barcode_scanner.dart';
 
 import '../../../../core/constants/app_strings.dart';
 import '../../../../core/dialogs/e_invoice_dialog_content.dart';
@@ -177,13 +177,13 @@ class BillService with PdfBase, BillBondService, FloatingLauncher {
     required PlutoGridStateManager stateManager,
     required IPlutoController plutoController,
   }) async {
-    // final barCode = await SimpleBarcodeScanner.scanBarcode(context, scanFormat: ScanFormat.ONLY_BARCODE) ?? '';
-    String barcodeScanRes = await FlutterBarcodeScanner.scanBarcode("#ff6666", "Cancel", false, ScanMode.DEFAULT);
+    final barCode = await SimpleBarcodeScanner.scanBarcode(context, scanFormat: ScanFormat.ONLY_BARCODE) ?? '';
+    // String barcodeScanRes = await FlutterBarcodeScanner.scanBarcode("#ff6666", "Cancel", false, ScanMode.DEFAULT);
 
     _handleBarCodeScan(
       stateManager: stateManager,
       plutoController: plutoController,
-      barCode: barcodeScanRes,
+      barCode: barCode,
     );
   }
 

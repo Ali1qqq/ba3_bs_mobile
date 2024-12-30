@@ -6,7 +6,8 @@ import '../../../../../core/widgets/app_spacer.dart';
 import '../../../data/models/user_model.dart';
 
 class WorkingHoursItem extends StatelessWidget {
-  const WorkingHoursItem({super.key, required this.userWorkingHours, required this.onEnterTimeChange, required this.onOutTimeChange, required this.onDelete});
+  const WorkingHoursItem(
+      {super.key, required this.userWorkingHours, required this.onEnterTimeChange, required this.onOutTimeChange, required this.onDelete});
 
   final UserWorkingHours userWorkingHours;
   final void Function(Time) onEnterTimeChange;
@@ -21,15 +22,14 @@ class WorkingHoursItem extends StatelessWidget {
         Row(
           children: [
             Text(
-              'توقيت الدخول',
-              style: AppTextStyles.headLineStyle3,
+              'الدخول',
+              style: AppTextStyles.headLineStyle4,
             ),
             HorizontalSpace(),
             InkWell(
               onTap: () async {
                 Navigator.of(context).push(
                   showPicker(
-
                     context: context,
                     value: Time(hour: 4, minute: 30),
                     sunrise: TimeOfDay(hour: 6, minute: 0),
@@ -41,12 +41,12 @@ class WorkingHoursItem extends StatelessWidget {
               },
               child: Container(
                 height: 30,
-                width: 100,
+                width: 70,
                 decoration: BoxDecoration(borderRadius: BorderRadius.circular(5), border: Border.all(color: Colors.grey, width: 2)),
                 child: Center(
                   child: Text(
                     userWorkingHours.enterTime ?? '',
-                    style: AppTextStyles.headLineStyle3,
+                    style: AppTextStyles.headLineStyle4,
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
@@ -57,8 +57,8 @@ class WorkingHoursItem extends StatelessWidget {
         Row(
           children: [
             Text(
-              'توقيت الخروج',
-              style: AppTextStyles.headLineStyle3,
+              'الخروج',
+              style: AppTextStyles.headLineStyle4,
             ),
             HorizontalSpace(),
             InkWell(
@@ -76,12 +76,12 @@ class WorkingHoursItem extends StatelessWidget {
               },
               child: Container(
                 height: 30,
-                width: 100,
+                width: 70,
                 decoration: BoxDecoration(borderRadius: BorderRadius.circular(5), border: Border.all(color: Colors.grey, width: 2)),
                 child: Center(
                   child: Text(
                     userWorkingHours.outTime ?? '',
-                    style: AppTextStyles.headLineStyle3,
+                    style: AppTextStyles.headLineStyle4,
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
@@ -89,7 +89,6 @@ class WorkingHoursItem extends StatelessWidget {
             ),
           ],
         ),
-
         IconButton(onPressed: onDelete, icon: Icon(Icons.delete))
       ],
     );

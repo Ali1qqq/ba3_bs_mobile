@@ -21,14 +21,69 @@ class MainLayoutController extends GetxController {
   void closeDrawer() => isDrawerOpen.value = false;
 
   List<({String name, Widget layout, RoleItemType role, String icon, String unSelectedIcon})> appLayouts = [
-    if (RoleItemType.viewBill.hasReadPermission) (name: 'الفواتير', layout: const BillLayout(), role: RoleItemType.viewBill, icon: AppAssets.billsIcon, unSelectedIcon: AppAssets.billsUnselectedIcon),
-    if (RoleItemType.viewPattern.hasReadPermission) (name: 'أنماط البيع', layout: const PatternLayout(), role: RoleItemType.viewPattern, icon: AppAssets.patternsIcon, unSelectedIcon: AppAssets.patternsUnselectedIcon),
-    if (RoleItemType.viewProduct.hasReadPermission) (name: 'المواد', layout: const MaterialLayout(), role: RoleItemType.viewProduct, icon: AppAssets.materialIcon, unSelectedIcon: AppAssets.materialUnselectedIcon),
-    if (RoleItemType.viewAccount.hasReadPermission) (name: 'الحسابات', layout: const AccountLayout(), role: RoleItemType.viewAccount, icon: AppAssets.accountsIcon, unSelectedIcon: AppAssets.accountsUnselectedIcon),
-    if (RoleItemType.viewBond.hasReadPermission) (name: 'السندات', layout: const BondLayout(), role: RoleItemType.viewBond, icon: AppAssets.bondsIcon, unSelectedIcon: AppAssets.bondsUnselectedIcon),
-    if (RoleItemType.viewCheques.hasReadPermission) (name: 'الشيكات', layout: const ChequeLayout(), role: RoleItemType.viewCheques, icon: AppAssets.chequesIcon, unSelectedIcon: AppAssets.chequesUnselectedIcon),
-    if (RoleItemType.viewUserManagement.hasAdminPermission) (name: 'إدارة المستخدمين', layout: const UserManagementLayout(), role: RoleItemType.viewUserManagement, icon: AppAssets.usersIcon, unSelectedIcon: AppAssets.usersUnselectedIcon),
-    (name: 'الدوام', layout: const UserTimeLayout(), role: RoleItemType.viewTime, icon: AppAssets.usersIcon, unSelectedIcon: AppAssets.usersUnselectedIcon),
+    if (RoleItemType.viewBill.hasReadPermission)
+      (
+        name: 'الفواتير',
+        layout: const BillLayout(),
+        role: RoleItemType.viewBill,
+        icon: AppAssets.billsIcon,
+        unSelectedIcon: AppAssets.billsUnselectedIcon
+      ),
+    if (RoleItemType.viewPattern.hasReadPermission)
+      (
+        name: 'أنماط البيع',
+        layout: const PatternLayout(),
+        role: RoleItemType.viewPattern,
+        icon: AppAssets.patternsIcon,
+        unSelectedIcon: AppAssets.patternsUnselectedIcon
+      ),
+    if (RoleItemType.viewProduct.hasReadPermission)
+      (
+        name: 'المواد',
+        layout: const MaterialLayout(),
+        role: RoleItemType.viewProduct,
+        icon: AppAssets.materialIcon,
+        unSelectedIcon: AppAssets.materialUnselectedIcon
+      ),
+    if (RoleItemType.viewAccount.hasReadPermission)
+      (
+        name: 'الحسابات',
+        layout: const AccountLayout(),
+        role: RoleItemType.viewAccount,
+        icon: AppAssets.accountsIcon,
+        unSelectedIcon: AppAssets.accountsUnselectedIcon
+      ),
+    if (RoleItemType.viewBond.hasReadPermission)
+      (
+        name: 'السندات',
+        layout: const BondLayout(),
+        role: RoleItemType.viewBond,
+        icon: AppAssets.bondsIcon,
+        unSelectedIcon: AppAssets.bondsUnselectedIcon
+      ),
+    if (RoleItemType.viewCheques.hasReadPermission)
+      (
+        name: 'الشيكات',
+        layout: const ChequeLayout(),
+        role: RoleItemType.viewCheques,
+        icon: AppAssets.chequesIcon,
+        unSelectedIcon: AppAssets.chequesUnselectedIcon
+      ),
+    if (RoleItemType.viewUserManagement.hasAdminPermission)
+      (
+        name: 'إدارة المستخدمين',
+        layout: const UserManagementLayout(),
+        role: RoleItemType.viewUserManagement,
+        icon: AppAssets.usersIcon,
+        unSelectedIcon: AppAssets.usersUnselectedIcon
+      ),
+    (
+      name: 'الدوام',
+      layout: const UserTimeLayout(),
+      role: RoleItemType.viewTime,
+      icon: AppAssets.usersTimeIcon,
+      unSelectedIcon: AppAssets.usersTimeUnselectedIcon
+    ),
   ];
 
   PageController pageController = PageController();

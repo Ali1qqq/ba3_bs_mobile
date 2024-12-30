@@ -5,8 +5,9 @@ class TextAndExpandedChildField extends StatelessWidget {
   final String label;
   final Widget child;
   final double? width;
+  final double? textWidth;
 
-  const TextAndExpandedChildField({super.key, required this.label, required this.child, this.width});
+  const TextAndExpandedChildField({super.key, required this.label, required this.child, this.width, this.textWidth});
 
   @override
   Widget build(BuildContext context) {
@@ -15,7 +16,7 @@ class TextAndExpandedChildField extends StatelessWidget {
       child: Row(
         children: [
           SizedBox(
-            width: 100,
+            width: textWidth ?? 100,
             child: Text(label, style: const TextStyle()),
           ),
           Expanded(child: child),

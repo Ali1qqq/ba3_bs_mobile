@@ -11,7 +11,6 @@ class AppAssets {
   static const notoSansArabicMedium = '$_baseFontsPath/notoSansArabic/NotoSansArabic-Medium.ttf';
   static const notoSansArabicBold = '$_baseFontsPath/notoSansArabic/NotoSansArabic-Bold.ttf';
 
-
   ///App Icons
   static const billsIcon = '$_baseIconsPath/bills_icon.png';
   static const billsUnselectedIcon = '$_baseIconsPath/bills_unselected_icon.png';
@@ -28,8 +27,9 @@ class AppAssets {
   static const usersIcon = '$_baseIconsPath/user_icon.png';
   static const usersUnselectedIcon = '$_baseIconsPath/users_unselected_icon.png';
   static const openingEntryIcon = '$_baseIconsPath/Opening_Entry_icon.png';
+  static const usersTimeUnselectedIcon = '$_baseIconsPath/user_time_unselected_icon.png';
+  static const usersTimeIcon = '$_baseIconsPath/user_time_icon.png';
   static const receiptVoucherIcon = '$_baseIconsPath/Receipt_Voucher_icon.png';
   static const paymentVoucherIcon = '$_baseIconsPath/Payment_Voucher_icon.png';
   static const journalVoucherIcon = '$_baseIconsPath/Journal_Voucher_icon.png';
-
 }

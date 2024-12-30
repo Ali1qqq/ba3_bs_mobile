@@ -152,7 +152,8 @@ class AppServiceUtils {
     }
   }
 
-  static double toFixedDouble(double? value, [int fractionDigits = 2]) => double.tryParse(value?.toStringAsFixed(fractionDigits) ?? '0') ?? 0.0;
+  static double toFixedDouble(double? value, [int fractionDigits = 2]) =>
+      double.tryParse(value?.toStringAsFixed(fractionDigits) ?? '0') ?? 0.0;
 
   static double calcSub(int vatRatio, double total) {
     double sub = total / (1 + (vatRatio / 100));
@@ -210,6 +211,7 @@ class AppServiceUtils {
     String dayName = DateFormat.EEEE().format(date);
     String monthName = DateFormat.MMMM().format(date);
     String year = DateFormat.y().format(date);
+
     return "$dayName - $monthName -  $year";
   }
 }

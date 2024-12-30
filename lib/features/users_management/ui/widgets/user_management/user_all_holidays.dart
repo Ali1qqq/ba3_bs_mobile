@@ -29,7 +29,7 @@ class UserAllHolidays extends StatelessWidget {
           children: [
             SizedBox(
               width: 1.sw,
-              height: 100,
+              height: 40,
               child: ListView.separated(
                 scrollDirection: Axis.horizontal,
                 itemBuilder: (context, index) => HolidayItemWidget(

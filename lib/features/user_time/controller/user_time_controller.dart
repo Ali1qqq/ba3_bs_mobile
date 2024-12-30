@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:get/get.dart';
 
 import '../../../core/constants/app_strings.dart';
@@ -35,13 +36,19 @@ class UserTimeController extends GetxController {
 
   int get workingHoursLength => workingHours?.length ?? 0;
 
-  Set<String>? get userHolidays => getUserById()?.userHolidays?.toSet();
+  List<String>? get userHolidays => getUserById()
+      ?.userHolidays
+      ?.toList()
+      .where(
+        (element) => element.split("-")[1] == Timestamp.now().toDate().month.toString().padLeft(2, "0"),
+      )
+      .toList();
 
-  Set<String>? get userHolidaysWithDay => userHolidays
+  List<String>? get userHolidaysWithDay => userHolidays
       ?.map(
         (date) => AppServiceUtils.getDayNameAndMonthName(date),
       )
-      .toSet();
+      .toList();
 
   int get userHolidaysLength => userHolidays?.length ?? 0;
 
