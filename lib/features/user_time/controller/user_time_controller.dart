@@ -1,15 +1,15 @@
-import 'package:ba3_bs_mobile/core/helper/enums/enums.dart';
-import 'package:ba3_bs_mobile/features/user_time/data/repositories/user_time_repo.dart';
-import 'package:ba3_bs_mobile/features/user_time/services/user_time_services.dart';
 import 'package:get/get.dart';
 
 import '../../../core/constants/app_strings.dart';
+import '../../../core/helper/enums/enums.dart';
 import '../../../core/helper/extensions/getx_controller_extensions.dart';
 import '../../../core/services/firebase/implementations/filterable_data_source_repo.dart';
 import '../../../core/utils/app_service_utils.dart';
 import '../../../core/utils/app_ui_utils.dart';
 import '../../users_management/controllers/user_management_controller.dart';
 import '../../users_management/data/models/user_model.dart';
+import '../data/repositories/user_time_repo.dart';
+import '../services/user_time_services.dart';
 
 class UserTimeController extends GetxController {
   final FilterableDataSourceRepository<UserModel> _usersFirebaseRepo;
@@ -31,6 +31,20 @@ class UserTimeController extends GetxController {
     initialize();
   }
 
+  Map<String, UserWorkingHours>? get workingHours => getUserById()?.userWorkingHours;
+
+  int get workingHoursLength => workingHours?.length ?? 0;
+
+  Set<String>? get userHolidays => getUserById()?.userHolidays?.toSet();
+
+  Set<String>? get userHolidaysWithDay => userHolidays
+      ?.map(
+        (date) => AppServiceUtils.getDayNameAndMonthName(date),
+      )
+      .toSet();
+
+  int get userHolidaysLength => userHolidays?.length ?? 0;
+
   Future<bool> isWithinRegion() async {
     final result = await _userTimeRepo.getCurrentLocation();
     bool isWithinRegion = false;
@@ -39,7 +53,8 @@ class UserTimeController extends GetxController {
         return AppUIUtils.onFailure(failure.message);
       },
       (location) {
-        return isWithinRegion = _userTimeServices.isWithinRegion(location, AppStrings.targetLatitude, AppStrings.targetLongitude, AppStrings.radiusInMeters);
+        return isWithinRegion =
+            _userTimeServices.isWithinRegion(location, AppStrings.targetLatitude, AppStrings.targetLongitude, AppStrings.radiusInMeters);
       },
     );
 

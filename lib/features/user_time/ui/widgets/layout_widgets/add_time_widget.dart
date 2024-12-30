@@ -1,4 +1,3 @@
-import 'package:ba3_bs_mobile/features/user_time/controller/user_time_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get_state_manager/src/rx_flutter/rx_obx_widget.dart';
 
@@ -6,6 +5,7 @@ import '../../../../../core/helper/enums/enums.dart';
 import '../../../../../core/styling/app_text_style.dart';
 import '../../../../../core/widgets/app_button.dart';
 import '../../../../../core/widgets/organized_widget.dart';
+import '../../../controller/user_time_controller.dart';
 
 class AddTimeWidget extends StatelessWidget {
   const AddTimeWidget({

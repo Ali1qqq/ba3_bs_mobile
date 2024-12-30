@@ -1,11 +1,17 @@
 import 'dart:developer';
 
 import 'package:ba3_bs_mobile/core/constants/app_constants.dart';
-import 'package:ba3_bs_mobile/core/helper/mixin/app_navigator.dart';
+import 'package:ba3_bs_mobile/core/dialogs/custom_date_picker_dialog.dart';
+import 'package:ba3_bs_mobile/core/helper/extensions/time_etensions.dart';
 import 'package:ba3_bs_mobile/features/users_management/services/role_service.dart';
+import 'package:ba3_bs_mobile/features/users_management/services/user_service.dart';
+import 'package:day_night_time_picker/day_night_time_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 
+import '../../../core/constants/app_constants.dart';
+import '../../../core/helper/mixin/app_navigator.dart';
 import '../../../core/router/app_routes.dart';
 import '../../../core/services/firebase/implementations/datasource_repo.dart';
 import '../../../core/services/firebase/implementations/filterable_data_source_repo.dart';
@@ -15,7 +21,6 @@ import '../data/models/role_model.dart';
 import '../data/models/user_model.dart';
 import '../services/role_form_handler.dart';
 import '../services/user_form_handler.dart';
-import '../services/user_service.dart';
 
 class UserManagementController extends GetxController with AppNavigator {
   final DataSourceRepository<RoleModel> _rolesFirebaseRepo;
@@ -62,12 +67,19 @@ class UserManagementController extends GetxController with AppNavigator {
   // Initializer
   void _initializeServices() {
     _roleService = RoleService();
-
     _userService = UserService();
 
     userFormHandler = UserFormHandler();
     roleFormHandler = RoleFormHandler();
   }
+
+  Map<String, UserWorkingHours> workingHours = {};
+
+  int get workingHoursLength => workingHours.length;
+
+  Set<String> holidays = {};
+
+  int get holidaysLength => holidays.length;
 
   RoleModel? getRoleById(String id) {
     try {
@@ -78,12 +90,10 @@ class UserManagementController extends GetxController with AppNavigator {
   }
 
   // Check if all roles are selected
-  bool areAllRolesSelected() =>
-      RoleItemType.values.every((type) => roleFormHandler.rolesMap[type]?.length == RoleItem.values.length);
+  bool areAllRolesSelected() => RoleItemType.values.every((type) => roleFormHandler.rolesMap[type]?.length == RoleItem.values.length);
 
   // Check if all roles are selected for a specific RoleItemType
-  bool areAllRolesSelectedForType(RoleItemType type) =>
-      roleFormHandler.rolesMap[type]?.length == RoleItem.values.length;
+  bool areAllRolesSelectedForType(RoleItemType type) => roleFormHandler.rolesMap[type]?.length == RoleItem.values.length;
 
   // Select all roles
   void selectAllRoles() {
@@ -152,6 +162,7 @@ class UserManagementController extends GetxController with AppNavigator {
 
   _handelGetUserByIdSuccess(UserModel userModel) {
     loggedInUserModel = userModel;
+
     offAll(AppRoutes.mainLayout);
   }
 
@@ -190,8 +201,7 @@ class UserManagementController extends GetxController with AppNavigator {
   }
 
   Future<void> _checkUserByPin() async {
-    final result =
-        await _usersFirebaseRepo.fetchWhere(field: AppConstants.userPassword, value: loginPasswordController.text);
+    final result = await _usersFirebaseRepo.fetchWhere(field: AppConstants.userPassword, value: loginPasswordController.text);
 
     result.fold(
       (failure) => AppUIUtils.onFailure(failure.message),
@@ -260,18 +270,19 @@ class UserManagementController extends GetxController with AppNavigator {
     );
   }
 
-  Future<void> saveOrUpdateUser({UserModel? existingUserModel}) async {
+  Future<void> saveOrUpdateUser() async {
     // Validate the form first
     if (!userFormHandler.validate()) return;
 
     // Create the user model from the provided data
     final updatedUserModel = _userService.createUserModel(
-      userModel: existingUserModel,
-      userName: userFormHandler.userNameController.text,
-      userPassword: userFormHandler.passController.text,
-      userRoleId: userFormHandler.selectedRoleId.value,
-      userSellerId: userFormHandler.selectedSellerId.value,
-    );
+        userModel: selectedUserModel,
+        userName: userFormHandler.userNameController.text,
+        userPassword: userFormHandler.passController.text,
+        userRoleId: userFormHandler.selectedRoleId.value,
+        userSellerId: userFormHandler.selectedSellerId.value,
+        workingHour: workingHours,
+        holidays: holidays.toList());
 
     // Handle null user model
     if (updatedUserModel == null) {
@@ -290,15 +301,59 @@ class UserManagementController extends GetxController with AppNavigator {
     );
   }
 
-  void logOut() {
-    _sharedPreferencesService.remove(AppConstants.userIdKey);
-    navigateToLogin();
-  }
-
   @override
   void onClose() {
     userFormHandler.dispose();
     roleFormHandler.dispose();
     super.onClose();
+  }
+
+  void logOut() {
+    _sharedPreferencesService.remove(AppConstants.userIdKey);
+    navigateToLogin();
+  }
+
+  setEnterTime(int index, Time time) {
+    workingHours.values.elementAt(index).enterTime = time.formatToAmPm();
+    update();
+  }
+
+  setOutTime(int index, Time time) {
+    workingHours.values.elementAt(index).outTime = time.formatToAmPm();
+    update();
+  }
+
+  void addWorkingHour() {
+    workingHours[workingHoursLength.toString()] =
+        UserWorkingHours(id: workingHoursLength.toString(), enterTime: "AM 12:00", outTime: "AM 12:00");
+    update();
+  }
+
+  void deleteWorkingHour({required int key}) {
+    workingHours.remove(key.toString());
+    update();
+  }
+
+  void addHoliday() {
+    Get.defaultDialog(
+      title: 'أختر يوم',
+      content: CustomDatePickerDialog(
+        onClose: () {
+          update();
+          Get.back();
+        },
+        onTimeSelect: (dateRangePickerSelectionChangedArgs) {
+          final selectedDateList = dateRangePickerSelectionChangedArgs.value as List<DateTime>;
+          holidays.addAll(
+            selectedDateList.map((e) => e.toIso8601String().split("T")[0]),
+          );
+        },
+      ),
+    );
+  }
+
+  void deleteHoliday({required String element}) {
+    holidays.remove(element);
+    update();
   }
 }

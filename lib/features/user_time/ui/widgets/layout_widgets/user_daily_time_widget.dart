@@ -3,12 +3,17 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../../../core/styling/app_colors.dart';
 import '../../../../../core/styling/app_text_style.dart';
+import '../../../../../core/widgets/app_spacer.dart';
 import '../../../../../core/widgets/organized_widget.dart';
+import '../../../controller/user_time_controller.dart';
 
 class UserDailyTimeWidget extends StatelessWidget {
   const UserDailyTimeWidget({
     super.key,
+    required this.userTimeController,
   });
+
+  final UserTimeController userTimeController;
 
   @override
   Widget build(BuildContext context) {
@@ -22,10 +27,11 @@ class UserDailyTimeWidget extends StatelessWidget {
           )),
           bodyWidget: Column(
             children: [
-              ListView.builder(
+              ListView.separated(
+                separatorBuilder: (context, index) => VerticalSpace(),
                 shrinkWrap: true,
                 physics: ClampingScrollPhysics(),
-                itemCount: 1,
+                itemCount: userTimeController.workingHoursLength,
                 padding: EdgeInsets.zero,
                 itemBuilder: (context, index) => Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -33,7 +39,7 @@ class UserDailyTimeWidget extends StatelessWidget {
                     SizedBox(
                         width: 0.3.sw,
                         child: Text(
-                          "12:00 AM",
+                          userTimeController.workingHours?[index.toString()]?.enterTime ?? '',
                           textAlign: TextAlign.center,
                           style: AppTextStyles.headLineStyle4,
                         )),
@@ -58,7 +64,7 @@ class UserDailyTimeWidget extends StatelessWidget {
                     SizedBox(
                         width: 0.3.sw,
                         child: Text(
-                          "08:00 AM",
+                          userTimeController.workingHours?[index.toString()]?.outTime ?? '',
                           textAlign: TextAlign.center,
                           style: AppTextStyles.headLineStyle4,
                         )),

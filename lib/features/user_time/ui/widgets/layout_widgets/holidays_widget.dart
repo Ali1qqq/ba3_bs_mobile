@@ -1,15 +1,20 @@
 import 'dart:math';
 
-import 'package:ba3_bs_mobile/core/utils/app_service_utils.dart';
 import 'package:flutter/cupertino.dart';
 
 import '../../../../../core/styling/app_text_style.dart';
+import '../../../../../core/utils/app_service_utils.dart';
+import '../../../../../core/widgets/app_spacer.dart';
 import '../../../../../core/widgets/organized_widget.dart';
+import '../../../controller/user_time_controller.dart';
 
 class HolidaysWidget extends StatelessWidget {
   const HolidaysWidget({
     super.key,
+    required this.userTimeController,
   });
+
+  final UserTimeController userTimeController;
 
   @override
   Widget build(BuildContext context) {
@@ -26,13 +31,20 @@ class HolidaysWidget extends StatelessWidget {
               ListView.builder(
                 shrinkWrap: true,
                 physics: ClampingScrollPhysics(),
-                itemCount: holidays.length,
+                itemCount: userTimeController.userHolidaysLength,
                 padding: EdgeInsets.zero,
                 itemBuilder: (context, index) => Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(holidays[index]),
-                    Text(holidaysName[index]),
+                    Text(
+                      userTimeController.userHolidays!.elementAt(index),
+                      style: AppTextStyles.headLineStyle3,
+                    ),
+                    HorizontalSpace(),
+                    Text(
+                      userTimeController.userHolidaysWithDay!.elementAt(index),
+                      style: AppTextStyles.headLineStyle3,
+                    ),
                   ],
                 ),
               ),

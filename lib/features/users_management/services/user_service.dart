@@ -7,6 +7,8 @@ class UserService {
     required String userPassword,
     String? userRoleId,
     String? userSellerId,
+    Map<String, UserWorkingHours>? workingHour,
+    List<String>? holidays,
   }) {
     if (userRoleId == null || userSellerId == null) {
       return null;
@@ -20,6 +22,8 @@ class UserService {
         userPassword: userPassword,
         userRoleId: userRoleId,
         userSellerId: userSellerId,
+        userWorkingHours: workingHour,
+        userHolidays: holidays,
       );
     } else {
       newUserModel = userModel.copyWith(
@@ -27,6 +31,8 @@ class UserService {
         userPassword: userPassword,
         userRoleId: userRoleId,
         userSellerId: userSellerId,
+        userWorkingHours: workingHour,
+        userHolidays: holidays,
       );
     }
     return newUserModel;
