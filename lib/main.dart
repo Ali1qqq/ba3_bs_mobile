@@ -19,7 +19,6 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    debugInvertOversizedImages = true;
     return ScreenUtilInit(
       designSize: const Size(390, 852),
       splitScreenMode: true,

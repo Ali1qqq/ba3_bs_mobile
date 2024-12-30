@@ -47,8 +47,8 @@ class OrganizedWidget extends StatelessWidget {
             decoration: BoxDecoration(
               // boxShadow: [BoxShadow(color: AppColors.grayColor, blurRadius: 5, spreadRadius: 0.2)],
               color: Colors.white,
-              borderRadius: BorderRadius.vertical(
-                bottom: Radius.circular(15),
+              borderRadius: BorderRadius.circular(
+                15,
               ),
             ),
             child: bodyWidget,

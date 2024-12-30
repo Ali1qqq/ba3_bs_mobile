@@ -32,4 +32,5 @@ class AppAssets {
   static const receiptVoucherIcon = '$_baseIconsPath/Receipt_Voucher_icon.png';
   static const paymentVoucherIcon = '$_baseIconsPath/Payment_Voucher_icon.png';
   static const journalVoucherIcon = '$_baseIconsPath/Journal_Voucher_icon.png';
+  static const loginLogo = '$_baseImagesPath/login_logo.jpg';
 }
