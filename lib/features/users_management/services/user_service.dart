@@ -1,4 +1,4 @@
-import '../data/models/user_model.dart';
+import 'package:ba3_bs_mobile/features/users_management/data/models/user_model.dart';
 
 class UserService {
   UserModel? createUserModel({
@@ -27,13 +27,12 @@ class UserService {
       );
     } else {
       newUserModel = userModel.copyWith(
-        userName: userName,
-        userPassword: userPassword,
-        userRoleId: userRoleId,
-        userSellerId: userSellerId,
-        userWorkingHours: workingHour,
-        userHolidays: holidays,
-      );
+          userName: userName,
+          userPassword: userPassword,
+          userRoleId: userRoleId,
+          userSellerId: userSellerId,
+          userWorkingHours: workingHour,
+          userHolidays: holidays);
     }
     return newUserModel;
   }

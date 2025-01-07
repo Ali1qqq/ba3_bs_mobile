@@ -1,11 +1,11 @@
 import 'dart:convert';
 
-import 'package:ba3_bs_mobile/features/sellers/data/datasources/sellers_json.dart';
+import 'package:ba3_bs_mobile/features/sellers/data/datasources/local/sellers_json.dart';
 import 'package:flutter/foundation.dart';
 
 import '../models/seller_model.dart';
 
-class SellersRepository {
+class SellersLocalRepository {
   List<SellerModel> getAllSellers() {
     try {
       return sellersJsonMapper();
@@ -23,8 +23,7 @@ class SellersRepository {
     // String sanitizedJson = sanitizeJsonString(jsonString);
     Map<String, dynamic> jsonMap = jsonDecode(sellersJson);
 
-    List<SellerModel> sellers =
-        (jsonMap['Cost1']['Q'] as List).map((sellerJson) => SellerModel.fromJson(sellerJson)).toList();
+    List<SellerModel> sellers = (jsonMap['Cost1']['Q'] as List).map((sellerJson) => SellerModel.fromJson(sellerJson)).toList();
 
     return sellers;
   }

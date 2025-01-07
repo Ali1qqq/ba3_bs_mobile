@@ -2,7 +2,8 @@ import 'package:get/get.dart';
 
 import '../../../../core/helper/mixin/controller_initializer.dart';
 import '../../../../core/helper/mixin/floating_launcher.dart';
-import '../../../../core/services/firebase/implementations/datasource_repo.dart';
+import '../../../../core/services/firebase/implementations/repos/compound_datasource_repo.dart';
+import '../../../patterns/data/models/bill_type_model.dart';
 import '../../controllers/bill/bill_details_controller.dart';
 import '../../controllers/bill/bill_search_controller.dart';
 import '../../controllers/pluto/bill_details_pluto_controller.dart';
@@ -16,7 +17,8 @@ class FloatingBillDetailsLauncher extends GetxController with FloatingLauncher, 
 
     final billDetailsPlutoController = requireParam<BillDetailsPlutoController>(params, 'billDetailsPlutoController');
     final billSearchController = requireParam<BillSearchController>(params, 'billSearchController');
-    final billsFirebaseRepo = requireParam<DataSourceRepository<BillModel>>(params, 'billsFirebaseRepo');
+    final billsFirebaseRepo =
+        requireParam<CompoundDatasourceRepository<BillModel, BillTypeModel>>(params, 'billsFirebaseRepo');
 
     final billSearchControllerWithTag =
         getOrCreateController<BillSearchController>(tag, controllerBuilder: () => billSearchController);

@@ -1,29 +1,34 @@
 import 'dart:developer';
+import 'dart:io';
 
+import 'package:ba3_bs_mobile/core/services/firebase/implementations/repos/compound_datasource_repo.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
 import '../../../../core/helper/enums/enums.dart';
+import '../../../../core/helper/mixin/app_navigator.dart';
 import '../../../../core/router/app_routes.dart';
-import '../../../../core/services/firebase/implementations/datasource_repo.dart';
+import '../../../../core/services/json_file_operations/implementations/import_export_repo.dart';
 import '../../../../core/utils/app_service_utils.dart';
 import '../../../../core/utils/app_ui_utils.dart';
 import '../../data/models/cheques_model.dart';
-import '../../service/cheques/cheques_utils.dart';
-import '../../service/cheques/floating_cheques_details_launcher.dart';
+import '../../service/cheques_utils.dart';
+import '../../service/floating_cheques_details_launcher.dart';
 import '../../ui/screens/cheques_details.dart';
 import 'cheques_details_controller.dart';
 import 'cheques_search_controller.dart';
 
-class AllChequesController extends FloatingChequesDetailsLauncher {
-  final DataSourceRepository<ChequesModel> _chequesFirebaseRepo;
+class AllChequesController extends FloatingChequesDetailsLauncher with AppNavigator {
+  final CompoundDatasourceRepository<ChequesModel, ChequesType> _chequesFirebaseRepo;
+  final ImportExportRepository<ChequesModel> _jsonImportExportRepo;
 
   late bool isDebitOrCredit;
   List<ChequesModel> chequesList = [];
   bool isLoading = true;
 
-  AllChequesController(this._chequesFirebaseRepo);
+  AllChequesController(this._chequesFirebaseRepo, this._jsonImportExportRepo);
 
   // Services
   late final ChequesUtils _chequesUtils;
@@ -41,12 +46,37 @@ class AllChequesController extends FloatingChequesDetailsLauncher {
     // getAllChequesTypes();
   }
 
-  ChequesModel getChequesById(String chequesId) =>
-      chequesList.firstWhere((cheques) => cheques.chequesGuid == chequesId);
+  ChequesModel getChequesById(String chequesId) => chequesList.firstWhere((cheques) => cheques.chequesGuid == chequesId);
 
-  Future<void> fetchAllCheques() async {
+  Future<void> fetchAllChequesLocal() async {
+    log('fetchAllChequesLocal');
+
+    FilePickerResult? resultFile = await FilePicker.platform.pickFiles();
+
+    if (resultFile != null) {
+      File file = File(resultFile.files.single.path!);
+      final result = _jsonImportExportRepo.importJsonFileXml(file);
+
+      result.fold(
+        (failure) => AppUIUtils.onFailure(failure.message),
+        (fetchedCheques) {
+          log('chequesList.length ${chequesList.length}');
+          log('chequesList.firstOrNull ${chequesList.firstOrNull?.toJson()}');
+
+          chequesList.assignAll(fetchedCheques);
+        },
+      );
+    } else {
+      // User canceled the picker
+    }
+
+    isLoading = false;
+    update();
+  }
+
+  Future<void> fetchAllChequesByType(ChequesType itemTypeModel) async {
     log('fetchCheques');
-    final result = await _chequesFirebaseRepo.getAll();
+    final result = await _chequesFirebaseRepo.getAll(itemTypeModel);
 
     result.fold(
       (failure) => AppUIUtils.onFailure(failure.message),
@@ -57,24 +87,16 @@ class AllChequesController extends FloatingChequesDetailsLauncher {
     update();
   }
 
-  List<ChequesModel> getChequesByType(String chequesTypeId) =>
-      chequesList.where((cheques) => cheques.chequesTypeGuid! == chequesTypeId).toList();
-
-  Future<void> openFloatingChequesDetails(BuildContext context, ChequesType chequesTypeModel,
-      {ChequesModel? chequesModel}) async {
-    await fetchAllCheques();
+  Future<void> openFloatingChequesDetails(BuildContext context, ChequesType chequesTypeModel, {ChequesModel? chequesModel}) async {
+    await fetchAllChequesByType(chequesTypeModel);
 
     if (!context.mounted) return;
 
-    List<ChequesModel> chequesByCategory =
-        getChequesByType(chequesModel?.chequesTypeGuid ?? chequesTypeModel.typeGuide);
-
-    final ChequesModel lastChequesModel =
-        chequesModel ?? _chequesUtils.appendEmptyChequesModel(chequesByCategory, chequesTypeModel);
+    final ChequesModel lastChequesModel = chequesModel ?? _chequesUtils.appendEmptyChequesModel(chequesList, chequesTypeModel);
 
     _openChequesDetailsFloatingWindow(
       context: context,
-      modifiedCheques: chequesByCategory,
+      modifiedCheques: chequesList,
       lastChequesModel: lastChequesModel,
       chequesType: chequesTypeModel,
     );
@@ -135,21 +157,19 @@ class AllChequesController extends FloatingChequesDetailsLauncher {
     );
   }
 
-  void navigateToChequesScreen({required bool onlyDues}) =>
-      Get.toNamed(AppRoutes.showAllChequesScreen, arguments: onlyDues);
+  void navigateToChequesScreen({required bool onlyDues}) => to(AppRoutes.showAllChequesScreen, arguments: onlyDues);
 
-  void openChequesDetailsById(String chequesId, BuildContext context) async {
-    final ChequesModel chequesModel = await fetchChequesById(chequesId);
+  void openChequesDetailsById(String chequesId, BuildContext context, ChequesType itemTypeModel) async {
+    final ChequesModel chequesModel = await fetchChequesById(chequesId, itemTypeModel);
     if (!context.mounted) return;
 
-    openFloatingChequesDetails(context, ChequesType.byTypeGuide(chequesModel.chequesTypeGuid!),
-        chequesModel: chequesModel);
+    openFloatingChequesDetails(context, ChequesType.byTypeGuide(chequesModel.chequesTypeGuid!), chequesModel: chequesModel);
   }
 
-  Future<ChequesModel> fetchChequesById(String chequesId) async {
+  Future<ChequesModel> fetchChequesById(String chequesId, ChequesType itemTypeModel) async {
     late ChequesModel chequesModel;
 
-    final result = await _chequesFirebaseRepo.getById(chequesId);
+    final result = await _chequesFirebaseRepo.getById(id: chequesId, itemTypeModel: itemTypeModel);
 
     result.fold(
       (failure) => AppUIUtils.onFailure(failure.message),

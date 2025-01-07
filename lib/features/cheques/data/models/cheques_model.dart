@@ -7,8 +7,6 @@ import 'package:pluto_grid/pluto_grid.dart';
 
 import '../../../../core/widgets/pluto_auto_id_column.dart';
 
-
-
 class ChequesModel implements PlutoAdaptable {
   final String? chequesTypeGuid;
   final int? chequesNumber;
@@ -22,6 +20,7 @@ class ChequesModel implements PlutoAdaptable {
   final String? accPtr;
   final String? accPtrName;
   final String? chequesAccount2Name;
+
   // final ChequesCollectEntryModel? chequesCollectEntry;
   // final ChequesEntryRelationModel? chequesEntryRelation;
 
@@ -306,19 +305,23 @@ class ChequesModel implements PlutoAdaptable {
       PlutoColumn(
           title: "قيمة الشيك",
           field: AppConstants.chequesVal,
-
           type: PlutoColumnType.currency(
             format: '#,##0.00 AED',
             locale: 'en_AE',
             symbol: 'AED',
-
           )): chequesVal,
       PlutoColumn(title: "الحساب", field: AppConstants.chequesAccount2Guid, type: PlutoColumnType.text()): chequesAccount2Name,
       PlutoColumn(title: "دفع الى", field: AppConstants.accPtr, type: PlutoColumnType.text()): accPtrName,
       PlutoColumn(title: "تاريخ التحرير", field: AppConstants.chequesDate, type: PlutoColumnType.date()): chequesDate.toDate,
       PlutoColumn(title: "تاريخ الاستحقاق", field: AppConstants.chequesDueDate, type: PlutoColumnType.date()): chequesDueDate.toDate,
       PlutoColumn(title: "البيان", field: AppConstants.chequesNote, type: PlutoColumnType.text()): chequesNote,
-      PlutoColumn(title: "الحالة", field: AppConstants.isPayed, type: PlutoColumnType.text(),): isPayed! ? ChequesStatus.paid.label : ChequesStatus.notPaid.label,
+      PlutoColumn(title: "نوع الشيك", field: AppConstants.chequesTypeGuid, type: PlutoColumnType.text()):
+          ChequesType.byTypeGuide(chequesTypeGuid!).value,
+      PlutoColumn(
+        title: "الحالة",
+        field: AppConstants.isPayed,
+        type: PlutoColumnType.text(),
+      ): isPayed! ? ChequesStatus.paid.label : ChequesStatus.notPaid.label,
     };
   }
 }

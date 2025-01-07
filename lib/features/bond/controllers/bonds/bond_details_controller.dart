@@ -1,4 +1,5 @@
 import 'package:ba3_bs_mobile/core/helper/enums/enums.dart';
+import 'package:ba3_bs_mobile/core/helper/extensions/date_time_extensions.dart';
 import 'package:ba3_bs_mobile/core/helper/extensions/string_extension.dart';
 import 'package:ba3_bs_mobile/core/utils/app_service_utils.dart';
 import 'package:ba3_bs_mobile/features/bond/controllers/pluto/bond_details_pluto_controller.dart';
@@ -9,7 +10,7 @@ import 'package:get/get.dart';
 
 import '../../../../core/constants/app_strings.dart';
 import '../../../../core/helper/validators/app_validator.dart';
-import '../../../../core/services/firebase/implementations/datasource_repo.dart';
+import '../../../../core/services/firebase/implementations/repos/compound_datasource_repo.dart';
 import '../../../../core/utils/app_ui_utils.dart';
 import '../../../accounts/data/models/account_model.dart';
 import '../../service/bond/bond_pdf_generator.dart';
@@ -26,7 +27,7 @@ class BondDetailsController extends GetxController with AppValidator {
 
   // Repositories
 
-  final DataSourceRepository<BondModel> _bondsFirebaseRepo;
+  final CompoundDatasourceRepository<BondModel, BondType> _bondsFirebaseRepo;
   final BondDetailsPlutoController bondDetailsPlutoController;
   final BondSearchController bondSearchController;
 
@@ -42,7 +43,7 @@ class BondDetailsController extends GetxController with AppValidator {
 
   AccountModel? selectedAccount;
 
-  RxString bondDate = DateTime.now().toString().split(" ")[0].obs;
+  RxString bondDate = DateTime.now().dayMonthYear.obs;
   bool isLoading = true;
   RxBool isBondSaved = false.obs;
 
@@ -81,12 +82,12 @@ class BondDetailsController extends GetxController with AppValidator {
   String? validator(String? value, String fieldName) => isFieldValid(value, fieldName);
 
   void setBondDate(DateTime newDate) {
-    bondDate.value = newDate.toString().split(" ")[0];
+    bondDate.value = newDate.dayMonthYear;
     update();
   }
 
   Future<void> deleteBond(BondModel bondModel, {bool fromBondById = false}) async {
-    final result = await _bondsFirebaseRepo.delete(bondModel.payGuid!);
+    final result = await _bondsFirebaseRepo.delete(bondModel);
 
     result.fold(
       (failure) => AppUIUtils.onFailure(failure.message),
@@ -165,11 +166,7 @@ class BondDetailsController extends GetxController with AppValidator {
     // Create and return the bond model
 
     return _bondService.createBondModel(
-        bondModel: bondModel,
-        bondType: bondType,
-        payDate: bondDate.value,
-        payAccountGuid: selectedAccount!.id!,
-        note: noteController.text);
+        bondModel: bondModel, bondType: bondType, payDate: bondDate.value, payAccountGuid: selectedAccount!.id!, note: noteController.text);
   }
 
   prepareBondRecords(PayItems bondItems, BondDetailsPlutoController bondDetailsPlutoController) =>

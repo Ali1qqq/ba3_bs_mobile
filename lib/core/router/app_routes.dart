@@ -22,4 +22,7 @@ class AppRoutes {
   static const String showAllPermissionsScreen = '/showAllPermissionsScreen';
   static const String addRoleScreen = '/addRoleScreen';
   static const String addUserScreen = '/addUserScreen';
+  static const String allSellersScreen = '/allSellersScreen';
+  static const String addSellerScreen = '/addSellerScreen';
+  static const String sellerSalesScreen = '/sellerSalesScreen';
 }

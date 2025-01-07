@@ -1,4 +1,6 @@
+import 'package:ba3_bs_mobile/core/helper/extensions/bill_pattern_type_extension.dart';
 import 'package:ba3_bs_mobile/features/bill/data/models/bill_model.dart';
+import 'package:ba3_bs_mobile/features/patterns/data/models/bill_type_model.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:pluto_grid/pluto_grid.dart';
 
@@ -68,17 +70,20 @@ class InvoiceRecordModel {
         AppConstants.invRecGiftTotal: invRecGiftTotal,
       };
 
-  factory InvoiceRecordModel.fromJsonPluto(String matId, Map<dynamic, dynamic> map) {
+  factory InvoiceRecordModel.fromJsonPluto(String matId, Map<dynamic, dynamic> map, double vatRatio) {
+    final int quantity = _parseInteger(map[AppConstants.invRecQuantity]) ?? 1;
+    final double total = _parseDouble(map[AppConstants.invRecTotal]) ?? 0;
+    final subTotal = (total / (quantity * (1 + vatRatio)));
+    final vat = subTotal * vatRatio;
     final String? prodName = map[AppConstants.invRecProduct];
     final int? giftsNumber = _parseInteger(map[AppConstants.invRecGift]);
-    final int? quantity = _parseInteger(map[AppConstants.invRecQuantity]);
-    final double? subTotal = _parseDouble(map[AppConstants.invRecSubTotal]);
-    final double? total = _parseDouble(map[AppConstants.invRecTotal]);
-    final double? vat = _parseDouble(map[AppConstants.invRecVat]);
+
+    // final double? subTotal = _parseDouble(map[AppConstants.invRecSubTotal]);
+    // final double? vat = _parseDouble(map[AppConstants.invRecVat]);
 
     // Calculate gift total
-    final double effectiveVat = vat ?? 0;
-    final double effectiveSubTotal = subTotal ?? 0;
+    final double effectiveVat = vat;
+    final double effectiveSubTotal = subTotal;
 
     final double? giftTotal = (giftsNumber != null) ? giftsNumber * (effectiveVat + effectiveSubTotal) : null;
 
@@ -86,9 +91,9 @@ class InvoiceRecordModel {
       invRecId: matId,
       invRecProduct: prodName,
       invRecQuantity: quantity,
-      invRecSubTotal: subTotal,
+      invRecSubTotal: AppServiceUtils.toFixedDouble(subTotal),
       invRecTotal: total,
-      invRecVat: vat,
+      invRecVat: AppServiceUtils.toFixedDouble(vat),
       invRecIsLocal: map[AppConstants.invRecIsLocal],
       invRecGift: giftsNumber,
       invRecGiftTotal: giftTotal,
@@ -112,8 +117,7 @@ class InvoiceRecordModel {
 
   @override
   bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is InvoiceRecordModel && runtimeType == other.runtimeType && invRecId == other.invRecId;
+      identical(this, other) || other is InvoiceRecordModel && runtimeType == other.runtimeType && invRecId == other.invRecId;
 
   Map<String, Map<String, dynamic>> getChanges(InvoiceRecordModel other) {
     Map<String, dynamic> newChanges = {};
@@ -163,7 +167,15 @@ class InvoiceRecordModel {
     return {"newData": newChanges, "oldData": oldChanges};
   }
 
-  Map<PlutoColumn, dynamic> toEditedMap() {
+  Map<PlutoColumn, dynamic> toEditedMap(BillTypeModel billTypeModel) {
+    final double total = invRecTotal ?? 0;
+    final int quantity = invRecQuantity ?? 1;
+    final bool hasVat = billTypeModel.billPatternType?.hasVat ?? false;
+
+    final double subTotalStr =
+        (quantity > 0) ? (hasVat ? AppServiceUtils.toFixedDouble(total / (quantity * 1.05)) : total / quantity) : total;
+
+    final double vat = (quantity > 0 && hasVat) ? AppServiceUtils.toFixedDouble(subTotalStr * 0.05) : 0;
     return {
       PlutoColumn(
         title: 'الرقم',
@@ -202,13 +214,14 @@ class InvoiceRecordModel {
         checkReadOnly: (row, cell) {
           return cell.row.cells[AppConstants.invRecProduct]?.value == '';
         },
-      ): invRecSubTotal,
-      PlutoColumn(
-        title: 'الضريبة',
-        field: AppConstants.invRecVat,
-        enableEditingMode: false,
-        type: PlutoColumnType.text(),
-      ): invRecVat,
+      ): subTotalStr,
+      if (billTypeModel.billPatternType!.hasVat)
+        PlutoColumn(
+          title: 'الضريبة',
+          field: AppConstants.invRecVat,
+          enableEditingMode: false,
+          type: PlutoColumnType.text(),
+        ): vat,
       PlutoColumn(
         title: 'المجموع',
         field: AppConstants.invRecTotal,
@@ -217,15 +230,20 @@ class InvoiceRecordModel {
           return cell.row.cells[AppConstants.invRecProduct]?.value == '';
         },
       ): invRecTotal,
-      PlutoColumn(
-        title: 'الهدايا',
-        field: AppConstants.invRecGift,
-        type: PlutoColumnType.text(),
-        checkReadOnly: (row, cell) {
-          return cell.row.cells[AppConstants.invRecProduct]?.value == '';
-        },
-      ): invRecGift,
+      if (billTypeModel.billPatternType!.hasGiftsAccount)
+        PlutoColumn(
+          title: 'الهدايا',
+          field: AppConstants.invRecGift,
+          type: PlutoColumnType.text(),
+          checkReadOnly: (row, cell) {
+            return cell.row.cells[AppConstants.invRecProduct]?.value == '';
+          },
+        ): invRecGift,
     };
+  }
+
+  double? calculateSubTotal({required int quantity, required double total, required double vat}) {
+    return (total / quantity) - (total / quantity) * vat;
   }
 }
 
@@ -251,8 +269,7 @@ class AdditionsDiscountsRecordModel {
     final discountTotal = billModel.billDetails.billDiscountsTotal ?? 0;
     final additionTotal = billModel.billDetails.billAdditionsTotal ?? 0;
 
-    double calculateRatio(double value, double total) =>
-        AppServiceUtils.toFixedDouble(total > 0 ? ((value / total) * 100) : 0);
+    double calculateRatio(double value, double total) => AppServiceUtils.toFixedDouble(total > 0 ? ((value / total) * 100) : 0);
 
     return AdditionsDiscountsRecordModel(
       account: billModel.billTypeModel.accounts?[BillAccounts.discounts]?.accName ?? '',
@@ -306,8 +323,7 @@ class AdditionsDiscountsRecordModel {
 
   @override
   bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is AdditionsDiscountsRecordModel && runtimeType == other.runtimeType && account == other.account;
+      identical(this, other) || other is AdditionsDiscountsRecordModel && runtimeType == other.runtimeType && account == other.account;
 
   Map<String, Map<String, dynamic>> getChanges(AdditionsDiscountsRecordModel other) {
     Map<String, dynamic> newChanges = {};

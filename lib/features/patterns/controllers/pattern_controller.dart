@@ -1,3 +1,5 @@
+import 'package:ba3_bs_mobile/core/utils/app_ui_utils.dart';
+import 'package:ba3_bs_mobile/features/accounts/controllers/accounts_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -5,9 +7,7 @@ import '../../../core/helper/enums/enums.dart';
 import '../../../core/helper/extensions/getx_controller_extensions.dart';
 import '../../../core/helper/mixin/app_navigator.dart';
 import '../../../core/router/app_routes.dart';
-import '../../../core/services/firebase/implementations/datasource_repo.dart';
-import '../../../core/utils/app_ui_utils.dart';
-import '../../accounts/controllers/accounts_controller.dart';
+import '../../../core/services/firebase/implementations/repos/datasource_repo.dart';
 import '../../accounts/data/models/account_model.dart';
 import '../data/models/bill_type_model.dart';
 import '../services/pattern_form_handler.dart';
@@ -28,6 +28,8 @@ class PatternController extends GetxController with AppNavigator {
   // Form Handlers
   late final PatternFormHandler patternFormHandler;
 
+  BillPatternType? get selectedBillPatternType => patternFormHandler.selectedBillPatternType;
+
   @override
   void onInit() {
     super.onInit();
@@ -42,23 +44,19 @@ class PatternController extends GetxController with AppNavigator {
   void autoFillControllers(BillPatternType newType) {
     switch (newType) {
       case BillPatternType.sales:
-        fillControllers(
-            shortName: 'مبيعات', fullName: 'فاتورة مبيعات', latinShortName: 'Sales', latinFullName: 'Sales Invoice');
+        fillControllers(shortName: 'مبيعات', fullName: 'فاتورة مبيعات', latinShortName: 'Sales', latinFullName: 'Sales Invoice');
         break;
 
       case BillPatternType.purchase:
-        fillControllers(
-            shortName: 'شراء', fullName: 'فاتورة مشتريات', latinShortName: 'Buy', latinFullName: 'Purchase Invoice');
+        fillControllers(shortName: 'شراء', fullName: 'فاتورة مشتريات', latinShortName: 'Buy', latinFullName: 'Purchase Invoice');
         break;
 
       case BillPatternType.add:
-        fillControllers(
-            shortName: 'إضافة', fullName: 'فاتورة إضافة', latinShortName: 'Add', latinFullName: 'Addition Invoice');
+        fillControllers(shortName: 'إضافة', fullName: 'فاتورة إضافة', latinShortName: 'Add', latinFullName: 'Addition Invoice');
         break;
 
       case BillPatternType.remove:
-        fillControllers(
-            shortName: 'سحب', fullName: 'فاتورة سحب', latinShortName: 'Remove', latinFullName: 'Removal Invoice');
+        fillControllers(shortName: 'سحب', fullName: 'فاتورة سحب', latinShortName: 'Remove', latinFullName: 'Removal Invoice');
         break;
 
       case BillPatternType.buyReturn:
@@ -76,6 +74,15 @@ class PatternController extends GetxController with AppNavigator {
             latinShortName: 'Return Sales',
             latinFullName: 'Sales Return Invoice');
         break;
+      case BillPatternType.firstPeriodInventory:
+        fillControllers(
+            shortName: 'القيد الافتتاحي', fullName: 'بضاعة اول مدة', latinShortName: 'Add', latinFullName: 'first Period Inventory');
+      case BillPatternType.transferOut:
+        fillControllers(
+            shortName: 'القيد الافتتاحي', fullName: 'بضاعة اول مدة', latinShortName: 'Add', latinFullName: 'first Period Inventory');
+      case BillPatternType.transferIn:
+        fillControllers(
+            shortName: 'القيد الافتتاحي', fullName: 'بضاعة اول مدة', latinShortName: 'Add', latinFullName: 'first Period Inventory');
     }
   }
 

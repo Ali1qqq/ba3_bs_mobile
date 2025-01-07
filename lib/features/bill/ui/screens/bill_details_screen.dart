@@ -64,6 +64,7 @@ class BillDetailsScreen extends StatelessWidget {
                             Align(
                               alignment: Alignment.centerLeft,
                               child: BillDetailsCalculations(
+                                billTypeModel: currentBill.billTypeModel,
                                 billDetailsPlutoController: billDetailsPlutoController,
                                 tag: tag,
                               ),

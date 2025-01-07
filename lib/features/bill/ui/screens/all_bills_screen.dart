@@ -13,11 +13,7 @@ class AllBillsScreen extends StatelessWidget {
       return PlutoGridWithAppBar(
         title: 'جميع الفواتير',
         onLoaded: (e) {},
-        onSelected: (event) {
-          String billId = event.row?.cells['billId']?.value;
-          controller.openBillDetailsById(billId, context);
-        },
-        isLoading: controller.isLoading,
+        onSelected: (event) {},
         tableSourceModels: controller.bills,
         icon: Icons.outbox,
         onIconPressed: controller.exportBillsJsonFile,

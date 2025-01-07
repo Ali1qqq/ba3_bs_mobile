@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../features/bond/controllers/bonds/bond_details_controller.dart';
-import '../constants/app_constants.dart';
 import '../helper/extensions/getx_controller_extensions.dart';
 import '../i_controllers/i_bill_controller.dart';
 import 'custom_text_field_with_icon.dart';
@@ -45,7 +44,7 @@ class SearchableAccountField extends StatelessWidget {
   Widget build(BuildContext context) {
     return SizedBox(
       width: width ?? Get.width * 0.45,
-      height: AppConstants.constHeightTextField,
+      height: height,
       child: Row(
         children: [
           SizedBox(width: 100, child: Text(label)),

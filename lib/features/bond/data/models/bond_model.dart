@@ -1,11 +1,13 @@
+import 'package:ba3_bs_mobile/core/helper/extensions/date_fromat_extension.dart';
+import 'package:ba3_bs_mobile/core/helper/extensions/date_time_extensions.dart';
 import 'package:ba3_bs_mobile/features/bond/data/models/pay_item_model.dart';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-
+import 'package:intl/intl.dart';
 
 import '../../../../core/helper/enums/enums.dart';
 
-class BondModel  {
+class BondModel {
   final String? payTypeGuid;
   final int? payNumber;
   final String? payGuid;
@@ -81,10 +83,13 @@ class BondModel  {
   }
 
   factory BondModel.empty({required BondType bondType, int lastBondNumber = 0}) {
-    return BondModel(payAccountGuid: '',  payItems: PayItems(itemList: []), payNumber: lastBondNumber + 1, payTypeGuid: bondType.typeGuide, payDate: DateTime.now().toIso8601String());
+    return BondModel(
+        payAccountGuid: '',
+        payItems: PayItems(itemList: []),
+        payNumber: lastBondNumber + 1,
+        payTypeGuid: bondType.typeGuide,
+        payDate: DateTime.now().toIso8601String());
   }
-
-
 
   factory BondModel.fromBondData({
     BondModel? bondModel,
@@ -163,6 +168,35 @@ class BondModel  {
       erParentType: erParentType ?? this.erParentType,
       payItems: payItems ?? this.payItems,
       e: e ?? this.e,
+    );
+  }
+
+  factory BondModel.fromImportedJsonFile(Map<String, dynamic> payJson) {
+    final payItemsJson = payJson["PayItems"]["N"] as List<dynamic>;
+    final List<PayItem> payItemsList = payItemsJson.map((item) {
+      return PayItem.fromJsonFile(item);
+    }).toList();
+
+    // إنشاء كائن PayItems
+    final payItems = PayItems(itemList: payItemsList);
+    DateFormat dateFormat = DateFormat('yyyy-M-d');
+    // إنشاء كائن BondModel باستخدام البيانات المستخرجة
+    return BondModel(
+      payTypeGuid: payJson["PayTypeGuid"],
+      payNumber: payJson["PayNumber"],
+      payGuid: payJson["PayGuid"],
+      payBranchGuid: payJson["PayBranchGuid"],
+      payDate: dateFormat.parse(payJson["PayDate"].toString().toYearMonthDayFormat()).dayMonthYear,
+      entryPostDate: payJson["EntryPostDate"],
+      payNote: payJson["PayNote"].toString(),
+      payCurrencyGuid: payJson["PayCurrencyGuid"],
+      payCurVal: (payJson["PayCurVal"] as num).toDouble(),
+      payAccountGuid: payJson["PayAccountGuid"],
+      paySecurity: payJson["PaySecurity"],
+      paySkip: payJson["PaySkip"],
+      erParentType: payJson["ErParentType"],
+      payItems: payItems,
+      e: payJson["E"],
     );
   }
 }

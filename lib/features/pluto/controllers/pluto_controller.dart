@@ -4,7 +4,12 @@ import 'package:get/get.dart';
 import 'package:pluto_grid/pluto_grid.dart';
 
 class PlutoController extends GetxController {
-  GlobalKey plutoKey = GlobalKey();
+  UniqueKey plutoKey = UniqueKey();
+
+  /// Updates the `plutoKey` to a new unique value.
+  void updatePlutoKey() {
+    plutoKey = UniqueKey();
+  }
 
   /// Generates a list of PlutoColumns based on the first model in the provided list.
   List<PlutoColumn> generateColumns<T>(List<PlutoAdaptable> adaptableModels, [T? type]) {
@@ -18,7 +23,7 @@ class PlutoController extends GetxController {
   List<PlutoRow> generateRows<T>(List<PlutoAdaptable> adaptableModels, [T? type]) {
     if (adaptableModels.isEmpty) return [];
 
-    plutoKey = GlobalKey();
+    updatePlutoKey();
     return adaptableModels.map((model) => _mapModelToRow(model, type)).toList();
   }
 

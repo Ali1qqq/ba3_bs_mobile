@@ -3,7 +3,6 @@ import 'package:flutter/services.dart';
 import 'package:pluto_grid/pluto_grid.dart';
 
 PlutoGridShortcut customPlutoShortcut(PlutoGridShortcutAction plutoGridEnterAction) {
-
   return PlutoGridShortcut(
     actions: {
       ..._buildMoveCellFocusActions(),
@@ -73,11 +72,9 @@ Map<LogicalKeySet, PlutoGridShortcutAction> _buildTabKeyActions() {
 Map<LogicalKeySet, PlutoGridShortcutAction> _buildEnterKeyActions(PlutoGridShortcutAction plutoGridEnterAction) {
 
   return {
-    LogicalKeySet(LogicalKeyboardKey.accept): plutoGridEnterAction,
-    LogicalKeySet(LogicalKeyboardKey.subtitle): plutoGridEnterAction,
-    LogicalKeySet(LogicalKeyboardKey.allCandidates): plutoGridEnterAction,
-    LogicalKeySet(LogicalKeyboardKey.ampersand): plutoGridEnterAction,
-    LogicalKeySet(LogicalKeyboardKey.add, LogicalKeyboardKey.end): plutoGridEnterAction,
+    LogicalKeySet(LogicalKeyboardKey.enter): plutoGridEnterAction,
+    LogicalKeySet(LogicalKeyboardKey.numpadEnter): plutoGridEnterAction,
+    LogicalKeySet(LogicalKeyboardKey.shift, LogicalKeyboardKey.enter): plutoGridEnterAction,
   };
 }
 

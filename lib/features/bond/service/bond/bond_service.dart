@@ -27,14 +27,9 @@ class BondService with PdfBase, BondEntryBondService, FloatingLauncher {
 
   EntryBondController get entryBondController => read<EntryBondController>();
 
-  void launchBondEntryBondScreen({
-    required BuildContext context,
-    required BondModel bondModel,
-  }) {
-    final entryBondModel = createEntryBondModel(
-      originType: EntryBondType.cheque,
-      bondModel: bondModel,
-    );
+  void launchBondEntryBondScreen({required BuildContext context, required BondModel bondModel}) {
+    final entryBondModel = createEntryBondModel(originType: EntryBondType.cheque, bondModel: bondModel);
+
     launchFloatingWindow(
       context: context,
       minimizedTitle: 'سند خاص ب ${BondType.byTypeGuide(bondModel.payTypeGuid!).value}',
@@ -48,22 +43,21 @@ class BondService with PdfBase, BondEntryBondService, FloatingLauncher {
     required String payAccountGuid,
     required String payDate,
     String? note,
-  }) {
-    return BondModel.fromBondData(
-      bondModel: bondModel,
-      bondType: bondType,
-      note: note,
-      payAccountGuid: payAccountGuid,
-      payDate: payDate,
-      bondRecordsItems: plutoController.generateRecords,
-    );
-  }
+  }) =>
+      BondModel.fromBondData(
+        bondModel: bondModel,
+        bondType: bondType,
+        note: note,
+        payAccountGuid: payAccountGuid,
+        payDate: payDate,
+        bondRecordsItems: plutoController.generateRecords,
+      );
 
-  Future<void> handleDeleteSuccess(BondModel bondModel, BondSearchController bondSearchController,
-      [fromBondById]) async {
+  Future<void> handleDeleteSuccess(BondModel bondModel, BondSearchController bondSearchController, [fromBondById]) async {
     // Only fetchBonds if open bond details by bond id from AllBondsScreen
     if (fromBondById) {
-      await read<AllBondsController>().fetchAllBonds();
+      await read<AllBondsController>().fetchAllBondsByType(BondType.byTypeGuide(bondModel.payTypeGuid!));
+      // await read<AllBondsController>().fetchAllBondsLocal();
       Get.back();
     } else {
       bondSearchController.removeBond(bondModel);

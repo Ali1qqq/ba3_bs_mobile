@@ -30,14 +30,9 @@ class RolesDataSource extends DatasourceBase<RoleModel> {
   }
 
   @override
-  Future<RoleModel> save(RoleModel item, [bool? save]) async {
-    if (item.roleId == null) {
-      final data = await databaseService.add(path: path, documentId: item.roleId, data: item.toJson());
+  Future<RoleModel> save(RoleModel item) async {
+    final data = await databaseService.add(path: path, documentId: item.roleId, data: item.toJson());
 
-      return RoleModel.fromJson(data);
-    } else {
-      await databaseService.update(path: path, documentId: item.roleId, data: item.toJson());
-      return item;
-    }
+    return RoleModel.fromJson(data);
   }
 }

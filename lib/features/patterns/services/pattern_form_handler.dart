@@ -1,3 +1,5 @@
+import 'package:ba3_bs_mobile/features/patterns/controllers/pattern_controller.dart';
+import 'package:ba3_bs_mobile/features/patterns/data/models/bill_type_model.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get_rx/src/rx_types/rx_types.dart';
 
@@ -6,8 +8,6 @@ import '../../../core/helper/extensions/getx_controller_extensions.dart';
 import '../../../core/helper/validators/app_validator.dart';
 import '../../../core/interfaces/i_store_selection_handler.dart';
 import '../../accounts/controllers/accounts_controller.dart';
-import '../controllers/pattern_controller.dart';
-import '../data/models/bill_type_model.dart';
 
 class PatternFormHandler with AppValidator implements IStoreSelectionHandler {
   PatternController get patternController => read<PatternController>();
@@ -90,11 +90,12 @@ class PatternFormHandler with AppValidator implements IStoreSelectionHandler {
       // Initialize the controller-to-bill-accounts map
       initializeControllerToBillAccountsMap();
 
+      accountsController.setSelectedAccounts = {};
+
       // Reset the selected bill type
       selectedBillPatternType = null;
 
       selectedBillTypeModel = null;
-      // ignore: deprecated_member_use
       selectedColorValue = Colors.red.value;
     }
   }

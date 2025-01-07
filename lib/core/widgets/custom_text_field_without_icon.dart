@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import '../constants/app_constants.dart';
-
 class CustomTextFieldWithoutIcon extends StatefulWidget {
   const CustomTextFieldWithoutIcon({
     super.key,
@@ -19,8 +17,8 @@ class CustomTextFieldWithoutIcon extends StatefulWidget {
     this.height,
     this.suffixIcon,
     this.textStyle,
-    this.filedColor,
     this.maxLength,
+    this.filedColor,
   });
 
   final TextEditingController textEditingController;
@@ -75,11 +73,10 @@ class _CustomTextFieldWithoutIconState extends State<CustomTextFieldWithoutIcon>
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: widget.height ?? AppConstants.constHeightTextField,
+      height: widget.height,
       child: TextFormField(
         maxLines: widget.maxLine,
         maxLength: widget.maxLength,
-
         onChanged: widget.onChanged,
         validator: widget.validator,
         enabled: widget.enabled,
@@ -88,12 +85,12 @@ class _CustomTextFieldWithoutIconState extends State<CustomTextFieldWithoutIcon>
         keyboardType: widget.keyboardType,
         scrollPadding: EdgeInsets.zero,
         cursorHeight: 15,
-        onTap: () =>
-            widget.textEditingController.selection = TextSelection(baseOffset: 0, extentOffset: widget.textEditingController.text.length),
+        onTap: () => widget.textEditingController.selection =
+            TextSelection(baseOffset: 0, extentOffset: widget.textEditingController.text.length),
         inputFormatters: widget.inputFormatters,
         style: widget.textStyle ?? const TextStyle(fontSize: 14),
         decoration: InputDecoration(
-            fillColor: widget.filedColor ?? Colors.white,
+            fillColor:widget.filedColor?? Colors.white,
             filled: true,
             isDense: true,
             border: UnderlineInputBorder(

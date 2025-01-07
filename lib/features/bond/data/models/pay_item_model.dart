@@ -1,3 +1,5 @@
+import 'package:ba3_bs_mobile/core/helper/extensions/getx_controller_extensions.dart';
+import 'package:ba3_bs_mobile/features/accounts/controllers/accounts_controller.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:pluto_grid/pluto_grid.dart';
@@ -92,6 +94,24 @@ class PayItem extends PlutoAdaptable<BondType> {
     );
   }
 
+  factory PayItem.fromJsonFile(Map<String, dynamic> json) {
+    return PayItem(
+      entryAccountGuid: json['EntryAccountGuid'],
+      entryAccountName: read<AccountsController>().getAccountNameById(json['EntryAccountGuid']),
+      entryDate: json['EntryDate'],
+      entryDebit: json['EntryDebit'].toDouble(),
+      entryCredit: json['EntryCredit'].toDouble(),
+      entryNote: json['EntryNote'].toString(),
+      entryCurrencyGuid: json['EntryCurrencyGuid'],
+      entryCurrencyVal: json['EntryCurrencyVal'].toDouble(),
+      entryCostGuid: json['EntryCostGuid'],
+      entryClass: json['EntryClass'],
+      entryNumber: json['EntryNumber'],
+      entryCustomerGuid: json['EntryCustomerGuid'],
+      entryType: json['EntryType'],
+    );
+  }
+
   Map<String, dynamic> toJson() {
     return {
       'EntryAccountGuid': entryAccountGuid,
@@ -145,7 +165,6 @@ class PayItem extends PlutoAdaptable<BondType> {
   @override
   Map<PlutoColumn, dynamic> toPlutoGridFormat([BondType? type]) {
     return {
-
       PlutoColumn(
         title: "رقم ",
         field: AppConstants.entryNumber,
@@ -160,18 +179,11 @@ class PayItem extends PlutoAdaptable<BondType> {
           }
         },
       ): entryNumber,
-      PlutoColumn(
-          title: "دائن",
-          field: AppConstants.entryCredit,
-          type: PlutoColumnType.text(),
-          hide: type == BondType.paymentVoucher): entryCredit,
-      PlutoColumn(
-          title: "مدين",
-          field: AppConstants.entryDebit,
-          type: PlutoColumnType.text(),
-          hide: type == BondType.receiptVoucher): entryDebit,
-      PlutoColumn(title: "الحساب", field: AppConstants.entryAccountGuid, type: PlutoColumnType.text()):
-          entryAccountName,
+      PlutoColumn(title: "دائن", field: AppConstants.entryCredit, type: PlutoColumnType.text(), hide: type == BondType.paymentVoucher):
+          entryCredit,
+      PlutoColumn(title: "مدين", field: AppConstants.entryDebit, type: PlutoColumnType.text(), hide: type == BondType.receiptVoucher):
+          entryDebit,
+      PlutoColumn(title: "الحساب", field: AppConstants.entryAccountGuid, type: PlutoColumnType.text()): entryAccountName,
       PlutoColumn(title: "البيان", field: AppConstants.entryNote, type: PlutoColumnType.text()): entryNote,
     };
   }

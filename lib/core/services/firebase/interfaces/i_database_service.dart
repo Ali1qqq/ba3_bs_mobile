@@ -1,10 +1,13 @@
+import '../../../models/date_filter.dart';
+
 abstract class IDatabaseService<T> {
   /// Fetches all items of type [T] from the specified [path].
   Future<List<T>> fetchAll({required String path});
 
   /// Fetches a list of items of type [T] from the specified [path] where the field [field]
   /// matches the value [value] of type [V].
-  Future<List<T>> fetchWhere<V>({required String path, required String field, required V value});
+  Future<List<T>> fetchWhere<V>(
+      {required String path, required String field, required V value, DateFilter? dateFilter});
 
   /// Fetches a single item of type [T] from the specified [path] by its [documentId].
   Future<T> fetchById({required String path, String? documentId});

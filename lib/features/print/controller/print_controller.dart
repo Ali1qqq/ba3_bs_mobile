@@ -47,8 +47,7 @@ class PrintingController extends GetxController {
     });
   }
 
-  Future<void> startPrinting(
-      {required int billNumber, required List<InvoiceRecordModel> invRecords, required String invDate}) async {
+  Future<void> startPrinting({required int billNumber, required List<InvoiceRecordModel> invRecords, required String invDate}) async {
     _showLoadingDialog();
 
     await _printBill(billNumber: billNumber, invRecords: invRecords, invDate: invDate);
@@ -70,15 +69,13 @@ class PrintingController extends GetxController {
 
   void _dismissLoadingDialog() => Get.back();
 
-  Future<void> _printBill(
-      {required int billNumber, required List<InvoiceRecordModel> invRecords, required String invDate}) async {
+  Future<void> _printBill({required int billNumber, required List<InvoiceRecordModel> invRecords, required String invDate}) async {
     List<BluetoothInfo> bluetoothDevices = await _fetchPairedBluetoothDevices();
 
     const String targetPrinterMacAddress = PrinterConstants.printerMacAddress;
 
     // Check if the specified printer is among the paired devices
-    bool isPrinterAvailable =
-        bluetoothDevices.any((device) => device.macAdress.toLowerCase() == targetPrinterMacAddress.toLowerCase());
+    bool isPrinterAvailable = bluetoothDevices.any((device) => device.macAdress.toLowerCase() == targetPrinterMacAddress.toLowerCase());
 
     if (isPrinterAvailable) {
       if (!isPrinterConnected) await _connectToPrinter(targetPrinterMacAddress);
@@ -122,8 +119,7 @@ class PrintingController extends GetxController {
   }
 
   // Generates the print data for the invoice
-  Future<List<int>> _generateBillPrintData(
-      List<InvoiceRecordModel> invoiceRecords, String invoiceDate, int billNumber) async {
+  Future<List<int>> _generateBillPrintData(List<InvoiceRecordModel> invoiceRecords, String invoiceDate, int billNumber) async {
     final profile = await CapabilityProfile.load();
     final generator = Generator(PaperSize.mm58, profile);
     List<int> bytes = generator.reset();
@@ -164,7 +160,7 @@ class PrintingController extends GetxController {
       vatAmount += recordTotals['vatTotal']!;
 
       // Generate item details
-      itemBytes += await _generateItemDetails(generator, material, record, recordTotals);
+      itemBytes += await _generateItemDetails(generator, material!, record, recordTotals);
     }
 
     return (bytes: itemBytes, totals: {'netAmount': netAmount, 'vatAmount': vatAmount});
@@ -236,13 +232,10 @@ class PrintingController extends GetxController {
 
   List<int> _generateTotalSummary(Generator generator, double netTotal, double vatTotal) {
     return [
-      ...generator.text('${PrinterConstants.totalVatLabel}${vatTotal.toStringAsFixed(2)}',
-          styles: PrinterTextStyles.centered),
+      ...generator.text('${PrinterConstants.totalVatLabel}${vatTotal.toStringAsFixed(2)}', styles: PrinterTextStyles.centered),
       ...generator.text('-' * 30, styles: PrinterTextStyles.right),
-      ...generator.text('${PrinterConstants.subTotalLabel}${netTotal.toStringAsFixed(2)} AED',
-          styles: PrinterTextStyles.rightBold),
-      ...generator.text('${PrinterConstants.vatLabel}${vatTotal.toStringAsFixed(2)} AED',
-          styles: PrinterTextStyles.rightBold),
+      ...generator.text('${PrinterConstants.subTotalLabel}${netTotal.toStringAsFixed(2)} AED', styles: PrinterTextStyles.rightBold),
+      ...generator.text('${PrinterConstants.vatLabel}${vatTotal.toStringAsFixed(2)} AED', styles: PrinterTextStyles.rightBold),
       ...generator.text('${PrinterConstants.totalLabel}${(netTotal + vatTotal).toStringAsFixed(2)} AED',
           styles: PrinterTextStyles.rightBold),
       ...generator.emptyLines(1),

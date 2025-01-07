@@ -1,7 +1,7 @@
 import 'package:ba3_bs_mobile/core/helper/enums/enums.dart';
 import 'package:ba3_bs_mobile/core/network/api_constants.dart';
 
-import '../../../../core/services/firebase/implementations/firebase_sequential_number_database.dart';
+import '../../../../core/services/firebase/implementations/services/firebase_sequential_number_database.dart';
 import '../../../../core/services/firebase/interfaces/datasource_base.dart';
 import '../models/bond_model.dart';
 
@@ -35,24 +35,19 @@ class BondsDataSource extends DatasourceBase<BondModel> with FirebaseSequentialN
   }
 
   @override
-  Future<BondModel> save(BondModel item, [bool? save]) async {
-    if (item.payGuid == null) {
-      final newBillModel = await _createNewBond(item);
+  Future<BondModel> save(BondModel item) async {
+    final updatedBond = item.payGuid == null ? await _assignBondNumber(item) : item;
 
-      return newBillModel;
-    } else {
-      await databaseService.update(path: path, documentId: item.payGuid, data: item.toJson());
-      return item;
-    }
+    final savedData = await _saveBondData(updatedBond.payGuid, updatedBond.toJson());
+
+    return item.payGuid == null ? BondModel.fromJson(savedData) : updatedBond;
   }
 
-  Future<BondModel> _createNewBond(BondModel bond) async {
+  Future<BondModel> _assignBondNumber(BondModel bond) async {
     final newBondNumber = await getNextNumber(path, BondType.byTypeGuide(bond.payTypeGuid!).value);
-
-    final newBondJson = bond.copyWith(payNumber: newBondNumber).toJson();
-
-    final data = await databaseService.add(path: path, data: newBondJson);
-
-    return BondModel.fromJson(data);
+    return bond.copyWith(payNumber: newBondNumber);
   }
+
+  Future<Map<String, dynamic>> _saveBondData(String? bondId, Map<String, dynamic> data) async =>
+      databaseService.add(path: path, documentId: bondId, data: data);
 }

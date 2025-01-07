@@ -1,8 +1,9 @@
 // BillsDataSource Implementation
 import 'package:ba3_bs_mobile/core/network/api_constants.dart';
-import 'package:ba3_bs_mobile/core/services/firebase/interfaces/filterable_data_source.dart';
+import 'package:ba3_bs_mobile/core/services/firebase/interfaces/filterable_datasource.dart';
 
-import '../../../../core/services/firebase/implementations/firebase_sequential_number_database.dart';
+import '../../../../core/models/date_filter.dart';
+import '../../../../core/services/firebase/implementations/services/firebase_sequential_number_database.dart';
 import '../models/bill_model.dart';
 
 class BillsDataSource extends FilterableDatasource<BillModel> with FirebaseSequentialNumberDatabase {
@@ -35,30 +36,25 @@ class BillsDataSource extends FilterableDatasource<BillModel> with FirebaseSeque
   }
 
   @override
-  Future<BillModel> save(BillModel item, [bool? save]) async {
-    if (item.billId == null) {
-      final newBillModel = await _createNewBill(item);
+  Future<BillModel> save(BillModel item) async {
+    final updatedBill = item.billId == null ? await _assignBillNumber(item) : item;
 
-      return newBillModel;
-    } else {
-      await databaseService.update(path: path, documentId: item.billId, data: item.toJson());
-      return item;
-    }
+    final savedData = await _saveBillData(updatedBill.billId, updatedBill.toJson());
+
+    return item.billId == null ? BillModel.fromJson(savedData) : updatedBill;
   }
 
-  Future<BillModel> _createNewBill(BillModel bill) async {
+  Future<BillModel> _assignBillNumber(BillModel bill) async {
     final newBillNumber = await getNextNumber(path, bill.billTypeModel.billTypeLabel!);
-
-    final newBillJson = bill.copyWith(billDetails: bill.billDetails.copyWith(billNumber: newBillNumber)).toJson();
-
-    final data = await databaseService.add(path: path, data: newBillJson);
-
-    return BillModel.fromJson(data);
+    return bill.copyWith(billDetails: bill.billDetails.copyWith(billNumber: newBillNumber));
   }
+
+  Future<Map<String, dynamic>> _saveBillData(String? billId, Map<String, dynamic> data) async =>
+      databaseService.add(path: path, documentId: billId, data: data);
 
   @override
-  Future<List<BillModel>> fetchWhere<V>({required String field, required V value}) async {
-    final data = await databaseService.fetchWhere(path: path, field: field, value: value);
+  Future<List<BillModel>> fetchWhere<V>({required String field, required V value, DateFilter? dateFilter}) async {
+    final data = await databaseService.fetchWhere(path: path, field: field, value: value, dateFilter: dateFilter);
 
     final users = data.map((item) => BillModel.fromJson(item)).toList();
 

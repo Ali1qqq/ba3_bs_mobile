@@ -1,12 +1,15 @@
 import 'dart:developer';
+import 'dart:io';
 
 import 'package:ba3_bs_mobile/features/bond/service/bond/floating_bond_details_launcher.dart';
 import 'package:ba3_bs_mobile/features/bond/ui/screens/bond_details_screen.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 
 import '../../../../core/helper/enums/enums.dart';
-import '../../../../core/services/firebase/implementations/datasource_repo.dart';
+import '../../../../core/services/firebase/implementations/repos/compound_datasource_repo.dart';
+import '../../../../core/services/json_file_operations/implementations/import_export_repo.dart';
 import '../../../../core/utils/app_service_utils.dart';
 import '../../../../core/utils/app_ui_utils.dart';
 import '../../data/models/bond_model.dart';
@@ -16,13 +19,14 @@ import 'bond_details_controller.dart';
 import 'bond_search_controller.dart';
 
 class AllBondsController extends FloatingBondDetailsLauncher {
-  final DataSourceRepository<BondModel> _bondsFirebaseRepo;
+  final CompoundDatasourceRepository<BondModel, BondType> _bondsFirebaseRepo;
+  final ImportExportRepository<BondModel> _jsonImportExportRepo;
 
   late bool isDebitOrCredit;
   List<BondModel> bonds = [];
   bool isLoading = true;
 
-  AllBondsController(this._bondsFirebaseRepo);
+  AllBondsController(this._bondsFirebaseRepo, this._jsonImportExportRepo);
 
   // Services
   late final BondUtils _bondUtils;
@@ -36,15 +40,13 @@ class AllBondsController extends FloatingBondDetailsLauncher {
   void onInit() {
     super.onInit();
     _initializeServices();
-
-    // getAllBondTypes();
   }
 
   BondModel getBondById(String bondId) => bonds.firstWhere((bond) => bond.payGuid == bondId);
 
-  Future<void> fetchAllBonds() async {
-    log('fetchBonds');
-    final result = await _bondsFirebaseRepo.getAll();
+  Future<void> fetchAllBondsByType(BondType itemTypeModel) async {
+    log('fetchAllBondsByType');
+    final result = await _bondsFirebaseRepo.getAll(itemTypeModel);
 
     result.fold(
       (failure) => AppUIUtils.onFailure(failure.message),
@@ -55,36 +57,59 @@ class AllBondsController extends FloatingBondDetailsLauncher {
     update();
   }
 
-  List<BondModel> getBondsByType(String bondTypeId) => bonds.where((bond) => bond.payTypeGuid! == bondTypeId).toList();
+  Future<void> fetchAllBondsLocal() async {
+    log('fetchAllBondsLocal');
+
+    FilePickerResult? resultFile = await FilePicker.platform.pickFiles();
+
+    if (resultFile != null) {
+      File file = File(resultFile.files.single.path!);
+      final result = _jsonImportExportRepo.importJsonFileXml(file);
+
+      result.fold(
+        (failure) => AppUIUtils.onFailure(failure.message),
+        (fetchedBonds) {
+          log('bonds.length ${bonds.length}');
+          log('bonds.lastOrNull ${bonds.firstOrNull?.toJson()}');
+
+          bonds.assignAll(fetchedBonds);
+        },
+      );
+    } else {
+      // User canceled the picker
+    }
+
+    isLoading = false;
+    update();
+  }
 
   Future<void> openFloatingBondDetails(BuildContext context, BondType bondTypeModel, {BondModel? bondModel}) async {
-    await fetchAllBonds();
+    // await fetchAllBondsLocal();
+    await fetchAllBondsByType(bondTypeModel);
 
     if (!context.mounted) return;
 
-    List<BondModel> bondsByCategory = getBondsByType(bondModel?.payTypeGuid ?? bondTypeModel.typeGuide);
-
-    final BondModel lastBondModel = bondModel ?? _bondUtils.appendEmptyBondModel(bondsByCategory, bondTypeModel);
+    final BondModel lastBondModel = bondModel ?? _bondUtils.appendEmptyBondModel(bonds, bondTypeModel);
 
     _openBondDetailsFloatingWindow(
       context: context,
-      modifiedBonds: bondsByCategory,
+      modifiedBonds: bonds,
       lastBondModel: lastBondModel,
       bondType: bondTypeModel,
     );
   }
 
-  void openBondDetailsById(String bondId, BuildContext context) async {
-    final BondModel bondModel = await fetchBondsById(bondId);
+  void openBondDetailsById(String bondId, BuildContext context, BondType itemTypeModel) async {
+    final BondModel bondModel = await fetchBondsById(bondId, itemTypeModel);
     if (!context.mounted) return;
 
     openFloatingBondDetails(context, BondType.byTypeGuide(bondModel.payTypeGuid!), bondModel: bondModel);
   }
 
-  Future<BondModel> fetchBondsById(String bondId) async {
+  Future<BondModel> fetchBondsById(String bondId, BondType itemTypeModel) async {
     late BondModel bondModel;
 
-    final result = await _bondsFirebaseRepo.getById(bondId);
+    final result = await _bondsFirebaseRepo.getById(id: bondId, itemTypeModel: itemTypeModel);
 
     result.fold(
       (failure) => AppUIUtils.onFailure(failure.message),
@@ -152,89 +177,3 @@ class AllBondsController extends FloatingBondDetailsLauncher {
     );
   }
 }
-
-/*
-* 
-
-
-  void openBondDetailsById(String bondId) {
-    final BondModel bondModel = getBondById(bondId);
-
-    List<BondModel> bondsByCategory = getBondsByType(bondModel.bondTypeModel.bondTypeId!);
-
-    _navigateToBondDetailsWithModel(bondModel, bondsByCategory, fromBondById: true);
-  }
-
-  Future<void> openLastBondDetails(BondTypeModel bondTypeModel, AddBondPlutoController addBondPlutoController) async {
-    await fetchAllBonds();
-
-    List<BondModel> bondsByCategory = getBondsByType(bondTypeModel.bondTypeId!);
-
-    if (bondsByCategory.isEmpty) {
-      _navigateToAddBond(bondTypeModel, addBondPlutoController);
-      return;
-    }
-
-    final BondModel lastBondModel = _bondUtils.appendEmptyBondModel(bondsByCategory, bondTypeModel);
-
-    _navigateToBondDetailsWithModel(lastBondModel, bondsByCategory);
-  }
-
-  Future<void> openFloatingBondDetails(BuildContext context, BondTypeModel bondTypeModel) async {
-    await fetchAllBonds();
-
-    if (!context.mounted) return;
-
-    List<BondModel> bondsByCategory = getBondsByType(bondTypeModel.bondTypeId!);
-
-    final BondModel lastBondModel = _bondUtils.appendEmptyBondModel(bondsByCategory, bondTypeModel);
-
-    _openBondDetailsFloatingWindow(
-      context: context,
-      modifiedBonds: bondsByCategory,
-      lastBondModel: lastBondModel,
-    );
-  }
-
-  
-  void _navigateToAddBond(BondTypeModel bondTypeModel, AddBondPlutoController addBondPlutoController) {
-    Get.find<BondDetailsController>().navigateToAddBondScreen(bondTypeModel, addBondPlutoController);
-  }
-
-  void _navigateToBondDetailsWithModel(BondModel bondModel, List<BondModel> allBonds, {bool fromBondById = false}) {
-    final String controllerTag = AppServiceUtils.generateUniqueTag('BondDetailsController');
-
-    final Map<String, dynamic> controllers = initializeControllers(
-      params: {
-        'tag': controllerTag,
-        'bondsFirebaseRepo': _bondsFirebaseRepo,
-        'bondDetailsPlutoController': BondDetailsPlutoController(),
-        'bondSearchController': BondSearchController(),
-      },
-    );
-
-    final bondDetailsController = controllers['bondDetailsController'] as BondDetailsController;
-    final bondDetailsPlutoController = controllers['bondDetailsPlutoController'] as BondDetailsPlutoController;
-    final bondSearchController = controllers['bondSearchController'] as BondSearchController;
-
-    bondDetailsController.updateBondDetailsOnScreen(bondModel, bondDetailsPlutoController);
-
-    initializeBondSearch(
-      currentBond: bondModel,
-      allBonds: allBonds,
-      bondSearchController: bondSearchController,
-      bondDetailsController: bondDetailsController,
-      bondDetailsPlutoController: bondDetailsPlutoController,
-    );
-
-    Get.toNamed(AppRoutes.bondDetailsScreen, arguments: {
-      'fromBondById': fromBondById,
-      'bondDetailsController': bondDetailsController,
-      'bondDetailsPlutoController': bondDetailsPlutoController,
-      'bondSearchController': bondSearchController,
-      'tag': controllerTag,
-    });
-  }
-
- 
-*/

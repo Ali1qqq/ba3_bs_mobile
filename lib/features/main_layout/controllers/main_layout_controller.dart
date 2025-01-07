@@ -10,6 +10,7 @@ import '../../bond/ui/screens/bond_layout.dart';
 import '../../cheques/ui/screens/cheque_layout.dart';
 import '../../materials/ui/screens/materials_layout.dart';
 import '../../patterns/ui/screens/pattern_layout.dart';
+import '../../sellers/ui/screens/sellers_layout.dart';
 import '../../user_time/ui/screens/user_time_layout.dart';
 import '../../users_management/ui/screens/user_management_layout.dart';
 
@@ -37,7 +38,7 @@ class MainLayoutController extends GetxController {
         icon: AppAssets.patternsIcon,
         unSelectedIcon: AppAssets.patternsUnselectedIcon
       ),
-    if (RoleItemType.viewProduct.hasReadPermission)
+    if (RoleItemType.viewProduct.hasAdminPermission)
       (
         name: 'المواد',
         layout: const MaterialLayout(),
@@ -68,6 +69,14 @@ class MainLayoutController extends GetxController {
         role: RoleItemType.viewCheques,
         icon: AppAssets.chequesIcon,
         unSelectedIcon: AppAssets.chequesUnselectedIcon
+      ),
+    if (RoleItemType.viewSellers.hasReadPermission)
+      (
+        name: 'البائعون',
+        layout: const SellersLayout(),
+        role: RoleItemType.viewSellers,
+        icon: AppAssets.accountsIcon,
+        unSelectedIcon: AppAssets.accountsUnselectedIcon
       ),
     if (RoleItemType.viewUserManagement.hasAdminPermission)
       (

@@ -1,7 +1,8 @@
 // BillsDataSource Implementation
 import 'package:ba3_bs_mobile/core/network/api_constants.dart';
-import 'package:ba3_bs_mobile/core/services/firebase/interfaces/filterable_data_source.dart';
+import 'package:ba3_bs_mobile/core/services/firebase/interfaces/filterable_datasource.dart';
 
+import '../../../../core/models/date_filter.dart';
 import '../models/user_model.dart';
 
 class UsersDataSource extends FilterableDatasource<UserModel> {
@@ -20,8 +21,8 @@ class UsersDataSource extends FilterableDatasource<UserModel> {
   }
 
   @override
-  Future<List<UserModel>> fetchWhere<V>({required String field, required V value}) async {
-    final data = await databaseService.fetchWhere(path: path, field: field, value: value);
+  Future<List<UserModel>> fetchWhere<V>({required String field, required V value, DateFilter? dateFilter}) async {
+    final data = await databaseService.fetchWhere(path: path, field: field, value: value, dateFilter: dateFilter);
 
     final users = data.map((item) => UserModel.fromJson(item)).toList();
 
@@ -40,14 +41,9 @@ class UsersDataSource extends FilterableDatasource<UserModel> {
   }
 
   @override
-  Future<UserModel> save(UserModel item, [bool? save]) async {
-    if (item.userId == null) {
-      final data = await databaseService.add(path: path, documentId: item.userId, data: item.toJson());
+  Future<UserModel> save(UserModel item) async {
+    final data = await databaseService.add(path: path, documentId: item.userId, data: item.toJson());
 
-      return UserModel.fromJson(data);
-    } else {
-      await databaseService.update(path: path, documentId: item.userId, data: item.toJson());
-      return item;
-    }
+    return UserModel.fromJson(data);
   }
 }

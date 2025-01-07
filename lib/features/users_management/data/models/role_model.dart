@@ -61,7 +61,7 @@ enum RoleItemType {
   viewStore('المستودعات'),
   viewPattern('انماط البيع'),
   viewCheques('الشيكات'),
-  viewSeller('البائعون'),
+  viewSellers('البائعون'),
   viewReport('تقارير المبيعات'),
   viewImport('استيراد المعلومات'),
   viewTarget('التارغت'),

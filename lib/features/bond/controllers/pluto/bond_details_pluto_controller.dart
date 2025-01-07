@@ -39,13 +39,11 @@ class BondDetailsPlutoController extends IRecodesPlutoController<PayItem> {
 
   void _handleColumnUpdate(String columnField) {
     if (columnField == AppConstants.entryCredit) {
-      String correctedText =
-          AppServiceUtils.extractNumbersAndCalculate(recordsTableStateManager.currentRow?.cells[columnField]?.value);
+      String correctedText = AppServiceUtils.extractNumbersAndCalculate(recordsTableStateManager.currentRow?.cells[columnField]?.value);
       clearFiledInRow(AppConstants.entryDebit);
       updateCellValue(columnField, correctedText);
     } else if (columnField == AppConstants.entryDebit) {
-      String correctedText =
-          AppServiceUtils.extractNumbersAndCalculate(recordsTableStateManager.currentRow?.cells[columnField]?.value);
+      String correctedText = AppServiceUtils.extractNumbersAndCalculate(recordsTableStateManager.currentRow?.cells[columnField]?.value);
       clearFiledInRow(AppConstants.entryCredit);
       updateCellValue(columnField, correctedText);
     } else if (columnField == AppConstants.entryAccountGuid) {
@@ -167,8 +165,7 @@ class BondDetailsPlutoController extends IRecodesPlutoController<PayItem> {
   }
 
   // Helper method to create an BondItemModel from a row
-  PayItem _createBondRecord({required Map<String, dynamic> row, required String accId}) =>
-      PayItem.fromJsonPluto(row: row, accId: accId);
+  PayItem _createBondRecord({required Map<String, dynamic> row, required String accId}) => PayItem.fromJsonPluto(row: row, accId: accId);
 
   void updateCellValue(String field, dynamic value) {
     if (recordsTableStateManager.currentRow!.cells[field] != null) {

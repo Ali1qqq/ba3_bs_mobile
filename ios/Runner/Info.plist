@@ -5,10 +5,19 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>Ba3 Bs Mobile</string>
-
+	<string>BA3 Business</string>
+    <key>NSBluetoothAlwaysUsageDescription</key>
+   	<string>يحتاج التطبيق إلى استخدام البلوتوث للطباعة عبر الأجهزة المتصلة بالتطبيق.</string>
+   	<key>NSBluetoothPeripheralUsageDescription</key>
+    <string>We use Bluetooth to connect to and interact with peripheral devices for printing or data transfer.</string>
+   	<key>NSCameraUsageDescription</key>
+   	<string>يحتاج التطبيق إلى الكاميرا لمسح رموز QR لأغراض التحقق والمصادقة.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-    <string>This app needs access to location when logIn to where you logIn.</string>
+	<string>We require location access both when the app is in use and in the background to ensure secure login and location-based functionality.</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+   	<string>We need your location to verify your login and ensure access is restricted to specific locations for security purposes.</string>
+   	<key>NSPhotoLibraryUsageDescription</key>
+    <string>يحتاج التطبيق إلى الوصول إلى مكتبة الصور لتمكينك من اختيار الصور لاستخدامها داخل التطبيق.</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>

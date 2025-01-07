@@ -52,6 +52,8 @@ class MaterialModel implements PlutoAdaptable {
   final String? wholesalePrice;
   final String? retailPrice;
   final String? endUserPrice;
+  final String? matVatGuid;
+  final List<MatExtraBarcodeModel>? matExtraBarcode;
 
   MaterialModel({
     this.id,
@@ -104,12 +106,14 @@ class MaterialModel implements PlutoAdaptable {
     this.wholesalePrice,
     this.retailPrice,
     this.endUserPrice,
+    this.matVatGuid,
+    this.matExtraBarcode,
   });
 
   // Factory constructor to create an instance from JSON
   factory MaterialModel.fromJson(Map<String, dynamic> json) {
     return MaterialModel(
-      id: json['mptr']?.toString(),
+      id: json['docId']?.toString(),
       matCode: json['MatCode'],
       matName: json['MatName']?.toString(),
       matBarCode: json['MatBarCode']?.toString(),
@@ -140,15 +144,15 @@ class MaterialModel implements PlutoAdaptable {
       matCalPriceFromDetail: json['MatCalPriceFromDetail'],
       matForceInExpire: json['MatForceInExpire'],
       matForceOutExpire: json['MatForceOutExpire'],
-      matCreateDate: DateTime.parse(json['MatCreateDate']),
+      matCreateDate: DateTime.tryParse(json['MatCreateDate'] ?? '') ?? DateTime.now(),
       matIsIntegerQuantity: json['MatIsIntegerQuantity'],
       matClassFlag: json['MatClassFlag'],
       matForceInClass: json['MatForceInClass'],
       matForceOutClass: json['MatForceOutClass'],
       matDisableLastPrice: json['MatDisableLastPrice'],
-      matLastPriceCurVal: json['MatLastPriceCurVal'].toDouble(),
+      matLastPriceCurVal: double.tryParse(json['MatLastPriceCurVal'].toString()) ?? 0.0,
       matPrevQty: json['MatPrevQty']?.toString(),
-      matFirstCostDate: DateTime.parse(json['MatFirstCostDate']),
+      matFirstCostDate: DateTime.now().copyWith(year: 1980, day: 1, month: 1, minute: 0, hour: 0, second: 0),
       matHasSegments: json['MatHasSegments'],
       matParent: json['MatParent']?.toString(),
       matIsCompositionUpdated: json['MatIsCompositionUpdated'],
@@ -159,12 +163,14 @@ class MaterialModel implements PlutoAdaptable {
       wholesalePrice: json['Whole2']?.toString(),
       retailPrice: json['retail2']?.toString(),
       endUserPrice: json['EndUser2']?.toString(),
+      matVatGuid: json['matVatGuid']?.toString(),
+      matExtraBarcode: List.from(json['matExtraBarcode'] ?? []),
     );
   }
 
   // toJson method
   Map<String, dynamic> toJson() => {
-        'mptr': id,
+        'docId': id,
         'MatCode': matCode,
         'MatName': matName,
         'MatBarCode': matBarCode,
@@ -214,6 +220,8 @@ class MaterialModel implements PlutoAdaptable {
         'Whole2': wholesalePrice,
         'retail2': retailPrice,
         'EndUser2': endUserPrice,
+        'matVatGuid': matVatGuid,
+        'matExtraBarcode': matExtraBarcode,
       };
 
   @override
@@ -227,57 +235,59 @@ class MaterialModel implements PlutoAdaptable {
   }
 
   // CopyWith method
-  MaterialModel copyWith(
-      {String? id,
-      int? matCode,
-      String? matName,
-      String? matBarCode,
-      String? matGroupGuid,
-      String? matUnity,
-      int? matPriceType,
-      int? matBonus,
-      int? matBonusOne,
-      String? matCurrencyGuid,
-      double? matCurrencyVal,
-      String? matPictureGuid,
-      int? matType,
-      int? matSecurity,
-      int? matFlag,
-      int? matExpireFlag,
-      int? matProdFlag,
-      int? matUnit2FactFlag,
-      int? matUnit3FactFlag,
-      int? matSNFlag,
-      int? matForceInSN,
-      int? matForceOutSN,
-      int? matVAT,
-      int? matDefUnit,
-      int? matBranchMask,
-      int? matAss,
-      String? matOldGUID,
-      String? matNewGUID,
-      int? matCalPriceFromDetail,
-      int? matForceInExpire,
-      int? matForceOutExpire,
-      DateTime? matCreateDate,
-      int? matIsIntegerQuantity,
-      int? matClassFlag,
-      int? matForceInClass,
-      int? matForceOutClass,
-      int? matDisableLastPrice,
-      double? matLastPriceCurVal,
-      String? matPrevQty,
-      DateTime? matFirstCostDate,
-      int? matHasSegments,
-      String? matParent,
-      int? matIsCompositionUpdated,
-      int? matInheritsParentSpecs,
-      String? matCompositionName,
-      String? matCompositionLatinName,
-      int? movedComposite,
-      String? wholesalePrice,
-      String? retailPrice,
-      String? endUserPrice}) {
+  MaterialModel copyWith({
+    String? id,
+    int? matCode,
+    String? matName,
+    String? matBarCode,
+    String? matGroupGuid,
+    String? matUnity,
+    int? matPriceType,
+    int? matBonus,
+    int? matBonusOne,
+    String? matCurrencyGuid,
+    double? matCurrencyVal,
+    String? matPictureGuid,
+    int? matType,
+    int? matSecurity,
+    int? matFlag,
+    int? matExpireFlag,
+    int? matProdFlag,
+    int? matUnit2FactFlag,
+    int? matUnit3FactFlag,
+    int? matSNFlag,
+    int? matForceInSN,
+    int? matForceOutSN,
+    int? matVAT,
+    int? matDefUnit,
+    int? matBranchMask,
+    int? matAss,
+    String? matOldGUID,
+    String? matNewGUID,
+    int? matCalPriceFromDetail,
+    int? matForceInExpire,
+    int? matForceOutExpire,
+    DateTime? matCreateDate,
+    int? matIsIntegerQuantity,
+    int? matClassFlag,
+    int? matForceInClass,
+    int? matForceOutClass,
+    int? matDisableLastPrice,
+    double? matLastPriceCurVal,
+    String? matPrevQty,
+    DateTime? matFirstCostDate,
+    int? matHasSegments,
+    String? matParent,
+    int? matIsCompositionUpdated,
+    int? matInheritsParentSpecs,
+    String? matCompositionName,
+    String? matCompositionLatinName,
+    int? movedComposite,
+    String? wholesalePrice,
+    String? retailPrice,
+    String? endUserPrice,
+    String? matVatGuid,
+  }) {
     return MaterialModel(
       id: id ?? this.id,
       matCode: matCode ?? this.matCode,
@@ -329,6 +339,42 @@ class MaterialModel implements PlutoAdaptable {
       wholesalePrice: wholesalePrice ?? this.wholesalePrice,
       retailPrice: retailPrice ?? this.retailPrice,
       endUserPrice: endUserPrice ?? this.endUserPrice,
+      matVatGuid: matVatGuid ?? this.matVatGuid,
+    );
+  }
+}
+
+class MatExtraBarcodeModel {
+  double? matUnit;
+  String? barCode;
+  bool? isDefault;
+
+  MatExtraBarcodeModel({this.matUnit, this.barCode, this.isDefault});
+
+  // Convert a MatExtraBarcodeModel into a Map. The keys must correspond to the names of the JSON attributes.
+  Map<String, dynamic> toJson() {
+    return {
+      'matUnit': matUnit,
+      'barCode': barCode,
+      'isDefault': isDefault,
+    };
+  }
+
+  // A method that converts a Map into a MatExtraBarcodeModel.
+  factory MatExtraBarcodeModel.fromJson(Map<String, dynamic> json) {
+    return MatExtraBarcodeModel(
+      matUnit: json['matUnit'],
+      barCode: json['barCode'],
+      isDefault: json['isDefault'],
+    );
+  }
+
+  // A method that creates a copy of the MatExtraBarcodeModel with the given fields replaced with new values.
+  MatExtraBarcodeModel copyWith({double? matUnit, String? barCode, bool? isDefault}) {
+    return MatExtraBarcodeModel(
+      matUnit: matUnit ?? this.matUnit,
+      barCode: barCode ?? this.barCode,
+      isDefault: isDefault ?? this.isDefault,
     );
   }
 }

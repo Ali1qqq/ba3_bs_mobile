@@ -1,9 +1,9 @@
 import 'package:ba3_bs_mobile/core/helper/enums/enums.dart';
 import 'package:ba3_bs_mobile/core/helper/mixin/floating_launcher.dart';
+import 'package:ba3_bs_mobile/core/services/firebase/implementations/repos/compound_datasource_repo.dart';
 import 'package:get/get.dart';
 
 import '../../../../core/helper/mixin/controller_initializer.dart';
-import '../../../../core/services/firebase/implementations/datasource_repo.dart';
 import '../../controllers/bonds/bond_details_controller.dart';
 import '../../controllers/bonds/bond_search_controller.dart';
 import '../../controllers/pluto/bond_details_pluto_controller.dart';
@@ -18,13 +18,12 @@ class FloatingBondDetailsLauncher extends GetxController with FloatingLauncher, 
 
     final bondDetailsPlutoController = requireParam<BondDetailsPlutoController>(params, 'bondDetailsPlutoController');
     final bondSearchController = requireParam<BondSearchController>(params, 'bondSearchController');
-    final bondsFirebaseRepo = requireParam<DataSourceRepository<BondModel>>(params, 'bondsFirebaseRepo');
+    final bondsFirebaseRepo = requireParam<CompoundDatasourceRepository<BondModel, BondType>>(params, 'bondsFirebaseRepo');
 
     final bondDetailsPlutoControllerWithTag =
         getOrCreateController<BondDetailsPlutoController>(tag, controllerBuilder: () => bondDetailsPlutoController);
 
-    final bondSearchControllerWithTag =
-        getOrCreateController<BondSearchController>(tag, controllerBuilder: () => bondSearchController);
+    final bondSearchControllerWithTag = getOrCreateController<BondSearchController>(tag, controllerBuilder: () => bondSearchController);
 
     final bondDetailsControllerWithTag = getOrCreateController<BondDetailsController>(
       tag,

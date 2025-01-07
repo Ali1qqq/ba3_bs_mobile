@@ -40,16 +40,12 @@ class _ChequeLayoutState extends State<ChequeLayout> {
                 ChequesTypeItemWidget(
                     text: 'الشيكات المستحقة',
                     onPressed: () {
-                      controller
-                        ..fetchAllCheques()
-                        ..navigateToChequesScreen(onlyDues: true);
+                      controller.navigateToChequesScreen(onlyDues: true);
                     }),
                 ChequesTypeItemWidget(
                     text: 'معاينة الشيكات',
                     onPressed: () {
-                      controller
-                        ..fetchAllCheques()
-                        ..navigateToChequesScreen(onlyDues: false);
+                      controller.navigateToChequesScreen(onlyDues: false);
                     }),
               ],
             ),

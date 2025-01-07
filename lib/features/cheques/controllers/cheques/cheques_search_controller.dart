@@ -17,7 +17,9 @@ class ChequesSearchController extends GetxController {
     required ChequesDetailsController chequesDetailsController,
   }) {
     chequesList = chequesByCategory;
-    currentChequesIndex = chequesList.indexWhere((current) =>current.chequesGuid==cheques.chequesGuid||current==cheques ,);
+    currentChequesIndex = chequesList.indexWhere(
+      (current) => current.chequesGuid == cheques.chequesGuid || current == cheques,
+    );
     currentCheques = chequesList[currentChequesIndex];
     this.chequesDetailsController = chequesDetailsController;
     _setCurrentCheques(currentChequesIndex);
@@ -56,9 +58,7 @@ class ChequesSearchController extends GetxController {
 
   /// Validates whether the given cheques number is within range
   bool _isValidChequesNumber(int? chequesNumber) =>
-      chequesNumber != null &&
-      chequesNumber >= chequesList.first.chequesNumber! &&
-      chequesNumber <= chequesList.last.chequesNumber!;
+      chequesNumber != null && chequesNumber >= chequesList.first.chequesNumber! && chequesNumber <= chequesList.last.chequesNumber!;
 
   /// Handles invalid cheques number cases by showing appropriate error messages
   void _showInvalidChequesNumberError(int? chequesNumber) {

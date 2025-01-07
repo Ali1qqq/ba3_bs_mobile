@@ -16,7 +16,7 @@ class AddUserScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     UserManagementController userManagementViewController = read<UserManagementController>();
-    SellerController sellerViewController = read<SellerController>();
+    SellersController sellerViewController = read<SellersController>();
     return Column(
       children: [
         Expanded(

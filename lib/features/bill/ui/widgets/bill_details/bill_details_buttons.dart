@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:ba3_bs_mobile/core/helper/extensions/bill_pattern_type_extension.dart';
 import 'package:ba3_bs_mobile/core/helper/extensions/role_item_type_extension.dart';
 import 'package:ba3_bs_mobile/features/bill/controllers/bill/bill_search_controller.dart';
 import 'package:flutter/material.dart';
@@ -42,7 +43,9 @@ class BillDetailsButtons extends StatelessWidget {
         runSpacing: 20,
         children: [
           if (billSearchController.isNew) _buildAddButton(),
-          if (RoleItemType.viewBill.hasAdminPermission) _buildApprovalOrBondButton(context),
+          if (!billSearchController.isNew && RoleItemType.viewBill.hasAdminPermission)
+            if (billModel.billTypeModel.billPatternType!.hasCashesAccount || billSearchController.isPending)
+              _buildApprovalOrBondButton(context),
           _buildPrintButton(),
           _buildEInvoiceButton(context),
           if (!billSearchController.isNew) _buildPdfEmailButton(),
@@ -70,27 +73,14 @@ class BillDetailsButtons extends StatelessWidget {
   }
 
   Widget _buildApprovalOrBondButton(BuildContext context) {
-    if (billSearchController.isPending) {
-      return AppButton(
-        title: 'قبول',
-        width: 100,
-        fontSize: 14,
-        onPressed: () async {
-          billDetailsController.updateBillStatus(billModel, Status.approved);
-        },
-        iconData: Icons.file_open_outlined,
-      );
-    } else {
-      return AppButton(
-        title: 'السند',
-        width: 100,
-        fontSize: 14,
-        onPressed: () async {
-          billDetailsController.createEntryBond(billModel, context);
-        },
-        iconData: Icons.file_open_outlined,
-      );
-    }
+    final isPending = billSearchController.isPending;
+    return AppButton(
+      title: isPending ? 'قبول' : 'السند',
+      iconData: Icons.file_open_outlined,
+      onPressed: isPending
+          ? () => billDetailsController.updateBillStatus(billModel, Status.approved)
+          : () => billDetailsController.createEntryBond(billModel, context),
+    );
   }
 
   Widget _buildPrintButton() {

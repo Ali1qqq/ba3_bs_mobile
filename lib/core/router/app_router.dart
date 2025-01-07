@@ -5,7 +5,9 @@ import 'package:ba3_bs_mobile/features/bill/ui/screens/pending_bills_screen.dart
 import 'package:ba3_bs_mobile/features/login/ui/screens/splash_screen.dart';
 import 'package:ba3_bs_mobile/features/main_layout/ui/screens/main_layout.dart';
 import 'package:ba3_bs_mobile/features/materials/ui/screens/all_materials_screen.dart';
+import 'package:ba3_bs_mobile/features/patterns/ui/screens/add_pattern_screen.dart';
 import 'package:ba3_bs_mobile/features/patterns/ui/screens/pattern_layout.dart';
+import 'package:ba3_bs_mobile/features/sellers/ui/screens/seller_sales_screen.dart';
 import 'package:ba3_bs_mobile/features/users_management/ui/screens/role_management/add_role_screen.dart';
 import 'package:ba3_bs_mobile/features/users_management/ui/screens/user_management/add_user_screen.dart';
 import 'package:ba3_bs_mobile/features/users_management/ui/screens/user_management/all_user_screen.dart';
@@ -15,8 +17,9 @@ import '../../features/bill/ui/screens/bill_details_screen.dart';
 import '../../features/bond/ui/screens/bond_details_screen.dart';
 import '../../features/cheques/ui/screens/all_cheques_view.dart';
 import '../../features/login/ui/screens/login_screen.dart';
-import '../../features/patterns/ui/screens/add_pattern_screen.dart';
 import '../../features/patterns/ui/screens/all_pattern_screen.dart';
+import '../../features/sellers/ui/screens/add_seller_screen.dart';
+import '../../features/sellers/ui/screens/all_sellers_screen.dart';
 import '../../features/users_management/ui/screens/role_management/all_permissions_screen.dart';
 import '../bindings/middlewares.dart';
 import 'app_routes.dart';
@@ -104,5 +107,17 @@ List<GetPage<dynamic>>? appRouter = [
   GetPage(
     name: AppRoutes.addUserScreen,
     page: () => const AddUserScreen(),
+  ),
+  GetPage(
+    name: AppRoutes.addSellerScreen,
+    page: () => const AddSellerScreen(),
+  ),
+  GetPage(
+    name: AppRoutes.allSellersScreen,
+    page: () => const AllSellersScreen(),
+  ),
+  GetPage(
+    name: AppRoutes.sellerSalesScreen,
+    page: () => const SellerSalesScreen(),
   ),
 ];

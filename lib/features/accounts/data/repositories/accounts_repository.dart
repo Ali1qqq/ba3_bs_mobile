@@ -23,9 +23,8 @@ class AccountsRepository {
     // String sanitizedJson = sanitizeJsonString(jsonString);
     Map<String, dynamic> jsonMap = jsonDecode(accountsJson);
 
-    List<AccountModel> accounts = (jsonMap['MainExp']['Export']['Accounts']['A'] as List)
-        .map((accountJson) => AccountModel.fromJson(accountJson))
-        .toList();
+    List<AccountModel> accounts =
+        (jsonMap['MainExp']['Export']['Accounts']['A'] as List).map((accountJson) => AccountModel.fromJson(accountJson)).toList();
 
     return accounts;
   }

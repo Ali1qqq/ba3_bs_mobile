@@ -2,7 +2,6 @@ import 'dart:developer';
 
 import 'package:ba3_bs_mobile/features/floating_window/services/overlay_service.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
 import '../constants/app_constants.dart';
@@ -18,13 +17,13 @@ class StoreDropdown extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: 1.sw,
+      width: width ?? Get.width * 0.45,
       child: Row(
         children: [
           const SizedBox(width: 100, child: Text('المستودع')),
           Expanded(
             child: Container(
-              width: 1.sw - 100,
+              width: (Get.width * 0.45) - 100,
               height: AppConstants.constHeightTextField,
               alignment: Alignment.center,
               decoration: BoxDecoration(

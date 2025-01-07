@@ -4,6 +4,8 @@ import 'package:ba3_bs_mobile/core/constants/app_constants.dart';
 import 'package:ba3_bs_mobile/core/helper/extensions/string_extension.dart';
 import 'package:ba3_bs_mobile/features/materials/controllers/material_controller.dart';
 import 'package:ba3_bs_mobile/features/materials/data/models/material_model.dart';
+import 'package:ba3_bs_mobile/features/patterns/data/models/bill_type_model.dart';
+import 'package:ba3_bs_mobile/features/tax/data/models/tax_model.dart';
 import 'package:flutter/material.dart';
 import 'package:pluto_grid/pluto_grid.dart';
 
@@ -24,9 +26,20 @@ class BillDetailsPlutoController extends IPlutoController<InvoiceRecordModel> {
   late final BillPlutoCalculator _calculator;
   late final BillPlutoUtils _plutoUtils;
   late final BillPlutoContextMenu _contextMenu;
+  final BillTypeModel? billTypeModel;
+
+  BillDetailsPlutoController({this.billTypeModel});
+
+  late List<PlutoColumn> recordsTableColumns;
 
   // Columns and rows
-  List<PlutoColumn> recordsTableColumns = InvoiceRecordModel().toEditedMap().keys.toList();
+  // List<PlutoColumn> recordsTableColumns = InvoiceRecordModel().toEditedMap(billTypeModel!).keys.toList();
+
+  late BuildContext context;
+
+  setContext(BuildContext context) {
+    this.context = context;
+  }
 
   List<PlutoRow> recordsTableRows = [];
 
@@ -44,12 +57,10 @@ class BillDetailsPlutoController extends IPlutoController<InvoiceRecordModel> {
       PlutoGridStateManager(columns: [], rows: [], gridFocusNode: FocusNode(), scroll: PlutoGridScrollController());
 
   @override
-  String calculateAmountFromRatio(double ratio, double total) =>
-      _calculator.calculateAmountFromRatio(ratio, total).toStringAsFixed(2);
+  String calculateAmountFromRatio(double ratio, double total) => _calculator.calculateAmountFromRatio(ratio, total).toStringAsFixed(2);
 
   @override
-  String calculateRatioFromAmount(double amount, double total) =>
-      _calculator.calculateRatioFromAmount(amount, total).toStringAsFixed(2);
+  String calculateRatioFromAmount(double amount, double total) => _calculator.calculateRatioFromAmount(amount, total).toStringAsFixed(2);
 
   @override
   double get computeWithVatTotal => _calculator.computeWithVatTotal;
@@ -81,10 +92,8 @@ class BillDetailsPlutoController extends IPlutoController<InvoiceRecordModel> {
 
     final materialController = read<MaterialController>();
 
-    final invoiceRecords = recordsTableStateManager.rows
-        .map((row) => _processBillRow(row, materialController))
-        .whereType<InvoiceRecordModel>()
-        .toList();
+    final invoiceRecords =
+        recordsTableStateManager.rows.map((row) => _processBillRow(row, materialController)).whereType<InvoiceRecordModel>().toList();
 
     recordsTableStateManager.setShowLoading(false);
     return invoiceRecords;
@@ -94,19 +103,10 @@ class BillDetailsPlutoController extends IPlutoController<InvoiceRecordModel> {
       _gridService.collectDiscountsAndAdditions(_plutoUtils);
 
   @override
-  void moveToNextRow(PlutoGridStateManager stateManager, String cellField) =>
-      _gridService.moveToNextRow(stateManager, cellField);
+  void moveToNextRow(PlutoGridStateManager stateManager, String cellField) => _gridService.moveToNextRow(stateManager, cellField);
 
   @override
   void restoreCurrentCell(PlutoGridStateManager stateManager) => _gridService.restoreCurrentCell(stateManager);
-
-  @override
-  void updateWithSelectedMaterial({
-    required MaterialModel? materialModel,
-    required PlutoGridStateManager stateManager,
-    required IPlutoController plutoController,
-  }) =>
-      _gridService.updateWithSelectedMaterial(materialModel, stateManager, plutoController);
 
   @override
   void onInit() {
@@ -120,6 +120,8 @@ class BillDetailsPlutoController extends IPlutoController<InvoiceRecordModel> {
     _calculator = BillPlutoCalculator(this);
     _plutoUtils = BillPlutoUtils(this);
     _contextMenu = BillPlutoContextMenu(this);
+
+    recordsTableColumns = InvoiceRecordModel().toEditedMap(billTypeModel!).keys.toList();
   }
 
   onMainTableLoaded(PlutoGridOnLoadedEvent event) {
@@ -143,12 +145,6 @@ class BillDetailsPlutoController extends IPlutoController<InvoiceRecordModel> {
     additionsDiscountsStateManager.appendRows(newRows);
   }
 
-  late BuildContext context;
-
-  setContext(BuildContext context) {
-    this.context = context;
-  }
-
   void onMainTableStateManagerChanged(PlutoGridOnChangedEvent event) {
     log('onMainTableStateManagerChanged');
     if (recordsTableStateManager.currentRow == null) return;
@@ -167,10 +163,9 @@ class BillDetailsPlutoController extends IPlutoController<InvoiceRecordModel> {
     safeUpdateUI();
   }
 
-  void _handleColumnUpdate(
-      String columnField, int quantity, double subTotal, double total, double vat, String product) {
+  void _handleColumnUpdate(String columnField, int quantity, double subTotal, double total, double vat, String product) {
     if (columnField == AppConstants.invRecSubTotal) {
-      _gridService.updateInvoiceValues(subTotal, quantity);
+      _gridService.updateInvoiceValues(subTotal, quantity, billTypeModel!);
     } else if (columnField == AppConstants.invRecTotal) {
       _gridService.updateInvoiceValuesByTotal(total, quantity);
     } else if (columnField == AppConstants.invRecQuantity && quantity > 0) {
@@ -212,35 +207,25 @@ class BillDetailsPlutoController extends IPlutoController<InvoiceRecordModel> {
   }
 
   void onMainTableRowSecondaryTap(PlutoGridOnRowSecondaryTapEvent event, BuildContext context) {
-    final materialName = event.row.cells[AppConstants.invRecProduct]?.value;
-    if (materialName == null) return;
-
-    final materialModel = read<MaterialController>().getMaterialByName(materialName);
-    if (materialModel == null) return;
-
+    // final materialName = event.row.cells[AppConstants.invRecProduct]?.value;
+    // if (materialName == null) return;
+    //
+    // final materialModel = read<MaterialController>().getMaterialByName(materialName);
+    // if (materialModel == null) return;
+    //
     // _handleContextMenu(event, materialModel, context);
   }
 
-  void onMainTableRowDoubleTap(PlutoGridOnRowDoubleTapEvent event, BuildContext context) {
-    final materialName = event.row.cells[AppConstants.invRecProduct]?.value;
-    if (materialName == null) return;
+  // void _handleContextMenu(PlutoGridOnRowSecondaryTapEvent event, MaterialModel materialModel, BuildContext context) {
+  //   final field = event.cell.column.field;
+  //   if (field == AppConstants.invRecSubTotal) {
+  //     _showPriceTypeMenu(event, materialModel, context);
+  //   } else if (field == AppConstants.invRecId) {
+  //     _showDeleteConfirmationDialog(event, context);
+  //   }
+  // }
 
-    final materialModel = read<MaterialController>().getMaterialByName(materialName);
-    if (materialModel == null) return;
-
-    _handleContextMenu(event, materialModel, context);
-  }
-
-  void _handleContextMenu(PlutoGridOnRowDoubleTapEvent event, MaterialModel materialModel, BuildContext context) {
-    final field = event.cell.column.field;
-    if (field == AppConstants.invRecSubTotal) {
-      _showPriceTypeMenu(event, materialModel, context);
-    } else if (field == AppConstants.invRecId) {
-      _showDeleteConfirmationDialog(event, context);
-    }
-  }
-
-  void _showPriceTypeMenu(PlutoGridOnRowDoubleTapEvent event, MaterialModel materialModel, BuildContext context) {
+  void _showPriceTypeMenu(event, MaterialModel materialModel, BuildContext context) {
     _contextMenu.showPriceTypeMenu(
         context: context,
         index: event.rowIdx,
@@ -250,10 +235,10 @@ class BillDetailsPlutoController extends IPlutoController<InvoiceRecordModel> {
         gridService: _gridService);
   }
 
-  void _showDeleteConfirmationDialog(event, BuildContext context) =>
-      _contextMenu.showDeleteConfirmationDialog(event.rowIdx, context);
+  void _showDeleteConfirmationDialog(event, BuildContext context) => _contextMenu.showDeleteConfirmationDialog(event.rowIdx, context);
 
   void onAdditionsDiscountsChanged(PlutoGridOnChangedEvent event) {
+    log("onAdditionsDiscountsChanged");
     final field = event.column.field;
     final cells = event.row.cells;
     final row = event.row;
@@ -306,15 +291,17 @@ class BillDetailsPlutoController extends IPlutoController<InvoiceRecordModel> {
     final materialModel = materialController.getMaterialByName(row.cells[AppConstants.invRecProduct]!.value);
 
     if (_plutoUtils.isValidItemQuantity(row, AppConstants.invRecQuantity) && materialModel != null) {
-      return _createInvoiceRecord(row, materialModel.id!);
+      //TODO:
+      // change tax ratio guid
+      return _createInvoiceRecord(row, materialModel.id!, VatEnums.byGuid(materialModel.matVatGuid ?? "2").taxRatio ?? 0);
     }
 
     return null;
   }
 
   // Helper method to create an InvoiceRecordModel from a row
-  InvoiceRecordModel _createInvoiceRecord(PlutoRow row, String matId) =>
-      InvoiceRecordModel.fromJsonPluto(matId, row.toJson());
+  InvoiceRecordModel _createInvoiceRecord(PlutoRow row, String matId, double matVat) =>
+      InvoiceRecordModel.fromJsonPluto(matId, row.toJson(), matVat);
 
   void prepareBillMaterialsRows(List<InvoiceRecordModel> invRecords) {
     recordsTableStateManager.removeAllRows();
@@ -322,7 +309,7 @@ class BillDetailsPlutoController extends IPlutoController<InvoiceRecordModel> {
     final newRows = recordsTableStateManager.getNewRows(count: 30);
 
     if (invRecords.isNotEmpty) {
-      recordsTableRows = _gridService.convertRecordsToRows(invRecords);
+      recordsTableRows = _gridService.convertRecordsToRows(invRecords, billTypeModel!);
 
       recordsTableStateManager.appendRows(recordsTableRows);
       recordsTableStateManager.appendRows(newRows);
@@ -348,6 +335,33 @@ class BillDetailsPlutoController extends IPlutoController<InvoiceRecordModel> {
   void safeUpdateUI() => WidgetsFlutterBinding.ensureInitialized().waitUntilFirstFrameRasterized.then((value) {
         update();
       });
+
+  void onMainTableRowDoubleTap(PlutoGridOnRowDoubleTapEvent event, BuildContext context) {
+    final materialName = event.row.cells[AppConstants.invRecProduct]?.value;
+    if (materialName == null) return;
+
+    final materialModel = read<MaterialController>().getMaterialByName(materialName);
+    if (materialModel == null) return;
+
+    _handleContextMenu(event, materialModel, context);
+  }
+
+  void _handleContextMenu(PlutoGridOnRowDoubleTapEvent event, MaterialModel materialModel, BuildContext context) {
+    final field = event.cell.column.field;
+    if (field == AppConstants.invRecSubTotal) {
+      _showPriceTypeMenu(event, materialModel, context);
+    } else if (field == AppConstants.invRecId) {
+      _showDeleteConfirmationDialog(event, context);
+    }
+  }
+
+  @override
+  void updateWithSelectedMaterial({
+    required MaterialModel? materialModel,
+    required PlutoGridStateManager stateManager,
+    required IPlutoController plutoController,
+  }) =>
+      _gridService.updateWithSelectedMaterial(materialModel, stateManager, plutoController);
 }
 
 // 530 - 236

@@ -31,8 +31,8 @@ mixin PdfBase {
     );
 
     result.fold(
-      (failure) => _onEmailSendFailure(failure.message),
-      (_) => _onEmailSendSuccess(attachments),
+          (failure) => _onEmailSendFailure(failure.message),
+          (_) => _onEmailSendSuccess(attachments),
     );
   }
 
@@ -80,7 +80,11 @@ mixin PdfBase {
     if (!hasModelItems(items)) return;
 
     final pdfFilePath = await _generatePdf(
-        pdfGenerator: pdfGenerator, itemModel: itemModel, fileName: fileName, logoSrc: logoSrc, fontSrc: fontSrc);
+        pdfGenerator: pdfGenerator,
+        itemModel: itemModel,
+        fileName: fileName,
+        logoSrc: logoSrc,
+        fontSrc: fontSrc);
 
     await sendToEmail(
       recipientEmail: recipientEmail,

@@ -1,22 +1,23 @@
 import 'dart:developer';
 
+import 'package:ba3_bs_mobile/core/helper/extensions/getx_controller_extensions.dart';
 import 'package:ba3_bs_mobile/core/router/app_routes.dart';
 import 'package:ba3_bs_mobile/features/bill/controllers/bill/bill_details_controller.dart';
+import 'package:ba3_bs_mobile/features/users_management/controllers/user_management_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../../core/dialogs/seller_selection_dialog_content.dart';
-import '../../../core/helper/extensions/getx_controller_extensions.dart';
+import '../../../core/helper/mixin/app_navigator.dart';
+import '../../../core/services/firebase/implementations/repos/bulk_savable_datasource_repo.dart';
 import '../../../core/utils/app_ui_utils.dart';
 import '../../floating_window/services/overlay_service.dart';
-import '../../users_management/controllers/user_management_controller.dart';
 import '../data/models/seller_model.dart';
-import '../data/repositories/sellers_repository.dart';
 
-class SellerController extends GetxController {
-  final SellersRepository _sellersRepository;
+class SellersController extends GetxController with AppNavigator {
+  final BulkSavableDatasourceRepository<SellerModel> _sellersFirebaseRepo;
 
-  SellerController(this._sellersRepository);
+  SellersController(this._sellersFirebaseRepo);
 
   List<SellerModel> sellers = [];
   bool isLoading = true;
@@ -26,38 +27,59 @@ class SellerController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    fetchSellers();
+    getAllSellers();
   }
 
   // Fetch sellers from the repository
-  void fetchSellers() {
-    try {
-      sellers = _sellersRepository.getAllSellers();
-    } catch (e) {
-      debugPrint('Error in fetchSellers: $e');
-    } finally {
-      isLoading = false;
-      update();
-    }
+  Future<void> getAllSellers() async {
+    final result = await _sellersFirebaseRepo.getAll();
+
+    result.fold(
+      (failure) => AppUIUtils.onFailure(failure.message),
+      (fetchedSellers) {
+        sellers = fetchedSellers;
+        isLoading = false;
+        update();
+      },
+    );
+    // try {
+    //   sellers = _sellersRepository.getAllSellers();
+    // } catch (e) {
+    //   debugPrint('Error in fetchSellers: $e');
+    // } finally {
+    //   isLoading = false;
+    //   update();
+    // }
+  }
+
+  Future<void> addSeller(SellerModel seller) async {
+    final result = await _sellersFirebaseRepo.save(seller);
+
+    result.fold(
+      (failure) => AppUIUtils.onFailure(failure.message),
+      (fetchedSellers) {},
+    );
+  }
+
+  Future<void> addSellers() async {
+    final result = await _sellersFirebaseRepo.saveAll(sellers);
+
+    result.fold(
+      (failure) => AppUIUtils.onFailure(failure.message),
+      (addedSellers) => AppUIUtils.onSuccess('Add ${addedSellers.length} sellers'),
+    );
   }
 
   // Navigation to the screen displaying all sellers
   void navigateToAllSellersScreen() {
-    Get.toNamed(AppRoutes.showAllSellersScreen);
+    to(AppRoutes.showAllSellersScreen);
   }
 
   // Search for sellers by text query
 
-  List<SellerModel> searchSellersByNameOrCode(text) {
-    if (sellers.isEmpty) {
-      log('Accounts isEmpty');
-      fetchSellers();
-    }
-    return sellers
-        .where((item) =>
-            item.costName!.toLowerCase().contains(text.toLowerCase()) || item.costCode.toString().contains(text))
-        .toList();
-  }
+  List<SellerModel> searchSellersByNameOrCode(text) => sellers
+      .where((item) => item.costName!.toLowerCase().contains(text.toLowerCase()) || item.costCode.toString().contains(text))
+      .toList();
 
   List<String> getSellersNames(String query) {
     return searchSellersByNameOrCode(query).map((seller) => seller.costName!).toList();
@@ -73,7 +95,7 @@ class SellerController extends GetxController {
 
   // Get seller  by ID
   SellerModel getSellerById(String id) {
-    return sellers.firstWhere((seller) => seller.costGuid == id);
+    return sellers.firstWhereOrNull((seller) => seller.costGuid == id) ?? SellerModel(costName: '');
   }
 
   // Replace Arabic numerals with English numerals

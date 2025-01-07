@@ -7,7 +7,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 
 import '../../../../core/helper/extensions/getx_controller_extensions.dart';
-import '../../../../core/services/firebase/implementations/datasource_repo.dart';
+import '../../../../core/services/firebase/implementations/repos/datasource_repo.dart';
 import '../../../../core/utils/app_ui_utils.dart';
 import '../../../accounts/data/datasources/remote/accounts_statements_data_source.dart';
 import '../../data/models/entry_bond_model.dart';
@@ -20,10 +20,8 @@ class EntryBondController extends GetxController with FloatingLauncher {
   EntryBondController(this._entryBondsFirebaseRepo, this._accountsStatementsRepo);
 
   // Method to create a bond based on bill type
-  void saveEntryBondModel({
-    required EntryBondModel entryBondModel,
-  }) async {
-    final result = await _entryBondsFirebaseRepo.save(entryBondModel, true);
+  void saveEntryBondModel({required EntryBondModel entryBondModel}) async {
+    final result = await _entryBondsFirebaseRepo.save(entryBondModel);
     result.fold(
       (failure) => AppUIUtils.onFailure(failure.message),
       (entryBondModel) async {
@@ -53,16 +51,18 @@ class EntryBondController extends GetxController with FloatingLauncher {
         final List<Future<void>> deletedTasks = [];
         final errors = <String>[]; // Collect error messages.
 
-        final entryBondModelAccountsToRemove = getEntryBondModelAccountsToRemove(entryBondModel);
+        final uniqueAccountIdsFromBond = getUniqueAccountIdsFromBond(entryBondModel);
 
-        for (final accountId in entryBondModelAccountsToRemove) {
+        for (final accountId in uniqueAccountIdsFromBond) {
           deletedTasks.add(
-            _accountsStatementsRepo.deleteBond(accountId, entryId).then((deleteResult) {
-              deleteResult.fold(
-                (failure) => errors.add(failure.message), // Collect errors.
-                (_) {},
-              );
-            }),
+            _accountsStatementsRepo.deleteBond(accountId, entryId).then(
+              (deleteResult) {
+                deleteResult.fold(
+                  (failure) => errors.add(failure.message), // Collect errors.
+                  (_) {},
+                );
+              },
+            ),
           );
         }
 
@@ -81,7 +81,7 @@ class EntryBondController extends GetxController with FloatingLauncher {
     );
   }
 
-  List<String> getEntryBondModelAccountsToRemove(EntryBondModel entryBondModel) {
+  List<String> getUniqueAccountIdsFromBond(EntryBondModel entryBondModel) {
     final Set<String> accountsIds = <String>{}; // Use a Set to ensure unique account IDs.
 
     // Iterate through each EntryBondItemModel in the items list.
@@ -96,15 +96,19 @@ class EntryBondController extends GetxController with FloatingLauncher {
 
   void openEntryBondOrigin(EntryBondModel entryBondModel, BuildContext context) {
     final origin = entryBondModel.origin;
+
+    // Handle the case where origin details are missing
     if (origin == null || origin.originType == null || origin.originId == null) {
-      // Handle the case where origin details are missing
       return;
     }
 
     final actions = {
-      EntryBondType.bond: () => read<AllBondsController>().openBondDetailsById(origin.originId!, context),
-      EntryBondType.bill: () => read<AllBillsController>().openBillDetailsById(origin.originId!, context),
-      EntryBondType.cheque: () => read<AllChequesController>().openChequesDetailsById(origin.originId!, context),
+      EntryBondType.bond: () => read<AllBondsController>()
+          .openBondDetailsById(origin.originId!, context, BondType.byTypeGuide(entryBondModel.origin!.originTypeId!)),
+      EntryBondType.bill: () => read<AllBillsController>()
+          .openFloatingBillDetailsById(origin.originId!, context, BillType.byTypeGuide(entryBondModel.origin!.originTypeId!).billTypeModel),
+      EntryBondType.cheque: () => read<AllChequesController>()
+          .openChequesDetailsById(origin.originId!, context, ChequesType.byTypeGuide(entryBondModel.origin!.originTypeId!)),
     };
 
     final action = actions[origin.originType];

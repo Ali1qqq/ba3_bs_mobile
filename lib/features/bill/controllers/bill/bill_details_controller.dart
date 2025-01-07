@@ -1,11 +1,11 @@
 import 'dart:developer';
 
-import 'package:ba3_bs_mobile/core/helper/extensions/string_extension.dart';
+import 'package:ba3_bs_mobile/core/helper/extensions/bill_pattern_type_extension.dart';
+import 'package:ba3_bs_mobile/core/helper/extensions/date_time_extensions.dart';
+import 'package:ba3_bs_mobile/core/helper/mixin/app_navigator.dart';
 import 'package:ba3_bs_mobile/core/helper/validators/app_validator.dart';
 import 'package:ba3_bs_mobile/core/i_controllers/i_bill_controller.dart';
 import 'package:ba3_bs_mobile/core/interfaces/i_store_selection_handler.dart';
-import 'package:ba3_bs_mobile/core/services/firebase/implementations/datasource_repo.dart';
-import 'package:ba3_bs_mobile/features/bill/controllers/bill/add_bill_controller.dart';
 import 'package:ba3_bs_mobile/features/bill/controllers/bill/bill_search_controller.dart';
 import 'package:ba3_bs_mobile/features/bill/data/models/bill_model.dart';
 import 'package:ba3_bs_mobile/features/bill/services/bill/bill_utils.dart';
@@ -16,10 +16,9 @@ import 'package:get/get.dart';
 import '../../../../core/constants/app_strings.dart';
 import '../../../../core/helper/enums/enums.dart';
 import '../../../../core/helper/extensions/getx_controller_extensions.dart';
-import '../../../../core/router/app_routes.dart';
+import '../../../../core/services/firebase/implementations/repos/compound_datasource_repo.dart';
 import '../../../../core/utils/app_ui_utils.dart';
 import '../../../accounts/data/models/account_model.dart';
-import '../../../floating_window/services/floating_window_service.dart';
 import '../../../patterns/data/models/bill_type_model.dart';
 import '../../../print/controller/print_controller.dart';
 import '../../data/models/bill_items.dart';
@@ -27,14 +26,12 @@ import '../../data/models/invoice_record_model.dart';
 import '../../services/bill/account_handler.dart';
 import '../../services/bill/bill_pdf_generator.dart';
 import '../../services/bill/bill_service.dart';
-import '../../ui/screens/add_bill_screen.dart';
-import '../pluto/add_bill_pluto_controller.dart';
 import '../pluto/bill_details_pluto_controller.dart';
 
-class BillDetailsController extends IBillController with AppValidator implements IStoreSelectionHandler {
+class BillDetailsController extends IBillController with AppValidator, AppNavigator implements IStoreSelectionHandler {
   // Repositories
 
-  final DataSourceRepository<BillModel> _billsFirebaseRepo;
+  final CompoundDatasourceRepository<BillModel, BillTypeModel> _billsFirebaseRepo;
   final BillDetailsPlutoController billDetailsPlutoController;
   final BillSearchController billSearchController;
 
@@ -62,7 +59,7 @@ class BillDetailsController extends IBillController with AppValidator implements
 
   AccountModel? selectedCustomerAccount;
 
-  RxString billDate = DateTime.now().toString().split(" ")[0].obs;
+  Rx<DateTime> billDate = DateTime.now().obs;
 
   Rx<InvPayType> selectedPayType = InvPayType.cash.obs;
 
@@ -74,8 +71,7 @@ class BillDetailsController extends IBillController with AppValidator implements
   RxBool isBillSaved = false.obs;
 
   @override
-  updateSelectedAdditionsDiscountAccounts(Account key, AccountModel value) =>
-      selectedAdditionsDiscountAccounts[key] = value;
+  updateSelectedAdditionsDiscountAccounts(Account key, AccountModel value) => selectedAdditionsDiscountAccounts[key] = value;
 
   @override
   Rx<StoreAccount> selectedStore = StoreAccount.main.obs;
@@ -95,10 +91,8 @@ class BillDetailsController extends IBillController with AppValidator implements
   }
 
   @override
-  Future<void> sendToEmail(
-      {required String recipientEmail, String? url, String? subject, String? body, List<String>? attachments}) async {
-    _billService.sendToEmail(
-        recipientEmail: recipientEmail, url: url, subject: subject, body: body, attachments: attachments);
+  Future<void> sendToEmail({required String recipientEmail, String? url, String? subject, String? body, List<String>? attachments}) async {
+    _billService.sendToEmail(recipientEmail: recipientEmail, url: url, subject: subject, body: body, attachments: attachments);
   }
 
   @override
@@ -126,7 +120,7 @@ class BillDetailsController extends IBillController with AppValidator implements
   void updateBillType(String billTypeLabel) => billType = BillType.byLabel(billTypeLabel);
 
   set setBillDate(DateTime newDate) {
-    billDate.value = newDate.toString().split(" ")[0];
+    billDate.value = newDate;
     //   update();
   }
 
@@ -141,8 +135,11 @@ class BillDetailsController extends IBillController with AppValidator implements
   Future<void> printBill({required BillModel billModel, required List<InvoiceRecordModel> invRecords}) async {
     if (!_billService.hasModelId(billModel.billId)) return;
 
-    await read<PrintingController>()
-        .startPrinting(invRecords: invRecords, billNumber: billModel.billDetails.billNumber!, invDate: billDate.value);
+    await read<PrintingController>().startPrinting(
+      invRecords: invRecords,
+      billNumber: billModel.billDetails.billNumber!,
+      invDate: billDate.value.dayMonthYear,
+    );
   }
 
   void createEntryBond(BillModel billModel, BuildContext context) {
@@ -169,7 +166,7 @@ class BillDetailsController extends IBillController with AppValidator implements
   }
 
   Future<void> deleteBill(BillModel billModel, {bool fromBillById = false}) async {
-    final result = await _billsFirebaseRepo.delete(billModel.billId!);
+    final result = await _billsFirebaseRepo.delete(billModel);
 
     result.fold(
       (failure) => AppUIUtils.onFailure(failure.message),
@@ -223,13 +220,19 @@ class BillDetailsController extends IBillController with AppValidator implements
   }
 
   BillModel? _createBillModelFromBillData(BillTypeModel billTypeModel, [BillModel? billModel]) {
-    final sellerController = read<SellerController>();
+    final sellerController = read<SellersController>();
 
     // Validate customer and seller accounts
-    if (!_billUtils.validateCustomerAccount(selectedCustomerAccount) ||
-        !_billUtils.validateSellerAccount(sellerController.selectedSellerAccount)) {
+    if (billTypeModel.billPatternType!.hasCashesAccount || billTypeModel.billPatternType!.hasMaterialAccount) {
+      if (!_billUtils.validateCustomerAccount(selectedCustomerAccount)) {
+        return null;
+      }
+    }
+
+    if (!_billUtils.validateSellerAccount(sellerController.selectedSellerAccount)) {
       return null;
     }
+
     final updatedBillTypeModel = _accountHandler.updateBillTypeAccounts(
             billTypeModel, selectedAdditionsDiscountAccounts, selectedCustomerAccount, selectedStore.value) ??
         billTypeModel;
@@ -237,69 +240,19 @@ class BillDetailsController extends IBillController with AppValidator implements
     // Create and return the bill model
     return _billService.createBillModel(
       billModel: billModel,
+      billNote: noteController.text,
       billTypeModel: updatedBillTypeModel,
       billDate: billDate.value,
-      billCustomerId: selectedCustomerAccount!.id!,
+      billCustomerId: selectedCustomerAccount?.id! ?? "00000000-0000-0000-0000-000000000000",
       billSellerId: sellerController.selectedSellerAccount!.costGuid!,
       billPayType: selectedPayType.value.index,
     );
   }
 
-  void navigateToAddBillScreen(BillTypeModel billTypeModel, AddBillPlutoController addBillPlutoController,
-      {bool fromBillDetails = false, bool fromBillById = false}) {
-    Get.put(AddBillController(
-      _billsFirebaseRepo,
-      addBillPlutoController: addBillPlutoController,
-    )).initCustomerAccount(billTypeModel.accounts?[BillAccounts.caches]);
-
-    Get.toNamed(AppRoutes.addBillScreen,
-        arguments: {'billTypeModel': billTypeModel, 'fromBillDetails': fromBillDetails, 'fromBillById': fromBillById});
-  }
-
-  void createNewFloatingAddBillScreen(
-    BillTypeModel billTypeModel,
-    BuildContext context, {
-    bool fromBillDetails = false,
-    bool fromBillById = false,
-  }) {
-    final String tag = _generateUniqueTag();
-
-    // Initialize the AddBillPlutoController
-    AddBillPlutoController addBillPlutoController = _initializeAddBillPlutoController(tag);
-
-    // Initialize the AddBillController
-    AddBillController addBillController = _initializeAddBillController(billTypeModel, addBillPlutoController, tag);
-
-    // Launch the floating window with the AddBillScreen
-    FloatingWindowService.launchFloatingWindow(
-      context: context,
-      floatingScreen: AddBillScreen(
-        billTypeModel: billTypeModel,
-        fromBillDetails: fromBillDetails,
-        fromBillById: fromBillById,
-        addBillController: addBillController,
-        addBillPlutoController: addBillPlutoController,
-        tag: tag,
-      ),
-    );
-  }
-
-  String _generateUniqueTag() => 'AddBillController_${UniqueKey().toString()}';
-
-  AddBillController _initializeAddBillController(
-      BillTypeModel billTypeModel, AddBillPlutoController addBillPlutoController, String tag) {
-    // Create the AddBillController using Get
-    return Get.put<AddBillController>(
-      AddBillController(_billsFirebaseRepo, addBillPlutoController: addBillPlutoController),
-      tag: tag,
-    )..initCustomerAccount(billTypeModel.accounts?[BillAccounts.caches]);
-  }
-
-  AddBillPlutoController _initializeAddBillPlutoController(String tag) =>
-      Get.put<AddBillPlutoController>(AddBillPlutoController(), tag: tag);
-
   prepareBillRecords(BillItems billItems, BillDetailsPlutoController billDetailsPlutoController) =>
-      billDetailsPlutoController.prepareBillMaterialsRows(billItems.getMaterialRecords);
+      billDetailsPlutoController.prepareBillMaterialsRows(
+        billItems.getMaterialRecords,
+      );
 
   prepareAdditionsDiscountsRecords(BillModel billModel, BillDetailsPlutoController billDetailsPlutoController) =>
       billDetailsPlutoController.prepareAdditionsDiscountsRows(billModel.getAdditionsDiscountsRecords);
@@ -322,13 +275,15 @@ class BillDetailsController extends IBillController with AppValidator implements
   void updateBillDetailsOnScreen(BillModel bill, BillDetailsPlutoController billPlutoController) {
     onPayTypeChanged(InvPayType.fromIndex(bill.billDetails.billPayType!));
 
-    setBillDate = bill.billDetails.billDate!.toDate!;
+    setBillDate = bill.billDetails.billDate!;
+
+    noteController.text = bill.billDetails.note ?? '';
 
     initBillNumberController(bill.billDetails.billNumber);
 
     initCustomerAccount(bill.billTypeModel.accounts?[BillAccounts.caches]);
 
-    read<SellerController>().initSellerAccount(sellerId: bill.billDetails.billSellerId, billDetailsController: this);
+    read<SellersController>().initSellerAccount(sellerId: bill.billDetails.billSellerId, billDetailsController: this);
 
     prepareBillRecords(bill.items, billPlutoController);
     prepareAdditionsDiscountsRecords(bill, billPlutoController);
@@ -336,15 +291,19 @@ class BillDetailsController extends IBillController with AppValidator implements
     billPlutoController.update();
   }
 
-  generateAndSendBillPdf(BillModel billModel) => _billService.generateAndSendPdf(
-        fileName: AppStrings.bill,
-        itemModel: billModel,
-        itemModelId: billModel.billId,
-        items: billModel.items.itemList,
-        pdfGenerator: BillPdfGenerator(),
-      );
+  generateAndSendBillPdf(BillModel billModel) {
+    _billService.generateAndSendPdf(
+      fileName: AppStrings.bill,
+      itemModel: billModel,
+      itemModelId: billModel.billId,
+      items: billModel.items.itemList,
+      pdfGenerator: BillPdfGenerator(),
+    );
+  }
 
-  showEInvoiceDialog(BillModel billModel, BuildContext context) => _billService.showEInvoiceDialog(billModel, context);
+  showEInvoiceDialog(BillModel billModel, BuildContext context) {
+    _billService.showEInvoiceDialog(billModel, context);
+  }
 
   showBarCodeScanner(BuildContext context) => _billService.showBarCodeScanner(
         context: context,
@@ -352,5 +311,3 @@ class BillDetailsController extends IBillController with AppValidator implements
         plutoController: billDetailsPlutoController,
       );
 }
-
-// 300 - 193

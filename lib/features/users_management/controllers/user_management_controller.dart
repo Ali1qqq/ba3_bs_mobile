@@ -2,17 +2,18 @@ import 'dart:developer';
 
 import 'package:ba3_bs_mobile/core/constants/app_constants.dart';
 import 'package:ba3_bs_mobile/core/dialogs/custom_date_picker_dialog.dart';
-import 'package:ba3_bs_mobile/core/helper/extensions/time_etensions.dart';
+import 'package:ba3_bs_mobile/core/helper/extensions/time_extensions.dart';
+import 'package:ba3_bs_mobile/core/helper/mixin/app_navigator.dart';
 import 'package:ba3_bs_mobile/features/users_management/services/role_service.dart';
 import 'package:ba3_bs_mobile/features/users_management/services/user_service.dart';
 import 'package:day_night_time_picker/day_night_time_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../../../core/helper/mixin/app_navigator.dart';
+import '../../../core/network/api_constants.dart';
 import '../../../core/router/app_routes.dart';
-import '../../../core/services/firebase/implementations/datasource_repo.dart';
-import '../../../core/services/firebase/implementations/filterable_data_source_repo.dart';
+import '../../../core/services/firebase/implementations/repos/datasource_repo.dart';
+import '../../../core/services/firebase/implementations/repos/filterable_datasource_repo.dart';
 import '../../../core/services/get_x/shared_preferences_service.dart';
 import '../../../core/utils/app_ui_utils.dart';
 import '../data/models/role_model.dart';
@@ -199,7 +200,7 @@ class UserManagementController extends GetxController with AppNavigator {
   }
 
   Future<void> _checkUserByPin() async {
-    final result = await _usersFirebaseRepo.fetchWhere(field: AppConstants.userPassword, value: loginPasswordController.text);
+    final result = await _usersFirebaseRepo.fetchWhere(field: ApiConstants.userPassword, value: loginPasswordController.text);
 
     result.fold(
       (failure) => AppUIUtils.onFailure(failure.message),

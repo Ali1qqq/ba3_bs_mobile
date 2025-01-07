@@ -1,10 +1,11 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:equatable/equatable.dart';
 
 class BillDetails with EquatableMixin {
   final String? billGuid;
   final int? billPayType;
   final int? billNumber;
-  final String? billDate;
+  final DateTime? billDate;
   final String? note;
   final String? billSellerId;
   final String? billCustomerId;
@@ -15,7 +16,7 @@ class BillDetails with EquatableMixin {
   final double? billDiscountsTotal;
   final double? billAdditionsTotal;
 
-  const BillDetails({
+  BillDetails({
     this.billGuid,
     this.billPayType,
     this.billNumber,
@@ -35,7 +36,7 @@ class BillDetails with EquatableMixin {
         billGuid: json['billGuid'],
         billPayType: json['billPayType'],
         billNumber: json['billNumber'],
-        billDate: json['billDate'],
+        billDate: (json['billDate'] as Timestamp).toDate(),
         note: json['note'],
         billCustomerId: json['billCustomerId'],
         billSellerId: json['billSellerId'],
@@ -53,7 +54,7 @@ class BillDetails with EquatableMixin {
     required String billCustomerId,
     required String billSellerId,
     required int billPayType,
-    required String billDate,
+    required DateTime billDate,
     required double billTotal,
     required double billVatTotal,
     required double billWithoutVatTotal,
@@ -81,7 +82,7 @@ class BillDetails with EquatableMixin {
         'billGuid': billGuid,
         'billPayType': billPayType,
         'billNumber': billNumber,
-        'billDate': billDate,
+        'billDate': Timestamp.fromDate(billDate!),
         'note': note,
         'billCustomerId': billCustomerId,
         'billTotal': billTotal,
@@ -97,7 +98,7 @@ class BillDetails with EquatableMixin {
     final String? billGuid,
     final int? billPayType,
     final int? billNumber,
-    final String? billDate,
+    final DateTime? billDate,
     final String? note,
     final String? billCustomerId,
     final String? billSellerId,

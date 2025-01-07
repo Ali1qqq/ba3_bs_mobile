@@ -18,14 +18,14 @@ class BillSearchController extends GetxController {
 
   /// Initializes the bill search with the given bills and current bill
   void initialize({
-    required List<BillModel> billsByCategory,
-    required BillModel bill,
+    required List<BillModel> allBills,
+    required BillModel currentBill,
     required BillDetailsController billDetailsController,
     required BillDetailsPlutoController billDetailsPlutoController,
   }) {
-    bills = billsByCategory;
+    bills = allBills;
 
-    currentBillIndex = bills.indexWhere((current) => current.billId == bill.billId || current == bill);
+    currentBillIndex = bills.indexWhere((current) => current.billId == currentBill.billId || current == currentBill);
     currentBill = bills[currentBillIndex];
 
     this.billDetailsController = billDetailsController;
@@ -33,7 +33,7 @@ class BillSearchController extends GetxController {
 
     _setCurrentBill(currentBillIndex);
 
-    log('bills length ${bills.length}, currentBillIndex $currentBillIndex, currentBillNumber ${currentBill.billDetails.billNumber}');
+    // log('bills length ${bills.length}, currentBillIndex $currentBillIndex, currentBillNumber ${currentBill.billDetails.billNumber}');
   }
 
   /// Gets the current bill
@@ -72,9 +72,7 @@ class BillSearchController extends GetxController {
 
   /// Validates whether the given bill number is within range
   bool _isValidBillNumber(int? billNumber) =>
-      billNumber != null &&
-      billNumber >= bills.first.billDetails.billNumber! &&
-      billNumber <= bills.last.billDetails.billNumber!;
+      billNumber != null && billNumber >= bills.first.billDetails.billNumber! && billNumber <= bills.last.billDetails.billNumber!;
 
   /// Handles invalid bill number cases by showing appropriate error messages
   void _showInvalidBillNumberError(int? billNumber) {

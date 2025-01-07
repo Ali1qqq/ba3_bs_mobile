@@ -1,16 +1,16 @@
 import 'dart:developer';
 
+import 'package:ba3_bs_mobile/core/helper/extensions/bill_pattern_type_extension.dart';
 import 'package:ba3_bs_mobile/core/helper/extensions/role_item_type_extension.dart';
 import 'package:ba3_bs_mobile/core/helper/mixin/floating_launcher.dart';
 import 'package:ba3_bs_mobile/core/i_controllers/i_bill_controller.dart';
 import 'package:ba3_bs_mobile/core/i_controllers/i_pluto_controller.dart';
 import 'package:ba3_bs_mobile/features/bill/controllers/bill/bill_search_controller.dart';
 import 'package:ba3_bs_mobile/features/users_management/data/models/role_model.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:pluto_grid/pluto_grid.dart';
 import 'package:simple_barcode_scanner/simple_barcode_scanner.dart';
-
 import '../../../../core/constants/app_strings.dart';
 import '../../../../core/dialogs/e_invoice_dialog_content.dart';
 import '../../../../core/helper/enums/enums.dart';
@@ -27,10 +27,10 @@ import '../../controllers/bill/all_bills_controller.dart';
 import '../../data/models/bill_model.dart';
 import '../../data/models/discount_addition_account_model.dart';
 import '../../data/models/invoice_record_model.dart';
-import 'bill_bond_service.dart';
+import 'bill_entry_bond_creating_service.dart';
 import 'bill_pdf_generator.dart';
 
-class BillService with PdfBase, BillBondService, FloatingLauncher {
+class BillService with PdfBase, BillEntryBondCreatingService, FloatingLauncher {
   final IPlutoController<InvoiceRecordModel> plutoController;
   final IBillController billController;
 
@@ -38,18 +38,20 @@ class BillService with PdfBase, BillBondService, FloatingLauncher {
 
   EntryBondController get bondController => read<EntryBondController>();
 
-  BillModel? createBillModel(
-      {BillModel? billModel,
-      required BillTypeModel billTypeModel,
-      required String billCustomerId,
-      required String billSellerId,
-      required int billPayType,
-      required String billDate}) {
+  BillModel? createBillModel({
+    BillModel? billModel,
+    required BillTypeModel billTypeModel,
+    required String billCustomerId,
+    required String billSellerId,
+    required String? billNote,
+    required int billPayType,
+    required DateTime billDate,
+  }) {
     return BillModel.fromBillData(
       billModel: billModel,
       billTypeModel: billTypeModel,
       status: RoleItemType.viewBill.status,
-      note: null,
+      note: billNote,
       billCustomerId: billCustomerId,
       billSellerId: billSellerId,
       billPayType: billPayType,
@@ -72,6 +74,7 @@ class BillService with PdfBase, BillBondService, FloatingLauncher {
     if (!hasModelId(billModel.billId)) return;
 
     final entryBondModel = createEntryBondModel(
+      isSimulatedVat: true,
       originType: EntryBondType.bill,
       billModel: billModel,
       discountsAndAdditions: discountsAndAdditions,
@@ -91,7 +94,7 @@ class BillService with PdfBase, BillBondService, FloatingLauncher {
   }) async {
     // Only fetchBills if open bill details by bill id from AllBillsScreen
     if (fromBillById) {
-      await read<AllBillsController>().fetchAllBills();
+      await read<AllBillsController>().fetchAllBillsByType(billModel.billTypeModel);
       Get.back();
     } else {
       billSearchController.removeBill(billModel);
@@ -110,9 +113,10 @@ class BillService with PdfBase, BillBondService, FloatingLauncher {
     AppUIUtils.onSuccess('تم القبول بنجاح');
     billSearchController.updateBill(updatedBillModel);
 
-    if (updatedBillModel.status == Status.approved) {
+    if (updatedBillModel.status == Status.approved && updatedBillModel.billTypeModel.billPatternType!.hasCashesAccount) {
       bondController.saveEntryBondModel(
         entryBondModel: createEntryBondModel(
+          isSimulatedVat: false,
           originType: EntryBondType.bill,
           billModel: updatedBillModel,
           discountsAndAdditions: discountsAndAdditions,
@@ -145,9 +149,10 @@ class BillService with PdfBase, BillBondService, FloatingLauncher {
       pdfGenerator: BillPdfGenerator(),
     );
 
-    if (billModel.status == Status.approved) {
+    if (billModel.status == Status.approved && billModel.billTypeModel.billPatternType!.hasMaterialAccount) {
       bondController.saveEntryBondModel(
         entryBondModel: createEntryBondModel(
+          isSimulatedVat: false,
           originType: EntryBondType.bill,
           billModel: billModel,
           discountsAndAdditions: discountsAndAdditions,
@@ -161,13 +166,13 @@ class BillService with PdfBase, BillBondService, FloatingLauncher {
 
     OverlayService.showDialog(
       context: context,
-      title: "Invoice QR Code",
+      title: 'Invoice QR Code',
       content: EInvoiceDialogContent(
         billController: billController,
         billId: billModel.billId!,
       ),
       onCloseCallback: () {
-        log("E-Invoice dialog closed.");
+        log('E-Invoice dialog closed.');
       },
     );
   }
@@ -191,9 +196,9 @@ class BillService with PdfBase, BillBondService, FloatingLauncher {
     required PlutoGridStateManager stateManager,
     required IPlutoController plutoController,
     required String barCode,
-  }) {
+  }) async {
     final materialController = read<MaterialController>();
-    final searchedMaterials = materialController.searchOfProductByText(barCode);
+    final searchedMaterials = await materialController.searchOfProductByText(barCode);
 
     final MaterialModel? selectedMaterial = searchedMaterials.length == 1 ? searchedMaterials.first : null;
 

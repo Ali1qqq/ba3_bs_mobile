@@ -29,8 +29,7 @@ class BillPlutoContextMenu {
         context: context,
         tapPosition: tapPosition,
         items: PriceType.values,
-        itemLabelBuilder: (type) =>
-            '${type.label}: ${invoiceUtils.getPrice(type: type, materialModel: materialModel).toStringAsFixed(2)}',
+        itemLabelBuilder: (type) => '${type.label}: ${invoiceUtils.getPrice(type: type, materialModel: materialModel).toStringAsFixed(2)}',
         onSelected: (PriceType type) {
           final PlutoRow selectedRow = controller.recordsTableStateManager.rows[index];
           final int quantity = AppServiceUtils.getItemQuantity(selectedRow, AppConstants.invRecQuantity);

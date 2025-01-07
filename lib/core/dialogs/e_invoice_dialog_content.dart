@@ -28,13 +28,13 @@ class EInvoiceDialogContent extends StatelessWidget {
         ),
         const SizedBox(height: 20),
         const Text(
-          "مشاركة عبر",
+          'مشاركة عبر',
           style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 20),
         Row(
           children: [
-            const Text("البريد الألكتروني:"),
+            const Text('البريد الألكتروني:'),
             const SizedBox(width: 5),
             Expanded(
               child: TextField(

@@ -1,3 +1,4 @@
+import 'package:ba3_bs_mobile/core/helper/extensions/date_time_extensions.dart';
 import 'package:ba3_bs_mobile/core/widgets/store_dropdown.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -34,7 +35,7 @@ class BillDetailsHeader extends StatelessWidget {
                 label: 'تاريخ الفاتورة',
                 child: Obx(() {
                   return DatePicker(
-                    initDate: billDetailsController.billDate.value,
+                    initDate: billDetailsController.billDate.value.dayMonthYear,
                     onDateSelected: (date) {
                       billDetailsController.setBillDate = date;
                     },

@@ -16,13 +16,9 @@ class AccountsStatementsDataSource {
   /// Add a new bond entry to Firestore under a specific account
   Future<void> add(String accountId, EntryBondModel entryBond) async {
     try {
-      final docRef = _accountsStatementsCollection
-          .doc(accountId)
-          .collection(ApiConstants.entryBondsItems)
-          .doc(entryBond.origin?.originId);
+      final docRef = _accountsStatementsCollection.doc(accountId).collection(ApiConstants.entryBondsItems).doc(entryBond.origin?.originId);
 
-      final items =
-          entryBond.items?.where((item) => item.accountId == accountId).map((item) => item.toJson()).toList() ?? [];
+      final items = entryBond.items?.where((item) => item.accountId == accountId).map((item) => item.toJson()).toList() ?? [];
 
       await docRef.set({'items': items});
     } catch (e) {
@@ -91,8 +87,7 @@ class AccountsStatementsDataSource {
   /// Delete a specific bond entry under a given account by bondId
   Future<void> delete(String accountId, String originId) async {
     try {
-      final docRef =
-          _accountsStatementsCollection.doc(accountId).collection(ApiConstants.entryBondsItems).doc(originId);
+      final docRef = _accountsStatementsCollection.doc(accountId).collection(ApiConstants.entryBondsItems).doc(originId);
       await docRef.delete();
     } catch (e) {
       throw Exception('Failed to delete bond: $e');
@@ -106,7 +101,8 @@ class AccountsStatementsDataSource {
       final bondSnapshots = await bondsCollection.get();
 
       final batch = _firestore.batch();
-      for (var doc in bondSnapshots.docs) {
+
+      for (final doc in bondSnapshots.docs) {
         batch.delete(doc.reference);
       }
 

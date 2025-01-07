@@ -1,4 +1,5 @@
 import 'package:ba3_bs_mobile/core/constants/app_constants.dart';
+import 'package:ba3_bs_mobile/core/helper/extensions/bill_pattern_type_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pluto_grid/pluto_grid.dart';
@@ -44,10 +45,9 @@ class BillDetailsBody extends StatelessWidget {
                   onRowSecondaryTap: (PlutoGridOnRowSecondaryTapEvent event) {
                     billDetailsPlutoController.onMainTableRowSecondaryTap(event, context);
                   },
-                  onRowDoubleTap:(PlutoGridOnRowDoubleTapEvent event) {
+                  onRowDoubleTap: (PlutoGridOnRowDoubleTapEvent event) {
                     billDetailsPlutoController.onMainTableRowDoubleTap(event, context);
-
-                  } ,
+                  },
                   onChanged: billDetailsPlutoController.onMainTableStateManagerChanged,
                   onLoaded: billDetailsPlutoController.onMainTableLoaded,
                   shortCut: customPlutoShortcut(GetProductByEnterAction(billDetailsPlutoController, context)),
@@ -56,25 +56,26 @@ class BillDetailsBody extends StatelessWidget {
               }),
         ),
         const VerticalSpace(),
-        SizedBox(
-          height: 150,
-          child: GetBuilder<BillDetailsPlutoController>(
-              tag: tag,
-              builder: (_) {
-                return BillGridWidget(
-                  rowColor: Colors.grey,
-                  columns: billDetailsPlutoController.additionsDiscountsColumns,
-                  rows: billDetailsPlutoController.additionsDiscountsRows,
-                  onChanged: billDetailsPlutoController.onAdditionsDiscountsChanged,
-                  onLoaded: billDetailsPlutoController.onAdditionsDiscountsLoaded,
-                  shortCut: customPlutoShortcut(GetAccountsByEnterAction(
-                    plutoController: billDetailsPlutoController,
-                    textFieldName: AppConstants.id,
-                    context: context,
-                  )),
-                );
-              }),
-        ),
+        if (billTypeModel.billPatternType?.hasDiscountsAccount ?? true)
+          SizedBox(
+            height: 150,
+            child: GetBuilder<BillDetailsPlutoController>(
+                tag: tag,
+                builder: (_) {
+                  return BillGridWidget(
+                    rowColor: Colors.grey,
+                    columns: billDetailsPlutoController.additionsDiscountsColumns,
+                    rows: billDetailsPlutoController.additionsDiscountsRows,
+                    onChanged: billDetailsPlutoController.onAdditionsDiscountsChanged,
+                    onLoaded: billDetailsPlutoController.onAdditionsDiscountsLoaded,
+                    shortCut: customPlutoShortcut(GetAccountsByEnterAction(
+                      plutoController: billDetailsPlutoController,
+                      textFieldName: AppConstants.id,
+                      context: context,
+                    )),
+                  );
+                }),
+          ),
       ],
     );
   }

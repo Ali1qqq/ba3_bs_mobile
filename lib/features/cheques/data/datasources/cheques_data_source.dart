@@ -1,9 +1,8 @@
 import 'package:ba3_bs_mobile/core/helper/enums/enums.dart';
 import 'package:ba3_bs_mobile/core/network/api_constants.dart';
 
-import '../../../../core/services/firebase/implementations/firebase_sequential_number_database.dart';
+import '../../../../core/services/firebase/implementations/services/firebase_sequential_number_database.dart';
 import '../../../../core/services/firebase/interfaces/datasource_base.dart';
-
 import '../models/cheques_model.dart';
 
 class ChequesDataSource extends DatasourceBase<ChequesModel> with FirebaseSequentialNumberDatabase {
@@ -36,42 +35,19 @@ class ChequesDataSource extends DatasourceBase<ChequesModel> with FirebaseSequen
   }
 
   @override
-  Future<ChequesModel> save(ChequesModel item, [bool? save]) async {
-    if (item.chequesGuid == null) {
-      final newBillModel = await _createNewCheques(item);
+  Future<ChequesModel> save(ChequesModel item) async {
+    final updatedCheque = item.chequesGuid == null ? await _assignChequeNumber(item) : item;
 
-      return newBillModel;
-    } else {
-      await databaseService.update(path: path, documentId: item.chequesGuid, data: item.toJson());
-      return item;
-    }
+    final savedData = await _saveChequeData(updatedCheque.chequesGuid, updatedCheque.toJson());
+
+    return item.chequesGuid == null ? ChequesModel.fromJson(savedData) : updatedCheque;
   }
 
-  Future<ChequesModel> _createNewCheques(ChequesModel cheques) async {
-    final newChequesNumber = await getNextNumber(path, ChequesType.byTypeGuide(cheques.chequesTypeGuid!).value);
-    final newChequesJson = cheques.copyWith(chequesNumber: newChequesNumber).toJson();
-    final data = await databaseService.add(path: path, data: newChequesJson);
-    return ChequesModel.fromJson(data);
+  Future<ChequesModel> _assignChequeNumber(ChequesModel cheque) async {
+    final newChequesNumber = await getNextNumber(path, ChequesType.byTypeGuide(cheque.chequesTypeGuid!).value);
+    return cheque.copyWith(chequesNumber: newChequesNumber);
   }
 
-// Future<BondModel> saveBond(BondModel item) async {
-//   if (item.payGuid == null) {
-//     final newBillModel = await _createNewBond(item);
-//
-//     return newBillModel;
-//   } else {
-//     await databaseService.update(path: ApiConstants.bondsChequesPath, documentId: item.payGuid, data: item.toJson());
-//     return item;
-//   }
-// }
-//
-// Future<BondModel> _createNewBond(BondModel bond) async {
-//   final newBondNumber = await getNextNumber(path, bond.payTypeGuid!);
-//
-//   final newBondJson = bond.copyWith(payNumber: newBondNumber).toJson();
-//
-//   final data = await databaseService.add(path: ApiConstants.bondsChequesPath, data: newBondJson);
-//
-//   return BondModel.fromJson(data);
-// }
+  Future<Map<String, dynamic>> _saveChequeData(String? chequeId, Map<String, dynamic> data) async =>
+      databaseService.add(path: path, documentId: chequeId, data: data);
 }

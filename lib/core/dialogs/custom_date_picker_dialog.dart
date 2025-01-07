@@ -30,10 +30,7 @@ class CustomDatePickerDialog extends StatelessWidget {
                 navigationMode: DateRangePickerNavigationMode.scroll,
                 onSelectionChanged: onTimeSelect),
           ),
-          AppButton(
-            title: 'تم',
-            onPressed: onClose,
-          )
+          AppButton(title: 'تم', onPressed: onClose)
         ],
       ),
     );

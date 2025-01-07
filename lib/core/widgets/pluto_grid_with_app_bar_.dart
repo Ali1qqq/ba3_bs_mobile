@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:ba3_bs_mobile/features/pluto/data/models/pluto_adaptable.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -11,7 +13,7 @@ class PlutoGridWithAppBar<T> extends StatelessWidget {
     required this.onLoaded,
     required this.onSelected,
     this.onRowDoubleTap,
-    required this.title,
+    this.title,
     this.isLoading = false,
     required this.tableSourceModels,
     this.icon,
@@ -20,6 +22,7 @@ class PlutoGridWithAppBar<T> extends StatelessWidget {
     this.onLeadingIconPressed,
     this.type,
     this.child,
+    this.appBar,
   });
 
   final Function(PlutoGridOnLoadedEvent) onLoaded;
@@ -27,7 +30,7 @@ class PlutoGridWithAppBar<T> extends StatelessWidget {
   final Function(PlutoGridOnRowDoubleTapEvent)? onRowDoubleTap;
   final Function(PlutoGridOnSelectedEvent) onSelected;
 
-  final String title;
+  final String? title;
   final List<PlutoAdaptable> tableSourceModels;
   final bool isLoading;
   final IconData? icon;
@@ -36,13 +39,15 @@ class PlutoGridWithAppBar<T> extends StatelessWidget {
   final VoidCallback? onLeadingIconPressed;
   final T? type;
   final Widget? child;
+  final AppBar? appBar;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: plutoGridAppBar(),
+      appBar: appBar ?? plutoGridAppBar(),
       body: GetBuilder<PlutoController>(
         builder: (controller) {
+          log('controller.plutoKey = ${controller.plutoKey}');
           return isLoading
               ? const SizedBox()
               : Column(
@@ -60,11 +65,9 @@ class PlutoGridWithAppBar<T> extends StatelessWidget {
                           style: PlutoGridStyleConfig(
                             enableRowColorAnimation: true,
                             evenRowColor: Colors.blueAccent.withAlpha(127),
-                            columnTextStyle:
-                                const TextStyle(color: Colors.black, fontSize: 24, fontWeight: FontWeight.bold),
+                            columnTextStyle: const TextStyle(color: Colors.black, fontSize: 24, fontWeight: FontWeight.bold),
                             activatedColor: Colors.white.withAlpha(127),
-                            cellTextStyle:
-                                const TextStyle(color: Colors.black, fontSize: 16, fontWeight: FontWeight.bold),
+                            cellTextStyle: const TextStyle(color: Colors.black, fontSize: 16, fontWeight: FontWeight.bold),
                             gridPopupBorderRadius: const BorderRadius.all(Radius.circular(15)),
                             gridBorderRadius: const BorderRadius.all(Radius.circular(15)),
                             // gridBorderColor: Colors.transparent,
@@ -95,7 +98,7 @@ class PlutoGridWithAppBar<T> extends StatelessWidget {
               icon: Icon(leadingIcon),
             )
           : null,
-      title: Text(title),
+      title: Text(title ?? ''),
       actions: [
         if (icon != null)
           IconButton(
@@ -103,9 +106,7 @@ class PlutoGridWithAppBar<T> extends StatelessWidget {
             color: Colors.blue,
             icon: Icon(icon),
           ),
-        Padding(
-            padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
-            child: Text('عدد العناصر المتأثرة: ${tableSourceModels.length}')),
+        Padding(padding: const EdgeInsets.fromLTRB(16, 16, 8, 16), child: Text('عدد العناصر المتأثرة: ${tableSourceModels.length}')),
       ],
     );
   }

@@ -46,17 +46,15 @@ class BillItems extends Equatable {
     }
   }
 
-  List<InvoiceRecordModel> get _materialRecords =>
-      itemList.map((item) => InvoiceRecordModel.fromBillItem(item)).toList();
+  List<InvoiceRecordModel> get _materialRecords => itemList.map((item) => InvoiceRecordModel.fromBillItem(item)).toList();
 
   @override
   List<Object?> get props => [itemList];
-
 }
 
-class BillItem  extends Equatable{
+class BillItem extends Equatable {
   final String itemGuid;
-  final String itemName;
+  final String? itemName;
   final int itemQuantity;
   final String itemTotalPrice;
   final double? itemSubTotalPrice;
@@ -66,7 +64,7 @@ class BillItem  extends Equatable{
 
   const BillItem({
     required this.itemGuid,
-    required this.itemName,
+    this.itemName,
     required this.itemQuantity,
     required this.itemTotalPrice,
     this.itemSubTotalPrice,
@@ -88,13 +86,13 @@ class BillItem  extends Equatable{
 
   Map<String, dynamic> toJson() => {
         'ItemGuid': itemGuid,
-        'ItemName': itemName,
+        if (itemName != null) 'ItemName': itemName,
         'ItemQuantity': itemQuantity,
         'itemTotalPrice': itemTotalPrice,
-        'itemSubTotalPrice': itemSubTotalPrice,
-        'itemVatPrice': itemVatPrice,
-        'itemGiftsNumber': itemGiftsNumber,
-        'itemGiftsPrice': itemGiftsPrice,
+        if (itemSubTotalPrice != null) 'itemSubTotalPrice': itemSubTotalPrice,
+        if (itemVatPrice != null) 'itemVatPrice': itemVatPrice,
+        if (itemGiftsNumber != null) 'itemGiftsNumber': itemGiftsNumber,
+        if (itemGiftsPrice != null) 'itemGiftsPrice': itemGiftsPrice,
       };
 
   BillItem copyWith({
@@ -117,16 +115,16 @@ class BillItem  extends Equatable{
         itemGiftsNumber: itemGiftsNumber ?? this.itemGiftsNumber,
         itemGiftsPrice: itemGiftsPrice ?? this.itemGiftsPrice,
       );
+
   @override
   List<Object?> get props => [
-    itemGuid,
-    itemName,
-    itemQuantity,
-    itemTotalPrice,
-    itemSubTotalPrice,
-    itemVatPrice,
-    itemGiftsNumber,
-    itemGiftsPrice,
-  ];
-
+        itemGuid,
+        itemName,
+        itemQuantity,
+        itemTotalPrice,
+        itemSubTotalPrice,
+        itemVatPrice,
+        itemGiftsNumber,
+        itemGiftsPrice,
+      ];
 }

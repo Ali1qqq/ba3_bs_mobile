@@ -13,10 +13,7 @@ class PendingBillsScreen extends StatelessWidget {
       return PlutoGridWithAppBar(
         title: 'الفواتير المعلقة',
         onLoaded: (e) {},
-        onSelected: (event) {
-          String billId = event.row?.cells['billId']?.value;
-          controller.openBillDetailsById(billId, context);
-        },
+        onSelected: (event) {},
         isLoading: controller.isPendingBillsLoading,
         tableSourceModels: controller.pendingBills,
       );

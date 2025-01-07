@@ -1,4 +1,5 @@
 import 'package:ba3_bs_mobile/core/helper/enums/enums.dart';
+import 'package:ba3_bs_mobile/core/helper/extensions/date_time_extensions.dart';
 import 'package:ba3_bs_mobile/core/helper/extensions/string_extension.dart';
 import 'package:ba3_bs_mobile/features/accounts/controllers/accounts_controller.dart';
 import 'package:ba3_bs_mobile/features/cheques/data/models/cheques_model.dart';
@@ -7,11 +8,11 @@ import 'package:get/get.dart';
 
 import '../../../../core/helper/extensions/getx_controller_extensions.dart';
 import '../../../../core/helper/validators/app_validator.dart';
-import '../../../../core/services/firebase/implementations/datasource_repo.dart';
+import '../../../../core/services/firebase/implementations/repos/compound_datasource_repo.dart';
 import '../../../../core/utils/app_ui_utils.dart';
 import '../../../accounts/data/models/account_model.dart';
 import '../../../bond/controllers/entry_bond/entry_bond_controller.dart';
-import '../../service/cheques/cheques_service.dart';
+import '../../service/cheques_service.dart';
 import 'cheques_search_controller.dart';
 
 class ChequesDetailsController extends GetxController with AppValidator {
@@ -23,7 +24,7 @@ class ChequesDetailsController extends GetxController with AppValidator {
 
   // Repositories
 
-  final DataSourceRepository<ChequesModel> _chequesFirebaseRepo;
+  final CompoundDatasourceRepository<ChequesModel, ChequesType> _chequesFirebaseRepo;
   final ChequesSearchController chequesSearchController;
 
   // Services
@@ -49,8 +50,7 @@ class ChequesDetailsController extends GetxController with AppValidator {
 
   EntryBondController get bondController => read<EntryBondController>();
 
-  RxString chequesDate = DateTime.now().toString().split(" ")[0].obs,
-      chequesDueDate = DateTime.now().toString().split(" ")[0].obs;
+  RxString chequesDate = DateTime.now().dayMonthYear.obs, chequesDueDate = DateTime.now().dayMonthYear.obs;
   bool isLoading = true;
   RxBool isChequesSaved = false.obs;
 
@@ -86,17 +86,17 @@ class ChequesDetailsController extends GetxController with AppValidator {
   String? validator(String? value, String fieldName) => isFieldValid(value, fieldName);
 
   void setChequesDate(DateTime newDate) {
-    chequesDate.value = newDate.toString().split(" ")[0];
+    chequesDate.value = newDate.dayMonthYear;
     update();
   }
 
   void setChequesDueDate(DateTime newDate) {
-    chequesDueDate.value = newDate.toString().split(" ")[0];
+    chequesDueDate.value = newDate.dayMonthYear;
     update();
   }
 
   Future<void> deleteCheques(ChequesModel chequesModel, {bool fromChequesById = false}) async {
-    final result = await _chequesFirebaseRepo.delete(chequesModel.chequesGuid!);
+    final result = await _chequesFirebaseRepo.delete(chequesModel);
 
     result.fold(
       (failure) => AppUIUtils.onFailure(failure.message),

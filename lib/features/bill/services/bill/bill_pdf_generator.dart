@@ -1,3 +1,4 @@
+import 'package:ba3_bs_mobile/core/helper/extensions/date_time_extensions.dart';
 import 'package:ba3_bs_mobile/core/helper/extensions/string_extension.dart';
 import 'package:ba3_bs_mobile/features/bill/data/models/bill_model.dart';
 import 'package:ba3_bs_mobile/features/sellers/controllers/sellers_controller.dart';
@@ -11,7 +12,7 @@ import '../../../../core/services/pdf_generator/implementations/pdf_generator_ba
 import '../../../materials/controllers/material_controller.dart';
 
 class BillPdfGenerator extends PdfGeneratorBase<BillModel> {
-  final _sellerController = read<SellerController>();
+  final _sellerController = read<SellersController>();
   final _materialController = read<MaterialController>();
 
   @override
@@ -42,7 +43,7 @@ class BillPdfGenerator extends PdfGeneratorBase<BillModel> {
         _buildSpacing(),
         _buildDetailRow('Bill id: ', itemModel.billId!),
         _buildSpacing(),
-        _buildDetailRow('Date of Invoice: ', itemModel.billDetails.billDate!),
+        _buildDetailRow('Date of Invoice: ', itemModel.billDetails.billDate!.dayMonthYear),
         _buildSpacing(),
         _buildDetailRow(
           'Seller Name: ',

@@ -16,7 +16,7 @@ class AddEditUserForm extends StatelessWidget {
   });
 
   final UserManagementController userManagementController;
-  final SellerController sellerController;
+  final SellersController sellerController;
 
   @override
   Widget build(BuildContext context) {

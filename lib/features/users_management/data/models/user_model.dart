@@ -52,8 +52,8 @@ class UserModel {
     Map<String, UserWorkingHours> userDailyTime = <String, UserWorkingHours>{};
 
     (json['userWorkingHours'] ?? {}).forEach(
-      (String workingHourId, dynamic workingHourJson) {
-        userDailyTime[workingHourId] = UserWorkingHours.fromJson(workingHourJson);
+      (String workingHourId, dynamic userWorkingHourJson) {
+        userDailyTime[workingHourId] = UserWorkingHours.fromJson(userWorkingHourJson);
       },
     );
 

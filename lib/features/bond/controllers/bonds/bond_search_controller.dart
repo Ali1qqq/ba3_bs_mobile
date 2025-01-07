@@ -20,15 +20,14 @@ class BondSearchController extends GetxController {
     required BondDetailsPlutoController bondDetailsPlutoController,
   }) {
     bonds = bondsByCategory;
-    currentBondIndex = bonds.indexWhere((current) =>current.payGuid==bond.payGuid||current==bond ,);
+    currentBondIndex = bonds.indexWhere(
+      (current) => current.payGuid == bond.payGuid || current == bond,
+    );
     currentBond = bonds[currentBondIndex];
 
     this.bondDetailsController = bondDetailsController;
     this.bondDetailsPlutoController = bondDetailsPlutoController;
     _setCurrentBond(currentBondIndex);
-    log('bonds length ${bonds.length}');
-    log('currentBondIndex $currentBondIndex');
-    log('currentBondNumber ${currentBond.payNumber}');
   }
 
   /// Gets the current bond
@@ -61,9 +60,7 @@ class BondSearchController extends GetxController {
 
   /// Validates whether the given bond number is within range
   bool _isValidBondNumber(int? bondNumber) =>
-      bondNumber != null &&
-      bondNumber >= bonds.first.payNumber! &&
-      bondNumber <= bonds.last.payNumber!;
+      bondNumber != null && bondNumber >= bonds.first.payNumber! && bondNumber <= bonds.last.payNumber!;
 
   /// Handles invalid bond number cases by showing appropriate error messages
   void _showInvalidBondNumberError(int? bondNumber) {
@@ -144,7 +141,7 @@ class BondSearchController extends GetxController {
 
   /// Refreshes the screen with the current bond's details
   void _updateBondDetailsOnScreen() {
-bondDetailsPlutoController.setAccountGuid=currentBond.payGuid??'';
+    bondDetailsPlutoController.setAccountGuid = currentBond.payGuid ?? '';
     bondDetailsController.updateBondDetailsOnScreen(
       currentBond,
       bondDetailsPlutoController,

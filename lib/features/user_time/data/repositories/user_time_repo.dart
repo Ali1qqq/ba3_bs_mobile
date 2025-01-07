@@ -1,8 +1,8 @@
-import 'package:ba3_bs_mobile/core/network/error/failure.dart';
 import 'package:dartz/dartz.dart';
 import 'package:geolocator/geolocator.dart';
 
 import '../../../../core/network/error/error_handler.dart';
+import '../../../../core/network/error/failure.dart';
 
 class UserTimeRepository {
   Future<Either<Failure, Position>> getCurrentLocation() async {

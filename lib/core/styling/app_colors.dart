@@ -10,6 +10,7 @@ class AppColors {
   static const Color bottomTouchedTextColor = Colors.black;
   static const Color textColor = Colors.black;
   static const Color averageLineColor = Colors.green;
+  static const Color greenColor = Colors.green;
   static const Color tooltipBgColor = Colors.grey;
   static const Color tooltipTextColor = Colors.black;
   static const Color whiteColor=Color(0xffFDFDFD);

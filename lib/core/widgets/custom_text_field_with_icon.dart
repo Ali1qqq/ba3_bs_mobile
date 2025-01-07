@@ -26,6 +26,7 @@ class CustomTextFieldWithIcon extends StatefulWidget {
   final bool isNumeric;
 
   final TextStyle? textStyle;
+
   final bool readOnly;
 
   @override

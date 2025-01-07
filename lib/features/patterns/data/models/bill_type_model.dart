@@ -15,6 +15,7 @@ class BillTypeModel extends PlutoAdaptable with EquatableMixin {
   final String? latinFullName;
   final String? billTypeLabel;
   final int? color;
+  final BillPatternType? billPatternType;
 
   // Using a map to store accounts with Account as the key and AccountModel as the value
   final Map<Account, AccountModel>? accounts;
@@ -31,6 +32,7 @@ class BillTypeModel extends PlutoAdaptable with EquatableMixin {
     this.color,
     this.accounts,
     this.discountAdditionAccounts,
+    this.billPatternType,
   });
 
   factory BillTypeModel.fromJson(Map<String, dynamic> json) {
@@ -43,6 +45,7 @@ class BillTypeModel extends PlutoAdaptable with EquatableMixin {
       latinFullName: json['latinFullName'],
       billTypeLabel: json['billType'],
       color: json['color'],
+      billPatternType: BillPatternType.byValue(json['billType']) ,
       // Deserialize accounts map
       accounts: (json['accounts'] as Map<String, dynamic>?)?.map((billAccountLabel, accountModelJson) {
         Account billAccount = getBillAccountFromLabel(billAccountLabel);
@@ -100,6 +103,8 @@ class BillTypeModel extends PlutoAdaptable with EquatableMixin {
     String? billTypeLabel,
     int? color,
     String? store,
+
+    BillPatternType? billPatternType,
     Map<Account, AccountModel>? accounts,
     Map<Account, List<DiscountAdditionAccountModel>>? discountAdditionAccounts,
   }) =>
@@ -114,6 +119,7 @@ class BillTypeModel extends PlutoAdaptable with EquatableMixin {
         color: color ?? this.color,
         accounts: accounts ?? this.accounts,
         discountAdditionAccounts: discountAdditionAccounts ?? this.discountAdditionAccounts,
+        billPatternType: billPatternType??this.billPatternType
       );
 
   @override
