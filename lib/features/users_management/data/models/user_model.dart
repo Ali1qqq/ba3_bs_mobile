@@ -7,7 +7,8 @@ class UserModel {
   final String? userRoleId;
   final String? userSellerId;
 
-  final UserStatus? userStatus;
+  final UserWorkStatus? userWorkStatus;
+  final UserActiveStatus? userActiveStatus;
 
   final List<String>? userHolidays;
   final Map<String, UserWorkingHours>? userWorkingHours;
@@ -21,7 +22,8 @@ class UserModel {
     this.userRoleId,
     this.userSellerId,
     this.userTimeModel,
-    this.userStatus,
+    this.userWorkStatus,
+    this.userActiveStatus,
     this.userHolidays,
     this.userWorkingHours,
   });
@@ -33,13 +35,12 @@ class UserModel {
       'userName': userName,
       'userPassword': userPassword,
       'userRoleId': userRoleId,
-      if (userStatus != null) 'userStatus': userStatus?.label,
+      if (userActiveStatus != null) 'userActiveStatus': userActiveStatus?.label,
+      if (userWorkStatus != null) 'userWorkStatus': userWorkStatus?.label,
       if (userHolidays != null) 'userHolidays': userHolidays?.toList(),
       if (userWorkingHours != null)
-        'userWorkingHours':
-            Map.fromEntries(userWorkingHours!.entries.map((e) => MapEntry(e.key, e.value.toJson())).toList()),
-      if (userTimeModel != null)
-        "userTime": Map.fromEntries(userTimeModel!.entries.map((e) => MapEntry(e.key, e.value.toJson())).toList()),
+        'userWorkingHours': Map.fromEntries(userWorkingHours!.entries.map((e) => MapEntry(e.key, e.value.toJson())).toList()),
+      if (userTimeModel != null) "userTime": Map.fromEntries(userTimeModel!.entries.map((e) => MapEntry(e.key, e.value.toJson())).toList()),
     };
   }
 
@@ -65,35 +66,37 @@ class UserModel {
       userRoleId: json['userRoleId'],
       userHolidays: List<String>.from(json['userHolidays'] ?? []),
       userWorkingHours: userDailyTime,
-      userStatus: UserStatus.byLabel(json['userStatus'] ?? UserStatus.away.label),
+      userWorkStatus: UserWorkStatus.byLabel(json['userWorkStatus'] ?? UserWorkStatus.away.label),
+      userActiveStatus: json['userActiveStatus'] != null ? UserActiveStatus.byLabel(json['userActiveStatus']) : UserActiveStatus.inactive,
       userTimeModel: userTimeModel,
     );
   }
 
   /// Creates a copy of this UserModel with updated fields.
   UserModel copyWith({
-    String? userId,
-    String? userName,
-    String? userPassword,
-    String? userRoleId,
-    String? userSellerId,
-    UserStatus? userStatus,
-    List<String>? userHolidays,
-    Map<String, UserTimeModel>? userTimeModel,
-    Map<String, UserWorkingHours>? userWorkingHours,
-  }) {
-    return UserModel(
-      userId: userId ?? this.userId,
-      userName: userName ?? this.userName,
-      userPassword: userPassword ?? this.userPassword,
-      userRoleId: userRoleId ?? this.userRoleId,
-      userSellerId: userSellerId ?? this.userSellerId,
-      userTimeModel: userTimeModel ?? this.userTimeModel,
-      userStatus: userStatus ?? this.userStatus,
-      userHolidays: userHolidays ?? this.userHolidays,
-      userWorkingHours: userWorkingHours ?? this.userWorkingHours,
-    );
-  }
+    final String? userId,
+    final String? userName,
+    final String? userPassword,
+    final String? userRoleId,
+    final String? userSellerId,
+    final UserWorkStatus? userWorkStatus,
+    final UserActiveStatus? userActiveStatus,
+    final List<String>? userHolidays,
+    final Map<String, UserTimeModel>? userTimeModel,
+    final Map<String, UserWorkingHours>? userWorkingHours,
+  }) =>
+      UserModel(
+        userId: userId ?? this.userId,
+        userName: userName ?? this.userName,
+        userPassword: userPassword ?? this.userPassword,
+        userRoleId: userRoleId ?? this.userRoleId,
+        userSellerId: userSellerId ?? this.userSellerId,
+        userTimeModel: userTimeModel ?? this.userTimeModel,
+        userWorkStatus: userWorkStatus ?? this.userWorkStatus,
+        userActiveStatus: userActiveStatus ?? this.userActiveStatus,
+        userHolidays: userHolidays ?? this.userHolidays,
+        userWorkingHours: userWorkingHours ?? this.userWorkingHours,
+      );
 }
 
 class UserWorkingHours {

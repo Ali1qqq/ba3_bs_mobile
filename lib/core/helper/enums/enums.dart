@@ -532,6 +532,39 @@ enum StoreAccount {
       );
 }
 
+enum UserWorkStatus {
+  online('داخل العمل'),
+  away('خارج العمل');
+
+  final String label;
+
+  const UserWorkStatus(this.label);
+
+  // Factory constructor with error handling for unmatched labels
+  factory UserWorkStatus.byLabel(String label) {
+    return UserWorkStatus.values.firstWhere(
+      (type) => type.label == label,
+      orElse: () => throw ArgumentError('No matching TimeType for label: $label'),
+    );
+  }
+}
+
+enum UserActiveStatus {
+  active('نشط'),
+  inactive('غير نشط');
+
+  final String label;
+
+  const UserActiveStatus(this.label);
+
+  // Factory constructor with error handling for unmatched labels
+  factory UserActiveStatus.byLabel(String label) {
+    return UserActiveStatus.values.firstWhere(
+      (status) => status.label == label,
+      orElse: () => throw ArgumentError('No matching ActiveStatus for label: $label'),
+    );
+  }
+}
 // enum TaxType {
 //   withTax('1234-guid-with-tax'),
 //   withoutTax('5678-guid-without-tax');

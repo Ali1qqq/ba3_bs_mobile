@@ -2,8 +2,10 @@ import 'dart:developer';
 
 import 'package:ba3_bs_mobile/core/constants/app_constants.dart';
 import 'package:ba3_bs_mobile/core/dialogs/custom_date_picker_dialog.dart';
+import 'package:ba3_bs_mobile/core/helper/enums/enums.dart';
 import 'package:ba3_bs_mobile/core/helper/extensions/time_extensions.dart';
 import 'package:ba3_bs_mobile/core/helper/mixin/app_navigator.dart';
+import 'package:ba3_bs_mobile/core/models/query_filter.dart';
 import 'package:ba3_bs_mobile/features/users_management/services/role_service.dart';
 import 'package:ba3_bs_mobile/features/users_management/services/user_service.dart';
 import 'package:day_night_time_picker/day_night_time_picker.dart';
@@ -11,9 +13,10 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../../core/network/api_constants.dart';
+import '../../../core/network/error/failure.dart';
 import '../../../core/router/app_routes.dart';
-import '../../../core/services/firebase/implementations/repos/datasource_repo.dart';
 import '../../../core/services/firebase/implementations/repos/filterable_datasource_repo.dart';
+import '../../../core/services/firebase/implementations/repos/remote_datasource_repo.dart';
 import '../../../core/services/get_x/shared_preferences_service.dart';
 import '../../../core/utils/app_ui_utils.dart';
 import '../data/models/role_model.dart';
@@ -151,21 +154,44 @@ class UserManagementController extends GetxController with AppNavigator {
   }
 
   // Fetch roles using the repository
-  Future<void> getUserById(String userId) async {
+// Fetch user by ID using the repository
+  Future<void> fetchAndHandleUser(String userId) async {
     final result = await _usersFirebaseRepo.getById(userId);
+
     result.fold(
-      (failure) => AppUIUtils.onFailure(failure.message),
-      (fetchedUser) => _handelGetUserByIdSuccess(fetchedUser),
+      (failure) => _handleUserFetchFailure(failure),
+      (user) => _handleUserFetchSuccess(user),
     );
   }
 
-  _handelGetUserByIdSuccess(UserModel userModel) {
-    loggedInUserModel = userModel;
-
-    offAll(AppRoutes.mainLayout);
+// Handle failure when fetching the user
+  void _handleUserFetchFailure(Failure failure) {
+    offAll(AppRoutes.loginScreen);
+    AppUIUtils.onFailure(failure.message);
   }
 
-  void checkUserStatus() async {
+// Handle success when fetching the user
+  void _handleUserFetchSuccess(UserModel userModel) {
+    _populateLoginFields(userModel);
+    validateUserInputs();
+  }
+
+// Check if the user is active
+  bool _isUserActive(UserModel userModel) {
+    if (userModel.userActiveStatus == UserActiveStatus.inactive) {
+      AppUIUtils.onFailure('حسابك غير نشط الان من فضلك حاول حقا!');
+      return false;
+    }
+    return true;
+  }
+
+// Populate login fields with user data
+  void _populateLoginFields(UserModel userModel) {
+    loginNameController.text = userModel.userName ?? '';
+    loginPasswordController.text = userModel.userPassword ?? '';
+  }
+
+  void validateUserInputs() async {
     final loginName = loginNameController.text.trim();
     final loginPassword = loginPasswordController.text.trim();
 
@@ -182,25 +208,10 @@ class UserManagementController extends GetxController with AppNavigator {
     await _checkUserByPin();
   }
 
-  void _handleGetUserPinSuccess(List<UserModel> fetchedUsers) async {
-    if (fetchedUsers.isEmpty) {
-      await _handleNoMatch();
-      return;
-    }
-
-    loggedInUserModel = fetchedUsers.first;
-
-    final isLoginNameMatch = loggedInUserModel?.userName?.trim() == loginNameController.text;
-    if (!isLoginNameMatch) {
-      AppUIUtils.onFailure('أسم المستخدم غير صحيح!');
-      return;
-    }
-    _sharedPreferencesService.setString(AppConstants.userIdKey, loggedInUserModel?.userId ?? '');
-    offAll(AppRoutes.mainLayout);
-  }
-
   Future<void> _checkUserByPin() async {
-    final result = await _usersFirebaseRepo.fetchWhere(field: ApiConstants.userPassword, value: loginPasswordController.text);
+    final result = await _usersFirebaseRepo.fetchWhere(
+      queryFilters: [QueryFilter(field: ApiConstants.userPassword, value: loginPasswordController.text)],
+    );
 
     result.fold(
       (failure) => AppUIUtils.onFailure(failure.message),
@@ -208,11 +219,39 @@ class UserManagementController extends GetxController with AppNavigator {
     );
   }
 
+  void _handleGetUserPinSuccess(List<UserModel> fetchedUsers) async {
+    if (fetchedUsers.isEmpty) {
+      await _handleNoMatch();
+      return;
+    }
+
+    final firstFetchedUser = fetchedUsers.first;
+
+    if (!_isUserActive(firstFetchedUser)) {
+      if (currentRoute != AppRoutes.loginScreen) {
+        offAll(AppRoutes.loginScreen);
+      }
+      return;
+    }
+
+    final isLoginNameMatch = firstFetchedUser.userName?.trim() == loginNameController.text;
+
+    if (!isLoginNameMatch) {
+      AppUIUtils.onFailure('أسم المستخدم غير صحيح!');
+      return;
+    }
+
+    loggedInUserModel = firstFetchedUser;
+
+    _sharedPreferencesService.setString(AppConstants.userIdKey, loggedInUserModel?.userId ?? '');
+    offAll(AppRoutes.mainLayout);
+  }
+
   void navigateToLogin() async {
     if (_sharedPreferencesService.getString(AppConstants.userIdKey) == null) {
       offAll(AppRoutes.loginScreen);
     } else {
-      getUserById(_sharedPreferencesService.getString(AppConstants.userIdKey)!);
+      fetchAndHandleUser(_sharedPreferencesService.getString(AppConstants.userIdKey)!);
     }
   }
 

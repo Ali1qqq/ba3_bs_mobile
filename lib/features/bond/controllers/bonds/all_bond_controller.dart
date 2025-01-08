@@ -64,7 +64,7 @@ class AllBondsController extends FloatingBondDetailsLauncher {
 
     if (resultFile != null) {
       File file = File(resultFile.files.single.path!);
-      final result = _jsonImportExportRepo.importJsonFileXml(file);
+      final result = _jsonImportExportRepo.importXmlFile(file);
 
       result.fold(
         (failure) => AppUIUtils.onFailure(failure.message),

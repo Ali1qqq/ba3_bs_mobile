@@ -283,6 +283,7 @@ class BillPlutoGridService {
       // No matches
       updateWithSelectedMaterial(null, stateManager, plutoController);
     } else {
+      if (!context.mounted) return;
       // Clear focus from PlutoWithEdite before showing the dialog
       FocusScope.of(context).unfocus();
 

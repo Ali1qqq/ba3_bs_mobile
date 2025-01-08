@@ -60,8 +60,8 @@ class UserTimeController extends GetxController {
         return AppUIUtils.onFailure(failure.message);
       },
       (location) {
-        return isWithinRegion = _userTimeServices.isWithinRegion(
-            location, AppStrings.targetLatitude, AppStrings.targetLongitude, AppStrings.radiusInMeters);
+        return isWithinRegion =
+            _userTimeServices.isWithinRegion(location, AppStrings.targetLatitude, AppStrings.targetLongitude, AppStrings.radiusInMeters);
       },
     );
 
@@ -75,8 +75,8 @@ class UserTimeController extends GetxController {
   }
 
   Future<void> checkUserLog(
-      {required UserStatus logStatus, required Function(UserModel) onChecked, required String errorMessage}) async {
-    if (logStatus == UserStatus.online) {
+      {required UserWorkStatus logStatus, required Function(UserModel) onChecked, required String errorMessage}) async {
+    if (logStatus == UserWorkStatus.online) {
       logInState.value = RequestState.loading;
     } else {
       logOutState.value = RequestState.loading;
@@ -93,11 +93,11 @@ class UserTimeController extends GetxController {
     /// check if user want to login again before logout
     /// or
     /// check if user want to logout again before login
-    if (userModel!.userStatus != logStatus) {
+    if (userModel!.userWorkStatus != logStatus) {
       final updatedUserModel = onChecked(userModel);
 
       /// check if user want to log in
-      if (logStatus == UserStatus.online) {
+      if (logStatus == UserWorkStatus.online) {
         _saveLogInTime(updatedUserModel);
       } else {
         _saveLogOutTime(updatedUserModel);
@@ -112,7 +112,7 @@ class UserTimeController extends GetxController {
   Future<void> checkLogInAndSave() async {
     await checkUserLog(
       /// This is the user's status after the operation
-      logStatus: UserStatus.online,
+      logStatus: UserWorkStatus.online,
 
       /// After confirming the possibility of lo
       onChecked: (userModel) => _userTimeServices.addLoginTimeToUserModel(
@@ -125,7 +125,7 @@ class UserTimeController extends GetxController {
   Future<void> checkLogOutAndSave() async {
     await checkUserLog(
       /// This is the user's status after the operation
-      logStatus: UserStatus.away,
+      logStatus: UserWorkStatus.away,
 
       /// After confirming the possibility of lo
       onChecked: (userModel) => _userTimeServices.addLogOutTimeToUserModel(
@@ -139,10 +139,10 @@ class UserTimeController extends GetxController {
     final result = await _usersFirebaseRepo.save(updatedUserModel);
     result.fold(
       (failure) {
-        handleError(failure.message, UserStatus.away);
+        handleError(failure.message, UserWorkStatus.away);
       },
       (fetchedUser) {
-        handleSuccess('تم تسجيل الخروج بنجاح', UserStatus.away);
+        handleSuccess('تم تسجيل الخروج بنجاح', UserWorkStatus.away);
         setLastOutTime = AppServiceUtils.formatDateTime(_userTimeServices.getCurrentTime());
       },
     );
@@ -153,10 +153,10 @@ class UserTimeController extends GetxController {
 
     result.fold(
       (failure) {
-        handleError(failure.message, UserStatus.online);
+        handleError(failure.message, UserWorkStatus.online);
       },
       (fetchedUser) {
-        handleSuccess('تم تسجيل الدخول بنجاح', UserStatus.online);
+        handleSuccess('تم تسجيل الدخول بنجاح', UserWorkStatus.online);
 
         setLastEnterTime = AppServiceUtils.formatDateTime(_userTimeServices.getCurrentTime());
       },
@@ -177,8 +177,8 @@ class UserTimeController extends GetxController {
     }
   }
 
-  void handleError(String errorMessage, UserStatus status) {
-    if (status == UserStatus.online) {
+  void handleError(String errorMessage, UserWorkStatus status) {
+    if (status == UserWorkStatus.online) {
       logInState.value = RequestState.error;
     } else {
       logOutState.value = RequestState.error;
@@ -186,8 +186,8 @@ class UserTimeController extends GetxController {
     AppUIUtils.onFailure(errorMessage);
   }
 
-  void handleSuccess(String successMessage, UserStatus status) {
-    if (status == UserStatus.online) {
+  void handleSuccess(String successMessage, UserWorkStatus status) {
+    if (status == UserWorkStatus.online) {
       logInState.value = RequestState.success;
     } else {
       logOutState.value = RequestState.success;

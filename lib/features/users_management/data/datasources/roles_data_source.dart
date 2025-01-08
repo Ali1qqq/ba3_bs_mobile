@@ -1,9 +1,10 @@
 // BillsDataSource Implementation
 import 'package:ba3_bs_mobile/core/network/api_constants.dart';
-import 'package:ba3_bs_mobile/core/services/firebase/interfaces/datasource_base.dart';
 import 'package:ba3_bs_mobile/features/users_management/data/models/role_model.dart';
 
-class RolesDataSource extends DatasourceBase<RoleModel> {
+import '../../../../core/services/firebase/interfaces/remote_datasource_base.dart';
+
+class RolesDataSource extends RemoteDatasourceBase<RoleModel> {
   RolesDataSource({required super.databaseService});
 
   @override

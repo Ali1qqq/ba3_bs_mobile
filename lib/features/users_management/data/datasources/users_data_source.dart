@@ -3,6 +3,7 @@ import 'package:ba3_bs_mobile/core/network/api_constants.dart';
 import 'package:ba3_bs_mobile/core/services/firebase/interfaces/filterable_datasource.dart';
 
 import '../../../../core/models/date_filter.dart';
+import '../../../../core/models/query_filter.dart';
 import '../models/user_model.dart';
 
 class UsersDataSource extends FilterableDatasource<UserModel> {
@@ -21,8 +22,8 @@ class UsersDataSource extends FilterableDatasource<UserModel> {
   }
 
   @override
-  Future<List<UserModel>> fetchWhere<V>({required String field, required V value, DateFilter? dateFilter}) async {
-    final data = await databaseService.fetchWhere(path: path, field: field, value: value, dateFilter: dateFilter);
+  Future<List<UserModel>> fetchWhere({required List<QueryFilter> queryFilters, DateFilter? dateFilter}) async {
+    final data = await databaseService.fetchWhere(path: path, queryFilters: queryFilters);
 
     final users = data.map((item) => UserModel.fromJson(item)).toList();
 

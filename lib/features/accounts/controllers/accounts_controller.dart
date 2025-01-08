@@ -46,8 +46,8 @@ class AccountsController extends GetxController with AppNavigator {
     final result = await _accountsFirebaseRepo.save(seller);
 
     result.fold(
-      (failure) => AppUIUtils.onFailure(failure.message),
-      (fetchedAccounts) {},
+          (failure) => AppUIUtils.onFailure(failure.message),
+          (fetchedAccounts) {},
     );
   }
 
@@ -55,8 +55,8 @@ class AccountsController extends GetxController with AppNavigator {
     final result = await _accountsFirebaseRepo.saveAll(accounts);
 
     result.fold(
-      (failure) => AppUIUtils.onFailure(failure.message),
-      (fetchedAccounts) {},
+          (failure) => AppUIUtils.onFailure(failure.message),
+          (fetchedAccounts) {},
     );
   }
 
@@ -67,10 +67,10 @@ class AccountsController extends GetxController with AppNavigator {
 
     if (resultFile != null) {
       File file = File(resultFile.files.single.path!);
-      final result = _jsonImportExportRepo.importJsonFileXml(file);
+      final result = _jsonImportExportRepo.importXmlFile(file);
       result.fold(
-        (failure) => AppUIUtils.onFailure(failure.message),
-        (fetchedAccounts) {
+            (failure) => AppUIUtils.onFailure(failure.message),
+            (fetchedAccounts) {
           log("fetchedAccounts length ${fetchedAccounts.length}");
           log(fetchedAccounts.last.toJson().toString());
 
@@ -87,8 +87,8 @@ class AccountsController extends GetxController with AppNavigator {
     final result = await _accountsFirebaseRepo.getAll();
 
     result.fold(
-      (error) => AppUIUtils.onFailure(error.message),
-      (fetchedAccount) => accounts = fetchedAccount,
+          (error) => AppUIUtils.onFailure(error.message),
+          (fetchedAccount) => accounts = fetchedAccount,
     );
 
     isLoading = false;
@@ -120,18 +120,24 @@ class AccountsController extends GetxController with AppNavigator {
 
   String getAccountNameById(String? accountId) {
     if (accountId == null || accountId.isEmpty) return '';
-    return accounts.where((account) => account.id == accountId).firstOrNull?.accName ?? accountId;
+    return accounts
+        .where((account) => account.id == accountId)
+        .firstOrNull
+        ?.accName ?? accountId;
   }
 
   String getAccountIdByName(String? accountName) {
     if (accountName == null || accountName.isEmpty) return '';
-    return accounts.where((account) => account.accName == accountName).firstOrNull?.id ?? '';
+    return accounts
+        .where((account) => account.accName == accountName)
+        .firstOrNull
+        ?.id ?? '';
   }
 
   AccountModel? getAccountModelByName(String text) {
     if (text != '') {
       final AccountModel accountModel =
-          accounts.firstWhere((item) => item.accName!.toLowerCase() == text.toLowerCase() || item.accCode == text, orElse: () {
+      accounts.firstWhere((item) => item.accName!.toLowerCase() == text.toLowerCase() || item.accCode == text, orElse: () {
         return AccountModel(accName: null);
       });
       if (accountModel.accName == null) {

@@ -28,7 +28,7 @@ class UserTimeServices {
       );
     }
 
-    return userModel.copyWith(userStatus: UserStatus.online);
+    return userModel.copyWith(userWorkStatus: UserWorkStatus.online);
   }
 
   // add user logout time
@@ -43,7 +43,7 @@ class UserTimeServices {
       );
     }
 
-    return userModel.copyWith(userStatus: UserStatus.away);
+    return userModel.copyWith(userWorkStatus: UserWorkStatus.away);
   }
 
   List<DateTime>? getEnterTimes(UserModel? userModel) {

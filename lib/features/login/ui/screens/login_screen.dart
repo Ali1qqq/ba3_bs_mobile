@@ -62,7 +62,7 @@ class LoginScreen extends StatelessWidget {
                           maxLength: 6,
                           obscureText: !userManagementController.isPasswordVisible.value,
                           onFieldSubmitted: (value) {
-                            userManagementController.checkUserStatus();
+                            userManagementController.validateUserInputs();
                           },
                           decoration: InputDecoration(
                             label: const Text('كلمة السر'),
@@ -90,7 +90,7 @@ class LoginScreen extends StatelessWidget {
                     VerticalSpace(20),
                     InkWell(
                       onTap: () {
-                        userManagementController.checkUserStatus();
+                        userManagementController.validateUserInputs();
                       },
                       child: Container(
                         height: 32.h,
