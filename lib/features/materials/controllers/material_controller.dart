@@ -4,21 +4,21 @@ import 'dart:io';
 import 'package:ba3_bs_mobile/core/helper/mixin/app_navigator.dart';
 import 'package:ba3_bs_mobile/core/network/api_constants.dart';
 import 'package:ba3_bs_mobile/core/router/app_routes.dart';
-import 'package:ba3_bs_mobile/core/services/firebase/implementations/repos/queryable_savable_repo.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:get/get.dart';
 
 import '../../../core/helper/enums/enums.dart';
 import '../../../core/services/firebase/implementations/services/firestore_uploader.dart';
 import '../../../core/services/json_file_operations/implementations/import_export_repo.dart';
+import '../../../core/services/local_database/implementations/repos/local_datasource_repo.dart';
 import '../../../core/utils/app_ui_utils.dart';
 import '../data/models/material_model.dart';
 
 class MaterialController extends GetxController with AppNavigator {
   final ImportExportRepository<MaterialModel> _jsonImportExportRepo;
-  final QueryableSavableRepository<MaterialModel> _materialsFirebaseRepo;
+  final LocalDatasourceRepo<MaterialModel> _materialsHiveRepo;
 
-  MaterialController(this._jsonImportExportRepo, this._materialsFirebaseRepo);
+  MaterialController(this._jsonImportExportRepo, this._materialsHiveRepo);
 
   List<MaterialModel> materials = [];
 
@@ -28,12 +28,12 @@ class MaterialController extends GetxController with AppNavigator {
 
   // Fetch materials from the repository
   Future<void> fetchMaterials() async {
-    final result = await _materialsFirebaseRepo.getAll();
-
-    result.fold(
+    final result = await _materialsHiveRepo.getAll();
+    materials.assignAll(result);
+    /*  result.fold(
       (failure) => AppUIUtils.onFailure(failure.message),
       (fetchedMaterials) => materials.assignAll(fetchedMaterials),
-    );
+    );*/
 
     update();
   }

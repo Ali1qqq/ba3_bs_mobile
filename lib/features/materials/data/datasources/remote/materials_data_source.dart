@@ -1,8 +1,8 @@
 // MaterialsDataSource Implementation
-import 'package:ba3_bs_mobile/core/models/date_filter.dart';
-import 'package:ba3_bs_mobile/core/network/api_constants.dart';
 
+import '../../../../../core/models/date_filter.dart';
 import '../../../../../core/models/query_filter.dart';
+import '../../../../../core/network/api_constants.dart';
 import '../../../../../core/services/firebase/interfaces/queryable_savable_datasource.dart';
 import '../../models/material_model.dart';
 
