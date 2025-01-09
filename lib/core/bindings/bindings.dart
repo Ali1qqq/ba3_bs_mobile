@@ -81,8 +81,9 @@ class AppBindings extends Bindings {
   void dependencies() async {
 // Initialize services
     final dioClient = _initializeDioClient();
-    final sharedPreferencesService = await _initializeSharedPreferencesService();
+
     final fireStoreService = _initializeFireStoreService();
+
     final materialsHiveService = await _initializeHiveService<MaterialModel>(boxName: ApiConstants.materials);
 
     final compoundFireStoreService = _initializeCompoundFireStoreService();
@@ -117,7 +118,7 @@ class AppBindings extends Bindings {
     );
 
 // Permanent Controllers
-    _initializePermanentControllers(sharedPreferencesService, repositories);
+    _initializePermanentControllers(repositories);
 
 // Lazy Controllers
     _initializeLazyControllers(repositories);
@@ -125,8 +126,6 @@ class AppBindings extends Bindings {
 
 // Initialize external services
   IAPiClient _initializeDioClient() => DioClient<Map<String, dynamic>>(Dio());
-
-  Future<SharedPreferencesService> _initializeSharedPreferencesService() => putAsync(SharedPreferencesService().init());
 
   IRemoteDatabaseService<Map<String, dynamic>> _initializeFireStoreService() => FireStoreService();
 
@@ -137,6 +136,11 @@ class AppBindings extends Bindings {
         apiKey: ApiConstants.translationApiKey,
         client: dioClient,
       );
+
+  Future<ILocalDatabaseService<T>> _initializeHiveService<T>({required String boxName}) async {
+    var box = await Hive.openBox<T>(boxName);
+    return HiveDatabaseService(box);
+  }
 
 // Repositories Initialization
   _Repositories _initializeRepositories({
@@ -157,36 +161,35 @@ class AppBindings extends Bindings {
   }) {
     return _Repositories(
         translationRepo: TranslationRepository(translationService),
-        patternsRepo: DataSourceRepository(PatternsDataSource(databaseService: fireStoreService)),
-        billsRepo: CompoundDatasourceRepository(BillCompoundDataSource(compoundDatabaseService: compoundFireStoreService)),
-        bondsRepo: CompoundDatasourceRepository(BondCompoundDataSource(compoundDatabaseService: compoundFireStoreService)),
-        chequesRepo: CompoundDatasourceRepository(ChequesCompoundDataSource(compoundDatabaseService: compoundFireStoreService)),
-        rolesRepo: DataSourceRepository(RolesDataSource(databaseService: fireStoreService)),
-        usersRepo: FilterableDataSourceRepository(UsersDataSource(databaseService: fireStoreService)),
-        entryBondsRepo: DataSourceRepository(EntryBondsDataSource(databaseService: fireStoreService)),
+        patternsRepo: RemoteDatasourceRepository(PatternsDatasource(databaseService: fireStoreService)),
+        billsRepo:
+            CompoundDatasourceRepository(BillCompoundDatasource(compoundDatabaseService: compoundFireStoreService)),
+        bondsRepo:
+            CompoundDatasourceRepository(BondCompoundDatasource(compoundDatabaseService: compoundFireStoreService)),
+        chequesRepo:
+            CompoundDatasourceRepository(ChequesCompoundDatasource(compoundDatabaseService: compoundFireStoreService)),
+        rolesRepo: RemoteDatasourceRepository(RolesDatasource(databaseService: fireStoreService)),
+        usersRepo: FilterableDatasourceRepository(UsersDatasource(databaseService: fireStoreService)),
+        entryBondsRepo: RemoteDatasourceRepository(EntryBondsDatasource(databaseService: fireStoreService)),
         accountsStatementsRepo: AccountsStatementsRepository(AccountsStatementsDataSource()),
         billImportExportRepo: ImportExportRepository(billImportService, billExportService),
         chequesImportExportRepo: ImportExportRepository(chequesImportService, chequesExportService),
         userTimeRepo: UserTimeRepository(),
-        sellersRepo: BulkSavableDatasourceRepository(SellersDataSource(databaseService: fireStoreService)),
-        materialsRepo: QueryableSavableRepository(MaterialsDataSource(databaseService: fireStoreService)),
-        accountsRep: BulkSavableDatasourceRepository(AccountsDataSource(databaseService: fireStoreService)),
+        sellersRepo: BulkSavableDatasourceRepository(SellersDatasource(databaseService: fireStoreService)),
+        materialsRepo: QueryableSavableRepository(MaterialsDatasource(databaseService: fireStoreService)),
+        accountsRep: BulkSavableDatasourceRepository(AccountsDatasource(databaseService: fireStoreService)),
         bondImportExportRepo: ImportExportRepository(bondImportService, bondExportService),
         materialImportExportRepo: ImportExportRepository(materialImportService, materialExportService),
         accountImportExportRepo: ImportExportRepository(accountImportService, accountExportService),
-        materialsLocalDatasourceRepo: LocalDatasourceRepo(
-            localDatasource: MaterialsLocalDataSource(materialsHiveService),
-            remoteDatasource: MaterialsDataSource(databaseService: fireStoreService)));
+        materialsLocalDatasourceRepo: LocalDatasourceRepository(
+            localDatasource: MaterialsLocalDatasource(materialsHiveService),
+            remoteDatasource: MaterialsDatasource(databaseService: fireStoreService)));
   }
 
 // Permanent Controllers Initialization
-  void _initializePermanentControllers(SharedPreferencesService sharedPreferencesService, _Repositories repositories) {
+  void _initializePermanentControllers(_Repositories repositories) {
     put(
       SellersController(repositories.sellersRepo),
-      permanent: true,
-    );
-    put(
-      UserManagementController(repositories.rolesRepo, repositories.usersRepo, sharedPreferencesService),
       permanent: true,
     );
   }
@@ -208,23 +211,18 @@ class AppBindings extends Bindings {
     lazyPut(SellerSalesController(repositories.billsRepo, repositories.sellersRepo));
     lazyPut(MaterialController(repositories.materialImportExportRepo, repositories.materialsLocalDatasourceRepo));
   }
-
-  Future<ILocalDatabaseService<T>> _initializeHiveService<T>({required String boxName}) async {
-    var box = await Hive.openBox<T>(boxName);
-    return HiveDatabaseService(box);
-  }
 }
 
 // Helper class to group repositories
 class _Repositories {
   final TranslationRepository translationRepo;
-  final DataSourceRepository<BillTypeModel> patternsRepo;
+  final RemoteDatasourceRepository<BillTypeModel> patternsRepo;
   final CompoundDatasourceRepository<BillModel, BillTypeModel> billsRepo;
   final CompoundDatasourceRepository<BondModel, BondType> bondsRepo;
   final CompoundDatasourceRepository<ChequesModel, ChequesType> chequesRepo;
-  final DataSourceRepository<RoleModel> rolesRepo;
-  final FilterableDataSourceRepository<UserModel> usersRepo;
-  final DataSourceRepository<EntryBondModel> entryBondsRepo;
+  final RemoteDatasourceRepository<RoleModel> rolesRepo;
+  final FilterableDatasourceRepository<UserModel> usersRepo;
+  final RemoteDatasourceRepository<EntryBondModel> entryBondsRepo;
   final AccountsStatementsRepository accountsStatementsRepo;
   final ImportExportRepository<BillModel> billImportExportRepo;
   final ImportExportRepository<BondModel> bondImportExportRepo;
@@ -235,7 +233,7 @@ class _Repositories {
   final BulkSavableDatasourceRepository<SellerModel> sellersRepo;
   final BulkSavableDatasourceRepository<AccountModel> accountsRep;
   final QueryableSavableRepository<MaterialModel> materialsRepo;
-  final LocalDatasourceRepo<MaterialModel> materialsLocalDatasourceRepo;
+  final LocalDatasourceRepository<MaterialModel> materialsLocalDatasourceRepo;
 
   _Repositories({
     required this.translationRepo,

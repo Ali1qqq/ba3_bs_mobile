@@ -6,8 +6,8 @@ import '../../../../../core/network/api_constants.dart';
 import '../../../../../core/services/firebase/interfaces/queryable_savable_datasource.dart';
 import '../../models/material_model.dart';
 
-class MaterialsDataSource extends QueryableSavableDatasource<MaterialModel> {
-  MaterialsDataSource({required super.databaseService});
+class MaterialsDatasource extends QueryableSavableDatasource<MaterialModel> {
+  MaterialsDatasource({required super.databaseService});
 
   @override
   String get path => ApiConstants.materials; // Collection name in Firestore

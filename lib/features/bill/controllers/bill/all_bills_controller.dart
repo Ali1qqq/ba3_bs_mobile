@@ -29,7 +29,7 @@ import 'bill_search_controller.dart';
 
 class AllBillsController extends FloatingBillDetailsLauncher with AppNavigator {
   // Repositories
-  final DataSourceRepository<BillTypeModel> _patternsFirebaseRepo;
+  final RemoteDatasourceRepository<BillTypeModel> _patternsFirebaseRepo;
   final CompoundDatasourceRepository<BillModel, BillTypeModel> _billsFirebaseRepo;
   final ImportExportRepository<BillModel> _jsonImportExportRepo;
 

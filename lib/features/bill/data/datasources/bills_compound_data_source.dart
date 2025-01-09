@@ -6,8 +6,8 @@ import '../../../../core/models/query_filter.dart';
 import '../../../patterns/data/models/bill_type_model.dart';
 import '../models/bill_model.dart';
 
-class BillCompoundDataSource extends CompoundDatasourceBase<BillModel, BillTypeModel> {
-  BillCompoundDataSource({required super.compoundDatabaseService});
+class BillCompoundDatasource extends CompoundDatasourceBase<BillModel, BillTypeModel> {
+  BillCompoundDatasource({required super.compoundDatabaseService});
 
   // Parent Collection (e.g., "bills", "bonds")
   @override

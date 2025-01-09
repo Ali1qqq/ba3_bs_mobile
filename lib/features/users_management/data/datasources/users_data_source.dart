@@ -6,8 +6,8 @@ import '../../../../core/models/date_filter.dart';
 import '../../../../core/models/query_filter.dart';
 import '../models/user_model.dart';
 
-class UsersDataSource extends FilterableDatasource<UserModel> {
-  UsersDataSource({required super.databaseService});
+class UsersDatasource extends FilterableDatasource<UserModel> {
+  UsersDatasource({required super.databaseService});
 
   @override
   String get path => ApiConstants.users; // Collection name in Firestore

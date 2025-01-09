@@ -1,28 +1,59 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/helper/extensions/getx_controller_extensions.dart';
+import '../../../../core/services/firebase/implementations/repos/filterable_datasource_repo.dart';
+import '../../../../core/services/firebase/implementations/repos/remote_datasource_repo.dart';
+import '../../../../core/services/firebase/implementations/services/firestore_service.dart';
+import '../../../../core/services/get_x/shared_preferences_service.dart';
 import '../../../users_management/controllers/user_management_controller.dart';
+import '../../../users_management/data/datasources/roles_data_source.dart';
+import '../../../users_management/data/datasources/users_data_source.dart';
 
 class SplashScreen extends StatelessWidget {
   const SplashScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-
-
-    WidgetsFlutterBinding.ensureInitialized().waitUntilFirstFrameRasterized.then((value) {
-      _checkUserStatus();
-    },);
-
-
-    return const Scaffold(
-      body: Center(
-        child: Text('يتم تسجيل الدخول'),
-      ),
+    return FutureBuilder(
+      future: _initializeApp(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
+        } else if (snapshot.hasError) {
+          return Scaffold(
+            body: Center(
+              child: Text("Error: ${snapshot.error}"),
+            ),
+          );
+        } else {
+          _navigateToLogin();
+          return const Scaffold(
+            body: Center(child: Text('Redirecting...')),
+          );
+        }
+      },
     );
   }
 
-  void _checkUserStatus() {
-    read<UserManagementController>().navigateToLogin();
+  Future<void> _initializeApp() async {
+    final sharedPreferencesService = await putAsync(SharedPreferencesService().init());
+    final fireStoreService = FireStoreService();
+
+    final rolesRepo = RemoteDatasourceRepository(RolesDatasource(databaseService: fireStoreService));
+    final usersRepo = FilterableDatasourceRepository(UsersDatasource(databaseService: fireStoreService));
+
+    put(
+      UserManagementController(rolesRepo, usersRepo, sharedPreferencesService),
+      permanent: true,
+    );
+  }
+
+  void _navigateToLogin() {
+    // Delay navigation until after the current frame
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      read<UserManagementController>().navigateToLogin();
+    });
   }
 }

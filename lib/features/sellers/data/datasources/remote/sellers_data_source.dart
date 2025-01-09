@@ -4,8 +4,8 @@ import 'package:ba3_bs_mobile/core/services/firebase/interfaces/bulk_savable_dat
 
 import '../../models/seller_model.dart';
 
-class SellersDataSource extends BulkSavableDatasource<SellerModel> {
-  SellersDataSource({required super.databaseService});
+class SellersDatasource extends BulkSavableDatasource<SellerModel> {
+  SellersDatasource({required super.databaseService});
 
   @override
   String get path => ApiConstants.sellers; // Collection name in Firestore

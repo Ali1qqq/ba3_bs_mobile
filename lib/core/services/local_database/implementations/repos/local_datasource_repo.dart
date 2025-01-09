@@ -1,24 +1,30 @@
+import 'dart:developer';
+
 import '../../../firebase/interfaces/remote_datasource_base.dart';
 import '../../interfaces/local_datasource_base.dart';
 
-class LocalDatasourceRepo<T> {
+class LocalDatasourceRepository<T> {
   final LocalDatasourceBase<T> localDatasource;
   final RemoteDatasourceBase<T> remoteDatasource;
 
-  LocalDatasourceRepo({
+  LocalDatasourceRepository({
     required this.localDatasource,
     required this.remoteDatasource,
   });
 
   Future<List<T>> getAll() async {
+    log('getAll');
     final localData = await localDatasource.getAllData();
     if (localData.isNotEmpty) {
+      log('localData ${localData.length}');
       return localData;
     }
 
     // Fetch from remote if local is empty
     final remoteData = await remoteDatasource.fetchAll();
     await localDatasource.saveAllData(remoteData);
+    log('remoteData ${remoteData.length}');
+
     return remoteData;
   }
 

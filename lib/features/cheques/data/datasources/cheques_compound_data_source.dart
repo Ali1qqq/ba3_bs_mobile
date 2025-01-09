@@ -6,8 +6,8 @@ import '../../../../core/models/date_filter.dart';
 import '../../../../core/services/firebase/interfaces/compound_datasource_base.dart';
 import '../models/cheques_model.dart';
 
-class ChequesCompoundDataSource extends CompoundDatasourceBase<ChequesModel, ChequesType> {
-  ChequesCompoundDataSource({required super.compoundDatabaseService});
+class ChequesCompoundDatasource extends CompoundDatasourceBase<ChequesModel, ChequesType> {
+  ChequesCompoundDatasource({required super.compoundDatabaseService});
 
   // Parent Collection (e.g., "chequess", "chequess")
   @override

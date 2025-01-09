@@ -7,7 +7,7 @@ import '../../../../network/error/error_handler.dart';
 import '../../../../network/error/failure.dart';
 import 'remote_datasource_repo.dart';
 
-class ListenDataSourceRepository<T> extends DataSourceRepository<T> {
+class ListenDataSourceRepository<T> extends RemoteDatasourceRepository<T> {
   final ListenableDatasource<T> _listenableDatasource;
 
   ListenDataSourceRepository(this._listenableDatasource) : super(_listenableDatasource);

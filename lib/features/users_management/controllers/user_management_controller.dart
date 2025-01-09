@@ -25,9 +25,9 @@ import '../services/role_form_handler.dart';
 import '../services/user_form_handler.dart';
 
 class UserManagementController extends GetxController with AppNavigator {
-  final DataSourceRepository<RoleModel> _rolesFirebaseRepo;
+  final RemoteDatasourceRepository<RoleModel> _rolesFirebaseRepo;
 
-  final FilterableDataSourceRepository<UserModel> _usersFirebaseRepo;
+  final FilterableDatasourceRepository<UserModel> _usersFirebaseRepo;
 
   final SharedPreferencesService _sharedPreferencesService;
 

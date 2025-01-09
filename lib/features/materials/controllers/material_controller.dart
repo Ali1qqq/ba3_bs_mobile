@@ -5,6 +5,7 @@ import 'package:ba3_bs_mobile/core/helper/mixin/app_navigator.dart';
 import 'package:ba3_bs_mobile/core/network/api_constants.dart';
 import 'package:ba3_bs_mobile/core/router/app_routes.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 
 import '../../../core/helper/enums/enums.dart';
@@ -16,7 +17,7 @@ import '../data/models/material_model.dart';
 
 class MaterialController extends GetxController with AppNavigator {
   final ImportExportRepository<MaterialModel> _jsonImportExportRepo;
-  final LocalDatasourceRepo<MaterialModel> _materialsHiveRepo;
+  final LocalDatasourceRepository<MaterialModel> _materialsHiveRepo;
 
   MaterialController(this._jsonImportExportRepo, this._materialsHiveRepo);
 
@@ -28,14 +29,21 @@ class MaterialController extends GetxController with AppNavigator {
 
   // Fetch materials from the repository
   Future<void> fetchMaterials() async {
-    final result = await _materialsHiveRepo.getAll();
-    materials.assignAll(result);
-    /*  result.fold(
-      (failure) => AppUIUtils.onFailure(failure.message),
-      (fetchedMaterials) => materials.assignAll(fetchedMaterials),
-    );*/
+    try {
+      final result = await _materialsHiveRepo.getAll();
+      materials.assignAll(result);
+      update();
+    } catch (e) {
+      debugPrint("Error fetching materials: $e");
+    }
+  }
 
-    update();
+  Future<void> reloadMaterialsIfEmpty() async {
+    if (materials.isEmpty) {
+      log('Fetching materials started...');
+      await fetchMaterials();
+      log('Fetching materials ended...');
+    }
   }
 
   Future<void> fetchAllMaterialFromLocal() async {
@@ -86,13 +94,6 @@ class MaterialController extends GetxController with AppNavigator {
     to(AppRoutes.showAllMaterialsScreen);
   }
 
-  Future<void> reloadMaterialsIfEmpty() async {
-    if (materials.isEmpty) {
-      log('Fetching materials...');
-      await fetchMaterials();
-    }
-  }
-
   Future<List<MaterialModel>> searchOfProductByText(query) async {
     await reloadMaterialsIfEmpty();
 
@@ -131,7 +132,8 @@ class MaterialController extends GetxController with AppNavigator {
 
     reloadMaterialsIfEmpty();
 
-    final String matBarCode = materials.firstWhere((material) => material.id == id, orElse: () => MaterialModel()).matBarCode ?? '0';
+    final String matBarCode =
+        materials.firstWhere((material) => material.id == id, orElse: () => MaterialModel()).matBarCode ?? '0';
 
     return matBarCode;
   }

@@ -13,7 +13,7 @@ import '../data/repositories/user_time_repo.dart';
 import '../services/user_time_services.dart';
 
 class UserTimeController extends GetxController {
-  final FilterableDataSourceRepository<UserModel> _usersFirebaseRepo;
+  final FilterableDatasourceRepository<UserModel> _usersFirebaseRepo;
   final UserTimeRepository _userTimeRepo;
 
   UserTimeController(this._usersFirebaseRepo, this._userTimeRepo);

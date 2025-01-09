@@ -6,8 +6,8 @@ import '../../../../core/models/date_filter.dart';
 import '../../../../core/services/firebase/interfaces/compound_datasource_base.dart';
 import '../models/bond_model.dart';
 
-class BondCompoundDataSource extends CompoundDatasourceBase<BondModel, BondType> {
-  BondCompoundDataSource({required super.compoundDatabaseService});
+class BondCompoundDatasource extends CompoundDatasourceBase<BondModel, BondType> {
+  BondCompoundDatasource({required super.compoundDatabaseService});
 
   // Parent Collection (e.g., "bonds", "bonds")
   @override

@@ -3,8 +3,8 @@ import 'package:ba3_bs_mobile/core/network/api_constants.dart';
 import 'package:ba3_bs_mobile/core/services/firebase/interfaces/remote_datasource_base.dart';
 import 'package:ba3_bs_mobile/features/bond/data/models/entry_bond_model.dart';
 
-class EntryBondsDataSource extends RemoteDatasourceBase<EntryBondModel> {
-  EntryBondsDataSource({required super.databaseService});
+class EntryBondsDatasource extends RemoteDatasourceBase<EntryBondModel> {
+  EntryBondsDatasource({required super.databaseService});
 
   @override
   String get path => ApiConstants.entryBonds; // Collection name in Firestore

@@ -7,7 +7,7 @@ import '../../../../network/error/error_handler.dart';
 import '../../../../network/error/failure.dart';
 import 'remote_datasource_repo.dart';
 
-class BulkSavableDatasourceRepository<T> extends DataSourceRepository<T> {
+class BulkSavableDatasourceRepository<T> extends RemoteDatasourceRepository<T> {
   final BulkSavableDatasource<T> _bulkSavableDatasource;
 
   BulkSavableDatasourceRepository(this._bulkSavableDatasource) : super(_bulkSavableDatasource);
