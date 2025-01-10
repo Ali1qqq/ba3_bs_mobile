@@ -1,5 +1,9 @@
 import 'dart:developer';
 
+import 'package:dartz/dartz.dart';
+
+import '../../../../network/error/error_handler.dart';
+import '../../../../network/error/failure.dart';
 import '../../../firebase/interfaces/remote_datasource_base.dart';
 import '../../interfaces/local_datasource_base.dart';
 
@@ -13,7 +17,6 @@ class LocalDatasourceRepository<T> {
   });
 
   Future<List<T>> getAll() async {
-    log('getAll');
     final localData = await localDatasource.getAllData();
     if (localData.isNotEmpty) {
       log('localData ${localData.length}');
@@ -42,8 +45,17 @@ class LocalDatasourceRepository<T> {
     return remoteData;
   }
 
-  Future<void> save(T data) async {
-    await localDatasource.saveData(data);
+  Future<Either<Failure, T>> save(T data) async {
+    try {
+      final savedItem = await remoteDatasource.save(data);
+
+      await localDatasource.saveData(data);
+
+      return Right(savedItem); // Return success
+    } catch (e) {
+      log('Error in save on LocalDatasourceRepository: $e');
+      return Left(ErrorHandler(e).failure); // Return error
+    }
   }
 
   Future<void> saveAll(List<T> data) async {

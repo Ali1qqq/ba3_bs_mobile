@@ -25,7 +25,7 @@ import '../services/role_form_handler.dart';
 import '../services/user_form_handler.dart';
 
 class UserManagementController extends GetxController with AppNavigator {
-  final RemoteDatasourceRepository<RoleModel> _rolesFirebaseRepo;
+  final RemoteDataSourceRepository<RoleModel> _rolesFirebaseRepo;
 
   final FilterableDatasourceRepository<UserModel> _usersFirebaseRepo;
 
@@ -90,6 +90,12 @@ class UserManagementController extends GetxController with AppNavigator {
       return null;
     }
   }
+
+  List<UserModel> get userHaveChanges => allUsers
+      .where(
+        (user) => user.userId != loggedInUserModel?.userId,
+      )
+      .toList();
 
   // Check if all roles are selected
   bool areAllRolesSelected() => RoleItemType.values.every((type) => roleFormHandler.rolesMap[type]?.length == RoleItem.values.length);

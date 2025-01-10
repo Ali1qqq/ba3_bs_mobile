@@ -6,10 +6,10 @@ import 'package:dartz/dartz.dart';
 
 import '../../interfaces/remote_datasource_base.dart';
 
-class RemoteDatasourceRepository<T> {
+class RemoteDataSourceRepository<T> {
   final RemoteDatasourceBase<T> _dataSource;
 
-  RemoteDatasourceRepository(this._dataSource);
+  RemoteDataSourceRepository(this._dataSource);
 
   Future<Either<Failure, List<T>>> getAll() async {
     try {

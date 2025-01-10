@@ -17,6 +17,7 @@ import '../../features/bill/ui/screens/bill_details_screen.dart';
 import '../../features/bond/ui/screens/bond_details_screen.dart';
 import '../../features/cheques/ui/screens/all_cheques_view.dart';
 import '../../features/login/ui/screens/login_screen.dart';
+import '../../features/materials/ui/screens/add_material_screen.dart';
 import '../../features/patterns/ui/screens/all_pattern_screen.dart';
 import '../../features/sellers/ui/screens/add_seller_screen.dart';
 import '../../features/sellers/ui/screens/all_sellers_screen.dart';
@@ -119,5 +120,9 @@ List<GetPage<dynamic>>? appRouter = [
   GetPage(
     name: AppRoutes.sellerSalesScreen,
     page: () => const SellerSalesScreen(),
+  ),
+  GetPage(
+    name: AppRoutes.addMaterialScreen,
+    page: () => const AddMaterialScreen(),
   ),
 ];

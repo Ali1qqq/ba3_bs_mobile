@@ -9,7 +9,7 @@ import '../../../../network/error/error_handler.dart';
 import '../../../../network/error/failure.dart';
 import 'remote_datasource_repo.dart';
 
-class QueryableSavableRepository<T> extends RemoteDatasourceRepository<T> {
+class QueryableSavableRepository<T> extends RemoteDataSourceRepository<T> {
   final QueryableSavableDatasource<T> _queryableSavableDatasource;
 
   QueryableSavableRepository(this._queryableSavableDatasource) : super(_queryableSavableDatasource);

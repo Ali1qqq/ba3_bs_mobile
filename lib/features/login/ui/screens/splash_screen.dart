@@ -41,7 +41,7 @@ class SplashScreen extends StatelessWidget {
     final sharedPreferencesService = await putAsync(SharedPreferencesService().init());
     final fireStoreService = FireStoreService();
 
-    final rolesRepo = RemoteDatasourceRepository(RolesDatasource(databaseService: fireStoreService));
+    final rolesRepo = RemoteDataSourceRepository(RolesDatasource(databaseService: fireStoreService));
     final usersRepo = FilterableDatasourceRepository(UsersDatasource(databaseService: fireStoreService));
 
     put(

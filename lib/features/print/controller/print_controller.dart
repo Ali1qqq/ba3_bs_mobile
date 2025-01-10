@@ -160,7 +160,7 @@ class PrintingController extends GetxController {
       vatAmount += recordTotals['vatTotal']!;
 
       // Generate item details
-      itemBytes += await _generateItemDetails(generator, material!, record, recordTotals);
+      itemBytes += await _generateItemDetails(generator, material, record, recordTotals);
     }
 
     return (bytes: itemBytes, totals: {'netAmount': netAmount, 'vatAmount': vatAmount});

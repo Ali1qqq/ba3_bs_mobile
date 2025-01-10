@@ -1,6 +1,6 @@
 import 'dart:developer';
 
-import 'package:ba3_bs_mobile/core/helper/extensions/string_extension.dart';
+import 'package:ba3_bs_mobile/core/helper/extensions/bisc/string_extension.dart';
 import 'package:ba3_bs_mobile/core/widgets/app_spacer.dart';
 import 'package:ba3_bs_mobile/features/bill/controllers/bill/bill_search_controller.dart';
 import 'package:ba3_bs_mobile/features/patterns/data/models/bill_type_model.dart';

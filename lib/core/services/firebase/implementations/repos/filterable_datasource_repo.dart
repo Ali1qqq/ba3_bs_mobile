@@ -9,7 +9,7 @@ import '../../../../network/error/error_handler.dart';
 import '../../../../network/error/failure.dart';
 import 'remote_datasource_repo.dart';
 
-class FilterableDatasourceRepository<T> extends RemoteDatasourceRepository<T> {
+class FilterableDatasourceRepository<T> extends RemoteDataSourceRepository<T> {
   final FilterableDatasource<T> _filterableDatasource;
 
   FilterableDatasourceRepository(this._filterableDatasource) : super(_filterableDatasource);

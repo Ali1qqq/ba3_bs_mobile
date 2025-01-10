@@ -1,5 +1,5 @@
 import 'package:ba3_bs_mobile/core/constants/app_constants.dart';
-import 'package:ba3_bs_mobile/core/helper/extensions/string_extension.dart';
+import 'package:ba3_bs_mobile/core/helper/extensions/bisc/string_extension.dart';
 import 'package:math_expressions/math_expressions.dart';
 import 'package:pluto_grid/pluto_grid.dart';
 
@@ -34,7 +34,7 @@ class BillPlutoUtils {
   bool isValidItemQuantity(PlutoRow row, String cellKey) {
     final String cellValue = row.cells[cellKey]?.value.toString() ?? '';
 
-    int invRecQuantity = AppServiceUtils.replaceArabicNumbersWithEnglish(cellValue).toInt ?? 0;
+    int invRecQuantity = AppServiceUtils.replaceArabicNumbersWithEnglish(cellValue).toInt;
 
     return invRecQuantity > 0;
   }

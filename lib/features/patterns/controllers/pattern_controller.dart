@@ -13,7 +13,7 @@ import '../data/models/bill_type_model.dart';
 import '../services/pattern_form_handler.dart';
 
 class PatternController extends GetxController with AppNavigator {
-  final RemoteDatasourceRepository<BillTypeModel> _repository;
+  final RemoteDataSourceRepository<BillTypeModel> _repository;
 
   PatternController(this._repository) {
     getAllBillTypes();

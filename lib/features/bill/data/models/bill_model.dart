@@ -1,8 +1,8 @@
 import 'package:ba3_bs_mobile/core/helper/enums/enums.dart';
 import 'package:ba3_bs_mobile/core/helper/extensions/bill_pattern_type_extension.dart';
+import 'package:ba3_bs_mobile/core/helper/extensions/bisc/string_extension.dart';
 import 'package:ba3_bs_mobile/core/helper/extensions/date_fromat_extension.dart';
 import 'package:ba3_bs_mobile/core/helper/extensions/date_time_extensions.dart';
-import 'package:ba3_bs_mobile/core/helper/extensions/string_extension.dart';
 import 'package:ba3_bs_mobile/core/utils/app_service_utils.dart';
 import 'package:ba3_bs_mobile/features/accounts/controllers/accounts_controller.dart';
 import 'package:ba3_bs_mobile/features/accounts/data/models/account_model.dart';
@@ -129,7 +129,7 @@ class BillModel extends PlutoAdaptable with EquatableMixin {
                 );
                 return BillItem(
                   itemGuid: item['MatPtr'],
-                  itemQuantity: (item['QtyBonus'].split(',').first as String).toInt ?? 0,
+                  itemQuantity: (item['QtyBonus'].split(',').first as String).toInt,
                   itemTotalPrice: item['PriceDescExtra'].split(',').first,
                   itemSubTotalPrice: AppServiceUtils.calcSubtotal(
                     (item['QtyBonus'].split(',').first as String).toInt,
@@ -151,7 +151,7 @@ class BillModel extends PlutoAdaptable with EquatableMixin {
                 ? [
                     BillItem(
                       itemGuid: billData['Items']['I']['MatPtr'],
-                      itemQuantity: (billData['Items']['I']['QtyBonus'].split(',').first as String).toInt ?? 0,
+                      itemQuantity: (billData['Items']['I']['QtyBonus'].split(',').first as String).toInt,
                       itemTotalPrice: billData['Items']['I']['PriceDescExtra'].split(',').first,
                       itemSubTotalPrice: AppServiceUtils.calcSubtotal(
                         (billData['Items']['I']['QtyBonus'].split(',').first as String).toInt,

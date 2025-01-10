@@ -1,6 +1,6 @@
 import 'package:ba3_bs_mobile/core/helper/enums/enums.dart';
+import 'package:ba3_bs_mobile/core/helper/extensions/bisc/string_extension.dart';
 import 'package:ba3_bs_mobile/core/helper/extensions/date_time_extensions.dart';
-import 'package:ba3_bs_mobile/core/helper/extensions/string_extension.dart';
 import 'package:ba3_bs_mobile/features/accounts/controllers/accounts_controller.dart';
 import 'package:ba3_bs_mobile/features/cheques/data/models/cheques_model.dart';
 import 'package:flutter/cupertino.dart';
@@ -198,8 +198,8 @@ class ChequesDetailsController extends GetxController with AppValidator {
   void updateChequesDetailsOnScreen(
     ChequesModel cheques,
   ) {
-    setChequesDate(cheques.chequesDate!.toDate!);
-    setChequesDueDate(cheques.chequesDueDate!.toDate!);
+    setChequesDate(cheques.chequesDate!.toDate);
+    setChequesDueDate(cheques.chequesDueDate!.toDate);
     setIsPayed(cheques.isPayed ?? false);
     setTowAccount(read<AccountsController>().getAccountModelById(cheques.chequesAccount2Guid)!);
     setFirstAccount(read<AccountsController>().getAccountModelById(cheques.accPtr) ?? AccountModel());

@@ -13,7 +13,7 @@ import '../../../accounts/data/datasources/remote/accounts_statements_data_sourc
 import '../../data/models/entry_bond_model.dart';
 
 class EntryBondController extends GetxController with FloatingLauncher {
-  final RemoteDatasourceRepository<EntryBondModel> _entryBondsFirebaseRepo;
+  final RemoteDataSourceRepository<EntryBondModel> _entryBondsFirebaseRepo;
 
   final AccountsStatementsRepository _accountsStatementsRepo;
 

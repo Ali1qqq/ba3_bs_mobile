@@ -37,8 +37,10 @@ extension RoleItemTypeExtension on RoleItemType {
 
     // Return false if userModel or userRoleId is null
     if (userModel == null || userModel.userRoleId == null) return false;
+
     // Retrieve the RoleModel based on the user's role ID
     final roleModel = userManagementController.getRoleById(userModel.userRoleId!);
+
     // Check if roleModel is null
     if (roleModel == null) return false;
 

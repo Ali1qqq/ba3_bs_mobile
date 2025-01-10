@@ -1,6 +1,7 @@
 // MaterialsDataSource Implementation
 
-import '../../../../../core/services/local_database/interfaces/local_datasource_base.dart';
+import 'package:ba3_bs_mobile/core/services/local_database/interfaces/local_datasource_base.dart';
+
 import '../../models/material_model.dart';
 
 class MaterialsLocalDatasource extends LocalDatasourceBase<MaterialModel> {

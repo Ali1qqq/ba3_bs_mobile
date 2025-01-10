@@ -1,4 +1,4 @@
-import 'package:ba3_bs_mobile/core/helper/extensions/string_extension.dart';
+import 'package:ba3_bs_mobile/core/helper/extensions/bisc/string_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:pluto_grid/pluto_grid.dart';
@@ -178,7 +178,7 @@ class AppServiceUtils {
   static int getItemQuantity(PlutoRow row, String cellKey) {
     final String cellValue = row.cells[cellKey]?.value.toString() ?? '';
 
-    int invRecQuantity = AppServiceUtils.replaceArabicNumbersWithEnglish(cellValue).toInt ?? 1;
+    int invRecQuantity = AppServiceUtils.replaceArabicNumbersWithEnglish(cellValue).toInt;
 
     return invRecQuantity;
   }

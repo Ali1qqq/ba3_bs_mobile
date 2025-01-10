@@ -1,7 +1,7 @@
 import 'package:ba3_bs_mobile/core/constants/app_constants.dart';
 import 'package:ba3_bs_mobile/core/constants/app_strings.dart';
 import 'package:ba3_bs_mobile/core/helper/enums/enums.dart';
-import 'package:ba3_bs_mobile/core/helper/extensions/string_extension.dart';
+import 'package:ba3_bs_mobile/core/helper/extensions/bisc/string_extension.dart';
 import 'package:ba3_bs_mobile/features/pluto/data/models/pluto_adaptable.dart';
 import 'package:pluto_grid/pluto_grid.dart';
 
@@ -312,8 +312,8 @@ class ChequesModel implements PlutoAdaptable {
           )): chequesVal,
       PlutoColumn(title: "الحساب", field: AppConstants.chequesAccount2Guid, type: PlutoColumnType.text()): chequesAccount2Name,
       PlutoColumn(title: "دفع الى", field: AppConstants.accPtr, type: PlutoColumnType.text()): accPtrName,
-      PlutoColumn(title: "تاريخ التحرير", field: AppConstants.chequesDate, type: PlutoColumnType.date()): chequesDate.toDate,
-      PlutoColumn(title: "تاريخ الاستحقاق", field: AppConstants.chequesDueDate, type: PlutoColumnType.date()): chequesDueDate.toDate,
+      PlutoColumn(title: "تاريخ التحرير", field: AppConstants.chequesDate, type: PlutoColumnType.date()): chequesDate?.toDate,
+      PlutoColumn(title: "تاريخ الاستحقاق", field: AppConstants.chequesDueDate, type: PlutoColumnType.date()): chequesDueDate?.toDate,
       PlutoColumn(title: "البيان", field: AppConstants.chequesNote, type: PlutoColumnType.text()): chequesNote,
       PlutoColumn(title: "نوع الشيك", field: AppConstants.chequesTypeGuid, type: PlutoColumnType.text()):
           ChequesType.byTypeGuide(chequesTypeGuid!).value,
