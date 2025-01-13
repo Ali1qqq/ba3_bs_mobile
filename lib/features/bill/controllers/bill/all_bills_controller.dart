@@ -266,7 +266,7 @@ class AllBillsController extends FloatingBillDetailsLauncher with AppNavigator {
     BillModel? billModel,
   }) async {
     plutoGridIsLoading = false;
-    read<MaterialController>().reloadMaterialsIfEmpty();
+    read<MaterialController>().reloadMaterials();
 
     await fetchAllBillsByType(billTypeModel);
 

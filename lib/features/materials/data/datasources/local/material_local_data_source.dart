@@ -1,7 +1,6 @@
 // MaterialsDataSource Implementation
 
-import 'package:ba3_bs_mobile/core/services/local_database/interfaces/local_datasource_base.dart';
-
+import '../../../../../core/services/local_database/interfaces/local_datasource_base.dart';
 import '../../models/material_model.dart';
 
 class MaterialsLocalDatasource extends LocalDatasourceBase<MaterialModel> {
@@ -20,7 +19,10 @@ class MaterialsLocalDatasource extends LocalDatasourceBase<MaterialModel> {
   Future<MaterialModel?> getDataById(String id) => database.fetchById(id);
 
   @override
-  Future<void> removeData(String id) => database.delete(id);
+  Future<void> removeData(MaterialModel item) => database.delete(item);
+
+  @override
+  Future<void> removeAllData(List<MaterialModel> data) => database.deleteAll(data);
 
   @override
   Future<void> clearAllData() => database.clear();

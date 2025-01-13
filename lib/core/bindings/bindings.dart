@@ -47,6 +47,7 @@ import '../../features/bond/data/datasources/bonds_compound_data_source.dart';
 import '../../features/bond/data/models/bond_model.dart';
 import '../../features/bond/data/models/entry_bond_model.dart';
 import '../../features/bond/service/bond/bond_export.dart';
+import '../../features/changes/controller/changes_controller.dart';
 import '../../features/changes/data/datasources/changes_datasource.dart';
 import '../../features/changes/data/model/changes_model.dart';
 import '../../features/cheques/service/cheques_export.dart';
@@ -117,6 +118,7 @@ class AppBindings extends Bindings {
       chequesImportService: chequesImport,
       materialsHiveService: materialsHiveService,
     );
+    lazyPut(repositories.listenableDatasourceRepo);
 
 // Permanent Controllers
     _initializePermanentControllers(repositories);
@@ -216,6 +218,9 @@ class AppBindings extends Bindings {
       repositories.materialsLocalDatasourceRepo,
       repositories.listenableDatasourceRepo,
     ));
+    lazyPut(
+      ChangesController(repositories.listenableDatasourceRepo),
+    );
   }
 }
 

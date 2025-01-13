@@ -5,10 +5,10 @@ String generateId(RecordType recordType) {
   switch (recordType) {
     case RecordType.bond:
       return "bon$epoch";
-    case RecordType.invoice:
-      return "inv$epoch";
-    case RecordType.product:
-      return "prod$epoch";
+    case RecordType.bills:
+      return "bil$epoch";
+    case RecordType.material:
+      return "mat$epoch";
     case RecordType.account:
       return "acc$epoch";
     case RecordType.pattern:

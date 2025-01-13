@@ -20,6 +20,7 @@ import '../../../core/helper/enums/enums.dart';
 import '../../../core/services/firebase/implementations/repos/listen_datasource_repo.dart';
 import '../../../core/services/firebase/implementations/services/firestore_uploader.dart';
 import '../../../core/services/json_file_operations/implementations/import_export_repo.dart';
+import '../../../core/utils/app_service_utils.dart';
 import '../../../core/utils/app_ui_utils.dart';
 import '../data/models/material_model.dart';
 
@@ -40,10 +41,11 @@ class MaterialController extends GetxController with AppNavigator {
   late MaterialFromHandler materialFromHandler;
   late MaterialService _materialService;
 
+  bool get isFromHandler => selectedMaterial == null ? false : true;
+
   @override
   onInit() {
     super.onInit();
-
     _initializer();
   }
 
@@ -57,21 +59,41 @@ class MaterialController extends GetxController with AppNavigator {
   Rx<RequestState> saveAllMaterialsRequestState = RequestState.initial.obs;
 
   Future<void> fetchMaterials() async {
-    try {
-      final result = await _materialsHiveRepo.getAll();
-      materials.assignAll(result);
-      update();
-    } catch (e) {
-      debugPrint("Error fetching materials: $e");
-    }
+    final result = await _materialsHiveRepo.getAll();
+
+    result.fold(
+      (failure) => AppUIUtils.onFailure(failure.message),
+      (fetchedMaterial) => materials.assignAll(fetchedMaterial),
+    );
   }
 
-  Future<void> reloadMaterialsIfEmpty() async {
-    if (materials.isEmpty) {
-      log('Fetching materials started...');
-      await fetchMaterials();
-      log('Fetching materials ended...');
-    }
+  Future<void> reloadMaterials() async {
+    await fetchMaterials();
+  }
+
+  Future<void> saveAllMaterial(List<MaterialModel> materialsToSave) async {
+    final result = await _materialsHiveRepo.saveAll(materialsToSave);
+
+    result.fold((failure) => AppUIUtils.onFailure(failure.message), (savedMaterials) {
+      log('materials length before add item: ${materials.length}');
+      AppUIUtils.onSuccess('تم الحفظ بنجاح');
+      reloadMaterials();
+      log('materials length after add item: ${materials.length}');
+    });
+  }
+
+  Future<void> deleteAllMaterial(List<MaterialModel> materialsToDelete) async {
+    // Filter materials that match the IDs in materialsToDelete
+
+    final copiedMaterials = materials.where((material) => materialsToDelete.any((e) => e.id == material.id)).toList();
+    // Attempt to delete all matched materials
+
+    final result = await _materialsHiveRepo.deleteAll(copiedMaterials);
+
+    result.fold(
+      (failure) => AppUIUtils.onFailure(failure.message),
+      (_) => reloadMaterials(), // Remove all deleted materials
+    );
   }
 
   Future<void> fetchAllMaterialFromLocal() async {
@@ -118,11 +140,11 @@ class MaterialController extends GetxController with AppNavigator {
   }
 
   Future<List<MaterialModel>> searchOfProductByText(query) async {
-    await reloadMaterialsIfEmpty();
+    await reloadMaterials();
 
     List<MaterialModel> searchedMaterials = [];
 
-    query = replaceArabicNumbersWithEnglish(query);
+    query = AppServiceUtils.replaceArabicNumbersWithEnglish(query);
 
     String query2 = '';
     String query3 = '';
@@ -154,16 +176,15 @@ class MaterialController extends GetxController with AppNavigator {
   String getMaterialBarcodeById(String? id) {
     if (id == null || id.isEmpty) return '0';
 
-    reloadMaterialsIfEmpty();
+    reloadMaterials();
 
     final String matBarCode = materials.firstWhere((material) => material.id == id, orElse: () => MaterialModel()).matBarCode ?? '0';
 
     return matBarCode;
   }
 
-  MaterialModel getMaterialById(String id) {
-    reloadMaterialsIfEmpty();
-    return materials.firstWhere((material) => material.id == id);
+  MaterialModel? getMaterialById(String id) {
+    return materials.firstWhereOrNull((material) => material.id == id);
   }
 
   MaterialModel? getMaterialByName(name) {
@@ -173,78 +194,113 @@ class MaterialController extends GetxController with AppNavigator {
     return null;
   }
 
-  String replaceArabicNumbersWithEnglish(String input) {
-    return input.replaceAllMapped(RegExp(r'[٠-٩]'), (Match match) {
-      return String.fromCharCode(match.group(0)!.codeUnitAt(0) - 0x0660 + 0x0030);
-    });
-  }
-
   void saveOrUpdateMaterial() async {
+    // Validate the input before proceeding
     if (!materialFromHandler.validate()) return;
-
-    // Create the material model from the provided data
-    final updatedMaterialModel = _materialService.createMaterialModel(
-      matVatGuid: materialFromHandler.selectedTax.value.taxGuid!,
-      matGroupGuid: materialFromHandler.parentModel?.id ?? '',
-      wholesalePrice: materialFromHandler.wholePriceController.text,
-      retailPrice: materialFromHandler.retailPriceController.text,
-      matName: materialFromHandler.nameController.text,
-      matCode: materialFromHandler.codeController.text.toInt,
-      matBarCode: materialFromHandler.barcodeController.text,
-      endUserPrice: materialFromHandler.customerPriceController.text,
-      materialModel: selectedMaterial,
-    );
-
+    // Create a material model based on the user input
+    final updatedMaterialModel = _createMaterialModel();
     // Handle null material model
     if (updatedMaterialModel == null) {
       AppUIUtils.onFailure('من فضلك قم بادخال الصلاحيات و البائع!');
       return;
     }
+    // Prepare user change queue for saving
+    final userChangeQueue = _prepareUserChangeQueue(updatedMaterialModel, ChangeType.addOrUpdate);
 
-    log("updatedMaterialModel !=null");
-
-    final userChangeQueue = read<UserManagementController>()
-        .userHaveChanges
-        .map(
-          (user) => ChangesModel(
-            changeId: user.userId,
-            changeType: ChangeType.addOrUpdate,
-            changeCollection: ChangeCollection.materials,
-            change: updatedMaterialModel.toJson(),
-          ),
-        )
-        .toList();
-
+    // Save changes and handle results
     final changesResult = await _listenDataSourceRepository.saveAll(userChangeQueue);
-    log("${userChangeQueue.map(
-      (e) => e.toJson(),
-    )}");
+
     changesResult.fold(
-      (hiveFailure) {
-        // If Hive save fails, show failure message
-        AppUIUtils.onFailure(hiveFailure.message);
-      },
-      (_) {
-        // If both operations succeed, handle success
-        _handleSaveOrUpdateMaterialSuccess(updatedMaterialModel);
+      (failure) => AppUIUtils.onFailure(failure.message),
+      (_) => _onSaveSuccess(updatedMaterialModel),
+    );
+  }
+
+  void deleteMaterial() async {
+    if (selectedMaterial == null) return;
+
+    // Prepare user change queue for delete
+    final userChangeQueue = _prepareUserChangeQueue(selectedMaterial!, ChangeType.remove);
+
+    log('userChangeQueue length on deleteMaterial: ${userChangeQueue.length}');
+    // Save changes and handle results
+    final changesResult = await _listenDataSourceRepository.saveAll(userChangeQueue);
+
+    changesResult.fold(
+      (failure) => AppUIUtils.onFailure(failure.message),
+      (_) => _onDeleteSuccess(),
+    );
+  }
+
+  MaterialModel? _createMaterialModel() => _materialService.createMaterialModel(
+        matVatGuid: materialFromHandler.selectedTax.value.taxGuid!,
+        matGroupGuid: materialFromHandler.parentModel?.id ?? '',
+        wholesalePrice: materialFromHandler.wholePriceController.text,
+        retailPrice: materialFromHandler.retailPriceController.text,
+        matName: materialFromHandler.nameController.text,
+        matCode: materialFromHandler.codeController.text.toInt,
+        matBarCode: materialFromHandler.barcodeController.text,
+        endUserPrice: materialFromHandler.customerPriceController.text,
+        matCurrencyVal: materialFromHandler.costPriceController.text.toDouble,
+        materialModel: selectedMaterial,
+      );
+
+  List<ChangesModel> _prepareUserChangeQueue(MaterialModel materialModel, ChangeType changeType) => read<UserManagementController>()
+      .nonLoggedInUsers
+      .map(
+        (user) => ChangesModel(
+          targetUserId: user.userId!,
+          changeItems: {
+            ChangeCollection.materials: [
+              ChangeItem(
+                target: ChangeTarget(
+                  targetCollection: ChangeCollection.materials,
+                  changeType: changeType,
+                ),
+                change: materialModel.toJson(),
+              )
+            ]
+          },
+        ),
+      )
+      .toList();
+
+  void _onSaveSuccess(MaterialModel materialModel) async {
+    // Persist the data in Hive upon successful save
+    final hiveResult = await _materialsHiveRepo.save(materialModel);
+
+    hiveResult.fold(
+      (failure) => AppUIUtils.onFailure(failure.message),
+      (savedMaterial) {
+        log('materials length before add item: ${materials.length}');
+        AppUIUtils.onSuccess('تم الحفظ بنجاح');
+        reloadMaterials();
+        log('materials length after add item: ${materials.length}');
       },
     );
   }
 
-  void _handleSaveOrUpdateMaterialSuccess(MaterialModel materialModel) async {
-    // If remote save succeeds, persist the data in Hive
-    final hiveResult = await _materialsHiveRepo.save(materialModel);
+  void _onDeleteSuccess() async {
+    final MaterialModel materialModel = selectedMaterial!;
+
+    // Persist the data in Hive upon successful save
+    final hiveResult = await _materialsHiveRepo.delete(materialModel, materialModel.id!);
 
     hiveResult.fold(
-      (hiveFailure) => AppUIUtils.onFailure(hiveFailure.message),
-      (_) {},
+      (failure) => AppUIUtils.onFailure(failure.message),
+      (savedMaterial) {
+        log('materials length before add item: ${materials.length}');
+        AppUIUtils.onSuccess('تم الحفظ بنجاح');
+        reloadMaterials();
+        log('materials length after add item: ${materials.length}');
+      },
     );
   }
 
   void navigateToAddOrUpdateMaterialScreen({String? matId}) {
-    MaterialModel? materialModel;
-    if (matId != null) materialModel = getMaterialById(matId);
-    materialFromHandler.init(material: materialModel);
+    selectedMaterial = null;
+    if (matId != null) selectedMaterial = getMaterialById(matId);
+    materialFromHandler.init(selectedMaterial);
     to(AppRoutes.addMaterialScreen);
   }
 
@@ -255,9 +311,5 @@ class MaterialController extends GetxController with AppNavigator {
     MaterialModel? searchedMaterial = await searchProductTextDialog(query);
     materialFromHandler.parentModel = searchedMaterial;
     update();
-  }
-
-  void removeAllMaterials() {
-    _materialsHiveRepo.clear();
   }
 }

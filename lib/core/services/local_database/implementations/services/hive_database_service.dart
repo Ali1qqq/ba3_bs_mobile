@@ -21,12 +21,7 @@ class HiveDatabaseService<T> implements ILocalDatabaseService<T> {
   @override
   Future<void> insertAll(List<T> data) async {
     for (var item in data) {
-      if (item is HiveObject) {
-        if (!item.isInBox) {
-          await _box.add(item); // Add each item to the box if it's not already in it
-        }
-        await item.save(); // Save the object
-      }
+      await insert(item);
     }
   }
 
@@ -50,8 +45,25 @@ class HiveDatabaseService<T> implements ILocalDatabaseService<T> {
   }
 
   @override
-  Future<void> delete(String id) async {
-    await _box.delete(id); // Delete the item by ID
+  Future<void> delete(T item) async {
+    if (item is HiveObject) {
+      await item.delete(); // Delete the object from the box
+    } else {
+      // Optionally log or handle unexpected types
+      throw Exception('Item is not a HiveObject and cannot be deleted.');
+    } // Delete the item by ID
+  }
+
+  @override
+  Future<void> deleteAll(List<T> data) async {
+    for (var item in data) {
+      if (item is HiveObject) {
+        await item.delete(); // Delete the object from the box
+      } else {
+        // Optionally log or handle unexpected types
+        throw Exception('Item is not a HiveObject and cannot be deleted.');
+      }
+    }
   }
 
   @override

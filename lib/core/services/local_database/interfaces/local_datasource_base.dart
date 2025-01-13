@@ -5,15 +5,17 @@ abstract class LocalDatasourceBase<T> {
 
   LocalDatasourceBase(this.database);
 
-  Future<void> saveData(T data) => database.insert(data);
+  Future<void> saveData(T data);
 
-  Future<void> saveAllData(List<T> data) => database.insertAll(data);
+  Future<void> saveAllData(List<T> data);
 
-  Future<List<T>> getAllData() => database.fetchAll();
+  Future<List<T>> getAllData();
 
-  Future<T?> getDataById(String id) => database.fetchById(id);
+  Future<T?> getDataById(String id);
 
-  Future<void> removeData(String id) => database.delete(id);
+  Future<void> removeData(T item);
 
-  Future<void> clearAllData() => database.clear();
+  Future<void> removeAllData(List<T> data);
+
+  Future<void> clearAllData();
 }

@@ -9,7 +9,9 @@ abstract class ILocalDatabaseService<T> {
 
   Future<void> update(T data);
 
-  Future<void> delete(String id);
+  Future<void> delete(T item);
+
+  Future<void> deleteAll(List<T> data);
 
   Future<void> clear();
 }

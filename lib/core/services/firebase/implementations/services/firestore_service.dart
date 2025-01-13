@@ -62,8 +62,16 @@ class FireStoreService extends IRemoteDatabaseService<Map<String, dynamic>> {
   }
 
   @override
-  Future<void> delete({required String path, String? documentId}) async {
-    await _firestore.collection(path).doc(documentId).delete();
+  Future<void> delete({required String path, String? documentId, String? mapFieldName}) async {
+    if (mapFieldName != null) {
+      // If mapFieldName is provided, delete the specific map field
+      await _firestore.collection(path).doc(documentId).update({
+        mapFieldName: FieldValue.delete(),
+      });
+    } else {
+      // If mapFieldName is null, delete the entire document
+      await _firestore.collection(path).doc(documentId).delete();
+    }
   }
 
   @override
@@ -134,5 +142,60 @@ class FireStoreService extends IRemoteDatabaseService<Map<String, dynamic>> {
       // Handle Firestore or network errors here
       throw Exception("Error listening to document: $error");
     });
+  }
+
+  @override
+  Future<List<Map<String, dynamic>>> batchUpdateWithArrayUnion({
+    required String path,
+    required List<Map<String, dynamic>> items,
+    required String docIdField,
+    required String nestedFieldPath,
+  }) async {
+    final batch = _firestore.batch();
+
+    // List to track the items being processed
+    final processedItems = <Map<String, dynamic>>[];
+
+    for (final item in items) {
+      // Extract the document ID
+      final docId = item[docIdField];
+      if (docId == null) {
+        throw ArgumentError('Document ID is missing in one of the items');
+      }
+
+      // Reference to the document
+      final docRef = _firestore.collection(path).doc(docId);
+
+      // Check if the document exists
+      final docSnapshot = await docRef.get();
+
+      if (!docSnapshot.exists) {
+        // Create the document with initial structure
+        final initialData = {
+          docIdField: docId,
+          nestedFieldPath: item[nestedFieldPath],
+        };
+        batch.set(docRef, initialData);
+        processedItems.add(initialData);
+      } else {
+        // Update the document using arrayUnion for nested fields
+        final nestedData = item[nestedFieldPath] as Map<String, dynamic>;
+
+        nestedData.forEach((key, value) {
+          if (value is List) {
+            batch.update(docRef, {
+              '$nestedFieldPath.$key': FieldValue.arrayUnion(value),
+            });
+          }
+        });
+
+        processedItems.add(item);
+      }
+    }
+
+    // Commit the batch operation
+    await batch.commit();
+
+    return processedItems;
   }
 }

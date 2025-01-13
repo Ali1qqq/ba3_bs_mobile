@@ -1,3 +1,4 @@
+import 'package:ba3_bs_mobile/core/helper/extensions/bisc/double_nullable_to_string.dart';
 import 'package:ba3_bs_mobile/core/helper/extensions/bisc/int_nullable_to_string.dart';
 import 'package:ba3_bs_mobile/features/materials/controllers/material_controller.dart';
 import 'package:ba3_bs_mobile/features/materials/data/models/material_model.dart';
@@ -13,19 +14,21 @@ class MaterialFromHandler with AppValidator implements ITexSelectionHandler {
   MaterialController get materialController => read<MaterialController>();
 
   final formKey = GlobalKey<FormState>();
+
   TextEditingController nameController = TextEditingController();
   TextEditingController latinNameController = TextEditingController();
   TextEditingController codeController = TextEditingController();
   TextEditingController customerPriceController = TextEditingController();
   TextEditingController wholePriceController = TextEditingController();
   TextEditingController retailPriceController = TextEditingController();
+  TextEditingController costPriceController = TextEditingController();
+  TextEditingController minPriceController = TextEditingController();
   TextEditingController barcodeController = TextEditingController();
-  TextEditingController parentController = TextEditingController();
 
   VatEnums _taxModel = VatEnums.withVat;
   late MaterialModel? parentModel;
 
-  void init({MaterialModel? material}) {
+  void init(MaterialModel? material) {
     if (material != null) {
       materialController.selectedMaterial = material;
       nameController.text = materialController.selectedMaterial!.matName!;
@@ -33,11 +36,10 @@ class MaterialFromHandler with AppValidator implements ITexSelectionHandler {
       customerPriceController.text = materialController.selectedMaterial!.endUserPrice!;
       wholePriceController.text = materialController.selectedMaterial!.wholesalePrice!;
       retailPriceController.text = materialController.selectedMaterial!.retailPrice!;
+      costPriceController.text = materialController.selectedMaterial!.matCurrencyVal!.toFixedString();
+      minPriceController.text = materialController.selectedMaterial!.matLastPriceCurVal!.toFixedString();
       barcodeController.text = materialController.selectedMaterial!.matBarCode!;
-      latinNameController.text = materialController.selectedMaterial!.matCompositionLatinName!;
-      // parentModel=materialController.getMaterialById(materialController.selectedMaterial!.matGroupGuid!);
-      _taxModel = VatEnums.byGuid(materialController.selectedMaterial!.matVatGuid!);
-      // parentController.text=parentModel!.matName!;
+      latinNameController.text = materialController.selectedMaterial!.matCompositionLatinName ?? '';
     } else {
       materialController.selectedMaterial = null;
       parentModel = null;
@@ -52,6 +54,8 @@ class MaterialFromHandler with AppValidator implements ITexSelectionHandler {
     customerPriceController.clear();
     wholePriceController.clear();
     retailPriceController.clear();
+    costPriceController.clear();
+    minPriceController.clear();
     barcodeController.clear();
     latinNameController.clear();
     parentController.clear();
@@ -65,6 +69,8 @@ class MaterialFromHandler with AppValidator implements ITexSelectionHandler {
     customerPriceController.dispose();
     wholePriceController.dispose();
     retailPriceController.dispose();
+    costPriceController.dispose();
+    minPriceController.dispose();
     barcodeController.dispose();
     latinNameController.dispose();
     parentController.dispose();
@@ -80,4 +86,6 @@ class MaterialFromHandler with AppValidator implements ITexSelectionHandler {
 
   @override
   Rx<VatEnums> get selectedTax => _taxModel.obs;
+
+  TextEditingController parentController = TextEditingController();
 }

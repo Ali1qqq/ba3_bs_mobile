@@ -15,7 +15,7 @@ abstract class IRemoteDatabaseService<T> {
   Stream<T> subscribeToDoc({required String path, String? documentId});
 
   /// Deletes an item from the specified [path] by its [documentId].
-  Future<void> delete({required String path, String? documentId});
+  Future<void> delete({required String path, String? documentId, String? mapFieldName});
 
   /// Adds a new item of type [T] to the specified [path] with the given [data].
   Future<T> add({required String path, String? documentId, required Map<String, dynamic> data});
@@ -27,5 +27,18 @@ abstract class IRemoteDatabaseService<T> {
   Future<List<Map<String, dynamic>>> addAll({
     required String path,
     required List<Map<String, dynamic>> data,
+  });
+
+  /// Updates multiple documents in the Firestore collection at [path] using batch operations
+  /// and returns a list of the processed items.
+  ///
+  /// For each item in [items]:
+  /// - If the document (identified by [docIdField]) does not exist, it creates it with [nestedFieldPath].
+  /// - If the document exists, it updates [nestedFieldPath] using `FieldValue.arrayUnion`.
+  Future<List<Map<String, dynamic>>> batchUpdateWithArrayUnion({
+    required String path,
+    required List<Map<String, dynamic>> items,
+    required String docIdField,
+    required String nestedFieldPath,
   });
 }

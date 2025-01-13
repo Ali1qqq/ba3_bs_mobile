@@ -8,12 +8,8 @@ import '../../../../bill/ui/widgets/bill_shared/form_field_row.dart';
 import '../../../controllers/material_controller.dart';
 
 class AddMaterialForm extends StatelessWidget {
-
   final MaterialController controller;
-  const AddMaterialForm({
-    super.key,
-    required this.controller
-  });
+  const AddMaterialForm({super.key, required this.controller});
 
   @override
   Widget build(BuildContext context) {
@@ -31,10 +27,9 @@ class AddMaterialForm extends StatelessWidget {
                       firstItem: TextAndExpandedChildField(
                           label: "اسم المادة",
                           child: CustomTextFieldWithoutIcon(
-                              filedColor: AppColors.backGroundColor,
-                              textEditingController: controller.materialFromHandler.nameController,
-                            validator: (value) =>
-                                controller.materialFromHandler.defaultValidator(value, 'اسم المادة'),
+                            filedColor: AppColors.backGroundColor,
+                            textEditingController: controller.materialFromHandler.nameController,
+                            validator: (value) => controller.materialFromHandler.defaultValidator(value, 'اسم المادة'),
                           )),
                       secondItem: TextAndExpandedChildField(
                           label: "الاسم اللاتيني",
@@ -70,8 +65,7 @@ class AddMaterialForm extends StatelessWidget {
                           label: " المستهلك",
                           child: CustomTextFieldWithoutIcon(
                               filedColor: AppColors.backGroundColor,
-                              validator: (value) =>
-                                  controller.materialFromHandler.defaultValidator(value, 'المستهلك'),
+                              validator: (value) => controller.materialFromHandler.defaultValidator(value, 'المستهلك'),
                               textEditingController: controller.materialFromHandler.customerPriceController)),
                       secondItem: TextAndExpandedChildField(
                           label: "المفرق",

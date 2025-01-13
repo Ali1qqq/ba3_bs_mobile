@@ -9,8 +9,8 @@ enum UserManagementStatus { first, login, block, auth }
 
 enum RecordType {
   bond,
-  invoice,
-  product,
+  bills,
+  material,
   account,
   pattern,
   undefined,
@@ -475,19 +475,36 @@ enum PriceType {
   const PriceType(this.label);
 }
 
-enum UserStatus {
+enum UserWorkStatus {
   online('داخل العمل'),
   away('خارج العمل');
 
   final String label;
 
-  const UserStatus(this.label);
+  const UserWorkStatus(this.label);
 
   // Factory constructor with error handling for unmatched labels
-  factory UserStatus.byLabel(String label) {
-    return UserStatus.values.firstWhere(
+  factory UserWorkStatus.byLabel(String label) {
+    return UserWorkStatus.values.firstWhere(
       (type) => type.label == label,
       orElse: () => throw ArgumentError('No matching TimeType for label: $label'),
+    );
+  }
+}
+
+enum UserActiveStatus {
+  active('نشط'),
+  inactive('غير نشط');
+
+  final String label;
+
+  const UserActiveStatus(this.label);
+
+  // Factory constructor with error handling for unmatched labels
+  factory UserActiveStatus.byLabel(String label) {
+    return UserActiveStatus.values.firstWhere(
+      (status) => status.label == label,
+      orElse: () => throw ArgumentError('No matching ActiveStatus for label: $label'),
     );
   }
 }
@@ -532,39 +549,27 @@ enum StoreAccount {
       );
 }
 
-enum UserWorkStatus {
-  online('داخل العمل'),
-  away('خارج العمل');
+enum AccountType {
+  normal('عادي'),
+  finalAccount('ختامي'),
+  aggregate('تجميعي');
 
-  final String label;
+  final String title;
 
-  const UserWorkStatus(this.label);
+  const AccountType(this.title);
 
-  // Factory constructor with error handling for unmatched labels
-  factory UserWorkStatus.byLabel(String label) {
-    return UserWorkStatus.values.firstWhere(
-      (type) => type.label == label,
-      orElse: () => throw ArgumentError('No matching TimeType for label: $label'),
+  factory AccountType.byTitle(String title) {
+    return AccountType.values.firstWhere(
+      (type) => type.title == title,
+      orElse: () => throw ArgumentError('No matching AccountType for title: $title'),
     );
+  }
+
+  factory AccountType.byIndex(int index) {
+    return AccountType.values.elementAt(index);
   }
 }
 
-enum UserActiveStatus {
-  active('نشط'),
-  inactive('غير نشط');
-
-  final String label;
-
-  const UserActiveStatus(this.label);
-
-  // Factory constructor with error handling for unmatched labels
-  factory UserActiveStatus.byLabel(String label) {
-    return UserActiveStatus.values.firstWhere(
-      (status) => status.label == label,
-      orElse: () => throw ArgumentError('No matching ActiveStatus for label: $label'),
-    );
-  }
-}
 // enum TaxType {
 //   withTax('1234-guid-with-tax'),
 //   withoutTax('5678-guid-without-tax');

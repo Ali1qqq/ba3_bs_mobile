@@ -1,3 +1,4 @@
+import 'package:ba3_bs_mobile/core/helper/extensions/getx_controller_extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -11,11 +12,14 @@ class AllMaterialsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return GetBuilder<MaterialController>(builder: (controller) {
       return PlutoGridWithAppBar(
-        title: "جميع المواد",
+        title: 'جميع المواد',
         isLoading: controller.isLoading,
         tableSourceModels: controller.materials,
         onLoaded: (event) {},
-        onSelected: (cell) {},
+        onSelected: (selectedRow) {
+          String? matId = selectedRow.row?.cells['الرقم التعريفي']?.value;
+          read<MaterialController>().navigateToAddOrUpdateMaterialScreen(matId: matId);
+        },
       );
     });
   }

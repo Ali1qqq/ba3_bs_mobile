@@ -1,7 +1,8 @@
-import 'package:ba3_bs_mobile/core/helper/enums/enums.dart';
 import 'package:ba3_bs_mobile/core/utils/generate_id.dart';
 import 'package:ba3_bs_mobile/features/materials/data/models/material_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+
+import '../../../core/helper/enums/enums.dart';
 
 class MaterialService {
   MaterialModel? createMaterialModel({
@@ -15,12 +16,11 @@ class MaterialService {
     required int matCode,
     required String matGroupGuid,
     required String matVatGuid,
+    required double matCurrencyVal,
   }) {
-    final MaterialModel newMaterialModel;
-
     if (materialModel == null) {
-      newMaterialModel = MaterialModel(
-        id: generateId(RecordType.product),
+      return MaterialModel(
+        id: generateId(RecordType.material),
         matName: matName,
         matCompositionLatinName: matCompositionLatinName,
         matBarCode: matBarCode,
@@ -30,6 +30,7 @@ class MaterialService {
         matCode: matCode,
         matGroupGuid: matGroupGuid,
         matVatGuid: matVatGuid,
+        matCurrencyVal: matCurrencyVal,
         matPrevQty: "0",
         matLastPriceCurVal: 0.0,
         matCreateDate: Timestamp.now().toDate(),
@@ -37,7 +38,7 @@ class MaterialService {
         matPictureGuid: '',
       );
     } else {
-      newMaterialModel = materialModel.copyWith(
+      return materialModel.copyWith(
         matName: matName,
         matBarCode: matBarCode,
         wholesalePrice: wholesalePrice,
@@ -46,8 +47,8 @@ class MaterialService {
         matCode: matCode,
         matGroupGuid: matGroupGuid,
         matVatGuid: matVatGuid,
+        matCurrencyVal: matCurrencyVal,
       );
     }
-    return newMaterialModel;
   }
 }

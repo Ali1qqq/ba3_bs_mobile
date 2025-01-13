@@ -1,9 +1,12 @@
 import 'dart:io';
 
+import 'package:ba3_bs_mobile/core/helper/extensions/hive_extensions.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
+import 'package:hive/hive.dart';
 import 'package:window_manager/window_manager.dart';
+
 import '../../../firebase_options.dart';
 
 Future<void> initializeApp() async {
@@ -14,10 +17,12 @@ Future<void> initializeApp() async {
   }
 
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  await Hive.initializeApp();
 }
 
 Future<void> initializeWindowSettings() async {
   await windowManager.ensureInitialized();
+
   WindowOptions windowOptions = const WindowOptions(
     size: Size(1000, 800),
     minimumSize: Size(1000, 800),

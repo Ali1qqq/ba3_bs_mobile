@@ -12,6 +12,7 @@ import 'package:day_night_time_picker/day_night_time_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../../core/helper/extensions/getx_controller_extensions.dart';
 import '../../../core/network/api_constants.dart';
 import '../../../core/network/error/failure.dart';
 import '../../../core/router/app_routes.dart';
@@ -19,6 +20,7 @@ import '../../../core/services/firebase/implementations/repos/filterable_datasou
 import '../../../core/services/firebase/implementations/repos/remote_datasource_repo.dart';
 import '../../../core/services/get_x/shared_preferences_service.dart';
 import '../../../core/utils/app_ui_utils.dart';
+import '../../changes/controller/changes_controller.dart';
 import '../data/models/role_model.dart';
 import '../data/models/user_model.dart';
 import '../services/role_form_handler.dart';
@@ -338,10 +340,7 @@ class UserManagementController extends GetxController with AppNavigator {
 
     result.fold(
       (failure) => AppUIUtils.onFailure(failure.message),
-      (success) {
-        AppUIUtils.onSuccess('تم الحفظ بنجاح');
-        getAllUsers();
-      },
+      (userModel) => _onUserSaved(userModel),
     );
   }
 
@@ -399,5 +398,28 @@ class UserManagementController extends GetxController with AppNavigator {
   void deleteHoliday({required String element}) {
     holidays.remove(element);
     update();
+  }
+
+  List<UserModel> get nonLoggedInUsers => allUsers
+      .where(
+        (user) => user.userId != loggedInUserModel?.userId,
+      )
+      .toList();
+
+  void _onUserSaved(UserModel userModel) {
+    AppUIUtils.onSuccess('تم الحفظ بنجاح');
+    getAllUsers();
+
+    // Check if the user was newly saved
+    final isSaved = selectedUserModel == null;
+    if (isSaved) {
+      _createChangeDocument(userModel.userId!);
+    }
+    update();
+  }
+
+  Future<void> _createChangeDocument(String userId) async {
+    // Call the ChangesController to create the document
+    await read<ChangesController>().createChangeDocument(userId);
   }
 }
