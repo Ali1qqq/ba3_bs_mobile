@@ -2,6 +2,7 @@ import 'package:ba3_bs_mobile/core/helper/extensions/getx_controller_extensions.
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../../../core/constants/app_strings.dart';
 import '../../../../core/widgets/pluto_grid_with_app_bar_.dart';
 import '../../controllers/material_controller.dart';
 
@@ -17,7 +18,7 @@ class AllMaterialsScreen extends StatelessWidget {
         tableSourceModels: controller.materials,
         onLoaded: (event) {},
         onSelected: (selectedRow) {
-          String? matId = selectedRow.row?.cells['الرقم التعريفي']?.value;
+          String? matId = selectedRow.row?.cells[AppStrings.materialIdFiled]?.value;
           read<MaterialController>().navigateToAddOrUpdateMaterialScreen(matId: matId);
         },
       );

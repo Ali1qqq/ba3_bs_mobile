@@ -69,6 +69,8 @@ class AllBillsController extends FloatingBillDetailsLauncher with AppNavigator {
     _initializeBillUtilities();
 
     fetchBillsTypes();
+
+    read<MaterialController>().reloadMaterials();
   }
 
   int pendingBillsCounts(BillTypeModel billTypeModel) => pendingBillsCountsByType[billTypeModel] ?? 0;
@@ -266,7 +268,6 @@ class AllBillsController extends FloatingBillDetailsLauncher with AppNavigator {
     BillModel? billModel,
   }) async {
     plutoGridIsLoading = false;
-    read<MaterialController>().reloadMaterials();
 
     await fetchAllBillsByType(billTypeModel);
 

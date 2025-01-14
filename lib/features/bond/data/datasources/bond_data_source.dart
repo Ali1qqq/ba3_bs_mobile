@@ -9,7 +9,7 @@ class BondsDataSource extends RemoteDatasourceBase<BondModel> with FirebaseSeque
   BondsDataSource({required super.databaseService});
 
   @override
-  String get path => ApiConstants.bondsPath; // Collection name in Firestore
+  String get path => ApiConstants.bonds; // Collection name in Firestore
 
   @override
   Future<List<BondModel>> fetchAll() async {

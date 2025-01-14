@@ -1,10 +1,8 @@
 import 'package:ba3_bs_mobile/core/utils/app_ui_utils.dart';
-import 'package:ba3_bs_mobile/features/accounts/controllers/accounts_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../../core/helper/enums/enums.dart';
-import '../../../core/helper/extensions/getx_controller_extensions.dart';
 import '../../../core/helper/mixin/app_navigator.dart';
 import '../../../core/router/app_routes.dart';
 import '../../../core/services/firebase/implementations/repos/remote_datasource_repo.dart';
@@ -136,7 +134,7 @@ class PatternController extends GetxController with AppNavigator {
   }
 
   BillTypeModel _createBillTypeModel() {
-    Map<Account, AccountModel> accounts = read<AccountsController>().selectedAccounts;
+    Map<Account, AccountModel> accounts = patternFormHandler.selectedAccounts;
 
     accounts[BillAccounts.store] = patternFormHandler.selectedStore.value.toStoreAccountModel;
 

@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:ba3_bs_mobile/features/pluto/data/models/pluto_adaptable.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -26,7 +24,6 @@ class PlutoGridWithAppBar<T> extends StatelessWidget {
   });
 
   final Function(PlutoGridOnLoadedEvent) onLoaded;
-
   final Function(PlutoGridOnRowDoubleTapEvent)? onRowDoubleTap;
   final Function(PlutoGridOnSelectedEvent) onSelected;
 
@@ -44,52 +41,56 @@ class PlutoGridWithAppBar<T> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: appBar ?? plutoGridAppBar(),
-      body: GetBuilder<PlutoController>(
-        builder: (controller) {
-          log('controller.plutoKey = ${controller.plutoKey}');
-          return isLoading
-              ? const SizedBox()
-              : Column(
-                  children: [
-                    Expanded(
-                      child: PlutoGrid(
-                        key: controller.plutoKey,
-                        onLoaded: onLoaded,
-                        onSelected: onSelected,
-                        columns: controller.generateColumns<T>(tableSourceModels, type),
-                        rows: controller.generateRows<T>(tableSourceModels, type),
-                        mode: PlutoGridMode.selectWithOneTap,
-                        configuration: PlutoGridConfiguration(
-                          shortcut: const PlutoGridShortcut(),
-                          style: PlutoGridStyleConfig(
-                            enableRowColorAnimation: true,
-                            evenRowColor: Colors.blueAccent.withAlpha(127),
-                            columnTextStyle: const TextStyle(color: Colors.black, fontSize: 24, fontWeight: FontWeight.bold),
-                            activatedColor: Colors.white.withAlpha(127),
-                            cellTextStyle: const TextStyle(color: Colors.black, fontSize: 16, fontWeight: FontWeight.bold),
-                            gridPopupBorderRadius: const BorderRadius.all(Radius.circular(15)),
-                            gridBorderRadius: const BorderRadius.all(Radius.circular(15)),
-                            // gridBorderColor: Colors.transparent,
-                          ),
-                          localeText: const PlutoGridLocaleText.arabic(),
-                        ),
-                        createFooter: (stateManager) {
-                          stateManager.setPageSize(100, notify: false); // default 40
-
-                          return PlutoPagination(stateManager);
-                        },
-                      ),
-                    ),
-                    if (child != null) child!
-                  ],
-                );
-        },
-      ),
+      appBar: appBar ?? _buildAppBar(),
+      body: isLoading
+          ? const Center(child: CircularProgressIndicator()) // تحسين عرض التحميل
+          : _buildGrid(context),
     );
   }
 
-  AppBar plutoGridAppBar() {
+  Widget _buildGrid(BuildContext context) {
+    return GetBuilder<PlutoController>(
+      builder: (controller) {
+        return Column(
+          children: [
+            Expanded(
+              child: PlutoGrid(
+                key: controller.plutoKey,
+                onLoaded: onLoaded,
+                onSelected: onSelected,
+                onRowDoubleTap: onRowDoubleTap,
+                columns: controller.generateColumns<T>(tableSourceModels, type),
+                rows: controller.generateRows<T>(tableSourceModels, type),
+                mode: PlutoGridMode.selectWithOneTap,
+                configuration: PlutoGridConfiguration(
+                  style: PlutoGridStyleConfig(
+                    enableRowColorAnimation: true,
+                    evenRowColor: Colors.blueAccent.withAlpha(127),
+                    columnTextStyle: const TextStyle(
+                      color: Colors.black,
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    activatedColor: Colors.white.withAlpha(127),
+                    gridPopupBorderRadius: const BorderRadius.all(Radius.circular(15)),
+                    gridBorderRadius: const BorderRadius.all(Radius.circular(15)),
+                  ),
+                  localeText: const PlutoGridLocaleText.arabic(),
+                ),
+                createFooter: (stateManager) {
+                  stateManager.setPageSize(100, notify: false);
+                  return PlutoPagination(stateManager);
+                },
+              ),
+            ),
+            if (child != null) child!,
+          ],
+        );
+      },
+    );
+  }
+
+  AppBar _buildAppBar() {
     return AppBar(
       centerTitle: true,
       leading: leadingIcon != null
@@ -98,7 +99,7 @@ class PlutoGridWithAppBar<T> extends StatelessWidget {
               icon: Icon(leadingIcon),
             )
           : null,
-      title: Text(title ?? ''),
+      title: Text(title ?? 'جدول البيانات'),
       actions: [
         if (icon != null)
           IconButton(
@@ -106,7 +107,10 @@ class PlutoGridWithAppBar<T> extends StatelessWidget {
             color: Colors.blue,
             icon: Icon(icon),
           ),
-        Padding(padding: const EdgeInsets.fromLTRB(16, 16, 8, 16), child: Text('عدد العناصر المتأثرة: ${tableSourceModels.length}')),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 16, 8, 16),
+          child: Text('عدد العناصر المتأثرة: ${tableSourceModels.length}'),
+        ),
       ],
     );
   }

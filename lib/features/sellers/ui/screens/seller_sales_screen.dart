@@ -42,7 +42,7 @@ class SellerSalesScreen extends StatelessWidget {
       leading: _buildLeadingSection(controller),
       title: Text('سجل مبيعات ${controller.selectedSeller?.costName}'),
       centerTitle: true,
-      actions: _buildActionButtons(),
+      // actions: _buildActionButtons(controller),
     );
   }
 
@@ -67,21 +67,22 @@ class SellerSalesScreen extends StatelessWidget {
   }
 
   /// Generates action buttons in the app bar.
-  List<Widget> _buildActionButtons() {
+  List<Widget> _buildActionButtons(SellerSalesController controller) {
     return [
-      AppButton(
-        title: 'تعديل',
-        borderRadius: BorderRadius.circular(25),
-        onPressed: () {
-          // TODO: Add navigation logic for editing
-        },
-      ),
+      // AppButton(
+      //   title: 'تعديل',
+      //   borderRadius: BorderRadius.circular(25),
+      //   onPressed: () {
+      //   },
+      // ),
       const HorizontalSpace(20),
       AppButton(
         title: 'التارغيت',
         borderRadius: BorderRadius.circular(25),
         onPressed: () {
-          // TODO: Add navigation logic for target page
+          controller
+            ..calculateTotalAccessoriesMobiles()
+            ..navigateToSellerTargetScreen();
         },
       ),
       const HorizontalSpace(20),
@@ -92,7 +93,7 @@ class SellerSalesScreen extends StatelessWidget {
   Widget _buildSummary(SellerSalesController controller) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
-      child: Row(
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
@@ -111,6 +112,10 @@ class SellerSalesScreen extends StatelessWidget {
               ),
             ],
           ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: _buildActionButtons(controller),
+          )
         ],
       ),
     );

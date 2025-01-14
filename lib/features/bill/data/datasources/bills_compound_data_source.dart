@@ -11,7 +11,7 @@ class BillCompoundDatasource extends CompoundDatasourceBase<BillModel, BillTypeM
 
   // Parent Collection (e.g., "bills", "bonds")
   @override
-  String get rootCollectionPath => ApiConstants.billsPath; // Collection name in Firestore
+  String get rootCollectionPath => ApiConstants.bills; // Collection name in Firestore
 
   @override
   Future<List<BillModel>> fetchAll({required BillTypeModel itemTypeModel}) async {

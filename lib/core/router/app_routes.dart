@@ -8,6 +8,7 @@ class AppRoutes {
   static const String showAllPatternsScreen = '/showAllPatternsScreen';
   static const String showAllMaterialsScreen = '/showAllMaterialsScreen';
   static const String showAllAccountsScreen = '/showAllAccountsScreen';
+  static const String addAccountScreen = '/addAccountScreen';
   static const String showAccountDetailsScreen = '/showAccountsDetailsScreen';
   static const String showAllSellersScreen = '/showAllSellersScreen';
   static const String showAllBillsScreen = '/showAllBillsScreen';
@@ -25,5 +26,6 @@ class AppRoutes {
   static const String allSellersScreen = '/allSellersScreen';
   static const String addSellerScreen = '/addSellerScreen';
   static const String sellerSalesScreen = '/sellerSalesScreen';
+  static const String sellerTargetScreen = '/sellerTargetScreen';
   static const String addMaterialScreen = '/addMaterialScreen';
 }

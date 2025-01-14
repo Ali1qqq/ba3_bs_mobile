@@ -11,7 +11,7 @@ class BillsDataSource extends FilterableDatasource<BillModel> with FirebaseSeque
   BillsDataSource({required super.databaseService});
 
   @override
-  String get path => ApiConstants.billsPath; // Collection name in Firestore
+  String get path => ApiConstants.bills; // Collection name in Firestore
 
   @override
   Future<List<BillModel>> fetchAll() async {

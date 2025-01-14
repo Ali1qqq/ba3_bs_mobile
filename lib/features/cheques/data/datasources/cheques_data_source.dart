@@ -9,7 +9,7 @@ class ChequesDataSource extends RemoteDatasourceBase<ChequesModel> with Firebase
   ChequesDataSource({required super.databaseService});
 
   @override
-  String get path => ApiConstants.chequesPath; // Collection name in Firestore
+  String get path => ApiConstants.cheques; // Collection name in Firestore
 
   @override
   Future<List<ChequesModel>> fetchAll() async {

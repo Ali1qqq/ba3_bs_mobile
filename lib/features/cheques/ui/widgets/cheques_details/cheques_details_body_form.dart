@@ -3,9 +3,12 @@ import 'package:ba3_bs_mobile/features/cheques/controllers/cheques/cheques_detai
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../../../../core/helper/extensions/getx_controller_extensions.dart';
 import '../../../../../core/widgets/app_spacer.dart';
 import '../../../../../core/widgets/custom_text_field_without_icon.dart';
 import '../../../../../core/widgets/date_picker.dart';
+import '../../../../accounts/controllers/accounts_controller.dart';
+import '../../../../accounts/data/models/account_model.dart';
 import '../../../../bill/ui/widgets/bill_shared/bill_header_field.dart';
 import '../../../../bill/ui/widgets/bill_shared/form_field_row.dart';
 
@@ -65,16 +68,31 @@ class AddChequeForm extends StatelessWidget {
             FormFieldRow(
                 firstItem: SearchableAccountField(
                   label: 'الحساب',
+                  onSubmitted: (text) async {
+                    AccountModel? accountModel = await read<AccountsController>().openAccountSelectionDialog(
+                      query: text,
+                      context: context,
+                    );
+                    if (accountModel != null) {
+                      chequesDetailsController.setTowAccount(accountModel);
+                    }
+                  },
                   textEditingController: chequesDetailsController.chequesToAccountController,
                   validator: (value) => chequesDetailsController.validator(value, 'الحساب المدفوع له'),
-                  chequesDetailsController: chequesDetailsController,
                 ),
                 secondItem: SearchableAccountField(
                   label: "دفع إلى",
                   textEditingController: chequesDetailsController.chequesAccPtrController,
                   validator: (value) => chequesDetailsController.validator(value, 'الحساب'),
-                  chequesDetailsController: chequesDetailsController,
-                  isFirstAccountCheque: true,
+                  onSubmitted: (text) async {
+                    AccountModel? accountModel = await read<AccountsController>().openAccountSelectionDialog(
+                      query: text,
+                      context: context,
+                    );
+                    if (accountModel != null) {
+                      chequesDetailsController.setFirstAccount(accountModel);
+                    }
+                  },
                 )),
             const VerticalSpace(),
             FormFieldRow(

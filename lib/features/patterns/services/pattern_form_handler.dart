@@ -8,6 +8,7 @@ import '../../../core/helper/extensions/getx_controller_extensions.dart';
 import '../../../core/helper/validators/app_validator.dart';
 import '../../../core/interfaces/i_store_selection_handler.dart';
 import '../../accounts/controllers/accounts_controller.dart';
+import '../../accounts/data/models/account_model.dart';
 
 class PatternFormHandler with AppValidator implements IStoreSelectionHandler {
   PatternController get patternController => read<PatternController>();
@@ -48,12 +49,18 @@ class PatternFormHandler with AppValidator implements IStoreSelectionHandler {
     }
   }
 
+  Map<Account, AccountModel> selectedAccounts = {};
+
+  set setSelectedAccounts(Map<Account, AccountModel>? accounts) {
+    selectedAccounts = accounts ?? {};
+  }
+
   void populateBillTypeAccounts(BillTypeModel billType) {
     // Ensure the map is populated before use
     initializeControllerToBillAccountsMap();
 
     // Set the selected accounts in the accounts controller
-    accountsController.setSelectedAccounts = billType.accounts;
+    setSelectedAccounts = billType.accounts;
 
     final accounts = billType.accounts;
 
@@ -90,7 +97,7 @@ class PatternFormHandler with AppValidator implements IStoreSelectionHandler {
       // Initialize the controller-to-bill-accounts map
       initializeControllerToBillAccountsMap();
 
-      accountsController.setSelectedAccounts = {};
+      setSelectedAccounts = {};
 
       // Reset the selected bill type
       selectedBillPatternType = null;

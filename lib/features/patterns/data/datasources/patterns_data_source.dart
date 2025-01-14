@@ -6,7 +6,7 @@ class PatternsDatasource extends RemoteDatasourceBase<BillTypeModel> {
   PatternsDatasource({required super.databaseService});
 
   @override
-  String get path => ApiConstants.patternsPath; // Collection name in Firestore
+  String get path => ApiConstants.patterns; // Collection name in Firestore
 
   @override
   Future<List<BillTypeModel>> fetchAll() async {

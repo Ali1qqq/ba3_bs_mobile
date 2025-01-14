@@ -21,10 +21,6 @@ class MaterialLayout extends StatelessWidget {
         return Stack(
           children: [
             Scaffold(
-              appBar: AppBar(
-                title: const Text("المواد"),
-                actions: [],
-              ),
               body: Column(
                 children: [
                   AppMenuItem(

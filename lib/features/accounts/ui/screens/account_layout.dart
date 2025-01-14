@@ -13,7 +13,20 @@ class AccountLayout extends StatelessWidget {
   Widget build(BuildContext context) {
     return Directionality(
       textDirection: TextDirection.rtl,
-      child:  Column(
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('الحسابات'),
+          actions: [
+            // Padding(
+            //   padding: const EdgeInsets.all(8.0),
+            //   child: AppButton(
+            //     title: 'تحميل الحسابات',
+            //     onPressed: () => read<AccountsController>().fetchAllAccountsFromLocal(),
+            //   ),
+            // ),
+          ],
+        ),
+        body: Column(
           children: [
             AppMenuItem(
               text: 'معاينة الحسابات',
@@ -26,13 +39,18 @@ class AccountLayout extends StatelessWidget {
             AppMenuItem(
               text: 'كشف حساب',
               onTap: () {
-                showDialog<String>(
-                    context: Get.context!, builder: (BuildContext context) => accountOptionDialog(context));
+                showDialog<String>(context: Get.context!, builder: (BuildContext context) => accountOptionDialog(context));
+              },
+            ),
+            AppMenuItem(
+              text: 'اضافة حساب',
+              onTap: () {
+                read<AccountsController>().navigateToAddOrUpdateAccountScreen();
               },
             ),
           ],
         ),
-
+      ),
     );
   }
 }

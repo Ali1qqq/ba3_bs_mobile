@@ -11,7 +11,7 @@ class BondCompoundDatasource extends CompoundDatasourceBase<BondModel, BondType>
 
   // Parent Collection (e.g., "bonds", "bonds")
   @override
-  String get rootCollectionPath => ApiConstants.bondsPath; // Collection name in Firestore
+  String get rootCollectionPath => ApiConstants.bonds; // Collection name in Firestore
 
   @override
   Future<List<BondModel>> fetchAll({required BondType itemTypeModel}) async {

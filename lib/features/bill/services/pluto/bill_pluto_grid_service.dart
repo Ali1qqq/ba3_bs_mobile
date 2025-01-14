@@ -8,6 +8,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pluto_grid/pluto_grid.dart';
 
 import '../../../../core/constants/app_constants.dart';
+import '../../../../core/constants/app_strings.dart';
 import '../../../../core/dialogs/product_selection_dialog_content.dart';
 import '../../../../core/helper/enums/enums.dart';
 import '../../../../core/helper/extensions/getx_controller_extensions.dart';
@@ -313,7 +314,7 @@ class BillPlutoGridService {
       content: ProductSelectionDialogContent(
         searchedMaterials: searchedMaterials,
         onRowSelected: (PlutoGridOnSelectedEvent onSelectedEvent) {
-          final materialId = onSelectedEvent.row?.cells['الرقم التعريفي']?.value;
+          final materialId = onSelectedEvent.row?.cells[AppStrings.materialIdFiled]?.value;
 
           final selectedMaterial = materialId != null ? materialController.getMaterialById(materialId) : null;
 

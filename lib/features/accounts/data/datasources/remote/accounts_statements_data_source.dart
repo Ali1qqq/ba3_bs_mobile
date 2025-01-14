@@ -8,7 +8,7 @@ import '../../../../../core/network/error/error_handler.dart';
 import '../../../../../core/network/error/failure.dart';
 import '../../../../bond/data/models/entry_bond_model.dart';
 
-class AccountsStatementsDataSource {
+class AccountsStatementsDatasource {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   CollectionReference get _accountsStatementsCollection => _firestore.collection(ApiConstants.accountsStatements);
@@ -114,7 +114,7 @@ class AccountsStatementsDataSource {
 }
 
 class AccountsStatementsRepository {
-  final AccountsStatementsDataSource _dataSource;
+  final AccountsStatementsDatasource _dataSource;
 
   AccountsStatementsRepository(this._dataSource);
 

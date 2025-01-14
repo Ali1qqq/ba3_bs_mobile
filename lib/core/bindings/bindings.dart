@@ -58,6 +58,7 @@ import '../../features/patterns/controllers/pattern_controller.dart';
 import '../../features/patterns/data/datasources/patterns_data_source.dart';
 import '../../features/patterns/data/models/bill_type_model.dart';
 import '../../features/pluto/controllers/pluto_controller.dart';
+import '../../features/sellers/controllers/add_seller_controller.dart';
 import '../../features/user_time/controller/user_time_controller.dart';
 import '../../features/users_management/data/datasources/users_data_source.dart';
 import '../helper/extensions/getx_controller_extensions.dart';
@@ -171,7 +172,7 @@ class AppBindings extends Bindings {
       rolesRepo: RemoteDataSourceRepository(RolesDatasource(databaseService: fireStoreService)),
       usersRepo: FilterableDatasourceRepository(UsersDatasource(databaseService: fireStoreService)),
       entryBondsRepo: RemoteDataSourceRepository(EntryBondsDatasource(databaseService: fireStoreService)),
-      accountsStatementsRepo: AccountsStatementsRepository(AccountsStatementsDataSource()),
+      accountsStatementsRepo: AccountsStatementsRepository(AccountsStatementsDatasource()),
       billImportExportRepo: ImportExportRepository(billImportService, billExportService),
       chequesImportExportRepo: ImportExportRepository(chequesImportService, chequesExportService),
       userTimeRepo: UserTimeRepository(),
@@ -221,6 +222,7 @@ class AppBindings extends Bindings {
     lazyPut(
       ChangesController(repositories.listenableDatasourceRepo),
     );
+    lazyPut(() => AddSellerController());
   }
 }
 

@@ -14,7 +14,9 @@ class AllAccountScreen extends StatelessWidget {
         title: 'جميع الحسابات',
         onLoaded: (e) {},
         onSelected: (p0) {
+          final String accId = p0.row?.cells['الرقم التعريفي']?.value;
 
+          controller.navigateToAddOrUpdateAccountScreen(accountId: accId);
         },
         isLoading: controller.isLoading,
         tableSourceModels: controller.accounts,

@@ -6,6 +6,7 @@ import 'package:get/get.dart';
 import 'package:pluto_grid/pluto_grid.dart';
 
 import '../../features/bill/ui/widgets/bill_shared/custom_text_field.dart';
+import '../constants/app_strings.dart';
 import '../helper/extensions/getx_controller_extensions.dart';
 import '../widgets/pluto_grid_with_app_bar_.dart';
 
@@ -44,7 +45,7 @@ Future<MaterialModel?> searchProductTextDialog(String productText) async {
                               tableSourceModels: searchedMaterials,
                               onLoaded: (PlutoGridOnLoadedEvent onLoadedEvent) {},
                               onSelected: (PlutoGridOnSelectedEvent onSelectedEvent) {
-                                final materialId = onSelectedEvent.row?.cells['الرقم التعريفي']?.value;
+                                final materialId = onSelectedEvent.row?.cells[AppStrings.materialIdFiled]?.value;
                                 if (materialId != null) {
                                   selectedMaterial = materialController.getMaterialById(materialId);
                                   Get.back();

@@ -11,7 +11,7 @@ class ChequesCompoundDatasource extends CompoundDatasourceBase<ChequesModel, Che
 
   // Parent Collection (e.g., "chequess", "chequess")
   @override
-  String get rootCollectionPath => ApiConstants.chequesPath; // Collection name in Firestore
+  String get rootCollectionPath => ApiConstants.cheques; // Collection name in Firestore
 
   @override
   Future<List<ChequesModel>> fetchAll({required ChequesType itemTypeModel}) async {

@@ -8,7 +8,7 @@ class TaxDataSource extends RemoteDatasourceBase<TaxModel> with FirebaseSequenti
   TaxDataSource({required super.databaseService});
 
   @override
-  String get path => ApiConstants.taxPath; // Collection name in Firestore
+  String get path => ApiConstants.taxes; // Collection name in Firestore
 
   @override
   Future<List<TaxModel>> fetchAll() async {

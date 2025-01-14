@@ -3,10 +3,13 @@ import 'package:ba3_bs_mobile/core/widgets/store_dropdown.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../../../../core/helper/extensions/getx_controller_extensions.dart';
 import '../../../../../core/widgets/app_spacer.dart';
 import '../../../../../core/widgets/custom_text_field_without_icon.dart';
 import '../../../../../core/widgets/date_picker.dart';
 import '../../../../../core/widgets/searchable_account_field.dart';
+import '../../../../accounts/controllers/accounts_controller.dart';
+import '../../../../accounts/data/models/account_model.dart';
 import '../../../controllers/bill/bill_details_controller.dart';
 import '../../../data/models/bill_model.dart';
 import '../bill_shared/bill_header_field.dart';
@@ -57,8 +60,15 @@ class BillDetailsHeader extends StatelessWidget {
                 label: 'حساب العميل',
                 textEditingController: billDetailsController.customerAccountController,
                 validator: (value) => billDetailsController.validator(value, 'حساب العميل'),
-                isCustomerAccount: true,
-                billController: billDetailsController,
+                onSubmitted: (text) async {
+                  AccountModel? accountModel = await read<AccountsController>().openAccountSelectionDialog(
+                    query: text,
+                    context: context,
+                  );
+                  if (accountModel != null) {
+                    billDetailsController.updateCustomerAccount(accountModel);
+                  }
+                },
               ),
             ),
             const VerticalSpace(8),

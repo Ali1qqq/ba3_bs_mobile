@@ -19,9 +19,7 @@ class EntryBondModel {
   /// Creates an instance from a JSON object.
   factory EntryBondModel.fromJson(Map<String, dynamic> json) {
     return EntryBondModel(
-      items: (json['items'] as List<dynamic>?)
-          ?.map((item) => EntryBondItemModel.fromJson(item as Map<String, dynamic>))
-          .toList(),
+      items: (json['items'] as List<dynamic>?)?.map((item) => EntryBondItemModel.fromJson(item as Map<String, dynamic>)).toList(),
       origin: EntryBondOrigin.fromJson(json['origin']),
     );
   }
@@ -130,7 +128,7 @@ class EntryBondItemModel implements PlutoAdaptable {
     final accountsController = read<AccountsController>();
     return {
       PlutoColumn(hide: true, title: 'originId', field: 'originId', type: PlutoColumnType.text()): originId ?? '',
-      plutoAutoIdColumn(): '',
+      createAutoIdColumn(): '',
       PlutoColumn(
           title: 'مدين',
           field: 'مدين',
@@ -147,8 +145,7 @@ class EntryBondItemModel implements PlutoAdaptable {
             locale: 'en_AE',
             symbol: 'AED',
           )): bondItemType == BondItemType.creditor ? amount : 0,
-      PlutoColumn(title: 'الحساب', field: 'الحساب', type: PlutoColumnType.text()):
-          accountsController.getAccountNameById(accountId),
+      PlutoColumn(title: 'الحساب', field: 'الحساب', type: PlutoColumnType.text()): accountsController.getAccountNameById(accountId),
       PlutoColumn(title: 'التاريخ', field: 'التاريخ', type: PlutoColumnType.date()): date,
       PlutoColumn(title: 'البيان', field: 'البيان', type: PlutoColumnType.text()): note,
     };

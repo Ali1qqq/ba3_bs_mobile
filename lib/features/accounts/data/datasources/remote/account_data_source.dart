@@ -7,7 +7,7 @@ class AccountsDatasource extends BulkSavableDatasource<AccountModel> {
   AccountsDatasource({required super.databaseService});
 
   @override
-  String get path => ApiConstants.accountsPath; // Collection name in Firestore
+  String get path => ApiConstants.accounts; // Collection name in Firestore
 
   @override
   Future<List<AccountModel>> fetchAll() async {

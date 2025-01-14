@@ -11,117 +11,104 @@ class AddRoleScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Expanded(
-          child: Directionality(
-            textDirection: TextDirection.rtl,
-            child: GetBuilder<UserManagementController>(builder: (controller) {
-              return Scaffold(
-
-                appBar: AppBar(
-                  title: Text(controller.roleModel?.roleName ?? 'دور جديد'),
-                  actions: [
-                    AppButton(
-                      title: controller.roleModel?.roleId == null ? 'إضافة' : 'تعديل',
-                      onPressed: () {
-                        controller.saveOrUpdateRole(existingRoleModel: controller.roleModel);
-                      },
-                      iconData: controller.roleModel?.roleId == null ? Icons.add : Icons.edit,
+    return GetBuilder<UserManagementController>(builder: (controller) {
+      return Scaffold(
+        appBar: AppBar(
+          title: Text(controller.roleModel?.roleName ?? 'دور جديد'),
+          actions: [
+            AppButton(
+              title: controller.roleModel?.roleId == null ? 'إضافة' : 'تعديل',
+              onPressed: () {
+                controller.saveOrUpdateRole(existingRoleModel: controller.roleModel);
+              },
+              iconData: controller.roleModel?.roleId == null ? Icons.add : Icons.edit,
+            ),
+            const HorizontalSpace(),
+          ],
+        ),
+        body: Padding(
+          padding: const EdgeInsets.all(30.0),
+          child: ListView(
+            children: [
+              const Text('الاسم', style: TextStyle(fontSize: 16)),
+              Form(
+                key: controller.roleFormHandler.formKey,
+                child: Container(
+                  color: Colors.grey.shade200,
+                  child: TextFormField(
+                    controller: controller.roleFormHandler.roleNameController,
+                    validator: (value) => controller.roleFormHandler.defaultValidator(value, 'أسم الصلاحية'),
+                  ),
+                ),
+              ),
+              const VerticalSpace(20),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      'تحديد الكل',
+                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                     ),
-                    const HorizontalSpace(),
+                    IconButton(
+                      icon: Icon(controller.areAllRolesSelected() ? Icons.clear_all : Icons.select_all),
+                      onPressed: () {
+                        // Toggle select/deselect all roles
+                        if (controller.areAllRolesSelected()) {
+                          controller.deselectAllRoles();
+                        } else {
+                          controller.selectAllRoles();
+                        }
+                      },
+                    ),
                   ],
                 ),
-                body: Padding(
-                  padding: const EdgeInsets.all(30.0),
-                  child: ListView(
+              ),
+              for (final roleType in RoleItemType.values)
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text('الاسم', style: TextStyle(fontSize: 16)),
-                      Form(
-                        key: controller.roleFormHandler.formKey,
-                        child: Container(
-                          color: Colors.grey.shade200,
-                          child: TextFormField(
-                            controller: controller.roleFormHandler.roleNameController,
-                            validator: (value) => controller.roleFormHandler.defaultValidator(value, 'أسم الصلاحية'),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            roleType.value,
+                            style: const TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
                           ),
-                        ),
+                          IconButton(
+                            icon: Icon(
+                              controller.areAllRolesSelectedForType(roleType) ? Icons.clear_all_outlined : Icons.select_all_outlined,
+                            ),
+                            onPressed: () {
+                              // Toggle select/deselect all roles under this RoleItemType
+                              if (controller.areAllRolesSelectedForType(roleType)) {
+                                controller.deselectAllRolesForType(roleType);
+                              } else {
+                                controller.selectAllRolesForType(roleType);
+                              }
+                            },
+                          ),
+                        ],
                       ),
-                      const VerticalSpace(20),
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 50),
+                        child: Column(
                           children: [
-                            const Text(
-                              'تحديد الكل',
-                              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                            ),
-                            IconButton(
-                              icon: Icon(controller.areAllRolesSelected() ? Icons.clear_all : Icons.select_all),
-                              onPressed: () {
-                                // Toggle select/deselect all roles
-                                if (controller.areAllRolesSelected()) {
-                                  controller.deselectAllRoles();
-                                } else {
-                                  controller.selectAllRoles();
-                                }
-                              },
-                            ),
+                            for (final roleItem in RoleItem.values) checkBoxWidget(roleType, roleItem, controller),
                           ],
                         ),
                       ),
-                      for (final roleType in RoleItemType.values)
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(
-                                    roleType.value,
-                                    style: const TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
-                                  ),
-                                  IconButton(
-                                    icon: Icon(
-                                      controller.areAllRolesSelectedForType(roleType)
-                                          ? Icons.clear_all_outlined
-                                          : Icons.select_all_outlined,
-                                    ),
-                                    onPressed: () {
-                                      // Toggle select/deselect all roles under this RoleItemType
-                                      if (controller.areAllRolesSelectedForType(roleType)) {
-                                        controller.deselectAllRolesForType(roleType);
-                                      } else {
-                                        controller.selectAllRolesForType(roleType);
-                                      }
-                                    },
-                                  ),
-                                ],
-                              ),
-                              Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 50),
-                                child: Column(
-                                  children: [
-                                    for (final roleItem in RoleItem.values)
-                                      checkBoxWidget(roleType, roleItem, controller),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
                     ],
                   ),
                 ),
-              );
-            }),
+            ],
           ),
         ),
-      ],
-    );
+      );
+    });
   }
 
   Widget checkBoxWidget(RoleItemType key, RoleItem roleItem, UserManagementController controller) {

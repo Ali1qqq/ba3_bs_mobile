@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:ba3_bs_mobile/core/helper/extensions/getx_controller_extensions.dart';
+import 'package:ba3_bs_mobile/core/helper/extensions/role_item_type_extension.dart';
 import 'package:ba3_bs_mobile/core/router/app_routes.dart';
 import 'package:ba3_bs_mobile/features/bill/controllers/bill/bill_details_controller.dart';
 import 'package:ba3_bs_mobile/features/users_management/controllers/user_management_controller.dart';
@@ -12,6 +13,7 @@ import '../../../core/helper/mixin/app_navigator.dart';
 import '../../../core/services/firebase/implementations/repos/bulk_savable_datasource_repo.dart';
 import '../../../core/utils/app_ui_utils.dart';
 import '../../floating_window/services/overlay_service.dart';
+import '../../users_management/data/models/role_model.dart';
 import '../data/models/seller_model.dart';
 
 class SellersController extends GetxController with AppNavigator {
@@ -20,6 +22,14 @@ class SellersController extends GetxController with AppNavigator {
   SellersController(this._sellersFirebaseRepo);
 
   List<SellerModel> sellers = [];
+
+  List<SellerModel> get allSellers => RoleItemType.viewSellers.hasAdminPermission
+      ? sellers
+      : sellers
+          .where(
+            (seller) => seller.costGuid == read<UserManagementController>().loggedInUserModel!.userSellerId,
+          )
+          .toList();
   bool isLoading = true;
 
   SellerModel? selectedSellerAccount;

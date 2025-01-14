@@ -16,6 +16,7 @@ import '../../../core/helper/mixin/floating_launcher.dart';
 import '../../bond/data/models/entry_bond_model.dart';
 import '../../bond/ui/screens/entry_bond_details_screen.dart';
 import '../data/datasources/remote/accounts_statements_data_source.dart';
+import '../data/models/account_model.dart';
 
 class AccountStatementController extends GetxController with FloatingLauncher, AppNavigator {
   // Dependencies
@@ -65,14 +66,16 @@ class AccountStatementController extends GetxController with FloatingLauncher, A
   }
 
   // Event Handlers
-  void onAccountNameSubmitted(String text, BuildContext context) {
+  void onAccountNameSubmitted(String text, BuildContext context) async {
     accountNameController.text = AppUIUtils.convertArabicNumbers(text);
-
-    _accountsController.openAccountSelectionDialog(
-      query: accountNameController.text,
+    AccountModel? accountModel = await _accountsController.openAccountSelectionDialog(
+      query: text,
       context: context,
-      textEditingController: accountNameController,
     );
+    if (accountModel != null) {
+      accountNameController.text = accountModel.accName!;
+    }
+
     update();
   }
 
