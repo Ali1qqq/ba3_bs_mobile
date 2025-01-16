@@ -14,7 +14,7 @@ import '../../../../core/services/firebase/implementations/repos/compound_dataso
 import '../../../../core/utils/app_ui_utils.dart';
 import '../../../accounts/data/models/account_model.dart';
 import '../../service/bond/bond_pdf_generator.dart';
-import '../../service/bond/bond_service.dart';
+import '../../service/bond/bond_details_service.dart';
 import 'bond_search_controller.dart';
 
 class BondDetailsController extends GetxController with AppValidator {
@@ -32,7 +32,7 @@ class BondDetailsController extends GetxController with AppValidator {
   final BondSearchController bondSearchController;
 
   // Services
-  late final BondService _bondService;
+  late final BondDetailsService _bondService;
 
   final formKey = GlobalKey<FormState>();
 
@@ -74,7 +74,7 @@ class BondDetailsController extends GetxController with AppValidator {
 
   // Initializer
   void _initializeServices() {
-    _bondService = BondService(bondDetailsPlutoController, this);
+    _bondService = BondDetailsService(bondDetailsPlutoController, this);
   }
 
   bool validateForm() => formKey.currentState?.validate() ?? false;

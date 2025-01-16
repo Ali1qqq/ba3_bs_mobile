@@ -1,3 +1,4 @@
+import 'package:ba3_bs_mobile/core/helper/extensions/bill_pattern_type_extension.dart';
 import 'package:ba3_bs_mobile/core/helper/extensions/date_time_extensions.dart';
 import 'package:ba3_bs_mobile/core/helper/extensions/getx_controller_extensions.dart';
 import 'package:ba3_bs_mobile/features/bill/data/models/bill_items.dart';
@@ -7,58 +8,45 @@ import 'package:ba3_bs_mobile/features/materials/data/models/material_model.dart
 import 'package:ba3_bs_mobile/features/tax/data/models/tax_model.dart';
 
 import '../../../../core/helper/enums/enums.dart';
+import '../../../../core/services/entry_bond_creator/implementations/base_entry_bond_creator.dart';
 import '../../../accounts/data/models/account_model.dart';
 import '../../../bill/data/models/discount_addition_account_model.dart';
 import '../../../bond/data/models/entry_bond_model.dart';
+import '../../../patterns/data/models/bill_type_model.dart';
 
-mixin BillEntryBondCreatingService {
-  EntryBondModel createEntryBondModel({
-    required EntryBondType originType,
-    required BillModel billModel,
-    required Map<Account, List<DiscountAdditionAccountModel>> discountsAndAdditions,
-    required bool isSimulatedVat,
-  }) {
-    return EntryBondModel(
-      origin: EntryBondOrigin(
-        originId: billModel.billId,
-        originType: originType,
-        originTypeId: billModel.billTypeModel.billTypeId,
-      ),
-      items: generateBondItems(billModel: billModel, discountsAndAdditions: discountsAndAdditions, isSimulatedVat: isSimulatedVat),
-    );
-  }
+class BillEntryBondCreator extends BaseEntryBondCreator<BillModel> {
+  @override
+  List<EntryBondItemModel> generateItems({required BillModel model, bool? isSimulatedVat}) {
+    final customerAccount = model.billTypeModel.accounts![BillAccounts.caches]!;
 
-  List<EntryBondItemModel> generateBondItems({
-    required BillModel billModel,
-    required Map<Account, List<DiscountAdditionAccountModel>> discountsAndAdditions,
-    required bool isSimulatedVat,
-  }) {
-    final customerAccount = billModel.billTypeModel.accounts![BillAccounts.caches]!;
-
-    final billType = BillType.byLabel(billModel.billTypeModel.billTypeLabel!);
+    final billType = BillType.byLabel(model.billTypeModel.billTypeLabel!);
     final isSales = billType == BillType.sales;
 
-    final date = billModel.billDetails.billDate!.dayMonthYear;
+    final date = model.billDetails.billDate!.dayMonthYear;
 
     final itemBonds = _generateBillItemBonds(
-      billId: billModel.billId!,
-      accounts: billModel.billTypeModel.accounts!,
+      billId: model.billId!,
+      accounts: model.billTypeModel.accounts!,
       customerAccount: customerAccount,
-      billItems: billModel.items.itemList,
+      billItems: model.items.itemList,
       date: date,
       isSales: isSales,
+      billTypeModel: model.billTypeModel,
       isSimulatedVat: isSimulatedVat,
     );
-
-    final adjustmentBonds = _generateAdjustmentBonds(
-      discountsAndAdditions: discountsAndAdditions,
-      billId: billModel.billId!,
-      customerAccount: customerAccount,
-      date: date,
-      isSales: isSales,
-    );
-
-    return [...itemBonds, ...adjustmentBonds];
+    if (model.billTypeModel.billPatternType!.hasDiscountsAccount) {
+      final adjustmentBonds = _generateAdjustmentBonds(
+        discountsAndAdditions: model.billTypeModel.discountAdditionAccounts!,
+        billId: model.billId!,
+        customerAccount: customerAccount,
+        date: date,
+        billTypeModel: model.billTypeModel,
+        isSales: isSales,
+      );
+      return [...itemBonds, ...adjustmentBonds];
+    } else {
+      return itemBonds;
+    }
   }
 
   List<EntryBondItemModel> _generateBillItemBonds({
@@ -67,11 +55,12 @@ mixin BillEntryBondCreatingService {
     required AccountModel customerAccount,
     required List<BillItem> billItems,
     required String date,
+    required BillTypeModel billTypeModel,
     required bool isSales,
-    required bool isSimulatedVat,
-  }) {
-    return billItems.expand((item) {
-      return [
+    bool? isSimulatedVat,
+  }) =>
+      billItems
+          .expand((item) => [
         if (accounts.containsKey(BillAccounts.materials) && item.itemQuantity > 0)
           _createMaterialBond(
             billId: billId,
@@ -80,22 +69,30 @@ mixin BillEntryBondCreatingService {
             quantity: item.itemQuantity,
             name: item.itemName!,
             date: date,
+            billTypeModel: billTypeModel,
             isSales: isSales,
           ),
         if (item.itemQuantity > 0)
           ..._generateCustomerBonds(
-              billId: billId, customerAccount: customerAccount, item: item, date: date, isSales: isSales, isSimulatedVat: isSimulatedVat),
+            billId: billId,
+            customerAccount: customerAccount,
+            item: item,
+            date: date,
+            isSales: isSales,
+            billTypeModel: billTypeModel,
+            isSimulatedVat: isSimulatedVat,
+          ),
         ..._createOptionalBonds(
           billId: billId,
           accounts: accounts,
           item: item,
           date: date,
           isSales: isSales,
+          billTypeModel: billTypeModel,
           isSimulatedVat: isSimulatedVat,
         ),
-      ];
-    }).toList();
-  }
+      ])
+          .toList();
 
   List<EntryBondItemModel> _createOptionalBonds({
     required String billId,
@@ -103,42 +100,44 @@ mixin BillEntryBondCreatingService {
     required BillItem item,
     required String date,
     required bool isSales,
-    required bool isSimulatedVat,
+    required BillTypeModel billTypeModel,
+    bool? isSimulatedVat,
   }) {
     final giftCount = item.itemGiftsNumber;
     final giftPrice = item.itemGiftsPrice;
 
     /// When isSimulatedVat is true, VAT is calculated as 5% of the total price for preview purposes only.
     /// Otherwise, the actual VAT value is used.
-    final vat = isSimulatedVat ? _calculateSimulatedVat(item) : _calculateActualVat(item);
+    final vat = isSimulatedVat ?? false ? _calculateSimulatedVat(item) : _calculateActualVat(item);
 
     return [
-      if (vat > 0)
+      if (vat > 0 && billTypeModel.billPatternType!.hasVat)
         _createVatBond(
-          billId: billId,
-          vat: vat,
-          item: read<MaterialController>().materials.firstWhere(
-                (mat) => mat.id == item.itemGuid,
-              ),
-          quantity: item.itemQuantity,
-          date: date,
-          isSales: isSales,
-        ),
+            billId: billId,
+            vat: vat,
+            item: read<MaterialController>().materials.firstWhere(
+                  (mat) => mat.id == item.itemGuid,
+            ),
+            quantity: item.itemQuantity,
+            date: date,
+            isSales: isSales,
+            billTypeModel: billTypeModel),
       if (_shouldHandleGifts(accounts, giftCount, giftPrice))
         ..._createGiftBonds(
-          billId: billId,
-          accounts: accounts,
-          giftCount: giftCount!,
-          giftPrice: giftPrice!,
-          name: item.itemName!,
-          date: date,
-          isSales: isSales,
-        ),
+            billId: billId,
+            accounts: accounts,
+            giftCount: giftCount!,
+            giftPrice: giftPrice!,
+            name: item.itemName!,
+            date: date,
+            isSales: isSales,
+            billTypeModel: billTypeModel),
     ];
   }
 
   /// Helper function for calculating simulated VAT.
-  double _calculateSimulatedVat(BillItem item) => ((double.parse(item.itemTotalPrice) / 1.05) * 0.05) * item.itemQuantity;
+  double _calculateSimulatedVat(BillItem item) =>
+      ((double.parse(item.itemTotalPrice) / 1.05) * 0.05) * item.itemQuantity;
 
   /// Helper function for calculating the actual VAT value.
   double _calculateActualVat(BillItem item) => item.itemVatPrice! * item.itemQuantity;
@@ -151,6 +150,7 @@ mixin BillEntryBondCreatingService {
     required String name,
     required String date,
     required bool isSales,
+    required BillTypeModel billTypeModel,
   }) {
     return _createBondItem(
       amount: total,
@@ -158,7 +158,7 @@ mixin BillEntryBondCreatingService {
       bondType: isSales ? BondItemType.creditor : BondItemType.debtor,
       accountName: materialAccount.accName,
       accountId: materialAccount.id,
-      note: '${getNote(isSales)} عدد $quantity من $name',
+      note: '${billTypeModel.shortName} عدد $quantity من $name',
       date: date,
     );
   }
@@ -169,11 +169,13 @@ mixin BillEntryBondCreatingService {
     required BillItem item,
     required String date,
     required bool isSales,
-    required bool isSimulatedVat,
+    required BillTypeModel billTypeModel,
+    bool? isSimulatedVat,
   }) {
     /// هذه العملية لحساب الضريبة من المجموع الكلي ودائما تكون الضريبة نسبة 5% عند الاستعراض فقط
-    final vat =
-        isSimulatedVat ? ((double.parse(item.itemTotalPrice) / 1.05) * 0.05) * item.itemQuantity : item.itemVatPrice! * item.itemQuantity;
+    final vat = isSimulatedVat ?? false
+        ? ((double.parse(item.itemTotalPrice) / 1.05) * 0.05) * item.itemQuantity
+        : item.itemVatPrice! * item.itemQuantity;
     final total = item.itemSubTotalPrice! * item.itemQuantity;
 
     return [
@@ -183,17 +185,17 @@ mixin BillEntryBondCreatingService {
         bondType: isSales ? BondItemType.debtor : BondItemType.creditor,
         accountName: customerAccount.accName,
         accountId: customerAccount.id,
-        note: '${getNote(isSales)} عدد ${item.itemQuantity} من ${item.itemName}',
+        note: '${billTypeModel.shortName} عدد ${item.itemQuantity} من ${item.itemName}',
         date: date,
       ),
-      if (vat > 0)
+      if (vat > 0 && billTypeModel.billPatternType!.hasVat)
         _createBondItem(
           amount: vat,
           billId: billId,
           bondType: isSales ? BondItemType.debtor : BondItemType.creditor,
           accountName: customerAccount.accName,
           accountId: customerAccount.id,
-          note: 'ضريبة ${getNote(isSales)} عدد ${item.itemQuantity} من ${item.itemName}',
+          note: 'ضريبة ${billTypeModel.shortName} عدد ${item.itemQuantity} من ${item.itemName}',
           date: date,
         ),
     ];
@@ -205,11 +207,13 @@ mixin BillEntryBondCreatingService {
     required MaterialModel item,
     required int quantity,
     required String date,
+    required BillTypeModel billTypeModel,
     required bool isSales,
   }) {
     final bondType = isSales ? BondItemType.creditor : BondItemType.debtor;
-    final accountId = item.matVatGuid == null ? VatEnums.withVat.taxAccountGuid : VatEnums.byGuid(item.matVatGuid!).taxAccountGuid;
-    final note = 'ضريبة ${getNote(isSales)} عدد $quantity من ${item.matName}';
+    final accountId =
+    item.matVatGuid == null ? VatEnums.withVat.taxAccountGuid : VatEnums.byGuid(item.matVatGuid!).taxAccountGuid;
+    final note = 'ضريبة ${billTypeModel.shortName} عدد $quantity من ${item.matName}';
 
     return _createBondItem(
       amount: vat,
@@ -238,6 +242,7 @@ mixin BillEntryBondCreatingService {
     required double giftPrice,
     required String name,
     required String date,
+    required BillTypeModel billTypeModel,
     required bool isSales,
   }) {
     final totalGifts = giftPrice * giftCount;
@@ -251,7 +256,7 @@ mixin BillEntryBondCreatingService {
         bondType: isSales ? BondItemType.debtor : BondItemType.creditor,
         accountName: giftAccount.accName,
         accountId: giftAccount.id,
-        note: 'هدايا ${getNote(isSales)} عدد $giftCount من $name',
+        note: 'هدايا ${billTypeModel.shortName} عدد $giftCount من $name',
         date: date,
       ),
       _createBondItem(
@@ -260,7 +265,7 @@ mixin BillEntryBondCreatingService {
         bondType: isSales ? BondItemType.creditor : BondItemType.debtor,
         accountName: settlementAccount.accName,
         accountId: settlementAccount.id,
-        note: 'مقابل هدايا ${getNote(isSales)} عدد $giftCount من $name',
+        note: 'مقابل هدايا ${billTypeModel.shortName} عدد $giftCount من $name',
         date: date,
       ),
     ];
@@ -271,6 +276,7 @@ mixin BillEntryBondCreatingService {
     required String billId,
     required AccountModel customerAccount,
     required String date,
+    required BillTypeModel billTypeModel,
     required bool isSales,
   }) {
     return [
@@ -280,7 +286,7 @@ mixin BillEntryBondCreatingService {
           billId: billId,
           date: date,
           customerAccount: customerAccount,
-          notePrefix: 'حسم ${getNote(isSales)}',
+          notePrefix: 'حسم ${billTypeModel.shortName}',
           positiveBondType: isSales ? BondItemType.debtor : BondItemType.creditor,
           oppositeBondType: isSales ? BondItemType.creditor : BondItemType.debtor,
         ),
@@ -290,7 +296,7 @@ mixin BillEntryBondCreatingService {
           billId: billId,
           date: date,
           customerAccount: customerAccount,
-          notePrefix: 'اضافة ${getNote(isSales)}',
+          notePrefix: 'اضافة ${billTypeModel.shortName}',
           positiveBondType: isSales ? BondItemType.creditor : BondItemType.debtor,
           oppositeBondType: isSales ? BondItemType.debtor : BondItemType.creditor,
         ),
@@ -307,26 +313,27 @@ mixin BillEntryBondCreatingService {
     required BondItemType oppositeBondType,
   }) =>
       [
-        for (final model in models) ...[
-          _createBondItem(
-            amount: model.amount,
-            billId: billId,
-            bondType: positiveBondType,
-            accountName: model.accName,
-            accountId: model.id,
-            note: '$notePrefix لحساب ${model.accName}',
-            date: date,
-          ),
-          _createBondItem(
-            amount: model.amount,
-            billId: billId,
-            bondType: oppositeBondType,
-            accountName: customerAccount.accName,
-            accountId: customerAccount.id,
-            note: '$notePrefix لحساب ${model.accName}',
-            date: date,
-          ),
-        ],
+        for (final model in models)
+          if (model.amount > 0) ...[
+            _createBondItem(
+              amount: model.amount,
+              billId: billId,
+              bondType: positiveBondType,
+              accountName: model.accName,
+              accountId: model.id,
+              note: '$notePrefix لحساب ${model.accName}',
+              date: date,
+            ),
+            _createBondItem(
+              amount: model.amount,
+              billId: billId,
+              bondType: oppositeBondType,
+              accountName: customerAccount.accName,
+              accountId: customerAccount.id,
+              note: '$notePrefix لحساب ${model.accName}',
+              date: date,
+            ),
+          ],
       ];
 
   EntryBondItemModel _createBondItem({
@@ -341,18 +348,22 @@ mixin BillEntryBondCreatingService {
       EntryBondItemModel(
         bondItemType: bondType,
         amount: amount,
-        accountId: accountId,
-        accountName: accountName,
+        account: AccountEntity(
+          id: accountId!,
+          name: accountName!,
+        ),
         note: note,
         originId: billId,
         date: date,
       );
 
-  String getNote(bool isSales) {
-    if (isSales) {
-      return 'بيع';
-    } else {
-      return 'شراء';
-    }
-  }
+  @override
+  EntryBondOrigin createOrigin({required BillModel model, required EntryBondType originType}) => EntryBondOrigin(
+    originId: model.billId,
+    originType: originType,
+    originTypeId: model.billTypeModel.billTypeId,
+  );
+
+  @override
+  String getModelId(BillModel model) => model.billId!;
 }

@@ -13,6 +13,7 @@ import 'package:intl/intl.dart';
 
 import '../../../core/helper/mixin/app_navigator.dart';
 import '../../../core/helper/mixin/floating_launcher.dart';
+import '../../../core/services/firebase/implementations/repos/compound_datasource_repo.dart';
 import '../../bond/data/models/entry_bond_model.dart';
 import '../../bond/ui/screens/entry_bond_details_screen.dart';
 import '../data/datasources/remote/accounts_statements_data_source.dart';
@@ -20,7 +21,7 @@ import '../data/models/account_model.dart';
 
 class AccountStatementController extends GetxController with FloatingLauncher, AppNavigator {
   // Dependencies
-  final AccountsStatementsRepository _accountsStatementsRepo;
+  final CompoundDatasourceRepository<EntryBondItems, AccountEntity> _accountsStatementsRepo;
   final AccountsController _accountsController = read<AccountsController>();
 
   AccountStatementController(this._accountsStatementsRepo);
@@ -100,11 +101,11 @@ class AccountStatementController extends GetxController with FloatingLauncher, A
     isLoading = true;
     update();
 
-    final result = await _accountsStatementsRepo.getAllBonds(accountModel.id!);
+   final result = await _accountsStatementsRepo.getAll(AccountEntity.fromAccountModel(accountModel));
     result.fold(
       (failure) => AppUIUtils.onFailure(failure.message),
       (fetchedItems) {
-        entryBondItems.assignAll(fetchedItems);
+        entryBondItems.assignAll(fetchedItems.expand((item) => item.itemList).toList());
         filterByDate();
 
         _calculateValues(filteredEntryBondItems);
@@ -129,7 +130,7 @@ class AccountStatementController extends GetxController with FloatingLauncher, A
       try {
         entryBondItemDate = dateFormat.parse(entryBondItemDateStr);
       } catch (e) {
-        log('e $e ');
+        log('Error parsing item.date: $entryBondItemDateStr. Error: $e');
         return false; // Skip invalid date formats
       }
 
@@ -170,7 +171,8 @@ class AccountStatementController extends GetxController with FloatingLauncher, A
         (sum, item) => item.bondItemType == type ? sum + (item.amount ?? 0.0) : sum,
       );
 
-  String get screenTitle => 'حركات ${accountNameController.text} من تاريخ ${startDateController.text} إلى تاريخ ${endDateController.text}';
+  String get screenTitle =>
+      'حركات ${accountNameController.text} من تاريخ ${startDateController.text} إلى تاريخ ${endDateController.text}';
 
   // Helper Methods
   static String get _formattedToday => DateTime.now().dayMonthYear;

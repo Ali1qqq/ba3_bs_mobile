@@ -16,6 +16,7 @@ import '../../../../core/dialogs/e_invoice_dialog_content.dart';
 import '../../../../core/helper/enums/enums.dart';
 import '../../../../core/helper/extensions/getx_controller_extensions.dart';
 import '../../../../core/i_controllers/pdf_base.dart';
+import '../../../../core/services/entry_bond_creator/implementations/entry_bond_creator_factory.dart';
 import '../../../../core/utils/app_ui_utils.dart';
 import '../../../bond/controllers/entry_bond/entry_bond_controller.dart';
 import '../../../bond/ui/screens/entry_bond_details_screen.dart';
@@ -27,16 +28,15 @@ import '../../controllers/bill/all_bills_controller.dart';
 import '../../data/models/bill_model.dart';
 import '../../data/models/discount_addition_account_model.dart';
 import '../../data/models/invoice_record_model.dart';
-import 'bill_entry_bond_creating_service.dart';
 import 'bill_pdf_generator.dart';
 
-class BillService with PdfBase, BillEntryBondCreatingService, FloatingLauncher {
+class BillDetailsService with PdfBase, FloatingLauncher {
   final IPlutoController<InvoiceRecordModel> plutoController;
   final IBillController billController;
 
-  BillService(this.plutoController, this.billController);
+  BillDetailsService(this.plutoController, this.billController);
 
-  EntryBondController get bondController => read<EntryBondController>();
+  EntryBondController get entryBondController => read<EntryBondController>();
 
   BillModel? createBillModel({
     BillModel? billModel,
@@ -66,18 +66,15 @@ class BillService with PdfBase, BillEntryBondCreatingService, FloatingLauncher {
     );
   }
 
-  void launchFloatingEntryBondDetailsScreen({
-    required BuildContext context,
-    required BillModel billModel,
-    required Map<Account, List<DiscountAdditionAccountModel>> discountsAndAdditions,
-  }) {
+  void launchFloatingEntryBondDetailsScreen({required BuildContext context, required BillModel billModel}) {
     if (!hasModelId(billModel.billId)) return;
 
-    final entryBondModel = createEntryBondModel(
+    final creator = EntryBondCreatorFactory.resolveEntryBondCreator(billModel);
+
+    final entryBondModel = creator.createEntryBond(
       isSimulatedVat: true,
       originType: EntryBondType.bill,
-      billModel: billModel,
-      discountsAndAdditions: discountsAndAdditions,
+      model: billModel,
     );
 
     launchFloatingWindow(
@@ -102,24 +99,25 @@ class BillService with PdfBase, BillEntryBondCreatingService, FloatingLauncher {
 
     AppUIUtils.onSuccess('تم حذف الفاتورة بنجاح!');
 
-    bondController.deleteEntryBondModel(entryId: billModel.billId!);
+    entryBondController.deleteEntryBondModel(entryId: billModel.billId!);
   }
 
   Future<void> handleUpdateBillStatusSuccess({
     required BillModel updatedBillModel,
-    required Map<Account, List<DiscountAdditionAccountModel>> discountsAndAdditions,
     required BillSearchController billSearchController,
   }) async {
     AppUIUtils.onSuccess('تم القبول بنجاح');
     billSearchController.updateBill(updatedBillModel);
 
-    if (updatedBillModel.status == Status.approved && updatedBillModel.billTypeModel.billPatternType!.hasCashesAccount) {
-      bondController.saveEntryBondModel(
-        entryBondModel: createEntryBondModel(
+    if (updatedBillModel.status == Status.approved &&
+        updatedBillModel.billTypeModel.billPatternType!.hasCashesAccount) {
+      final creator = EntryBondCreatorFactory.resolveEntryBondCreator(updatedBillModel);
+
+      entryBondController.saveEntryBondModel(
+        entryBondModel: creator.createEntryBond(
           isSimulatedVat: false,
           originType: EntryBondType.bill,
-          billModel: updatedBillModel,
-          discountsAndAdditions: discountsAndAdditions,
+          model: updatedBillModel,
         ),
       );
     }
@@ -127,7 +125,6 @@ class BillService with PdfBase, BillEntryBondCreatingService, FloatingLauncher {
 
   Future<void> handleSaveOrUpdateSuccess({
     required BillModel billModel,
-    required Map<Account, List<DiscountAdditionAccountModel>> discountsAndAdditions,
     required BillSearchController billSearchController,
     required bool isSave,
   }) async {
@@ -150,12 +147,13 @@ class BillService with PdfBase, BillEntryBondCreatingService, FloatingLauncher {
     );
 
     if (billModel.status == Status.approved && billModel.billTypeModel.billPatternType!.hasMaterialAccount) {
-      bondController.saveEntryBondModel(
-        entryBondModel: createEntryBondModel(
+      final creator = EntryBondCreatorFactory.resolveEntryBondCreator(billModel);
+
+      entryBondController.saveEntryBondModel(
+        entryBondModel: creator.createEntryBond(
           isSimulatedVat: false,
           originType: EntryBondType.bill,
-          billModel: billModel,
-          discountsAndAdditions: discountsAndAdditions,
+          model: billModel,
         ),
       );
     }
@@ -175,9 +173,7 @@ class BillService with PdfBase, BillEntryBondCreatingService, FloatingLauncher {
         log('E-Invoice dialog closed.');
       },
     );
-  }
-
-  Future<void> showBarCodeScanner({
+  }  Future<void> showBarCodeScanner({
     required BuildContext context,
     required PlutoGridStateManager stateManager,
     required IPlutoController plutoController,

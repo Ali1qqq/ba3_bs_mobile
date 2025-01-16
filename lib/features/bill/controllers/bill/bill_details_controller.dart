@@ -42,7 +42,7 @@ class BillDetailsController extends IBillController with AppValidator, AppNaviga
   });
 
   // Services
-  late final BillService _billService;
+  late final BillDetailsService _billDetailsService;
   late final BillUtils _billUtils;
   late final AccountHandler _accountHandler;
 
@@ -92,7 +92,7 @@ class BillDetailsController extends IBillController with AppValidator, AppNaviga
 
   @override
   Future<void> sendToEmail({required String recipientEmail, String? url, String? subject, String? body, List<String>? attachments}) async {
-    _billService.sendToEmail(recipientEmail: recipientEmail, url: url, subject: subject, body: body, attachments: attachments);
+    _billDetailsService.sendToEmail(recipientEmail: recipientEmail, url: url, subject: subject, body: body, attachments: attachments);
   }
 
   @override
@@ -108,7 +108,7 @@ class BillDetailsController extends IBillController with AppValidator, AppNaviga
 
   // Initializer
   void _initializeServices() {
-    _billService = BillService(billDetailsPlutoController, this);
+    _billDetailsService = BillDetailsService(billDetailsPlutoController, this);
     _billUtils = BillUtils();
     _accountHandler = AccountHandler();
   }
@@ -133,7 +133,7 @@ class BillDetailsController extends IBillController with AppValidator, AppNaviga
   }
 
   Future<void> printBill({required BillModel billModel, required List<InvoiceRecordModel> invRecords}) async {
-    if (!_billService.hasModelId(billModel.billId)) return;
+    if (!_billDetailsService.hasModelId(billModel.billId)) return;
 
     await read<PrintingController>().startPrinting(
       invRecords: invRecords,
@@ -145,10 +145,9 @@ class BillDetailsController extends IBillController with AppValidator, AppNaviga
   void createEntryBond(BillModel billModel, BuildContext context) {
     if (!validateForm()) return;
 
-    _billService.launchFloatingEntryBondDetailsScreen(
+    _billDetailsService.launchFloatingEntryBondDetailsScreen(
       context: context,
       billModel: billModel,
-      discountsAndAdditions: billDetailsPlutoController.generateDiscountsAndAdditions,
     );
   }
 
@@ -157,9 +156,8 @@ class BillDetailsController extends IBillController with AppValidator, AppNaviga
 
     result.fold(
       (failure) => AppUIUtils.onFailure(failure.message),
-      (updatedBillModel) => _billService.handleUpdateBillStatusSuccess(
+      (updatedBillModel) => _billDetailsService.handleUpdateBillStatusSuccess(
         updatedBillModel: updatedBillModel,
-        discountsAndAdditions: billDetailsPlutoController.generateDiscountsAndAdditions,
         billSearchController: billSearchController,
       ),
     );
@@ -170,7 +168,7 @@ class BillDetailsController extends IBillController with AppValidator, AppNaviga
 
     result.fold(
       (failure) => AppUIUtils.onFailure(failure.message),
-      (success) => _billService.handleDeleteSuccess(
+      (success) => _billDetailsService.handleDeleteSuccess(
         billModel: billModel,
         billSearchController: billSearchController,
         fromBillById: fromBillById,
@@ -200,7 +198,7 @@ class BillDetailsController extends IBillController with AppValidator, AppNaviga
     }
 
     // Ensure there are bill items
-    if (!_billService.hasModelItems(updatedBillModel.items.itemList)) return;
+    if (!_billDetailsService.hasModelItems(updatedBillModel.items.itemList)) return;
 
     // Save the bill to Firestore
     final result = await _billsFirebaseRepo.save(updatedBillModel);
@@ -209,9 +207,8 @@ class BillDetailsController extends IBillController with AppValidator, AppNaviga
     result.fold(
       (failure) => AppUIUtils.onFailure(failure.message),
       (billModel) {
-        _billService.handleSaveOrUpdateSuccess(
+        _billDetailsService.handleSaveOrUpdateSuccess(
           billModel: billModel,
-          discountsAndAdditions: billDetailsPlutoController.generateDiscountsAndAdditions,
           billSearchController: billSearchController,
           isSave: existingBillModel == null,
         );
@@ -238,7 +235,7 @@ class BillDetailsController extends IBillController with AppValidator, AppNaviga
         billTypeModel;
 
     // Create and return the bill model
-    return _billService.createBillModel(
+    return _billDetailsService.createBillModel(
       billModel: billModel,
       billNote: noteController.text,
       billTypeModel: updatedBillTypeModel,
@@ -292,7 +289,7 @@ class BillDetailsController extends IBillController with AppValidator, AppNaviga
   }
 
   generateAndSendBillPdf(BillModel billModel) {
-    _billService.generateAndSendPdf(
+    _billDetailsService.generateAndSendPdf(
       fileName: AppStrings.bill,
       itemModel: billModel,
       itemModelId: billModel.billId,
@@ -302,10 +299,10 @@ class BillDetailsController extends IBillController with AppValidator, AppNaviga
   }
 
   showEInvoiceDialog(BillModel billModel, BuildContext context) {
-    _billService.showEInvoiceDialog(billModel, context);
+    _billDetailsService.showEInvoiceDialog(billModel, context);
   }
 
-  showBarCodeScanner(BuildContext context) => _billService.showBarCodeScanner(
+  showBarCodeScanner(BuildContext context) => _billDetailsService.showBarCodeScanner(
         context: context,
         stateManager: billDetailsPlutoController.recordsTableStateManager,
         plutoController: billDetailsPlutoController,

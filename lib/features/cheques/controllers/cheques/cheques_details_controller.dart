@@ -12,7 +12,7 @@ import '../../../../core/services/firebase/implementations/repos/compound_dataso
 import '../../../../core/utils/app_ui_utils.dart';
 import '../../../accounts/data/models/account_model.dart';
 import '../../../bond/controllers/entry_bond/entry_bond_controller.dart';
-import '../../service/cheques_service.dart';
+import '../../service/cheques_details_service.dart';
 import 'cheques_search_controller.dart';
 
 class ChequesDetailsController extends GetxController with AppValidator {
@@ -28,7 +28,7 @@ class ChequesDetailsController extends GetxController with AppValidator {
   final ChequesSearchController chequesSearchController;
 
   // Services
-  late final ChequesService _chequesService;
+  late final ChequesDetailsService _chequesService;
 
   final formKey = GlobalKey<FormState>();
 
@@ -78,7 +78,7 @@ class ChequesDetailsController extends GetxController with AppValidator {
 
   // Initializer
   void _initializeServices() {
-    _chequesService = ChequesService();
+    _chequesService = ChequesDetailsService();
   }
 
   bool validateForm() => formKey.currentState?.validate() ?? false;
@@ -153,9 +153,10 @@ class ChequesDetailsController extends GetxController with AppValidator {
   void launchPayEntryBondWindow(ChequesModel chequesModel, BuildContext context) {
     if (!validateForm()) return;
 
-    _chequesService.launchChequesPayEntryBondScreen(
+    _chequesService.launchChequesEntryBondScreen(
       chequesModel: chequesModel,
       context: context,
+      isPay: true,
     );
   }
 

@@ -1,182 +1,188 @@
-import 'dart:developer';
-
+import 'package:ba3_bs_mobile/core/models/date_filter.dart';
 import 'package:ba3_bs_mobile/core/network/api_constants.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:dartz/dartz.dart';
+import 'package:ba3_bs_mobile/core/services/firebase/interfaces/compound_datasource_base.dart';
+import 'package:ba3_bs_mobile/features/accounts/data/models/account_model.dart';
 
-import '../../../../../core/network/error/error_handler.dart';
-import '../../../../../core/network/error/failure.dart';
+import '../../../../../core/models/query_filter.dart';
 import '../../../../bond/data/models/entry_bond_model.dart';
 
-class AccountsStatementsDatasource {
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+class AccountsStatementsDatasource extends CompoundDatasourceBase<EntryBondItems, AccountEntity> {
+  AccountsStatementsDatasource({required super.compoundDatabaseService});
 
-  CollectionReference get _accountsStatementsCollection => _firestore.collection(ApiConstants.accountsStatements);
+  // Parent Collection (e.g., "bills", "bonds")
+  @override
+  String get rootCollectionPath => ApiConstants.accountsStatements; // Collection name in Firestore
 
-  /// Add a new bond entry to Firestore under a specific account
-  Future<void> add(String accountId, EntryBondModel entryBond) async {
-    try {
-      final docRef = _accountsStatementsCollection.doc(accountId).collection(ApiConstants.entryBondsItems).doc(entryBond.origin?.originId);
+  @override
+  Future<List<EntryBondItems>> fetchAll({required AccountEntity itemTypeModel}) async {
+    final rootDocumentId = getRootDocumentId(itemTypeModel);
+    final subcollectionPath = getSubCollectionPath(itemTypeModel);
 
-      final items = entryBond.items?.where((item) => item.accountId == accountId).map((item) => item.toJson()).toList() ?? [];
+    final dataList = await compoundDatabaseService.fetchAll(
+      rootCollectionPath: rootCollectionPath,
+      rootDocumentId: rootDocumentId,
+      subCollectionPath: subcollectionPath,
+    );
 
-      await docRef.set({'items': items});
-    } catch (e) {
-      throw Exception('Failed to add bond: $e');
-    }
+    // Flatten and map data['items'] into a single list of EntryBondItems
+    final entryBondItems = dataList.map((item) => EntryBondItems.fromJson(item)).toList();
+
+    return entryBondItems;
   }
 
-  /// Fetch all bond entries under a specific account
-  Future<List<EntryBondItemModel>> fetchAll(String accountId) async {
-    try {
-      final bondsCollection = _accountsStatementsCollection.doc(accountId).collection(ApiConstants.entryBondsItems);
-      final bondSnapshots = await bondsCollection.get();
+  @override
+  Future<List<EntryBondItems>> fetchWhere<V>({
+    required AccountEntity itemTypeModel,
+    required String field,
+    required V value,
+    DateFilter? dateFilter,
+  }) async {
+    final dataList = await compoundDatabaseService.fetchWhere(
+      rootCollectionPath: rootCollectionPath,
+      rootDocumentId: getRootDocumentId(itemTypeModel),
+      subCollectionPath: getSubCollectionPath(itemTypeModel),
+      field: field,
+      value: value,
+      dateFilter: dateFilter,
+    );
 
-      if (bondSnapshots.docs.isEmpty) return [];
+    // Flatten and map data['items'] into a single list of EntryBondItems
+    final entryBondItems = dataList.map((item) => EntryBondItems.fromJson(item)).toList();
 
-      final List<EntryBondItemModel> entryBondItems = [];
-      for (final doc in bondSnapshots.docs) {
-        final data = doc.data() as Map<String, dynamic>?;
-
-        final itemsData = data?['items'] as List<dynamic>? ?? [];
-
-        final items = itemsData.map((item) {
-          return EntryBondItemModel.fromJson(item as Map<String, dynamic>);
-        }).toList();
-
-        entryBondItems.addAll(items);
-      }
-      return entryBondItems;
-    } catch (e) {
-      throw Exception('Failed to fetch bonds: $e');
-    }
+    return entryBondItems;
   }
 
-  /// Fetch a specific bond entry items under a specific account by origin id created from it
-  Future<List<EntryBondItemModel>?> fetchById(String accountId, String bondId) async {
-    try {
-      final docRef = _accountsStatementsCollection.doc(accountId).collection(ApiConstants.entryBondsItems).doc(bondId);
-      final docSnapshot = await docRef.get();
+  @override
+  Future<EntryBondItems> fetchById({required String id, required AccountEntity itemTypeModel}) async {
+    final rootDocumentId = getRootDocumentId(itemTypeModel);
+    final subcollectionPath = getSubCollectionPath(itemTypeModel);
 
-      if (!docSnapshot.exists) return null;
+    final data = await compoundDatabaseService.fetchById(
+      rootCollectionPath: rootCollectionPath,
+      rootDocumentId: rootDocumentId,
+      subCollectionPath: subcollectionPath,
+      subDocumentId: id,
+    );
 
-      final data = docSnapshot.data();
-
-      final itemsData = data?['items'] as List<dynamic>? ?? [];
-      final items = itemsData.map((item) {
-        return EntryBondItemModel.fromJson(item as Map<String, dynamic>);
-      }).toList();
-
-      return items;
-    } catch (e) {
-      throw Exception('Failed to fetch bond by ID: $e');
-    }
+    return EntryBondItems.fromJson(data);
   }
 
-  /// Update a bond entry's items under a specific account and bondId
-  Future<void> update(String accountId, String bondId, EntryBondModel entryBond) async {
-    try {
-      final docRef = _accountsStatementsCollection.doc(accountId).collection(ApiConstants.entryBondsItems).doc(bondId);
-      final items = entryBond.items?.map((item) => item.toJson()).toList() ?? [];
-      await docRef.update({'items': items});
-    } catch (e) {
-      throw Exception('Failed to update bond: $e');
-    }
+  @override
+  Future<void> delete({required EntryBondItems item}) async {
+    final account = item.itemList.first.account;
+
+    final rootDocumentId = getRootDocumentId(account);
+    final subcollectionPath = getSubCollectionPath(account);
+
+    await compoundDatabaseService.delete(
+      rootCollectionPath: rootCollectionPath,
+      rootDocumentId: rootDocumentId,
+      subCollectionPath: subcollectionPath,
+      subDocumentId: item.id,
+    );
   }
 
-  /// Delete a specific bond entry under a given account by bondId
-  Future<void> delete(String accountId, String originId) async {
-    try {
-      final docRef = _accountsStatementsCollection.doc(accountId).collection(ApiConstants.entryBondsItems).doc(originId);
-      await docRef.delete();
-    } catch (e) {
-      throw Exception('Failed to delete bond: $e');
-    }
+  @override
+  Future<EntryBondItems> save({required EntryBondItems item}) async {
+    final account = item.itemList.first.account;
+
+    final rootDocumentId = getRootDocumentId(account);
+    final subCollectionPath = getSubCollectionPath(account);
+
+    final savedData = await compoundDatabaseService.add(
+      rootCollectionPath: rootCollectionPath,
+      rootDocumentId: rootDocumentId,
+      subCollectionPath: subCollectionPath,
+      subDocumentId: item.id,
+      data: {'items': item.itemList.map((item) => item.toJson()).toList()},
+    );
+
+    return EntryBondItems.fromJson(savedData);
   }
 
-  /// Delete all bond entries under a specific account
-  Future<void> deleteAllBonds(String accountId) async {
-    try {
-      final bondsCollection = _accountsStatementsCollection.doc(accountId).collection(ApiConstants.entryBondsItems);
-      final bondSnapshots = await bondsCollection.get();
+  @override
+  Future<int> countDocuments({required AccountEntity itemTypeModel, QueryFilter? countQueryFilter}) async {
+    final rootDocumentId = getRootDocumentId(itemTypeModel);
+    final subCollectionPath = getSubCollectionPath(itemTypeModel);
 
-      final batch = _firestore.batch();
+    final count = await compoundDatabaseService.countDocuments(
+      rootCollectionPath: rootCollectionPath,
+      rootDocumentId: rootDocumentId,
+      subCollectionPath: subCollectionPath,
+      countQueryFilter: countQueryFilter,
+    );
 
-      for (final doc in bondSnapshots.docs) {
-        batch.delete(doc.reference);
-      }
+    return count;
+  }
 
-      await batch.commit();
-    } catch (e) {
-      throw Exception('Failed to delete all bonds: $e');
+  @override
+  Future<Map<AccountEntity, List<EntryBondItems>>> fetchAllNested({required List<AccountEntity> itemTypes}) async {
+    final billsByType = <AccountEntity, List<EntryBondItems>>{};
+
+    final List<Future<void>> fetchTasks = [];
+    // Create tasks to fetch all bills for each type
+
+    for (final billTypeModel in itemTypes) {
+      fetchTasks.add(
+        fetchAll(itemTypeModel: billTypeModel).then((result) {
+          billsByType[billTypeModel] = result;
+        }),
+      );
     }
+    // Wait for all tasks to complete
+    await Future.wait(fetchTasks);
+
+    return billsByType;
+  }
+
+  @override
+  Future<Map<AccountEntity, List<EntryBondItems>>> saveAllNested(
+      {required List<AccountEntity> itemTypes, required List<EntryBondItems> items}) async {
+    final billsByType = <AccountEntity, List<EntryBondItems>>{};
+
+    final List<Future<void>> fetchTasks = [];
+    // Create tasks to fetch all bills for each type
+
+    for (final accountEntity in itemTypes) {
+      fetchTasks.add(
+        saveAll(
+            itemTypeModel: accountEntity,
+            items: items
+                .where(
+                  (element) => element.itemList.first.account.id == accountEntity.id,
+            )
+                .toList())
+            .then((result) {
+          billsByType[accountEntity] = result;
+        }),
+      );
+    }
+
+    // Wait for all tasks to complete
+    await Future.wait(fetchTasks);
+
+    return billsByType;
+  }
+
+  @override
+  Future<List<EntryBondItems>> saveAll(
+      {required List<EntryBondItems> items, required AccountEntity itemTypeModel}) async {
+    final rootDocumentId = getRootDocumentId(itemTypeModel);
+    final subCollectionPath = getSubCollectionPath(itemTypeModel);
+
+    final savedData = await compoundDatabaseService.saveAll(
+      rootCollectionPath: rootCollectionPath,
+      rootDocumentId: rootDocumentId,
+      subCollectionPath: subCollectionPath,
+      items: items.map((item) {
+        return {
+          ...item.toJson(),
+          'docId': item.id,
+        };
+      }).toList(),
+    );
+
+    return savedData.map(EntryBondItems.fromJson).toList();
   }
 }
 
-class AccountsStatementsRepository {
-  final AccountsStatementsDatasource _dataSource;
-
-  AccountsStatementsRepository(this._dataSource);
-
-  Future<Either<Failure, List<EntryBondItemModel>>> getAllBonds(String accountId) async {
-    try {
-      final data = await _dataSource.fetchAll(accountId);
-
-      return Right(data);
-    } catch (e) {
-      log('Error in getAllBonds: $e');
-      return Left(ErrorHandler(e).failure);
-    }
-  }
-
-  Future<Either<Failure, List<EntryBondItemModel>?>> getBondById(String accountId, String bondId) async {
-    try {
-      final data = await _dataSource.fetchById(accountId, bondId);
-
-      return Right(data);
-    } catch (e) {
-      log('Error in getBondById: $e');
-      return Left(ErrorHandler(e).failure);
-    }
-  }
-
-  Future<Either<Failure, Unit>> addBond(String accountId, EntryBondModel bond) async {
-    try {
-      await _dataSource.add(accountId, bond);
-      return const Right(unit);
-    } catch (e) {
-      log('Error in addBond: $e');
-      return Left(ErrorHandler(e).failure);
-    }
-  }
-
-  Future<Either<Failure, Unit>> updateBond(String accountId, String bondId, EntryBondModel bond) async {
-    try {
-      await _dataSource.update(accountId, bondId, bond);
-      return const Right(unit);
-    } catch (e) {
-      log('Error in updateBond: $e');
-      return Left(ErrorHandler(e).failure);
-    }
-  }
-
-  Future<Either<Failure, Unit>> deleteBond(String accountId, String originId) async {
-    try {
-      await _dataSource.delete(accountId, originId);
-      return const Right(unit);
-    } catch (e) {
-      log('Error in deleteBond: $e');
-      return Left(ErrorHandler(e).failure);
-    }
-  }
-
-  Future<Either<Failure, Unit>> deleteAllBonds(String accountId) async {
-    try {
-      await _dataSource.deleteAllBonds(accountId);
-      return const Right(unit);
-    } catch (e) {
-      log('Error in deleteAllBonds: $e');
-      return Left(ErrorHandler(e).failure);
-    }
-  }
-}

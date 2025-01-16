@@ -210,3 +210,43 @@ class AccountModel implements PlutoAdaptable {
     };
   }
 }
+class AccountEntity {
+  final String id;
+  final String name;
+
+  const AccountEntity({
+    required this.id,
+    required this.name,
+  });
+
+  factory AccountEntity.fromJson(Map<String, dynamic> json) {
+    return AccountEntity(
+      id: json['AccPtr'],
+      name: json['AccName'],
+    );
+  }
+
+  factory AccountEntity.fromAccountModel(AccountModel accountModel) {
+    return AccountEntity(
+      id: accountModel.id!,
+      name: accountModel.accName!,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'AccPtr': id,
+      'AccName': name,
+    };
+  }
+
+  AccountModel copyWith({
+    String? id,
+    String? name,
+  }) {
+    return AccountModel(
+      id: id ?? this.id,
+      accName: name ?? this.name,
+    );
+  }
+}

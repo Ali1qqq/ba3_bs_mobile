@@ -7,9 +7,9 @@ import '../enums/enums.dart';
 extension EntryBondModelExtension on EntryBondModel {
   // Build DataGrid rows based on bond model
   List<DataGridRow> get bondDataGridRows =>
-      items?.map<DataGridRow>((bondItem) {
+      items?.itemList.map<DataGridRow>((bondItem) {
         return DataGridRow(cells: [
-          DataGridCell<String>(columnName: AppConstants.rowBondAccount, value: bondItem.accountName),
+          DataGridCell<String>(columnName: AppConstants.rowBondAccount, value: bondItem.account.name),
           DataGridCell<double>(
             columnName: AppConstants.rowBondDebitAmount,
             value: bondItem.bondItemType == BondItemType.debtor ? bondItem.amount : 0.0,
@@ -21,5 +21,5 @@ extension EntryBondModelExtension on EntryBondModel {
           DataGridCell<String>(columnName: AppConstants.rowBondDescription, value: '${bondItem.note}'),
         ]);
       }).toList() ??
-      [];
+          [];
 }

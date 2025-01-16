@@ -63,6 +63,8 @@ import '../../features/user_time/controller/user_time_controller.dart';
 import '../../features/users_management/data/datasources/users_data_source.dart';
 import '../helper/extensions/getx_controller_extensions.dart';
 import '../network/api_constants.dart';
+import '../services/entry_bond_creator/implementations/entry_bonds_generator.dart';
+import '../services/entry_bond_creator/interfaces/i_entry_bonds_generator.dart';
 import '../services/firebase/implementations/repos/compound_datasource_repo.dart';
 import '../services/firebase/implementations/repos/listen_datasource_repo.dart';
 import '../services/firebase/implementations/repos/remote_datasource_repo.dart';
@@ -90,7 +92,11 @@ class AppBindings extends Bindings {
     final materialsHiveService = await _initializeHiveService<MaterialModel>(boxName: ApiConstants.materials);
 
     final compoundFireStoreService = _initializeCompoundFireStoreService();
+
     final translationService = _initializeTranslationService(dioClient);
+
+    final entryBondGenerator = _initializeEntryBondGenerator();
+
     final billImport = BillImport();
     final billExport = BillExport();
     final bondImport = BondImport();
@@ -119,21 +125,27 @@ class AppBindings extends Bindings {
       chequesImportService: chequesImport,
       materialsHiveService: materialsHiveService,
     );
+
+    // Register the EntryBondRepository and inject the generator
+    lazyPut(EntryBondGeneratorRepo(entryBondGenerator));
+
     lazyPut(repositories.listenableDatasourceRepo);
 
-// Permanent Controllers
+    // Permanent Controllers
     _initializePermanentControllers(repositories);
 
-// Lazy Controllers
+    // Lazy Controllers
     _initializeLazyControllers(repositories);
   }
 
-// Initialize external services
+  // Initialize external services
   IAPiClient _initializeDioClient() => DioClient<Map<String, dynamic>>(Dio());
 
   IRemoteDatabaseService<Map<String, dynamic>> _initializeFireStoreService() => FireStoreService();
 
   ICompoundDatabaseService<Map<String, dynamic>> _initializeCompoundFireStoreService() => CompoundFireStoreService();
+
+  IEntryBondGenerator _initializeEntryBondGenerator() => EntryBondGenerator();
 
   ITranslationService _initializeTranslationService(IAPiClient dioClient) => GoogleTranslationService(
         baseUrl: ApiConstants.translationBaseUrl,
@@ -166,13 +178,17 @@ class AppBindings extends Bindings {
     return _Repositories(
       translationRepo: TranslationRepository(translationService),
       patternsRepo: RemoteDataSourceRepository(PatternsDatasource(databaseService: fireStoreService)),
-      billsRepo: CompoundDatasourceRepository(BillCompoundDatasource(compoundDatabaseService: compoundFireStoreService)),
-      bondsRepo: CompoundDatasourceRepository(BondCompoundDatasource(compoundDatabaseService: compoundFireStoreService)),
-      chequesRepo: CompoundDatasourceRepository(ChequesCompoundDatasource(compoundDatabaseService: compoundFireStoreService)),
+      billsRepo:
+          CompoundDatasourceRepository(BillCompoundDatasource(compoundDatabaseService: compoundFireStoreService)),
+      bondsRepo:
+          CompoundDatasourceRepository(BondCompoundDatasource(compoundDatabaseService: compoundFireStoreService)),
+      chequesRepo:
+          CompoundDatasourceRepository(ChequesCompoundDatasource(compoundDatabaseService: compoundFireStoreService)),
       rolesRepo: RemoteDataSourceRepository(RolesDatasource(databaseService: fireStoreService)),
       usersRepo: FilterableDatasourceRepository(UsersDatasource(databaseService: fireStoreService)),
       entryBondsRepo: RemoteDataSourceRepository(EntryBondsDatasource(databaseService: fireStoreService)),
-      accountsStatementsRepo: AccountsStatementsRepository(AccountsStatementsDatasource()),
+      accountsStatementsRepo:
+          CompoundDatasourceRepository(AccountsStatementsDatasource(compoundDatabaseService: compoundFireStoreService)),
       billImportExportRepo: ImportExportRepository(billImportService, billExportService),
       chequesImportExportRepo: ImportExportRepository(chequesImportService, chequesExportService),
       userTimeRepo: UserTimeRepository(),
@@ -236,7 +252,7 @@ class _Repositories {
   final RemoteDataSourceRepository<RoleModel> rolesRepo;
   final FilterableDatasourceRepository<UserModel> usersRepo;
   final RemoteDataSourceRepository<EntryBondModel> entryBondsRepo;
-  final AccountsStatementsRepository accountsStatementsRepo;
+  final CompoundDatasourceRepository<EntryBondItems, AccountEntity> accountsStatementsRepo;
   final ImportExportRepository<BillModel> billImportExportRepo;
   final ImportExportRepository<BondModel> bondImportExportRepo;
   final ImportExportRepository<MaterialModel> materialImportExportRepo;
