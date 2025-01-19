@@ -18,14 +18,16 @@ class ApiConstants {
   static const String accounts = 'accounts';
   static const String materials = 'materials';
   static const String changes = 'changes';
+  static const String sequentialNumbers = 'sequential_numbers';
+  static const String guestUser = 'guest_user';
+
+  // Documents
+  static const String guest = 'guest';
 
   // FIELDS
   static const String status = 'status';
   static const String userPassword = 'userPassword';
   static const String billDate = 'billDetails.billDate';
   static const String billSellerId = 'billDetails.billSellerId';
-
-  static const String matName = 'MatName';
-  static const String matBarCode = 'MatBarCode';
-  static const String matCode = 'MatCode';
-}
+  static const String type = 'type';
+  static const String lastNumber = 'lastNumber';}

@@ -18,6 +18,7 @@ import '../../../core/network/error/failure.dart';
 import '../../../core/router/app_routes.dart';
 import '../../../core/services/firebase/implementations/repos/filterable_datasource_repo.dart';
 import '../../../core/services/firebase/implementations/repos/remote_datasource_repo.dart';
+import '../../../core/services/firebase/implementations/services/firestore_guest_user.dart';
 import '../../../core/services/get_x/shared_preferences_service.dart';
 import '../../../core/utils/app_ui_utils.dart';
 import '../../changes/controller/changes_controller.dart';
@@ -26,7 +27,7 @@ import '../data/models/user_model.dart';
 import '../services/role_form_handler.dart';
 import '../services/user_form_handler.dart';
 
-class UserManagementController extends GetxController with AppNavigator {
+class UserManagementController extends GetxController with AppNavigator, FirestoreGuestUser {
   final RemoteDataSourceRepository<RoleModel> _rolesFirebaseRepo;
 
   final FilterableDatasourceRepository<UserModel> _usersFirebaseRepo;
@@ -58,6 +59,7 @@ class UserManagementController extends GetxController with AppNavigator {
   final bool isAdmin = true;
 
   RxBool isPasswordVisible = false.obs;
+  RxBool isGuestLoginButtonVisible = false.obs;
 
   @override
   void onInit() {
@@ -100,10 +102,12 @@ class UserManagementController extends GetxController with AppNavigator {
       .toList();
 
   // Check if all roles are selected
-  bool areAllRolesSelected() => RoleItemType.values.every((type) => roleFormHandler.rolesMap[type]?.length == RoleItem.values.length);
+  bool areAllRolesSelected() =>
+      RoleItemType.values.every((type) => roleFormHandler.rolesMap[type]?.length == RoleItem.values.length);
 
   // Check if all roles are selected for a specific RoleItemType
-  bool areAllRolesSelectedForType(RoleItemType type) => roleFormHandler.rolesMap[type]?.length == RoleItem.values.length;
+  bool areAllRolesSelectedForType(RoleItemType type) =>
+      roleFormHandler.rolesMap[type]?.length == RoleItem.values.length;
 
   // Select all roles
   void selectAllRoles() {
@@ -150,15 +154,16 @@ class UserManagementController extends GetxController with AppNavigator {
   Future<void> getAllUsers() async {
     log('getAllUsers');
     final result = await _usersFirebaseRepo.getAll();
-
     result.fold(
       (failure) => AppUIUtils.onFailure(failure.message),
-      (fetchedUsers) {
+      (fetchedUsers) async {
         allUsers = fetchedUsers;
+
+        checkGuestLoginButtonVisibility(
+          fetchedUsers.firstWhere((user) => user.userName == ApiConstants.guest),
+        );
       },
     );
-
-    update();
   }
 
   // Fetch roles using the repository
@@ -256,11 +261,24 @@ class UserManagementController extends GetxController with AppNavigator {
   }
 
   void navigateToLogin() async {
+    debugPrint("navigateToLogin");
     if (_sharedPreferencesService.getString(AppConstants.userIdKey) == null) {
       offAll(AppRoutes.loginScreen);
     } else {
       fetchAndHandleUser(_sharedPreferencesService.getString(AppConstants.userIdKey)!);
     }
+  }
+
+  Future<void> checkGuestLoginButtonVisibility(UserModel guestUser) async {
+    if (guestUser.userId != null) {
+      isGuestLoginButtonVisible.value = await isShowGuestUser(guestUser.userId!);
+    }
+  }
+
+  Future<void> loginAsGuest() async {
+    loggedInUserModel = allUsers.firstWhere((user) => user.userName == ApiConstants.guest);
+
+    offAll(AppRoutes.mainLayout);
   }
 
   void navigateToAddRoleScreen([RoleModel? role]) {
@@ -344,13 +362,6 @@ class UserManagementController extends GetxController with AppNavigator {
     );
   }
 
-  @override
-  void onClose() {
-    userFormHandler.dispose();
-    roleFormHandler.dispose();
-    super.onClose();
-  }
-
   void logOut() {
     _sharedPreferencesService.remove(AppConstants.userIdKey);
     navigateToLogin();
@@ -421,5 +432,12 @@ class UserManagementController extends GetxController with AppNavigator {
   Future<void> _createChangeDocument(String userId) async {
     // Call the ChangesController to create the document
     await read<ChangesController>().createChangeDocument(userId);
+  }
+
+  @override
+  void onClose() {
+    userFormHandler.dispose();
+    roleFormHandler.dispose();
+    super.onClose();
   }
 }

@@ -570,18 +570,10 @@ enum AccountType {
   }
 }
 
-// enum TaxType {
-//   withTax('1234-guid-with-tax'),
-//   withoutTax('5678-guid-without-tax');
-//
-//   final String vatGuid;
-//
-//   const TaxType(this.vatGuid);
-//
-//   factory TaxType.byGuid(String guid) {
-//     return TaxType.values.firstWhere(
-//           (type) => type.vatGuid == guid,
-//       orElse: () => throw ArgumentError('No matching VatEnums for guid: $guid'),
-//     );
-//   }
-// }
+enum ChequesStrategyType {
+  chequesStrategy,
+  payStrategy,
+  payChequesStrategy,
+  refundStrategy,
+  refundChequesStrategy,
+}

@@ -4,10 +4,10 @@ import 'package:ba3_bs_mobile/core/services/firebase/interfaces/filterable_datas
 
 import '../../../../core/models/date_filter.dart';
 import '../../../../core/models/query_filter.dart';
-import '../../../../core/services/firebase/implementations/services/firebase_sequential_number_database.dart';
+import '../../../../core/services/firebase/implementations/services/firestore_sequential_numbers.dart';
 import '../models/bill_model.dart';
 
-class BillsDataSource extends FilterableDatasource<BillModel> with FirebaseSequentialNumberDatabase {
+class BillsDataSource extends FilterableDatasource<BillModel> with FirestoreSequentialNumbers {
   BillsDataSource({required super.databaseService});
 
   @override

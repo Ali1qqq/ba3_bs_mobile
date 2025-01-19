@@ -8,6 +8,7 @@ import '../../../../core/services/get_x/shared_preferences_service.dart';
 import '../../../users_management/controllers/user_management_controller.dart';
 import '../../../users_management/data/datasources/roles_data_source.dart';
 import '../../../users_management/data/datasources/users_data_source.dart';
+import '../widgets/login_logo_widget.dart';
 
 class SplashScreen extends StatelessWidget {
   const SplashScreen({super.key});
@@ -18,20 +19,12 @@ class SplashScreen extends StatelessWidget {
       future: _initializeApp(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Scaffold(
-            body: Center(child: CircularProgressIndicator()),
-          );
+          return Scaffold(body: Center(child: LoginLogoWidget()));
         } else if (snapshot.hasError) {
-          return Scaffold(
-            body: Center(
-              child: Text("Error: ${snapshot.error}"),
-            ),
-          );
+          return Scaffold(body: Center(child: Text("Error: ${snapshot.error}")));
         } else {
           _navigateToLogin();
-          return const Scaffold(
-            body: Center(child: Text('Redirecting...')),
-          );
+          return Scaffold(body: Center(child: LoginLogoWidget()));
         }
       },
     );

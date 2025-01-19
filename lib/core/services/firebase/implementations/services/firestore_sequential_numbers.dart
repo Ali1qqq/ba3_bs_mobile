@@ -1,7 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-mixin FirebaseSequentialNumberDatabase {
-  static const String _parentCollection = 'sequential_numbers';
+import '../../../../network/api_constants.dart';
+
+mixin FirestoreSequentialNumbers {
+  static const String _parentCollection = ApiConstants.sequentialNumbers;
 
   Future<int> getNextNumber(String category, String entityType) async {
     final docRef = FirebaseFirestore.instance
@@ -16,8 +18,8 @@ mixin FirebaseSequentialNumberDatabase {
       // Initialize the document with the first entry for this entityType
       await docRef.set({
         entityType: {
-          'type': entityType,
-          'lastNumber': 1,
+          ApiConstants.type: entityType,
+          ApiConstants.lastNumber: 1,
         },
       });
       return 1;
@@ -31,20 +33,20 @@ mixin FirebaseSequentialNumberDatabase {
       // Initialize the entry for this entityType if it doesn't exist
       await docRef.update({
         entityType: {
-          'type': entityType,
-          'lastNumber': 1,
+          ApiConstants.type: entityType,
+          ApiConstants.lastNumber: 1,
         },
       });
       return 1;
     }
 
     // Extract the `lastNumber` and increment it
-    final lastNumber = entityData['lastNumber'] as int? ?? 0;
+    final lastNumber = entityData[ApiConstants.lastNumber] as int? ?? 0;
     final newNumber = lastNumber + 1;
 
     // Update the document with the new number for this entityType
     await docRef.update({
-      '$entityType.lastNumber': newNumber,
+      '$entityType.${ApiConstants.lastNumber}': newNumber,
     });
 
     return newNumber;

@@ -29,24 +29,23 @@ class AddChequeButtons extends StatelessWidget {
           Obx(() {
             return AppButton(
                 title: 'إضافة',
-
+                height: 20,
                 color: chequesDetailsController.isChequesSaved.value ? Colors.green : Colors.blue.shade700,
                 onPressed: chequesDetailsController.isChequesSaved.value
                     ? () {}
                     : () async {
-                        await chequesDetailsController.saveCheques(chequesType);
-                      },
+                  await chequesDetailsController.saveCheques(chequesType);
+                },
                 iconData: Icons.add_chart_outlined);
           }),
         if (!chequesSearchController.isNew) ...[
           AppButton(
             title: "تعديل",
-
+            height: 20,
             onPressed: () async {
               chequesDetailsController.updateCheques(
                 chequesModel: chequesModel,
-                chequesType:chequesType ,
-
+                chequesType: chequesType,
               );
             },
             iconData: Icons.edit_outlined,
@@ -66,29 +65,46 @@ class AddChequeButtons extends StatelessWidget {
             title: "السند",
             iconData: Icons.view_list_outlined,
           ),
-          AppButton(
-            onPressed: () async {
-              chequesDetailsController.isPayed! ?
-              chequesDetailsController.saveClearPayCheques(chequesModel)
-              :chequesDetailsController.savePayCheques(chequesModel);
-            },
-            title: chequesDetailsController.isPayed!?"تراجع عن الدفع":"دفع",
-            color: Colors.black,
-            width: 150,
-            iconData: Icons.paid,
-          ),
-          if(chequesDetailsController.isPayed!)
-          AppButton(
-
-            onPressed: () {
-
-              chequesDetailsController.launchPayEntryBondWindow(chequesModel, context);
-
-            },
-            width: 120,
-            title: "سند الدفع",
-            iconData: Icons.view_list_outlined,
-          ),
+          if (!chequesDetailsController.isRefundPay!)
+            AppButton(
+              onPressed: () async {
+                chequesDetailsController.isPayed!
+                    ? chequesDetailsController.clearPayCheques(chequesModel)
+                    : chequesDetailsController.savePayCheques(chequesModel);
+              },
+              title: chequesDetailsController.isPayed! ? "حذف الدفع" : "دفع",
+              color:chequesDetailsController.isPayed!
+                  ?Colors.red: Colors.black,
+              iconData: Icons.paid,
+            ),
+          if (chequesDetailsController.isPayed!)
+            AppButton(
+              onPressed: () {
+                chequesDetailsController.launchPayEntryBondWindow(chequesModel, context);
+              },
+              title: "سند الدفع",
+              iconData: Icons.view_list_outlined,
+            ),
+          if (!chequesDetailsController.isPayed!)
+            AppButton(
+              onPressed: () {
+                chequesDetailsController.isRefundPay!
+                    ? chequesDetailsController.deleteRefundPayCheques(chequesModel)
+                    : chequesDetailsController.refundPayCheques(chequesModel);
+              },
+              title: chequesDetailsController.isRefundPay! ? "حذف الاسترداد" : "استرداد",
+              iconData: Icons.lock_reset_rounded,
+              color:chequesDetailsController.isRefundPay!
+                  ?Colors.red: Colors.grey,
+            ),
+          if (chequesDetailsController.isRefundPay!)
+            AppButton(
+              onPressed: () {
+                chequesDetailsController.launchRefundPayEntryBondWindow(chequesModel, context);
+              },
+              title: "السند المسترد",
+              iconData: Icons.lock_reset_rounded,
+            ),
         ]
       ]),
     );

@@ -55,7 +55,7 @@ dependencies:
   xml: ^6.5.0
   logger: ^2.5.0
   syncfusion_flutter_gauges: ^28.1.38
-
+  animated_text_kit: ^4.2.2
 
 dev_dependencies:
   flutter_test:

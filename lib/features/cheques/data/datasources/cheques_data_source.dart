@@ -1,11 +1,11 @@
 import 'package:ba3_bs_mobile/core/helper/enums/enums.dart';
 import 'package:ba3_bs_mobile/core/network/api_constants.dart';
 
-import '../../../../core/services/firebase/implementations/services/firebase_sequential_number_database.dart';
+import '../../../../core/services/firebase/implementations/services/firestore_sequential_numbers.dart';
 import '../../../../core/services/firebase/interfaces/remote_datasource_base.dart';
 import '../models/cheques_model.dart';
 
-class ChequesDataSource extends RemoteDatasourceBase<ChequesModel> with FirebaseSequentialNumberDatabase {
+class ChequesDataSource extends RemoteDatasourceBase<ChequesModel> with FirestoreSequentialNumbers {
   ChequesDataSource({required super.databaseService});
 
   @override

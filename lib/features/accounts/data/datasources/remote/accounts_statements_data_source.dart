@@ -78,7 +78,7 @@ class AccountsStatementsDatasource extends CompoundDatasourceBase<EntryBondItems
       rootCollectionPath: rootCollectionPath,
       rootDocumentId: rootDocumentId,
       subCollectionPath: subcollectionPath,
-      subDocumentId: item.id,
+      subDocumentId: item.docId ??  item.id,
     );
   }
 
@@ -93,7 +93,7 @@ class AccountsStatementsDatasource extends CompoundDatasourceBase<EntryBondItems
       rootCollectionPath: rootCollectionPath,
       rootDocumentId: rootDocumentId,
       subCollectionPath: subCollectionPath,
-      subDocumentId: item.id,
+      subDocumentId: item.docId ?? item.id,
       data: {'items': item.itemList.map((item) => item.toJson()).toList()},
     );
 
@@ -165,8 +165,7 @@ class AccountsStatementsDatasource extends CompoundDatasourceBase<EntryBondItems
   }
 
   @override
-  Future<List<EntryBondItems>> saveAll(
-      {required List<EntryBondItems> items, required AccountEntity itemTypeModel}) async {
+  Future<List<EntryBondItems>> saveAll({required List<EntryBondItems> items, required AccountEntity itemTypeModel}) async {
     final rootDocumentId = getRootDocumentId(itemTypeModel);
     final subCollectionPath = getSubCollectionPath(itemTypeModel);
 
@@ -185,4 +184,3 @@ class AccountsStatementsDatasource extends CompoundDatasourceBase<EntryBondItems
     return savedData.map(EntryBondItems.fromJson).toList();
   }
 }
-

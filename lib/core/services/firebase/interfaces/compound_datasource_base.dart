@@ -1,11 +1,11 @@
 import '../../../models/date_filter.dart';
 import '../../../models/query_filter.dart';
-import '../implementations/services/firebase_sequential_number_database.dart';
+import '../implementations/services/firestore_sequential_numbers.dart';
 import '../implementations/services/firestore_path_helper.dart';
 import 'i_compound_database_service.dart';
 
 abstract class CompoundDatasourceBase<T, ItemTypeModel>
-    with FirestorePathHelper<ItemTypeModel>, FirebaseSequentialNumberDatabase {
+    with FirestorePathHelper<ItemTypeModel>, FirestoreSequentialNumbers {
   final ICompoundDatabaseService<Map<String, dynamic>> compoundDatabaseService;
 
   CompoundDatasourceBase({required this.compoundDatabaseService});

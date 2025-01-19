@@ -8,15 +8,26 @@ import '../../../helper/enums/enums.dart';
 import '../interfaces/entry_bond_creator.dart';
 
 class EntryBondCreatorFactory {
-  static EntryBondCreator resolveEntryBondCreator<T>(T model) {
+  static List<EntryBondCreator> resolveEntryBondCreators<T>(T model) {
     if (model is ChequesModel) {
-      return ChequesEntryBondCreator().determineStrategy(chequesModel: model);
+      // Handles multiple strategies for ChequesModel
+      return ChequesStrategyBondFactory.determineStrategy(model);
     } else if (model is BondModel) {
-      return BondEntryBondCreator();
+      // Returns a single BondEntryBondCreator wrapped in a list
+      return [BondEntryBondCreator()];
     } else if (model is BillModel) {
-      return BillEntryBondCreator();
+      // Returns a single BillEntryBondCreator wrapped in a list
+      return [BillEntryBondCreator()];
     }
-    throw UnimplementedError("No EntryBondCreator implementation for model of type ${T.runtimeType}");
+    throw UnimplementedError("No EntryBondCreator implementation for model of type ${model.runtimeType}");
+  }
+
+  static EntryBondCreator resolveEntryBondCreator<T>(T model) {
+    if (model is BondModel || model is BillModel || model is ChequesModel) {
+      // Extracts the first EntryBondCreator from the list for single-entry models
+      return resolveEntryBondCreators(model).first;
+    }
+    throw UnimplementedError("No EntryBondCreator implementation for model of type ${model.runtimeType}");
   }
 
   static EntryBondType determineOriginType<T>(T model) {
@@ -27,6 +38,6 @@ class EntryBondCreatorFactory {
     } else if (model is BillModel) {
       return EntryBondType.bill;
     }
-    throw UnimplementedError("No EntryBondType defined for model of type ${T.runtimeType}");
+    throw UnimplementedError("No EntryBondType defined for model of type ${model.runtimeType}");
   }
 }

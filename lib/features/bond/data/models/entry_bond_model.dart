@@ -47,36 +47,40 @@ class EntryBondModel {
 class EntryBondItems {
   /// Unique identifier for the bond items.
   final String id;
+  final String? docId;
 
   /// List of bond items.
   final List<EntryBondItemModel> itemList;
 
-  EntryBondItems({required this.id, required this.itemList});
+  EntryBondItems({required this.id, required this.itemList, this.docId});
 
   /// Creates an instance from a JSON object.
   factory EntryBondItems.fromJson(Map<String, dynamic> json) {
     return EntryBondItems(
-      id: json['docId'] as String,
-      itemList: (json['items'] as List<dynamic>)
-          .map((item) => EntryBondItemModel.fromJson(item as Map<String, dynamic>))
-          .toList(),
+      id: json['id'] ?? json['docId'],
+      docId: json['docId'] as String?,
+      itemList: (json['items'] as List<dynamic>).map((item) => EntryBondItemModel.fromJson(item as Map<String, dynamic>)).toList(),
     );
   }
 
   /// Converts the instance to a JSON object.
   Map<String, dynamic> toJson() {
     return {
-      'docId': id,
+      if (docId != null) 'docId': docId,
+      if (docId != null) 'id': id,
+      if (docId == null) 'docId': id,
       'items': itemList.map((item) => item.toJson()).toList(),
     };
   }
 
   EntryBondItems copyWith({
     final String? id,
+    final String? docId,
     final List<EntryBondItemModel>? itemList,
   }) {
     return EntryBondItems(
       id: id ?? this.id,
+      docId: docId ?? this.docId,
       itemList: itemList ?? this.itemList,
     );
   }
@@ -98,6 +102,7 @@ class EntryBondItemModel implements PlutoAdaptable {
 
   /// Refers to the bond entry ID that this item belongs to.
   final String? originId;
+  final String? docId;
 
   final String? date;
 
@@ -107,6 +112,7 @@ class EntryBondItemModel implements PlutoAdaptable {
     this.note,
     this.originId,
     this.date,
+    this.docId,
     required this.account,
   });
 
@@ -118,6 +124,7 @@ class EntryBondItemModel implements PlutoAdaptable {
       note: json['note'] as String?,
       originId: json['docId'] as String?,
       date: json['date'] as String?,
+      docId: json['docId'] as String?,
       account: AccountEntity.fromJson(json['account']),
     );
   }
@@ -128,8 +135,9 @@ class EntryBondItemModel implements PlutoAdaptable {
       'bondItemType': bondItemType?.label,
       'amount': amount,
       'note': note,
-      'docId': originId,
+      'originId': originId,
       'date': date,
+      'docId': docId,
       'account': account.toJson(),
     };
   }
@@ -140,6 +148,7 @@ class EntryBondItemModel implements PlutoAdaptable {
     final double? amount,
     final String? note,
     final String? originId,
+    final String? docId,
     final String? date,
     final AccountEntity? account,
   }) {
@@ -149,6 +158,7 @@ class EntryBondItemModel implements PlutoAdaptable {
       note: note ?? this.note,
       originId: originId ?? this.originId,
       date: date ?? this.date,
+      docId: docId ?? this.docId,
       account: account ?? this.account,
     );
   }
@@ -184,6 +194,7 @@ class EntryBondItemModel implements PlutoAdaptable {
 class EntryBondOrigin {
   /// Unique identifier for the bond entry, which is the same as the origin ID (e.g., billId).
   final String? originId;
+  final String? docId;
 
   /// Refers to the origin entity type id of the bond entry (e.g., billTypeId for bills).
   final String? originTypeId;
@@ -193,6 +204,7 @@ class EntryBondOrigin {
 
   EntryBondOrigin({
     this.originId,
+    this.docId,
     this.originTypeId,
     this.originType,
   });
@@ -200,6 +212,7 @@ class EntryBondOrigin {
   factory EntryBondOrigin.fromJson(Map<String, dynamic> json) {
     return EntryBondOrigin(
       originId: json['originId'] as String?,
+      docId: json['docId'] as String?,
       originTypeId: json['originTypeId'] as String?,
       originType: EntryBondType.byLabel(json['originType']),
     );
@@ -208,6 +221,7 @@ class EntryBondOrigin {
   Map<String, dynamic> toJson() {
     return {
       'originId': originId,
+      'docId': docId,
       'originTypeId': originTypeId,
       'originType': originType?.label,
     };
@@ -216,12 +230,14 @@ class EntryBondOrigin {
   EntryBondOrigin copyWith({
     String? originId,
     String? originTypeId,
+    String? docId,
     EntryBondType? originType,
   }) {
     return EntryBondOrigin(
       originId: originId ?? this.originId,
       originTypeId: originTypeId ?? this.originTypeId,
       originType: originType ?? this.originType,
+      docId: docId ?? this.docId,
     );
   }
 }
