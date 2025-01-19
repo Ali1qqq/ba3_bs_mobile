@@ -103,6 +103,7 @@ class PatternFormHandler with AppValidator implements IStoreSelectionHandler {
       selectedBillPatternType = null;
 
       selectedBillTypeModel = null;
+      // ignore: deprecated_member_use
       selectedColorValue = Colors.red.value;
     }
   }

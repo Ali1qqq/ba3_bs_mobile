@@ -11,6 +11,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:pluto_grid/pluto_grid.dart';
 import 'package:simple_barcode_scanner/simple_barcode_scanner.dart';
+
 import '../../../../core/constants/app_strings.dart';
 import '../../../../core/dialogs/e_invoice_dialog_content.dart';
 import '../../../../core/helper/enums/enums.dart';
@@ -26,7 +27,6 @@ import '../../../materials/data/models/material_model.dart';
 import '../../../patterns/data/models/bill_type_model.dart';
 import '../../controllers/bill/all_bills_controller.dart';
 import '../../data/models/bill_model.dart';
-import '../../data/models/discount_addition_account_model.dart';
 import '../../data/models/invoice_record_model.dart';
 import 'bill_pdf_generator.dart';
 
@@ -109,8 +109,7 @@ class BillDetailsService with PdfBase, FloatingLauncher {
     AppUIUtils.onSuccess('تم القبول بنجاح');
     billSearchController.updateBill(updatedBillModel);
 
-    if (updatedBillModel.status == Status.approved &&
-        updatedBillModel.billTypeModel.billPatternType!.hasCashesAccount) {
+    if (updatedBillModel.status == Status.approved && updatedBillModel.billTypeModel.billPatternType!.hasCashesAccount) {
       final creator = EntryBondCreatorFactory.resolveEntryBondCreator(updatedBillModel);
 
       entryBondController.saveEntryBondModel(
@@ -173,7 +172,9 @@ class BillDetailsService with PdfBase, FloatingLauncher {
         log('E-Invoice dialog closed.');
       },
     );
-  }  Future<void> showBarCodeScanner({
+  }
+
+  Future<void> showBarCodeScanner({
     required BuildContext context,
     required PlutoGridStateManager stateManager,
     required IPlutoController plutoController,

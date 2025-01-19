@@ -16,7 +16,7 @@ mixin FirestoreGuestUser {
         'docId': documentId,
         'show': true,
       });
-      log('Guest user created successfully in ${documentId} collection.');
+      log('Guest user created successfully in $documentId collection.');
     } catch (e, stacktrace) {
       log('Error creating guest user: $e', error: e, stackTrace: stacktrace);
       rethrow;
@@ -29,7 +29,7 @@ mixin FirestoreGuestUser {
         'docId': documentId,
         'show': visible,
       });
-      log('Guest user created successfully in ${documentId} collection.');
+      log('Guest user created successfully in $documentId collection.');
     } catch (e, stacktrace) {
       log('Error creating guest user: $e', error: e, stackTrace: stacktrace);
       rethrow;
@@ -46,7 +46,7 @@ mixin FirestoreGuestUser {
         log('Guest user fetched successfully.');
         return docSnapshot.data();
       } else {
-        log('Guest user document not found in ${documentId} collection.');
+        log('Guest user document not found in $documentId collection.');
         return null;
       }
     } catch (e, stacktrace) {
@@ -74,7 +74,7 @@ mixin FirestoreGuestUser {
   Future<void> deleteGuestUser(String documentId) async {
     try {
       await guestCollection.doc(documentId).delete();
-      log('Guest user document deleted successfully from ${documentId} collection.');
+      log('Guest user document deleted successfully from $documentId collection.');
     } catch (e, stacktrace) {
       log('Error deleting guest user: $e', error: e, stackTrace: stacktrace);
       rethrow;

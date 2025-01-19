@@ -1,10 +1,6 @@
 import 'package:ba3_bs_mobile/core/styling/app_colors.dart';
-import 'package:ba3_bs_mobile/core/styling/app_text_style.dart';
-import 'package:ba3_bs_mobile/core/widgets/app_spacer.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:get/get.dart';
 
 import '../../../../core/helper/extensions/getx_controller_extensions.dart';
 import '../../../users_management/controllers/user_management_controller.dart';
