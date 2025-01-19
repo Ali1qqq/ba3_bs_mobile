@@ -9,7 +9,7 @@ import '../models/cheques_model.dart';
 class ChequesCompoundDatasource extends CompoundDatasourceBase<ChequesModel, ChequesType> {
   ChequesCompoundDatasource({required super.compoundDatabaseService});
 
-  // Parent Collection (e.g., "chequess", "chequess")
+  // Parent Collection (e.g., "cheques")
   @override
   String get rootCollectionPath => ApiConstants.cheques; // Collection name in Firestore
 
@@ -145,14 +145,51 @@ class ChequesCompoundDatasource extends CompoundDatasourceBase<ChequesModel, Che
   }
 
   @override
-  Future<List<ChequesModel>> saveAll({required List<ChequesModel> items, required ChequesType itemTypeModel}) {
-    // TODO: implement saveAll
-    throw UnimplementedError();
+  Future<List<ChequesModel>> saveAll({required List<ChequesModel> items, required ChequesType itemTypeModel}) async {
+    final rootDocumentId = getRootDocumentId(itemTypeModel);
+    final subCollectionPath = getSubCollectionPath(itemTypeModel);
+
+    final savedData = await compoundDatabaseService.saveAll(
+      rootCollectionPath: rootCollectionPath,
+      rootDocumentId: rootDocumentId,
+      subCollectionPath: subCollectionPath,
+      items: items.map((item) {
+        return {
+          ...item.toJson(),
+          'docId': item.chequesGuid,
+        };
+      }).toList(),
+    );
+
+    return savedData.map(ChequesModel.fromJson).toList();
   }
 
   @override
-  Future<Map<ChequesType, List<ChequesModel>>> saveAllNested({required List<ChequesType> itemTypes, required List<ChequesModel> items}) {
-    // TODO: implement saveAllNested
-    throw UnimplementedError();
+  Future<Map<ChequesType, List<ChequesModel>>> saveAllNested(
+      {required List<ChequesType> itemTypes, required List<ChequesModel> items}) async {
+    final chequesByType = <ChequesType, List<ChequesModel>>{};
+
+    final List<Future<void>> fetchTasks = [];
+    // Create tasks to fetch all bills for each type
+
+    for (final chequesType in itemTypes) {
+      fetchTasks.add(
+        saveAll(
+                itemTypeModel: chequesType,
+                items: items
+                    .where(
+                      (bond) => bond.chequesTypeGuid == chequesType.typeGuide,
+                    )
+                    .toList())
+            .then((result) {
+          chequesByType[chequesType] = result;
+        }),
+      );
+    }
+
+    // Wait for all tasks to complete
+    await Future.wait(fetchTasks);
+
+    return chequesByType;
   }
 }
