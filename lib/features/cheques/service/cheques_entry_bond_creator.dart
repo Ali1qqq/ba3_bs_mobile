@@ -97,10 +97,10 @@ class ChequesBondStrategy extends BaseChequesBondStrategy {
 
   @override
   EntryBondOrigin createOrigin({required ChequesModel model, required EntryBondType originType}) => EntryBondOrigin(
-    originId: model.chequesGuid!,
-    originType: originType,
-    originTypeId: model.chequesTypeGuid,
-  );
+        originId: model.chequesGuid!,
+        originType: originType,
+        originTypeId: model.chequesTypeGuid,
+      );
 
   @override
   String getModelId(ChequesModel model) => model.chequesGuid!;
@@ -110,7 +110,7 @@ class PayBondStrategy extends BaseChequesBondStrategy {
   @override
   List<EntryBondItemModel> generateItems({required ChequesModel model, bool? isSimulatedVat}) {
     final date = model.chequesPayDate ?? DateTime.now().dayMonthYear;
-    final note = "سند قيد لدفع${ChequesType.byTypeGuide(model.chequesTypeGuid!).value} رقم :${model.chequesNumber}";
+    final note = "سند قيد لدفع ${ChequesType.byTypeGuide(model.chequesTypeGuid!).value} رقم :${model.chequesNumber}";
     final amount = model.chequesVal!;
     final originId = model.chequesPayGuid!;
     return createBondItems(
@@ -126,11 +126,11 @@ class PayBondStrategy extends BaseChequesBondStrategy {
 
   @override
   EntryBondOrigin createOrigin({required ChequesModel model, required EntryBondType originType}) => EntryBondOrigin(
-    originId: model.chequesGuid!,
-    docId: model.chequesPayGuid!,
-    originType: originType,
-    originTypeId: model.chequesTypeGuid,
-  );
+        originId: model.chequesGuid!,
+        docId: model.chequesPayGuid!,
+        originType: originType,
+        originTypeId: model.chequesTypeGuid,
+      );
 
   @override
   String getModelId(ChequesModel model) => model.chequesGuid!;
@@ -156,11 +156,11 @@ class RefundBondStrategy extends BaseChequesBondStrategy {
 
   @override
   EntryBondOrigin createOrigin({required ChequesModel model, required EntryBondType originType}) => EntryBondOrigin(
-    originId: model.chequesGuid!,
-    docId: model.chequesRefundPayGuid!,
-    originType: originType,
-    originTypeId: model.chequesTypeGuid,
-  );
+        originId: model.chequesGuid!,
+        docId: model.chequesRefundPayGuid!,
+        originType: originType,
+        originTypeId: model.chequesTypeGuid,
+      );
 
   @override
   String getModelId(ChequesModel model) => model.chequesGuid!;

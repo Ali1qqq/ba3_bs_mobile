@@ -61,37 +61,37 @@ class BillEntryBondCreator extends BaseEntryBondCreator<BillModel> {
   }) =>
       billItems
           .expand((item) => [
-        if (accounts.containsKey(BillAccounts.materials) && item.itemQuantity > 0)
-          _createMaterialBond(
-            billId: billId,
-            materialAccount: accounts[BillAccounts.materials]!,
-            total: item.itemSubTotalPrice! * item.itemQuantity,
-            quantity: item.itemQuantity,
-            name: item.itemName!,
-            date: date,
-            billTypeModel: billTypeModel,
-            isSales: isSales,
-          ),
-        if (item.itemQuantity > 0)
-          ..._generateCustomerBonds(
-            billId: billId,
-            customerAccount: customerAccount,
-            item: item,
-            date: date,
-            isSales: isSales,
-            billTypeModel: billTypeModel,
-            isSimulatedVat: isSimulatedVat,
-          ),
-        ..._createOptionalBonds(
-          billId: billId,
-          accounts: accounts,
-          item: item,
-          date: date,
-          isSales: isSales,
-          billTypeModel: billTypeModel,
-          isSimulatedVat: isSimulatedVat,
-        ),
-      ])
+                if (accounts.containsKey(BillAccounts.materials) && item.itemQuantity > 0)
+                  _createMaterialBond(
+                    billId: billId,
+                    materialAccount: accounts[BillAccounts.materials]!,
+                    total: item.itemSubTotalPrice! * item.itemQuantity,
+                    quantity: item.itemQuantity,
+                    name: item.itemName!,
+                    date: date,
+                    billTypeModel: billTypeModel,
+                    isSales: isSales,
+                  ),
+                if (item.itemQuantity > 0)
+                  ..._generateCustomerBonds(
+                    billId: billId,
+                    customerAccount: customerAccount,
+                    item: item,
+                    date: date,
+                    isSales: isSales,
+                    billTypeModel: billTypeModel,
+                    isSimulatedVat: isSimulatedVat,
+                  ),
+                ..._createOptionalBonds(
+                  billId: billId,
+                  accounts: accounts,
+                  item: item,
+                  date: date,
+                  isSales: isSales,
+                  billTypeModel: billTypeModel,
+                  isSimulatedVat: isSimulatedVat,
+                ),
+              ])
           .toList();
 
   List<EntryBondItemModel> _createOptionalBonds({
@@ -117,7 +117,7 @@ class BillEntryBondCreator extends BaseEntryBondCreator<BillModel> {
             vat: vat,
             item: read<MaterialController>().materials.firstWhere(
                   (mat) => mat.id == item.itemGuid,
-            ),
+                ),
             quantity: item.itemQuantity,
             date: date,
             isSales: isSales,
@@ -136,8 +136,7 @@ class BillEntryBondCreator extends BaseEntryBondCreator<BillModel> {
   }
 
   /// Helper function for calculating simulated VAT.
-  double _calculateSimulatedVat(BillItem item) =>
-      ((double.parse(item.itemTotalPrice) / 1.05) * 0.05) * item.itemQuantity;
+  double _calculateSimulatedVat(BillItem item) => ((double.parse(item.itemTotalPrice) / 1.05) * 0.05) * item.itemQuantity;
 
   /// Helper function for calculating the actual VAT value.
   double _calculateActualVat(BillItem item) => item.itemVatPrice! * item.itemQuantity;
@@ -211,8 +210,7 @@ class BillEntryBondCreator extends BaseEntryBondCreator<BillModel> {
     required bool isSales,
   }) {
     final bondType = isSales ? BondItemType.creditor : BondItemType.debtor;
-    final accountId =
-    item.matVatGuid == null ? VatEnums.withVat.taxAccountGuid : VatEnums.byGuid(item.matVatGuid!).taxAccountGuid;
+    final accountId = item.matVatGuid == null ? VatEnums.withVat.taxAccountGuid : VatEnums.byGuid(item.matVatGuid!).taxAccountGuid;
     final note = 'ضريبة ${billTypeModel.shortName} عدد $quantity من ${item.matName}';
 
     return _createBondItem(
@@ -355,14 +353,15 @@ class BillEntryBondCreator extends BaseEntryBondCreator<BillModel> {
         note: note,
         originId: billId,
         date: date,
+        docId: billId,
       );
 
   @override
   EntryBondOrigin createOrigin({required BillModel model, required EntryBondType originType}) => EntryBondOrigin(
-    originId: model.billId,
-    originType: originType,
-    originTypeId: model.billTypeModel.billTypeId,
-  );
+        originId: model.billId,
+        originType: originType,
+        originTypeId: model.billTypeModel.billTypeId,
+      );
 
   @override
   String getModelId(BillModel model) => model.billId!;

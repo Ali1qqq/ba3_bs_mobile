@@ -17,6 +17,7 @@ class BondEntryBondCreator extends BaseEntryBondCreator<BondModel> {
     for (var element in model.payItems.itemList) {
       itemBonds.add(EntryBondItemModel(
         originId: originId,
+        docId: originId,
         date: model.payDate ?? date,
         note: note,
         account: AccountEntity(
