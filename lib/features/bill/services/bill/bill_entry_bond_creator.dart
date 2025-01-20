@@ -35,7 +35,7 @@ class BillEntryBondCreator extends BaseEntryBondCreator<BillModel> {
       billTypeModel: model.billTypeModel,
       isSimulatedVat: isSimulatedVat,
     );
-    if (model.billTypeModel.billPatternType!.hasDiscountsAccount) {
+    if (model.billTypeModel.billPatternType!.hasDiscountsAccount && model.billTypeModel.discountAdditionAccounts != null) {
       final adjustmentBonds = _generateAdjustmentBonds(
         discountsAndAdditions: model.billTypeModel.discountAdditionAccounts!,
         billId: model.billId!,

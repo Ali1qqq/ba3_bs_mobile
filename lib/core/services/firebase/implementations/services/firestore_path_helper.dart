@@ -16,6 +16,9 @@ mixin FirestorePathHelper<ItemTypeModel> {
     if (typeModel is ChequesType) {
       return typeModel.typeGuide;
     }
+    if (typeModel is AccountEntity) {
+      return typeModel.id;
+    }
 
     throw ArgumentError('Unsupported typeModel for getRootDocumentId.');
   }

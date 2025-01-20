@@ -66,38 +66,38 @@ class AccountModel implements PlutoAdaptable {
 
   factory AccountModel.fromJson(Map<String, dynamic> json) {
     return AccountModel(
-      id: json['AccPtr'].toString(),
-      accName: json['AccName'].toString(),
-      accLatinName: json['AccLatinName'].toString(),
-      accCode: json['AccCode'].toString(),
-      accCDate: DateTime.tryParse(json['AccCDate']),
-      accCheckDate: DateTime.tryParse(json['AccCheckDate']),
-      accParentGuid: json['AccParentGuid'],
-      accFinalGuid: json['AccFinalGuid'],
-      accAccNSons: json['AccAccNSons'],
-      accInitDebit: (json['AccInitDebit'] as num?)?.toDouble(),
-      accInitCredit: (json['AccInitCredit'] as num?)?.toDouble(),
-      maxDebit: (json['MaxDebit'] as num?)?.toDouble(),
-      accWarn: json['AccWarn'],
-      note: json['Note'].toString(),
-      accCurVal: json['AccCurVal'],
-      accCurGuid: json['AccCurGuid'],
-      accSecurity: json['AccSecurity'],
-      accDebitOrCredit: json['AccDebitOrCredit'],
-      accType: json['AccType'],
-      accState: json['AccState'],
-      accIsChangableRatio: json['AccIsChangableRatio'],
-      accBranchGuid: json['AccBranchGuid'],
-      accNumber: json['AccNumber'],
-      accBranchMask: json['AccBranchMask'],
-      accParentName: json['accParentName'],
+      id: json['AccPtr'] ?? json['docId'],
+      accName: json['AccName'] ?? '',
+      accLatinName: json['AccLatinName'] ?? '',
+      accCode: json['AccCode'] ?? '',
+      accCDate: DateTime.tryParse(json['AccCDate'] ?? ''),
+      accCheckDate: DateTime.tryParse(json['AccCheckDate'] ?? ''),
+      accParentGuid: json['AccParentGuid'] ?? '',
+      accFinalGuid: json['AccFinalGuid'] ?? '',
+      // accAccNSons: json['AccAccNSons']??0,
+      // accInitDebit: (json['AccInitDebit'] as num?)?.toDouble(),
+      // accInitCredit: (json['AccInitCredit'] as num?)?.toDouble(),
+      // maxDebit: (json['MaxDebit'] as num?)?.toDouble(),
+      // accWarn: json['AccWarn']??0,
+      note: json['Note'] ?? '',
+      // accCurVal: json['AccCurVal']??0,
+      // accCurGuid: json['AccCurGuid']??'',
+      // accSecurity: json['AccSecurity']??0,
+      // accDebitOrCredit: json['AccDebitOrCredit']??0,
+      accType: json['AccType'] ?? 0,
+      // accState: json['AccState']??0,
+      // accIsChangableRatio: json['AccIsChangableRatio']??0,
+      // accBranchGuid: json['AccBranchGuid']??'',
+      accNumber: int.tryParse(json['AccNumber'].toString()) ?? 0,
+      // accBranchMask: json['AccBranchMask']??'',
+      accParentName: json['accParentName'] ?? '',
       // billsId: json['billsId'] ?? ["AQGmxAyLwBsHi9gTTsXn", "BuXK4e6GR6f5GFHfavRu"],
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      'AccPtr': id,
+      'docId': id,
       'AccName': accName,
       'AccLatinName': accLatinName,
       'AccCode': accCode,
@@ -210,6 +210,7 @@ class AccountModel implements PlutoAdaptable {
     };
   }
 }
+
 class AccountEntity {
   final String id;
   final String name;

@@ -35,6 +35,7 @@ class EntryBondController extends GetxController with FloatingLauncher {
 
           await _accountsStatementsFirebaseRepo.save(EntryBondItems(
             id: entryBondItem.originId!,
+            docId: entryBondItem.docId,
             itemList: relatedItems,
           ));
         }
@@ -79,7 +80,9 @@ class EntryBondController extends GetxController with FloatingLauncher {
           final relatedItems = entryBondItems.where((item) => item.account.id == entryBondItem.account.id).toList();
 
           deletedTasks.add(
-            _accountsStatementsFirebaseRepo.delete(EntryBondItems(id: entryBondItem.originId!, itemList: relatedItems)).then(
+            _accountsStatementsFirebaseRepo
+                .delete(EntryBondItems(docId: entryBondItem.docId, id: entryBondItem.originId!, itemList: relatedItems))
+                .then(
               (deleteResult) {
                 deleteResult.fold(
                   (failure) => errors.add(failure.message), // Collect errors.
