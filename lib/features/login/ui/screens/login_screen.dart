@@ -55,13 +55,14 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                 boxShadow: [BoxShadow(color: AppColors.grayColor, blurRadius: 25, spreadRadius: 0.1)],
                 color: Colors.white,
               ),
-              child: Row(
+              child: Column(
                 children: [
-                  LoginBodyWidget(userManagementController: userManagementController),
-                  VerticalDivider(),
-                  const Expanded(
+                  SizedBox(
+                    height: 0.3.sh,
                     child: LoginLogoWidget(text: 'Ba3 Business Solutions'),
                   ),
+                  Divider(),
+                  LoginBodyWidget(userManagementController: userManagementController),
                 ],
               ),
             ),

@@ -22,8 +22,8 @@ class LoginLogoWidget extends StatelessWidget {
           borderRadius: BorderRadius.circular(20.0),
           child: Image.asset(
             AppAssets.loginLogo,
-            width: 0.25.sw,
-            height: 0.25.sw,
+            width: 0.45.sw,
+            height: 0.45.sw,
             fit: BoxFit.cover,
           ),
         ),

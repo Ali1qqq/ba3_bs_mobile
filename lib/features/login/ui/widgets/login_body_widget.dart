@@ -5,7 +5,6 @@ import 'package:get/get.dart';
 
 import '../../../../core/styling/app_colors.dart';
 import '../../../../core/styling/app_text_style.dart';
-import '../../../../core/widgets/app_spacer.dart';
 import '../../../users_management/controllers/user_management_controller.dart';
 
 class LoginBodyWidget extends StatelessWidget {
@@ -20,7 +19,8 @@ class LoginBodyWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(15),
-      width: 0.35.sw,
+      // width: 1.sw,
+      height: 0.4.sh,
       child: Column(
         spacing: 15,
         children: [
@@ -30,7 +30,7 @@ class LoginBodyWidget extends StatelessWidget {
             style: AppTextStyles.headLineStyle1,
           ),
           SizedBox(
-            width: .25.sw,
+            width: .8.sw,
             child: TextFormField(
               decoration: InputDecoration(
                 label: const Text('اسم الحساب'),
@@ -41,7 +41,7 @@ class LoginBodyWidget extends StatelessWidget {
             ),
           ),
           SizedBox(
-            width: .25.sw,
+            width: .8.sw,
             child: Obx(
               () => TextFormField(
                 maxLength: 6,
@@ -69,7 +69,6 @@ class LoginBodyWidget extends StatelessWidget {
               ),
             ),
           ),
-          const VerticalSpace(20),
           LoginButtonWidget(
             text: 'دخول',
             onTap: () {
@@ -107,7 +106,7 @@ class LoginButtonWidget extends StatelessWidget {
       onTap: onTap,
       child: Container(
         height: 32.h,
-        width: .25.sw,
+        width: .8.sw,
         alignment: Alignment.center,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(5),
