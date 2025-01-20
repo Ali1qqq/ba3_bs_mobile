@@ -31,7 +31,7 @@ class EntryBondsDatasource extends RemoteDatasourceBase<EntryBondModel> {
 
   @override
   Future<EntryBondModel> save(EntryBondModel item) async {
-    final data = await databaseService.add(path: path, documentId: item.origin?.originId, data: item.toJson());
+    final data = await databaseService.add(path: path, documentId: item.origin?.docId ?? item.origin?.originId, data: item.toJson());
 
     return EntryBondModel.fromJson(data);
   }
