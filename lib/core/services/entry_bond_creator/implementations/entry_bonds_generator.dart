@@ -25,9 +25,12 @@ class EntryBondsGeneratorRepo {
 
   EntryBondsGeneratorRepo(this.entryBondGenerator);
 
-  Future<void> saveEntryBonds(List sourceModels) async {
+  Future<void> saveEntryBonds({
+    required List sourceModels,
+    void Function(double progress)? onProgress,
+  }) async {
     final entryBondModels = entryBondGenerator.createEntryBondsModels(sourceModels);
 
-    await read<EntryBondController>().saveAllEntryBondModels(entryBondModels);
+    await read<EntryBondController>().saveAllEntryBondModels(entryBonds: entryBondModels, onProgress: onProgress);
   }
 }

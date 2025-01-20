@@ -15,32 +15,41 @@ class BillLayout extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Obx(
-      () => Stack(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: SingleChildScrollView(
-              child: OrganizedWidget(
-                bodyWidget: GetBuilder<AllBillsController>(
-                  builder: (controller) => Column(
-                    spacing: 10,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      AllBillsTypesList(allBillsController: controller),
-                      // billLayoutAppBar(),
-                    ],
+      () {
+        final progress = read<AllBillsController>().uploadProgress.value;
+
+        return Stack(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: SingleChildScrollView(
+                child: OrganizedWidget(
+                  bodyWidget: GetBuilder<AllBillsController>(
+                    builder: (controller) => Column(
+                      spacing: 10,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        AllBillsTypesList(allBillsController: controller),
+                        // billLayoutAppBar(),
+                      ],
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
-          LoadingDialog(
-            isLoading: read<AllBillsController>().getBillsTypesRequestState.value == RequestState.loading,
-            message: 'أنواع الفواتير',
-            fontSize: 14.sp,
-          )
-        ],
-      ),
+            LoadingDialog(
+              isLoading: read<AllBillsController>().getBillsTypesRequestState.value == RequestState.loading,
+              message: 'أنواع الفواتير',
+              fontSize: 14.sp,
+            ),
+            LoadingDialog(
+              isLoading: read<AllBillsController>().saveAllBillsRequestState.value == RequestState.loading,
+              message: '${(progress * 100).toStringAsFixed(2)}% من الفواتير',
+              fontSize: 14.sp,
+            )
+          ],
+        );
+      },
     );
   }
 }

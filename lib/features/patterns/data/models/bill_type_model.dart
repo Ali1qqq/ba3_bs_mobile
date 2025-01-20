@@ -45,7 +45,7 @@ class BillTypeModel extends PlutoAdaptable with EquatableMixin {
       latinFullName: json['latinFullName'],
       billTypeLabel: json['billType'],
       color: json['color'],
-      billPatternType: BillPatternType.byValue(json['billType']) ,
+      billPatternType: BillPatternType.byValue(json['billType']),
       // Deserialize accounts map
       accounts: (json['accounts'] as Map<String, dynamic>?)?.map((billAccountLabel, accountModelJson) {
         Account billAccount = getBillAccountFromLabel(billAccountLabel);
@@ -62,9 +62,8 @@ class BillTypeModel extends PlutoAdaptable with EquatableMixin {
 
     return discountAdditionAccountsJson.map((billAccountLabel, discountListJson) {
       Account billAccount = getBillAccountFromLabel(billAccountLabel);
-      List<DiscountAdditionAccountModel> discountList = (discountListJson as List)
-          .map((discountJson) => DiscountAdditionAccountModel.fromJson(discountJson))
-          .toList();
+      List<DiscountAdditionAccountModel> discountList =
+          (discountListJson as List).map((discountJson) => DiscountAdditionAccountModel.fromJson(discountJson)).toList();
       return MapEntry(billAccount, discountList);
     });
   }
@@ -84,8 +83,7 @@ class BillTypeModel extends PlutoAdaptable with EquatableMixin {
         'discountAdditionAccounts': _serializeDiscountAdditionAccounts(discountAdditionAccounts),
       };
 
-  Map<String, dynamic>? _serializeDiscountAdditionAccounts(
-      Map<Account, List<DiscountAdditionAccountModel>>? discountAdditionAccounts) {
+  Map<String, dynamic>? _serializeDiscountAdditionAccounts(Map<Account, List<DiscountAdditionAccountModel>>? discountAdditionAccounts) {
     if (discountAdditionAccounts == null) return null;
 
     return discountAdditionAccounts.map((billAccount, discountList) {
@@ -103,24 +101,22 @@ class BillTypeModel extends PlutoAdaptable with EquatableMixin {
     String? billTypeLabel,
     int? color,
     String? store,
-
     BillPatternType? billPatternType,
     Map<Account, AccountModel>? accounts,
     Map<Account, List<DiscountAdditionAccountModel>>? discountAdditionAccounts,
   }) =>
       BillTypeModel(
-        id: id ?? this.id,
-        billTypeId: billTypeId ?? this.billTypeId,
-        shortName: shortName ?? this.shortName,
-        fullName: fullName ?? this.fullName,
-        latinShortName: latinShortName ?? this.latinShortName,
-        latinFullName: latinFullName ?? this.latinFullName,
-        billTypeLabel: billTypeLabel ?? this.billTypeLabel,
-        color: color ?? this.color,
-        accounts: accounts ?? this.accounts,
-        discountAdditionAccounts: discountAdditionAccounts ?? this.discountAdditionAccounts,
-        billPatternType: billPatternType??this.billPatternType
-      );
+          id: id ?? this.id,
+          billTypeId: billTypeId ?? this.billTypeId,
+          shortName: shortName ?? this.shortName,
+          fullName: fullName ?? this.fullName,
+          latinShortName: latinShortName ?? this.latinShortName,
+          latinFullName: latinFullName ?? this.latinFullName,
+          billTypeLabel: billTypeLabel ?? this.billTypeLabel,
+          color: color ?? this.color,
+          accounts: accounts ?? this.accounts,
+          discountAdditionAccounts: discountAdditionAccounts ?? this.discountAdditionAccounts,
+          billPatternType: billPatternType ?? this.billPatternType);
 
   @override
   Map<PlutoColumn, dynamic> toPlutoGridFormat([type]) => {

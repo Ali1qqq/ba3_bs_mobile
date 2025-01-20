@@ -1,11 +1,11 @@
 import 'package:ba3_bs_mobile/core/helper/enums/enums.dart';
 import 'package:ba3_bs_mobile/core/helper/extensions/bill_pattern_type_extension.dart';
-import 'package:ba3_bs_mobile/core/helper/extensions/bisc/string_extension.dart';
 import 'package:ba3_bs_mobile/core/helper/extensions/date_fromat_extension.dart';
 import 'package:ba3_bs_mobile/core/helper/extensions/date_time_extensions.dart';
 import 'package:ba3_bs_mobile/core/utils/app_service_utils.dart';
 import 'package:ba3_bs_mobile/features/accounts/controllers/accounts_controller.dart';
 import 'package:ba3_bs_mobile/features/accounts/data/models/account_model.dart';
+import 'package:ba3_bs_mobile/features/bill/data/models/discount_addition_account_model.dart';
 import 'package:ba3_bs_mobile/features/materials/controllers/material_controller.dart';
 import 'package:ba3_bs_mobile/features/pluto/data/models/pluto_adaptable.dart';
 import 'package:ba3_bs_mobile/features/sellers/controllers/sellers_controller.dart';
@@ -117,59 +117,93 @@ class BillModel extends PlutoAdaptable with EquatableMixin {
       items: BillItems(
         itemList: (billData['Items']['I'] is List<dynamic>)
             ? (billData['Items']['I'] as List<dynamic>).map((item) {
-                billTotal += double.parse(item['PriceDescExtra'].split(',').first.toString());
-                billGiftsTotal += AppServiceUtils.calcSubtotal(
-                  (item['QtyBonus'].split(',')[1] as String).toInt,
-                  (item['PriceDescExtra'].split(',').first as String).toDouble,
+                // حساب المجموعات للعناصر داخل القائمة
+                billTotal += AppServiceUtils.calcTotal(
+                  int.parse(item['QtyBonus'].split(',').first),
+                  double.parse(item['PriceDescExtra'].split(',').first),
+                  AppServiceUtils.calcVat(
+                    int.parse(item['VatRatio']),
+                    double.parse(item['PriceDescExtra'].split(',').first),
+                  ).toDouble(),
                 );
-
+                billGiftsTotal += AppServiceUtils.calcGiftPrice(
+                  int.parse(item['QtyBonus'].split(',')[1]),
+                  double.parse(item['PriceDescExtra'].split(',').first),
+                );
                 billVatTotal += AppServiceUtils.calcVat(
                   int.parse(item['VatRatio']),
-                  (item['PriceDescExtra'].split(',').first as String).toDouble,
-                );
+                  double.parse(item['PriceDescExtra'].split(',').first),
+                ).toDouble();
+
                 return BillItem(
                   itemGuid: item['MatPtr'],
-                  itemQuantity: (item['QtyBonus'].split(',').first as String).toInt,
-                  itemTotalPrice: item['PriceDescExtra'].split(',').first,
-                  itemSubTotalPrice: AppServiceUtils.calcSubtotal(
-                    (item['QtyBonus'].split(',').first as String).toInt,
-                    (item['PriceDescExtra'].split(',').first as String).toDouble,
+                  itemQuantity: int.parse(item['QtyBonus'].split(',').first),
+                  itemSubTotalPrice: double.parse(item['PriceDescExtra'].split(',').first),
+                  itemTotalPrice: AppServiceUtils.calcTotal(
+                    int.parse(item['QtyBonus'].split(',').first),
+                    double.parse(item['PriceDescExtra'].split(',').first),
+                    AppServiceUtils.calcVat(
+                      int.parse(item['VatRatio']),
+                      double.parse(item['PriceDescExtra'].split(',').first),
+                    ).toDouble(),
+                  ).toString(),
+                  itemGiftsPrice: AppServiceUtils.calcGiftPrice(
+                    int.parse(item['QtyBonus'].split(',')[1]),
+                    double.parse(item['PriceDescExtra'].split(',').first),
                   ),
-                  itemGiftsPrice: AppServiceUtils.calcSubtotal(
-                    (item['QtyBonus'].split(',')[1] as String).toInt,
-                    (item['PriceDescExtra'].split(',').first as String).toDouble,
-                  ),
-                  itemGiftsNumber: (item['QtyBonus'].split(',')[1] as String).toInt,
+                  itemGiftsNumber: int.parse(item['QtyBonus'].split(',')[1]),
                   itemName: read<MaterialController>().getMaterialNameById(item['MatPtr'].toString()),
                   itemVatPrice: AppServiceUtils.calcVat(
                     int.parse(item['VatRatio']),
-                    (item['PriceDescExtra'].split(',').first as String).toDouble,
+                    double.parse(item['PriceDescExtra'].split(',').first),
                   ),
                 );
               }).toList()
-            : (billData['Items']['I'] is Map<String, dynamic>)
-                ? [
-                    BillItem(
-                      itemGuid: billData['Items']['I']['MatPtr'],
-                      itemQuantity: (billData['Items']['I']['QtyBonus'].split(',').first as String).toInt,
-                      itemTotalPrice: billData['Items']['I']['PriceDescExtra'].split(',').first,
-                      itemSubTotalPrice: AppServiceUtils.calcSubtotal(
-                        (billData['Items']['I']['QtyBonus'].split(',').first as String).toInt,
-                        (billData['Items']['I']['PriceDescExtra'].split(',').first as String).toDouble,
+            : [
+                () {
+                  final item = billData['Items']['I'];
+                  billTotal += AppServiceUtils.calcTotal(
+                    int.parse(item['QtyBonus'].split(',').first),
+                    double.parse(item['PriceDescExtra'].split(',').first),
+                    AppServiceUtils.calcVat(
+                      int.parse(item['VatRatio']),
+                      double.parse(item['PriceDescExtra'].split(',').first),
+                    ).toDouble(),
+                  );
+                  billGiftsTotal += AppServiceUtils.calcGiftPrice(
+                    int.parse(item['QtyBonus'].split(',')[1]),
+                    double.parse(item['PriceDescExtra'].split(',').first),
+                  );
+                  billVatTotal += AppServiceUtils.calcVat(
+                    int.parse(item['VatRatio']),
+                    double.parse(item['PriceDescExtra'].split(',').first),
+                  ).toDouble();
+
+                  return BillItem(
+                    itemGuid: item['MatPtr'],
+                    itemQuantity: int.parse(item['QtyBonus'].split(',').first),
+                    itemSubTotalPrice: double.parse(item['PriceDescExtra'].split(',').first),
+                    itemTotalPrice: AppServiceUtils.calcTotal(
+                      int.parse(item['QtyBonus'].split(',').first),
+                      double.parse(item['PriceDescExtra'].split(',').first),
+                      AppServiceUtils.calcVat(
+                        int.parse(item['VatRatio']),
+                        double.parse(item['PriceDescExtra'].split(',').first),
                       ),
-                      itemGiftsPrice: AppServiceUtils.calcSubtotal(
-                        (billData['Items']['I']['QtyBonus'].split(',').second as String).toInt,
-                        (billData['Items']['I']['PriceDescExtra'].split(',').first as String).toDouble,
-                      ),
-                      itemGiftsNumber: (billData['Items']['I']['QtyBonus'].split(',').second as String).toInt,
-                      itemName: read<MaterialController>().getMaterialNameById(billData['Items']['I']['MatPtr'].toString()).toString(),
-                      itemVatPrice: AppServiceUtils.calcVat(
-                        billData['Items']['I']['VatRatio'],
-                        (billData['Items']['I']['PriceDescExtra'].split(',').first as String).toDouble,
-                      ),
-                    )
-                  ]
-                : [],
+                    ).toString(),
+                    itemGiftsPrice: AppServiceUtils.calcGiftPrice(
+                      int.parse(item['QtyBonus'].split(',')[1]),
+                      double.parse(item['PriceDescExtra'].split(',').first),
+                    ),
+                    itemGiftsNumber: int.parse(item['QtyBonus'].split(',')[1]),
+                    itemName: read<MaterialController>().getMaterialNameById(item['MatPtr'].toString()),
+                    itemVatPrice: AppServiceUtils.calcVat(
+                      int.parse(item['VatRatio']),
+                      double.parse(item['PriceDescExtra'].split(',').first),
+                    ),
+                  );
+                }(),
+              ],
       ),
       billDetails: BillDetails(
         billGuid: billData['B']['BillGuid'],
@@ -188,6 +222,26 @@ class BillModel extends PlutoAdaptable with EquatableMixin {
       ),
       billTypeModel: BillTypeModel(
           billTypeLabel: _billTypeByGuid(billData['B']['BillTypeGuid']).label,
+          discountAdditionAccounts: {
+            if (_billTypeByGuid(billData['B']['BillTypeGuid']).billPatternType.hasDiscountsAccount)
+              BillAccounts.discounts: [
+                DiscountAdditionAccountModel(
+                  accName: _billTypeByGuid(billData['B']['BillTypeGuid']).accounts[BillAccounts.discounts]!.accName!,
+                  percentage: 0,
+                  amount: 0,
+                  id: _billTypeByGuid(billData['B']['BillTypeGuid']).accounts[BillAccounts.discounts]!.id!,
+                ),
+              ],
+            if (_billTypeByGuid(billData['B']['BillTypeGuid']).billPatternType.hasAdditionsAccount)
+              BillAccounts.additions: [
+                DiscountAdditionAccountModel(
+                  accName: _billTypeByGuid(billData['B']['BillTypeGuid']).accounts[BillAccounts.additions]!.accName!,
+                  percentage: 0,
+                  amount: 0,
+                  id: _billTypeByGuid(billData['B']['BillTypeGuid']).accounts[BillAccounts.additions]!.id!,
+                ),
+              ],
+          },
           accounts: {
             BillAccounts.caches: AccountModel(
               id: billData['B']['BillCustPtr'],

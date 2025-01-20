@@ -57,7 +57,7 @@ class ChangesController extends GetxController {
   void listenToChanges() {
     final userManagementController = read<UserManagementController>();
     final UserModel? loggedInUserModel = userManagementController.loggedInUserModel;
-    log("listenToChanges ");
+
     if (loggedInUserModel?.userId == null) {
       log("Error: Logged-in user or user ID is null.");
       return;

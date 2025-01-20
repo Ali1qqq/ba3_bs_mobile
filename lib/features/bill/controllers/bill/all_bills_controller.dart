@@ -8,7 +8,6 @@ import 'package:ba3_bs_mobile/core/services/json_file_operations/implementations
 import 'package:ba3_bs_mobile/core/utils/app_service_utils.dart';
 import 'package:ba3_bs_mobile/features/bill/controllers/bill/bill_details_controller.dart';
 import 'package:ba3_bs_mobile/features/bill/controllers/pluto/bill_details_pluto_controller.dart';
-import 'package:ba3_bs_mobile/features/bill/data/models/bill_items.dart';
 import 'package:ba3_bs_mobile/features/bill/ui/screens/bill_details_screen.dart';
 import 'package:ba3_bs_mobile/features/materials/controllers/material_controller.dart';
 import 'package:file_picker/file_picker.dart';
@@ -18,6 +17,7 @@ import 'package:get/get.dart';
 import '../../../../core/helper/enums/enums.dart';
 import '../../../../core/helper/mixin/app_navigator.dart';
 import '../../../../core/router/app_routes.dart';
+import '../../../../core/services/entry_bond_creator/implementations/entry_bonds_generator.dart';
 import '../../../../core/services/firebase/implementations/repos/compound_datasource_repo.dart';
 import '../../../../core/services/firebase/implementations/repos/remote_datasource_repo.dart';
 import '../../../../core/utils/app_ui_utils.dart';
@@ -57,6 +57,10 @@ class AllBillsController extends FloatingBillDetailsLauncher with AppNavigator {
   Rx<RequestState> getBillsTypesRequestState = RequestState.initial.obs;
 
   Rx<RequestState> getAllNestedBillsRequestState = RequestState.initial.obs;
+  Rx<RequestState> saveAllBillsRequestState = RequestState.initial.obs;
+
+  // Initialize a progress observable
+  RxDouble uploadProgress = 0.0.obs;
 
   // Initializer
   void _initializeBillUtilities() {
@@ -107,38 +111,41 @@ class AllBillsController extends FloatingBillDetailsLauncher with AppNavigator {
   }
 
   Future<void> fetchAllBillsFromLocal() async {
-    log('fetchAllBillsFromLocal');
-    // getBillsRequestState.value=RequestState.loading;
-
     FilePickerResult? resultFile = await FilePicker.platform.pickFiles();
 
     if (resultFile != null) {
-      File file = File(resultFile.files.single.path!);
-      final result = _jsonImportExportRepo.importXmlFile(file);
+      saveAllBillsRequestState.value = RequestState.loading;
+      final result = _jsonImportExportRepo.importXmlFile(File(resultFile.files.single.path!));
+
       result.fold(
         (failure) => AppUIUtils.onFailure(failure.message),
-        (fetchedBills) {
-          log("fetchedBills length ${fetchedBills.length}");
-          getBillsByTypeRequestState.value = RequestState.success;
-          bills.assignAll(fetchedBills);
-
-          // debugPrint("${fetchedBills.where((element) => element.billId=='b44c994f-9fd1-4305-ada2-8a27fb676d68',).first.toJson()}");
-
-          BillModel aa = fetchedBills
-              .where(
-                (element) => element.billId == 'b44c994f-9fd1-4305-ada2-8a27fb676d68',
-              )
-              .first;
-          _billsFirebaseRepo.save(
-            aa.copyWith(items: BillItems(itemList: aa.items.itemList.sublist(0, 3000))),
-          );
-          // _billsFirebaseRepo.saveAllNested(fetchedBills.where((element) => element.billId=='b44c994f-9fd1-4305-ada2-8a27fb676d68',).toList(),billsTypes);
-        },
+        (fetchedBills) => _onFetchBillsFromLocalSuccess(fetchedBills),
       );
     }
 
     plutoGridIsLoading = false;
     update();
+  }
+
+  void _onFetchBillsFromLocalSuccess(List<BillModel> fetchedBills) async {
+    log("fetchedBills length ${fetchedBills.length}");
+
+    bills.assignAll(
+      fetchedBills.where((element) => element.billId != 'bf23c92d-a69d-419e-a000-1043b94d16c8').toList(),
+    );
+    if (bills.isNotEmpty) {
+      await _billsFirebaseRepo.saveAllNested(bills, billsTypes);
+      await read<EntryBondsGeneratorRepo>().saveEntryBonds(
+        sourceModels: bills,
+        onProgress: (progress) {
+          uploadProgress.value = progress; // Update progress
+          log('Progress: ${(progress * 100).toStringAsFixed(2)}%');
+        },
+      );
+    }
+    saveAllBillsRequestState.value = RequestState.success;
+
+    AppUIUtils.onSuccess("تم تحميل الفواتير بنجاح");
   }
 
   Future<void> fetchPendingBills(BillTypeModel billTypeModel) async {
