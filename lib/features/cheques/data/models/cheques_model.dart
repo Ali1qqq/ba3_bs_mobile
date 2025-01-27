@@ -1,7 +1,7 @@
 import 'package:ba3_bs_mobile/core/constants/app_constants.dart';
 import 'package:ba3_bs_mobile/core/constants/app_strings.dart';
 import 'package:ba3_bs_mobile/core/helper/enums/enums.dart';
-import 'package:ba3_bs_mobile/core/helper/extensions/bisc/string_extension.dart';
+import 'package:ba3_bs_mobile/core/helper/extensions/basic/string_extension.dart';
 import 'package:ba3_bs_mobile/features/pluto/data/models/pluto_adaptable.dart';
 import 'package:pluto_grid/pluto_grid.dart';
 
@@ -346,37 +346,37 @@ class ChequesModel implements PlutoAdaptable {
   }) {
     return chequesModel == null
         ? ChequesModel(
-      chequesDate: chequesDate,
-      chequesTypeGuid: chequesTypeGuid,
-      chequesAccount2Guid: chequesAccount2Guid,
-      chequesDueDate: chequesDueDate,
-      chequesNum: chequesNum,
-      chequesVal: chequesVal,
-      chequesNote: chequesNote,
-      accPtr: accPtr,
-      accPtrName: accPtrName,
-      chequesAccount2Name: chequesAccount2Name,
-      isPayed: isPayed,
-      isRefund: isRefund,
-      chequesPayGuid: chequesPayGuid,
-      chequesRefundPayGuid: chequesRefundPayGuid,
-    )
+            chequesDate: chequesDate,
+            chequesTypeGuid: chequesTypeGuid,
+            chequesAccount2Guid: chequesAccount2Guid,
+            chequesDueDate: chequesDueDate,
+            chequesNum: chequesNum,
+            chequesVal: chequesVal,
+            chequesNote: chequesNote,
+            accPtr: accPtr,
+            accPtrName: accPtrName,
+            chequesAccount2Name: chequesAccount2Name,
+            isPayed: isPayed,
+            isRefund: isRefund,
+            chequesPayGuid: chequesPayGuid,
+            chequesRefundPayGuid: chequesRefundPayGuid,
+          )
         : chequesModel.copyWith(
-      chequesDate: chequesDate,
-      chequesTypeGuid: chequesTypeGuid,
-      chequesAccount2Guid: chequesAccount2Guid,
-      chequesDueDate: chequesDueDate,
-      chequesNum: chequesNum,
-      chequesVal: chequesVal,
-      accPtr: accPtr,
-      isPayed: isPayed,
-      isRefund: isRefund,
-      accPtrName: accPtrName,
-      chequesAccount2Name: chequesAccount2Name,
-      chequesNote: chequesNote,
-      chequesPayGuid: chequesPayGuid,
-      chequesRefundPayGuid: chequesRefundPayGuid,
-    );
+            chequesDate: chequesDate,
+            chequesTypeGuid: chequesTypeGuid,
+            chequesAccount2Guid: chequesAccount2Guid,
+            chequesDueDate: chequesDueDate,
+            chequesNum: chequesNum,
+            chequesVal: chequesVal,
+            accPtr: accPtr,
+            isPayed: isPayed,
+            isRefund: isRefund,
+            accPtrName: accPtrName,
+            chequesAccount2Name: chequesAccount2Name,
+            chequesNote: chequesNote,
+            chequesPayGuid: chequesPayGuid,
+            chequesRefundPayGuid: chequesRefundPayGuid,
+          );
   }
 
   @override
@@ -400,7 +400,7 @@ class ChequesModel implements PlutoAdaptable {
       PlutoColumn(title: "تاريخ الاستحقاق", field: AppConstants.chequesDueDate, type: PlutoColumnType.date()): chequesDueDate.toDate,
       PlutoColumn(title: "البيان", field: AppConstants.chequesNote, type: PlutoColumnType.text()): chequesNote,
       PlutoColumn(title: "نوع الشيك", field: AppConstants.chequesTypeGuid, type: PlutoColumnType.text()):
-      ChequesType.byTypeGuide(chequesTypeGuid!).value,
+          ChequesType.byTypeGuide(chequesTypeGuid!).value,
       PlutoColumn(
         title: "الحالة",
         field: AppConstants.isPayed,

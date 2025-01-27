@@ -4,18 +4,21 @@ import 'dart:io';
 import 'package:ba3_bs_mobile/core/helper/extensions/getx_controller_extensions.dart';
 import 'package:ba3_bs_mobile/core/models/query_filter.dart';
 import 'package:ba3_bs_mobile/core/network/api_constants.dart';
+import 'package:ba3_bs_mobile/core/services/firebase/implementations/services/firestore_sequential_numbers.dart';
 import 'package:ba3_bs_mobile/core/services/json_file_operations/implementations/import_export_repo.dart';
 import 'package:ba3_bs_mobile/core/utils/app_service_utils.dart';
 import 'package:ba3_bs_mobile/features/bill/controllers/bill/bill_details_controller.dart';
 import 'package:ba3_bs_mobile/features/bill/controllers/pluto/bill_details_pluto_controller.dart';
 import 'package:ba3_bs_mobile/features/bill/ui/screens/bill_details_screen.dart';
 import 'package:ba3_bs_mobile/features/materials/controllers/material_controller.dart';
+import 'package:dartz/dartz.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 
 import '../../../../core/helper/enums/enums.dart';
 import '../../../../core/helper/mixin/app_navigator.dart';
+import '../../../../core/network/error/failure.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/services/entry_bond_creator/implementations/entry_bonds_generator.dart';
 import '../../../../core/services/firebase/implementations/repos/compound_datasource_repo.dart';
@@ -27,7 +30,7 @@ import '../../services/bill/bill_utils.dart';
 import '../../services/bill/floating_bill_details_launcher.dart';
 import 'bill_search_controller.dart';
 
-class AllBillsController extends FloatingBillDetailsLauncher with AppNavigator {
+class AllBillsController extends FloatingBillDetailsLauncher with AppNavigator, FirestoreSequentialNumbers {
   // Repositories
   final RemoteDataSourceRepository<BillTypeModel> _patternsFirebaseRepo;
   final CompoundDatasourceRepository<BillModel, BillTypeModel> _billsFirebaseRepo;
@@ -57,20 +60,22 @@ class AllBillsController extends FloatingBillDetailsLauncher with AppNavigator {
   Rx<RequestState> getBillsTypesRequestState = RequestState.initial.obs;
 
   Rx<RequestState> getAllNestedBillsRequestState = RequestState.initial.obs;
+
   Rx<RequestState> saveAllBillsRequestState = RequestState.initial.obs;
+  Rx<RequestState> saveAllBillsBondRequestState = RequestState.initial.obs;
 
   // Initialize a progress observable
   RxDouble uploadProgress = 0.0.obs;
 
   // Initializer
-  void _initializeBillUtilities() {
+  void _initializeServices() {
     _billUtils = BillUtils();
   }
 
   @override
   void onInit() {
     super.onInit();
-    _initializeBillUtilities();
+    _initializeServices();
 
     fetchBillsTypes();
 
@@ -115,7 +120,7 @@ class AllBillsController extends FloatingBillDetailsLauncher with AppNavigator {
 
     if (resultFile != null) {
       saveAllBillsRequestState.value = RequestState.loading;
-      final result = _jsonImportExportRepo.importXmlFile(File(resultFile.files.single.path!));
+      final result = await _jsonImportExportRepo.importXmlFile(File(resultFile.files.single.path!));
 
       result.fold(
         (failure) => AppUIUtils.onFailure(failure.message),
@@ -127,14 +132,18 @@ class AllBillsController extends FloatingBillDetailsLauncher with AppNavigator {
     update();
   }
 
-  void _onFetchBillsFromLocalSuccess(List<BillModel> fetchedBills) async {
+  void _onFetchBillsFromLocalSuccess(List<BillModel> currentBills) async {
+    final fetchedBills = currentBills;
     log("fetchedBills length ${fetchedBills.length}");
 
     bills.assignAll(
       fetchedBills.where((element) => element.billId != 'bf23c92d-a69d-419e-a000-1043b94d16c8').toList(),
     );
     if (bills.isNotEmpty) {
-      await _billsFirebaseRepo.saveAllNested(bills, billsTypes);
+      await _billsFirebaseRepo.saveAllNested(
+        bills,
+        billsTypes,
+      );
       await read<EntryBondsGeneratorRepo>().saveEntryBonds(
         sourceModels: bills,
         onProgress: (progress) {
@@ -159,6 +168,12 @@ class AllBillsController extends FloatingBillDetailsLauncher with AppNavigator {
 
     isPendingBillsLoading = false;
     update();
+  }
+
+  Future<Either<Failure, List<BillModel>>> fetchBillByNumber({required BillTypeModel billTypeModel, required int billNumber}) async {
+    final result = await _billsFirebaseRepo.fetchWhere(itemTypeModel: billTypeModel, field: ApiConstants.billNumber, value: billNumber);
+
+    return result;
   }
 
   Future<void> fetchBillsTypes() async {
@@ -269,23 +284,45 @@ class AllBillsController extends FloatingBillDetailsLauncher with AppNavigator {
     openFloatingBillDetails(context, billModel.billTypeModel, billModel: billModel);
   }
 
+  Future<List<BillModel>> billsCountByType(BillTypeModel billTypeModel) async {
+    int billsCountByType = await getLastNumber(
+      category: ApiConstants.bills,
+      entityType: billTypeModel.billTypeLabel!,
+    );
+
+    return _billUtils.appendEmptyBillModelNew(billTypeModel, billsCountByType);
+  }
+
   Future<void> openFloatingBillDetails(
     BuildContext context,
     BillTypeModel billTypeModel, {
     BillModel? billModel,
   }) async {
-    plutoGridIsLoading = false;
+    // plutoGridIsLoading = false;
+    //
+    // await fetchAllBillsByType(billTypeModel);
+    //
+    // log("billNumber  ${bills.last.billDetails.billNumber.toString()}");
+    // _billsFirebaseRepo.saveLastTypeNumber(bills.last);
+    //
+    // if (!context.mounted) return;
+    //
+    // final BillModel lastBillModel = billModel ?? _billUtils.appendEmptyBillModel(bills, billTypeModel);
+    //
+    // _openBillDetailsFloatingWindow(
+    //   context: context,
+    //   modifiedBills: bills,
+    //   lastBillModel: lastBillModel,
+    // );
 
-    await fetchAllBillsByType(billTypeModel);
+    final bills = await billsCountByType(billTypeModel);
 
     if (!context.mounted) return;
-
-    final BillModel lastBillModel = billModel ?? _billUtils.appendEmptyBillModel(bills, billTypeModel);
 
     _openBillDetailsFloatingWindow(
       context: context,
       modifiedBills: bills,
-      lastBillModel: lastBillModel,
+      lastBillModel: bills.last,
     );
   }
 
@@ -339,7 +376,7 @@ class AllBillsController extends FloatingBillDetailsLauncher with AppNavigator {
     required BillDetailsPlutoController billDetailsPlutoController,
   }) {
     billSearchController.initialize(
-      currentBill: currentBill,
+      newBill: currentBill,
       allBills: allBills,
       billDetailsController: billDetailsController,
       billDetailsPlutoController: billDetailsPlutoController,

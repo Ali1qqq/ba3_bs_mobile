@@ -13,7 +13,7 @@ class MaterialImport extends ImportServiceBase<MaterialModel> {
   }
 
   @override
-  List<MaterialModel> fromImportXml(XmlDocument document) {
+  Future<List<MaterialModel>> fromImportXml(XmlDocument document) async {
     final materialsXml = document.findAllElements('M');
     final materialsGccXml = document.findAllElements('GCCMaterialTax');
 

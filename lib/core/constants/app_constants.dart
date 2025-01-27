@@ -377,4 +377,7 @@ abstract class AppConstants {
   static const double deviceFullHeight = 930.0;
 
   static const String userIdKey = 'userIdKey';
+
+  static const String recipientEmail = 'burjalarab000@gmail.com';
+// static const String recipientEmail = 'alidabol567@gmail.com';
 }

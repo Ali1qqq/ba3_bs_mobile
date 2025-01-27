@@ -2,7 +2,7 @@ import 'dart:developer';
 import 'dart:io';
 
 import 'package:ba3_bs_mobile/core/dialogs/search_product_text_dialog.dart';
-import 'package:ba3_bs_mobile/core/helper/extensions/bisc/string_extension.dart';
+import 'package:ba3_bs_mobile/core/helper/extensions/basic/string_extension.dart';
 import 'package:ba3_bs_mobile/core/helper/extensions/getx_controller_extensions.dart';
 import 'package:ba3_bs_mobile/core/helper/mixin/app_navigator.dart';
 import 'package:ba3_bs_mobile/core/network/api_constants.dart';
@@ -101,7 +101,7 @@ class MaterialController extends GetxController with AppNavigator {
 
     if (resultFile != null) {
       File file = File(resultFile.files.single.path!);
-      final result = _jsonImportExportRepo.importXmlFile(file);
+      final result = await _jsonImportExportRepo.importXmlFile(file);
 
       result.fold(
         (failure) => AppUIUtils.onFailure(failure.message),
@@ -111,12 +111,11 @@ class MaterialController extends GetxController with AppNavigator {
   }
 
   Future<void> deleteAllMaterialFromLocal() async {
-
     final result = await _materialsHiveRepo.clear();
 
     result.fold(
-          (failure) => AppUIUtils.onFailure(failure.message),
-          (_) => AppUIUtils.onSuccess("تم حذف المواد بنجاح"),
+      (failure) => AppUIUtils.onFailure(failure.message),
+      (_) => AppUIUtils.onSuccess("تم حذف المواد بنجاح"),
     );
   }
 

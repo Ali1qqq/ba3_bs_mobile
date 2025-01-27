@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:ba3_bs_mobile/core/constants/printer_constants.dart';
@@ -12,10 +13,10 @@ abstract class PdfGeneratorBase<T> implements IPdfGenerator<T> {
   final Document _pdfDocument = Document();
 
   @override
-  Widget buildTitle(T itemModel, {Uint8List? logoUint8List, Font? font});
+  Widget buildHeader(T itemModel, String fileName, {Uint8List? logoUint8List, Font? font});
 
   @override
-  Widget buildBody(T itemModel, {Font? font});
+  List<Widget> buildBody(T itemModel, {Font? font});
 
   @override
   Widget buildFooter() => Directionality(
@@ -33,7 +34,6 @@ abstract class PdfGeneratorBase<T> implements IPdfGenerator<T> {
         ],
       ));
 
-  @override
   buildSimpleText({required String title, required String value}) {
     final style = TextStyle(fontWeight: FontWeight.bold);
 
@@ -49,31 +49,11 @@ abstract class PdfGeneratorBase<T> implements IPdfGenerator<T> {
   }
 
   @override
-  buildText({
-    required String title,
-    required String value,
-    double width = double.infinity,
-    TextStyle? titleStyle,
-    bool unite = false,
-  }) {
-    final style = titleStyle ?? TextStyle(fontWeight: FontWeight.bold);
-
-    return Container(
-      width: width,
-      child: Row(
-        children: [
-          Expanded(child: Text(title, style: style)),
-          Text(value, style: unite ? style : null),
-        ],
-      ),
-    );
-  }
-
-  @override
   Future<String> generatePdf(T itemModel, String fileName, {String? logoSrc, String? fontSrc}) async {
     final Uint8List? logoUint8List;
     final Font? font;
 
+    // Load the logo if provided
     if (logoSrc == null) {
       logoUint8List = null;
     } else {
@@ -81,29 +61,34 @@ abstract class PdfGeneratorBase<T> implements IPdfGenerator<T> {
       logoUint8List = logoByteData.buffer.asUint8List();
     }
 
+    // Load the font if provided
     if (fontSrc == null) {
       font = null;
     } else {
+      log('fontSrc $fontSrc');
       ByteData fontByteData = await rootBundle.load(fontSrc);
       font = Font.ttf(fontByteData.buffer.asByteData());
     }
 
-    final title = buildTitle(itemModel, logoUint8List: logoUint8List, font: font);
-    final body = buildBody(itemModel, font: font);
-    // final total = buildTotal(itemModel);
-
-    _pdfDocument.addPage(MultiPage(
-      build: (context) => [
-        title,
-        SizedBox(height: 0.5 * PdfPageFormat.cm),
-        Text('$fileName Details'),
-        SizedBox(height: 0.5 * PdfPageFormat.cm),
-        body,
-        //     Divider(),
-        //   total,
-      ],
-      footer: (context) => buildFooter(),
-    ));
+    _pdfDocument.addPage(
+      MultiPage(
+        header: (context) {
+          // Display the header only on the first page
+          if (context.pageNumber == 1) {
+            return buildHeader(itemModel, fileName, logoUint8List: logoUint8List, font: font);
+          }
+          return SizedBox.shrink(); // Return an empty container instead of null
+        },
+        build: (context) => buildBody(itemModel, font: font),
+        footer: (context) {
+          // Display the footer only on the last page
+          if (context.pageNumber == context.pagesCount) {
+            return buildFooter();
+          }
+          return SizedBox.shrink(); // Return an empty container instead of null
+        },
+      ),
+    );
 
     // Save the PDF locally
     final directory = await getApplicationDocumentsDirectory();

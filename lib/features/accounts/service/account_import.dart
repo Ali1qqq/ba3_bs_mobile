@@ -12,7 +12,7 @@ class AccountImport extends ImportServiceBase<AccountModel> {
   }
 
   @override
-  List<AccountModel> fromImportXml(XmlDocument document) {
+  Future<List<AccountModel>> fromImportXml(XmlDocument document) async {
     final accountNodes = document.findAllElements('A');
     DateFormat dateFormat = DateFormat('dd-MM-yyyy');
     return accountNodes

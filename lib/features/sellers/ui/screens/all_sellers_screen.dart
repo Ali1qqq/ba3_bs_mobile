@@ -20,7 +20,7 @@ class AllSellersScreen extends StatelessWidget {
           if (controller.isLoading) {
             return AppUIUtils.showLoadingIndicator();
           } else {
-            if (controller.allSellers.isEmpty) {
+            if (controller.sellers.isEmpty) {
               return const Center(child: Text('لا يوجد بائعون بعد'));
             } else {
               return SingleChildScrollView(
@@ -30,12 +30,12 @@ class AllSellersScreen extends StatelessWidget {
                     spacing: 5,
                     runSpacing: 5,
                     children: List.generate(
-                        controller.allSellers.length,
+                        controller.sellers.length,
                         (index) => Padding(
                               padding: const EdgeInsets.all(8.0),
                               child: InkWell(
                                 onTap: () => read<SellerSalesController>().onSelectSeller(
-                                  controller.allSellers[index],
+                                  controller.sellers[index],
                                 ),
                                 child: Container(
                                   padding: const EdgeInsets.all(4),
@@ -46,11 +46,11 @@ class AllSellersScreen extends StatelessWidget {
                                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                                     children: [
                                       Text(
-                                        controller.allSellers[index].costCode?.toString() ?? '',
+                                        controller.sellers[index].costCode?.toString() ?? '',
                                         style: const TextStyle(fontSize: 24),
                                       ),
                                       Text(
-                                        controller.allSellers[index].costName ?? '',
+                                        controller.sellers[index].costName ?? '',
                                         style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
                                       ),
                                     ],

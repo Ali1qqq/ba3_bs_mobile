@@ -8,17 +8,7 @@ abstract class IPdfGenerator<T> {
 
   Widget buildFooter();
 
-  Widget buildSimpleText({required String title, required String value});
+  Widget buildHeader(T itemModel, String fileName, {Uint8List? logoUint8List, Font? font});
 
-  Widget buildText({
-    required String title,
-    required String value,
-    double width = double.infinity,
-    TextStyle? titleStyle,
-    bool unite = false,
-  });
-
-  Widget buildTitle(T itemModel, {Uint8List? logoUint8List, Font? font});
-
-  Widget buildBody(T itemModel, {Font? font});
+  List<Widget> buildBody(T itemModel, {Font? font});
 }

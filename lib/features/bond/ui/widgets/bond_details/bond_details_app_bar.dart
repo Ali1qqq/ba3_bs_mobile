@@ -1,4 +1,4 @@
-import 'package:ba3_bs_mobile/core/helper/extensions/bisc/string_extension.dart';
+import 'package:ba3_bs_mobile/core/helper/extensions/basic/string_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';

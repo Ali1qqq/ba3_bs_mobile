@@ -44,6 +44,7 @@ class OverlayEntryWithPriorityManager {
     double? width,
     double? height,
     int? priority,
+    Color? color,
     VoidCallback? onCloseCallback,
   }) {
     if (hasHigherPriorityOverlay()) {
@@ -70,8 +71,7 @@ class OverlayEntryWithPriorityManager {
                     width: width ?? 500,
                     height: height ?? 500,
                     padding: contentPadding ?? const EdgeInsets.fromLTRB(16, 8, 16, 16),
-                    decoration:
-                        BoxDecoration(color: Colors.white, borderRadius: borderRadius ?? BorderRadius.circular(24)),
+                    decoration: BoxDecoration(color: color ?? Colors.white, borderRadius: borderRadius ?? BorderRadius.circular(24)),
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.center,
@@ -133,8 +133,7 @@ class OverlayEntryWithPriorityManager {
 
   /// Checks if any overlay exists with a priority higher than the given [defaultPriority].
   /// Lower numbers indicate higher priority (e.g., 0 is higher than 1).
-  bool hasHigherPriorityOverlay([int defaultPriority = 1]) =>
-      _overlayEntries.any((entry) => entry.priority < defaultPriority);
+  bool hasHigherPriorityOverlay([int defaultPriority = 1]) => _overlayEntries.any((entry) => entry.priority < defaultPriority);
 
   void clearAllHigherPriorityOverlay() {
     if (hasHigherPriorityOverlay()) {

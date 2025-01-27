@@ -10,16 +10,17 @@ class ApiConstants {
   static const String entryBonds = 'entry_bonds';
   static const String accountsStatements = 'accounts_statements';
   static const String cheques = 'cheques';
-  static const String entryBondsItems = 'entry_bonds_items';
   static const String roles = 'roles';
   static const String users = 'users';
   static const String sellers = 'sellers';
   static const String taxes = 'texes';
   static const String accounts = 'accounts';
   static const String materials = 'materials';
+  static const String materialGroup = 'materialGroup';
   static const String changes = 'changes';
   static const String sequentialNumbers = 'sequential_numbers';
   static const String guestUser = 'guest_user';
+  static const String customers = 'customers';
 
   // Documents
   static const String guest = 'guest';
@@ -30,4 +31,8 @@ class ApiConstants {
   static const String billDate = 'billDetails.billDate';
   static const String billSellerId = 'billDetails.billSellerId';
   static const String type = 'type';
-  static const String lastNumber = 'lastNumber';}
+  static const String lastNumber = 'lastNumber';
+
+  static const String billNumber = 'billDetails.billNumber';
+  static const String bondNumber = 'PayNumber';
+}

@@ -1,4 +1,5 @@
 import 'package:ba3_bs_mobile/core/helper/enums/enums.dart';
+
 import '../../../../core/utils/app_ui_utils.dart';
 import '../../../accounts/data/models/account_model.dart';
 import '../../../sellers/data/models/seller_model.dart';
@@ -6,15 +7,23 @@ import '../../data/models/bond_model.dart';
 
 class BondUtils {
   BondModel appendEmptyBondModel(List<BondModel> bonds, BondType bondTyp) {
-    final int lastBillNumber = bonds.isNotEmpty ? bonds.last.payNumber! : 0;
+    final int lastBondNumber = bonds.isNotEmpty ? bonds.last.payNumber! : 0;
 
-    final emptyBillModel = BondModel.empty(
+    final emptyBondModel = BondModel.empty(
       bondType: bondTyp,
-      lastBondNumber: lastBillNumber,
+      lastBondNumber: lastBondNumber,
     );
 
+    bonds.add(emptyBondModel);
+    return emptyBondModel;
+  }
+
+  List<BondModel> appendEmptyBillModelNew(BondType bondType, int lastBondNumber) {
+    final List<BondModel> bonds = [];
+    final emptyBillModel = BondModel.empty(bondType: bondType, lastBondNumber: lastBondNumber);
+
     bonds.add(emptyBillModel);
-    return emptyBillModel;
+    return bonds;
   }
 
   bool validateCustomerAccount(AccountModel? customerAccount) {

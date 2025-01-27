@@ -1,14 +1,20 @@
 import 'dart:developer';
 
+import 'package:ba3_bs_mobile/core/helper/extensions/basic/string_extension.dart';
 import 'package:ba3_bs_mobile/core/helper/extensions/bill_pattern_type_extension.dart';
 import 'package:ba3_bs_mobile/core/helper/extensions/date_time_extensions.dart';
 import 'package:ba3_bs_mobile/core/helper/mixin/app_navigator.dart';
 import 'package:ba3_bs_mobile/core/helper/validators/app_validator.dart';
 import 'package:ba3_bs_mobile/core/i_controllers/i_bill_controller.dart';
 import 'package:ba3_bs_mobile/core/interfaces/i_store_selection_handler.dart';
+import 'package:ba3_bs_mobile/core/styling/app_colors.dart';
+import 'package:ba3_bs_mobile/core/widgets/app_button.dart';
+import 'package:ba3_bs_mobile/core/widgets/custom_text_field_without_icon.dart';
 import 'package:ba3_bs_mobile/features/bill/controllers/bill/bill_search_controller.dart';
 import 'package:ba3_bs_mobile/features/bill/data/models/bill_model.dart';
 import 'package:ba3_bs_mobile/features/bill/services/bill/bill_utils.dart';
+import 'package:ba3_bs_mobile/features/bill/ui/widgets/bill_shared/bill_header_field.dart';
+import 'package:ba3_bs_mobile/features/floating_window/services/overlay_service.dart';
 import 'package:ba3_bs_mobile/features/sellers/controllers/sellers_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -24,7 +30,6 @@ import '../../../print/controller/print_controller.dart';
 import '../../data/models/bill_items.dart';
 import '../../data/models/invoice_record_model.dart';
 import '../../services/bill/account_handler.dart';
-import '../../services/bill/bill_pdf_generator.dart';
 import '../../services/bill/bill_service.dart';
 import '../pluto/bill_details_pluto_controller.dart';
 
@@ -42,7 +47,7 @@ class BillDetailsController extends IBillController with AppValidator, AppNaviga
   });
 
   // Services
-  late final BillDetailsService _billDetailsService;
+  late final BillDetailsService _billService;
   late final BillUtils _billUtils;
   late final AccountHandler _accountHandler;
 
@@ -56,6 +61,7 @@ class BillDetailsController extends IBillController with AppValidator, AppNaviga
   final TextEditingController firstPayController = TextEditingController();
   final TextEditingController invReturnDateController = TextEditingController();
   final TextEditingController invReturnCodeController = TextEditingController();
+  final TextEditingController invFirstPayController = TextEditingController();
 
   AccountModel? selectedCustomerAccount;
 
@@ -66,15 +72,12 @@ class BillDetailsController extends IBillController with AppValidator, AppNaviga
   BillType billType = BillType.sales;
   bool isLoading = true;
 
-  Map<Account, AccountModel> selectedAdditionsDiscountAccounts = {};
-
   RxBool isBillSaved = false.obs;
 
   @override
-  updateSelectedAdditionsDiscountAccounts(Account key, AccountModel value) => selectedAdditionsDiscountAccounts[key] = value;
-
-  @override
   Rx<StoreAccount> selectedStore = StoreAccount.main.obs;
+
+  bool get isCash => selectedPayType.value == InvPayType.cash;
 
   @override
   void onSelectedStoreChanged(StoreAccount? newStore) {
@@ -87,12 +90,13 @@ class BillDetailsController extends IBillController with AppValidator, AppNaviga
   void updateCustomerAccount(AccountModel? newAccount) {
     if (newAccount != null) {
       selectedCustomerAccount = newAccount;
+      customerAccountController.text = newAccount.accName!;
     }
   }
 
   @override
   Future<void> sendToEmail({required String recipientEmail, String? url, String? subject, String? body, List<String>? attachments}) async {
-    _billDetailsService.sendToEmail(recipientEmail: recipientEmail, url: url, subject: subject, body: body, attachments: attachments);
+    _billService.sendToEmail(recipientEmail: recipientEmail, url: url, subject: subject, body: body, attachments: attachments);
   }
 
   @override
@@ -108,7 +112,7 @@ class BillDetailsController extends IBillController with AppValidator, AppNaviga
 
   // Initializer
   void _initializeServices() {
-    _billDetailsService = BillDetailsService(billDetailsPlutoController, this);
+    _billService = BillDetailsService(billDetailsPlutoController, this);
     _billUtils = BillUtils();
     _accountHandler = AccountHandler();
   }
@@ -127,15 +131,16 @@ class BillDetailsController extends IBillController with AppValidator, AppNaviga
   void onPayTypeChanged(InvPayType? payType) {
     if (payType != null) {
       selectedPayType.value = payType;
-      // update();
       log('onPayTypeChanged');
     }
   }
 
-  Future<void> printBill({required BillModel billModel, required List<InvoiceRecordModel> invRecords}) async {
-    if (!_billDetailsService.hasModelId(billModel.billId)) return;
+  Future<void> printBill(
+      {required BuildContext context, required BillModel billModel, required List<InvoiceRecordModel> invRecords}) async {
+    if (!_billService.hasModelId(billModel.billId)) return;
 
     await read<PrintingController>().startPrinting(
+      context: context,
       invRecords: invRecords,
       billNumber: billModel.billDetails.billNumber!,
       invDate: billDate.value.dayMonthYear,
@@ -145,7 +150,7 @@ class BillDetailsController extends IBillController with AppValidator, AppNaviga
   void createEntryBond(BillModel billModel, BuildContext context) {
     if (!validateForm()) return;
 
-    _billDetailsService.launchFloatingEntryBondDetailsScreen(
+    _billService.launchFloatingEntryBondDetailsScreen(
       context: context,
       billModel: billModel,
     );
@@ -156,7 +161,7 @@ class BillDetailsController extends IBillController with AppValidator, AppNaviga
 
     result.fold(
       (failure) => AppUIUtils.onFailure(failure.message),
-      (updatedBillModel) => _billDetailsService.handleUpdateBillStatusSuccess(
+      (updatedBillModel) => _billService.handleUpdateBillStatusSuccess(
         updatedBillModel: updatedBillModel,
         billSearchController: billSearchController,
       ),
@@ -164,11 +169,12 @@ class BillDetailsController extends IBillController with AppValidator, AppNaviga
   }
 
   Future<void> deleteBill(BillModel billModel, {bool fromBillById = false}) async {
+    log('billModel json ${billModel.toJson()}');
     final result = await _billsFirebaseRepo.delete(billModel);
 
     result.fold(
       (failure) => AppUIUtils.onFailure(failure.message),
-      (success) => _billDetailsService.handleDeleteSuccess(
+      (success) => _billService.handleDeleteSuccess(
         billModel: billModel,
         billSearchController: billSearchController,
         fromBillById: fromBillById,
@@ -181,15 +187,15 @@ class BillDetailsController extends IBillController with AppValidator, AppNaviga
   }
 
   Future<void> updateBill({required BillTypeModel billTypeModel, required BillModel billModel}) async {
-    await _saveOrUpdateBill(billTypeModel: billTypeModel, existingBillModel: billModel);
+    await _saveOrUpdateBill(billTypeModel: billTypeModel, existingBill: billModel);
   }
 
-  Future<void> _saveOrUpdateBill({required BillTypeModel billTypeModel, BillModel? existingBillModel}) async {
+  Future<void> _saveOrUpdateBill({required BillTypeModel billTypeModel, BillModel? existingBill}) async {
     // Validate the form first
     if (!validateForm()) return;
 
     // Create the bill model from the provided data
-    final updatedBillModel = _createBillModelFromBillData(billTypeModel, existingBillModel);
+    final updatedBillModel = _createBillModelFromBillData(billTypeModel, existingBill);
 
     // Handle null bill model
     if (updatedBillModel == null) {
@@ -198,7 +204,7 @@ class BillDetailsController extends IBillController with AppValidator, AppNaviga
     }
 
     // Ensure there are bill items
-    if (!_billDetailsService.hasModelItems(updatedBillModel.items.itemList)) return;
+    if (!_billService.hasModelItems(updatedBillModel.items.itemList)) return;
 
     // Save the bill to Firestore
     final result = await _billsFirebaseRepo.save(updatedBillModel);
@@ -206,11 +212,12 @@ class BillDetailsController extends IBillController with AppValidator, AppNaviga
     // Handle the result (success or failure)
     result.fold(
       (failure) => AppUIUtils.onFailure(failure.message),
-      (billModel) {
-        _billDetailsService.handleSaveOrUpdateSuccess(
-          billModel: billModel,
+      (updatedBill) {
+        _billService.handleSaveOrUpdateSuccess(
+          previousBill: existingBill,
+          currentBill: updatedBill,
           billSearchController: billSearchController,
-          isSave: existingBillModel == null,
+          isSave: existingBill == null,
         );
       },
     );
@@ -231,15 +238,20 @@ class BillDetailsController extends IBillController with AppValidator, AppNaviga
     }
 
     final updatedBillTypeModel = _accountHandler.updateBillTypeAccounts(
-            billTypeModel, selectedAdditionsDiscountAccounts, selectedCustomerAccount, selectedStore.value) ??
+          billTypeModel,
+          billDetailsPlutoController.generateDiscountsAndAdditions,
+          selectedCustomerAccount,
+          selectedStore.value,
+        ) ??
         billTypeModel;
 
     // Create and return the bill model
-    return _billDetailsService.createBillModel(
+    return _billService.createBillModel(
       billModel: billModel,
       billNote: noteController.text,
       billTypeModel: updatedBillTypeModel,
       billDate: billDate.value,
+      billFirstPay: firstPayController.text.toDouble,
       billCustomerId: selectedCustomerAccount?.id! ?? "00000000-0000-0000-0000-000000000000",
       billSellerId: sellerController.selectedSellerAccount!.costGuid!,
       billPayType: selectedPayType.value.index,
@@ -275,6 +287,7 @@ class BillDetailsController extends IBillController with AppValidator, AppNaviga
     setBillDate = bill.billDetails.billDate!;
 
     noteController.text = bill.billDetails.note ?? '';
+    firstPayController.text = (bill.billDetails.billFirstPay ?? 0.0).toString();
 
     initBillNumberController(bill.billDetails.billNumber);
 
@@ -289,20 +302,39 @@ class BillDetailsController extends IBillController with AppValidator, AppNaviga
   }
 
   generateAndSendBillPdf(BillModel billModel) {
-    _billDetailsService.generateAndSendPdf(
-      fileName: AppStrings.bill,
+    if (!_billService.hasModelId(billModel.billId)) return;
+
+    if (!_billService.hasModelItems(billModel.items.itemList)) return;
+
+    _billService.generateAndSendPdf(
+      fileName: AppStrings.existedBill,
       itemModel: billModel,
-      itemModelId: billModel.billId,
-      items: billModel.items.itemList,
-      pdfGenerator: BillPdfGenerator(),
     );
   }
 
   showEInvoiceDialog(BillModel billModel, BuildContext context) {
-    _billDetailsService.showEInvoiceDialog(billModel, context);
+    _billService.showEInvoiceDialog(billModel, context);
   }
 
-  showBarCodeScanner(BuildContext context) => _billDetailsService.showBarCodeScanner(
+  void openFirstPayDialog(BuildContext context) {
+    OverlayService.showDialog(
+        color: AppColors.backGroundColor,
+        context: context,
+        height: 200,
+        showDivider: true,
+        title: 'المزيد',
+        content: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
+          spacing: 5,
+          children: [
+            TextAndExpandedChildField(label: 'الدفعة الاولى', child: CustomTextFieldWithoutIcon(textEditingController: firstPayController)),
+            AppButton(title: 'تم', onPressed: () => OverlayService.back())
+          ],
+        ));
+  }
+
+  showBarCodeScanner(BuildContext context) => _billService.showBarCodeScanner(
         context: context,
         stateManager: billDetailsPlutoController.recordsTableStateManager,
         plutoController: billDetailsPlutoController,

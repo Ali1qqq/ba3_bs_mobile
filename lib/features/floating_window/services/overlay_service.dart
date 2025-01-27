@@ -24,6 +24,7 @@ class OverlayService {
     String? title,
     double? width,
     double? height,
+    Color? color,
     int? priority,
     VoidCallback? onCloseCallback,
   }) async {
@@ -40,6 +41,7 @@ class OverlayService {
       content: content,
       width: width,
       height: height,
+      color: color,
       priority: priority,
       onCloseCallback: () {
         onCloseCallback?.call();

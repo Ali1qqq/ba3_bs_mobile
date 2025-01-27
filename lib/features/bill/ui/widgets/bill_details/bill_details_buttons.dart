@@ -1,10 +1,7 @@
-import 'dart:developer';
-
 import 'package:ba3_bs_mobile/core/helper/extensions/bill_pattern_type_extension.dart';
 import 'package:ba3_bs_mobile/core/helper/extensions/role_item_type_extension.dart';
 import 'package:ba3_bs_mobile/features/bill/controllers/bill/bill_search_controller.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
 import '../../../../../core/helper/enums/enums.dart';
@@ -19,9 +16,9 @@ class BillDetailsButtons extends StatelessWidget {
     super.key,
     required this.billDetailsController,
     required this.billDetailsPlutoController,
+    required this.billSearchController,
     required this.billModel,
     required this.fromBillById,
-    required this.billSearchController,
   });
 
   final BillDetailsController billDetailsController;
@@ -32,10 +29,9 @@ class BillDetailsButtons extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    log('isPending ${billSearchController.isPending}');
+    // log('isPending: ${billSearchController.isPending}');
 
-    return Container(
-      width: 1.sw,
+    return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Wrap(
         crossAxisAlignment: WrapCrossAlignment.end,
@@ -46,10 +42,31 @@ class BillDetailsButtons extends StatelessWidget {
           if (!billSearchController.isNew && RoleItemType.viewBill.hasAdminPermission)
             if (billModel.billTypeModel.billPatternType!.hasCashesAccount || billSearchController.isPending)
               _buildApprovalOrBondButton(context),
-          _buildPrintButton(),
-          _buildEInvoiceButton(context),
-          if (!billSearchController.isNew) _buildPdfEmailButton(),
-          if (!billSearchController.isNew) _buildDeleteButton(),
+          _buildActionButton(
+            title: 'طباعة',
+            icon: Icons.print_outlined,
+            onPressed: () => billDetailsController.printBill(
+              context: context,
+              billModel: billModel,
+              invRecords: billDetailsPlutoController.generateRecords,
+            ),
+          ),
+          _buildActionButton(
+            title: 'E-Invoice',
+            icon: Icons.link,
+            onPressed: () => billDetailsController.showEInvoiceDialog(billModel, context),
+          ),
+          if (!billSearchController.isNew) ..._buildEditDeletePdfButtons(),
+          Obx(() => !billDetailsController.isCash
+              ? AppButton(
+                  height: 20,
+                  width: 100,
+                  fontSize: 14,
+                  title: "المزيد",
+                  onPressed: () {
+                    billDetailsController.openFirstPayDialog(context);
+                  })
+              : SizedBox.shrink())
         ],
       ),
     );
@@ -57,16 +74,14 @@ class BillDetailsButtons extends StatelessWidget {
 
   Widget _buildAddButton() {
     return Obx(() {
+      final isBillSaved = billDetailsController.isBillSaved.value;
       return AppButton(
         title: 'إضافة',
+        height: 20,
         width: 100,
         fontSize: 14,
-        color: billDetailsController.isBillSaved.value ? Colors.green : Colors.blue.shade700,
-        onPressed: billDetailsController.isBillSaved.value
-            ? () {}
-            : () async {
-                billDetailsController.saveBill(billModel.billTypeModel);
-              },
+        color: isBillSaved ? Colors.green : Colors.blue.shade700,
+        onPressed: isBillSaved ? () {} : () => billDetailsController.saveBill(billModel.billTypeModel),
         iconData: Icons.add_chart_outlined,
       );
     });
@@ -74,65 +89,57 @@ class BillDetailsButtons extends StatelessWidget {
 
   Widget _buildApprovalOrBondButton(BuildContext context) {
     final isPending = billSearchController.isPending;
-    return AppButton(
+    return _buildActionButton(
       title: isPending ? 'قبول' : 'السند',
-      iconData: Icons.file_open_outlined,
+      icon: Icons.file_open_outlined,
+      color: isPending ? Colors.orange : null,
       onPressed: isPending
           ? () => billDetailsController.updateBillStatus(billModel, Status.approved)
           : () => billDetailsController.createEntryBond(billModel, context),
     );
   }
 
-  Widget _buildPrintButton() {
-    return AppButton(
-      iconData: Icons.print_outlined,
-      title: 'طباعة',
-      width: 100,
-      fontSize: 14,
-      onPressed: () async {
-        billDetailsController.printBill(
+  List<Widget> _buildEditDeletePdfButtons() {
+    return [
+      _buildActionButton(
+        title: 'تعديل',
+        icon: Icons.edit_outlined,
+        onPressed: () => billDetailsController.updateBill(
           billModel: billModel,
-          invRecords: billDetailsPlutoController.generateRecords,
-        );
-      },
-    );
+          billTypeModel: billModel.billTypeModel,
+        ),
+      ),
+      if (RoleItemType.viewBill.hasAdminPermission)
+        _buildActionButton(
+          title: 'Pdf-Email',
+          icon: Icons.link,
+          onPressed: () => billDetailsController.generateAndSendBillPdf(billModel),
+        ),
+      if (RoleItemType.viewBill.hasAdminPermission)
+        _buildActionButton(
+          title: 'حذف',
+          icon: Icons.delete_outline,
+          color: Colors.red,
+          onPressed: () => billDetailsController.deleteBill(billModel, fromBillById: fromBillById),
+        ),
+    ];
   }
 
-  Widget _buildEInvoiceButton(BuildContext context) {
+  Widget _buildActionButton({
+    required String title,
+    required IconData icon,
+    required VoidCallback onPressed,
+    Color? color,
+    double? width,
+  }) {
     return AppButton(
-      title: 'E-Invoice',
-      color: Colors.blue.shade700,
-      width: 110,
+      title: title,
+      iconData: icon,
+      height: 20,
+      width: width ?? 100,
       fontSize: 14,
-      onPressed: () {
-        billDetailsController.showEInvoiceDialog(billModel, context);
-      },
-      iconData: Icons.link,
-    );
-  }
-
-  Widget _buildPdfEmailButton() {
-    return AppButton(
-      title: 'Pdf-Email',
-      width: 120,
-      fontSize: 14,
-      onPressed: () {
-        billDetailsController.generateAndSendBillPdf(billModel);
-      },
-      iconData: Icons.link,
-    );
-  }
-
-  Widget _buildDeleteButton() {
-    return AppButton(
-      iconData: Icons.delete_outline,
-      width: 100,
-      fontSize: 14,
-      color: Colors.red,
-      title: 'حذف',
-      onPressed: () async {
-        billDetailsController.deleteBill(billModel, fromBillById: fromBillById);
-      },
+      color: color ?? Colors.blue.shade700,
+      onPressed: onPressed,
     );
   }
 }

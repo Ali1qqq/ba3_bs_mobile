@@ -70,12 +70,14 @@ class BillModel extends PlutoAdaptable with EquatableMixin {
     required double billAdditionsTotal,
     required double billTotal,
     required double billVatTotal,
+    required double billFirstPay,
     required double billWithoutVatTotal,
     required BillTypeModel billTypeModel,
     required List<InvoiceRecordModel> billRecordsItems,
   }) {
     final billDetails = BillDetails.fromBillData(
       existingDetails: billModel?.billDetails,
+      billFirstPay: billFirstPay,
       note: note,
       billCustomerId: billCustomerId,
       billSellerId: billSellerId,
@@ -152,7 +154,7 @@ class BillModel extends PlutoAdaptable with EquatableMixin {
                     double.parse(item['PriceDescExtra'].split(',').first),
                   ),
                   itemGiftsNumber: int.parse(item['QtyBonus'].split(',')[1]),
-                  itemName: read<MaterialController>().getMaterialNameById(item['MatPtr'].toString()),
+                  itemName: item['MatName'],
                   itemVatPrice: AppServiceUtils.calcVat(
                     int.parse(item['VatRatio']),
                     double.parse(item['PriceDescExtra'].split(',').first),
@@ -206,9 +208,10 @@ class BillModel extends PlutoAdaptable with EquatableMixin {
               ],
       ),
       billDetails: BillDetails(
+        billFirstPay: double.tryParse(billData['B']['BillFirstPay']) ?? 0.0,
         billGuid: billData['B']['BillGuid'],
         billPayType: int.parse(billData['B']['BillPayType']),
-        billNumber: int.parse(billData['B']['BillNumber']),
+        billNumber: (billData['B']['BillNumber']),
         billDate: dateFormat.parse(billData['B']['BillDate'].toString().toYearMonthDayFormat()),
         billCustomerId: billData['B']['BillCustAcc'],
         billSellerId: billData['B']['BillCostGuid'],

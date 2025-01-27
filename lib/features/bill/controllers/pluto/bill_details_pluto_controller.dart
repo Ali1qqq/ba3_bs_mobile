@@ -1,7 +1,7 @@
 import 'dart:developer';
 
 import 'package:ba3_bs_mobile/core/constants/app_constants.dart';
-import 'package:ba3_bs_mobile/core/helper/extensions/bisc/string_extension.dart';
+import 'package:ba3_bs_mobile/core/helper/extensions/basic/string_extension.dart';
 import 'package:ba3_bs_mobile/features/materials/controllers/material_controller.dart';
 import 'package:ba3_bs_mobile/features/materials/data/models/material_model.dart';
 import 'package:ba3_bs_mobile/features/patterns/data/models/bill_type_model.dart';

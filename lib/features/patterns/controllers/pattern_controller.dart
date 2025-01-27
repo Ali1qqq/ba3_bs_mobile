@@ -81,6 +81,9 @@ class PatternController extends GetxController with AppNavigator {
       case BillPatternType.transferIn:
         fillControllers(
             shortName: 'القيد الافتتاحي', fullName: 'بضاعة اول مدة', latinShortName: 'Add', latinFullName: 'first Period Inventory');
+      case BillPatternType.salesService:
+        // TODO: Handle this case.
+        throw UnimplementedError();
     }
   }
 

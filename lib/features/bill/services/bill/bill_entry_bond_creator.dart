@@ -21,10 +21,18 @@ class BillEntryBondCreator extends BaseEntryBondCreator<BillModel> {
     final customerAccount = model.billTypeModel.accounts![BillAccounts.caches]!;
 
     final billType = BillType.byLabel(model.billTypeModel.billTypeLabel!);
-    final isSales = billType == BillType.sales;
+    final isSales = billType == BillType.sales || billType == BillType.purchaseReturn;
 
     final date = model.billDetails.billDate!.dayMonthYear;
-
+    final firstPayBond = [];
+    if ((model.billDetails.billFirstPay ?? 0) > 0) {
+      firstPayBond.addAll(_createFirstPayBond(
+          billId: model.billId!,
+          firstPay: model.billDetails.billFirstPay ?? 0,
+          customerAccount: customerAccount,
+          isSales: isSales,
+          date: date));
+    }
     final itemBonds = _generateBillItemBonds(
       billId: model.billId!,
       accounts: model.billTypeModel.accounts!,
@@ -35,7 +43,7 @@ class BillEntryBondCreator extends BaseEntryBondCreator<BillModel> {
       billTypeModel: model.billTypeModel,
       isSimulatedVat: isSimulatedVat,
     );
-    if (model.billTypeModel.billPatternType!.hasDiscountsAccount && model.billTypeModel.discountAdditionAccounts != null) {
+    if (model.billTypeModel.billPatternType!.hasDiscountsAccount) {
       final adjustmentBonds = _generateAdjustmentBonds(
         discountsAndAdditions: model.billTypeModel.discountAdditionAccounts!,
         billId: model.billId!,
@@ -44,9 +52,10 @@ class BillEntryBondCreator extends BaseEntryBondCreator<BillModel> {
         billTypeModel: model.billTypeModel,
         isSales: isSales,
       );
-      return [...itemBonds, ...adjustmentBonds];
+
+      return [...itemBonds, ...adjustmentBonds, ...firstPayBond];
     } else {
-      return itemBonds;
+      return [...itemBonds, ...firstPayBond];
     }
   }
 
@@ -372,4 +381,33 @@ class BillEntryBondCreator extends BaseEntryBondCreator<BillModel> {
 
   @override
   String getModelId(BillModel model) => model.billId!;
+
+  List<EntryBondItemModel> _createFirstPayBond({
+    required String billId,
+    required double firstPay,
+    required AccountModel customerAccount,
+    required bool isSales,
+    required String date,
+  }) {
+    return [
+      _createBondItem(
+        amount: firstPay,
+        billId: billId,
+        bondType: isSales ? BondItemType.debtor : BondItemType.creditor,
+        accountName: BillType.sales.accounts[BillAccounts.caches]!.accName,
+        accountId: BillType.sales.accounts[BillAccounts.caches]!.id,
+        note: 'الدفع الاولى من ${customerAccount.accName}',
+        date: date,
+      ),
+      _createBondItem(
+        amount: firstPay,
+        billId: billId,
+        bondType: isSales ? BondItemType.creditor : BondItemType.creditor,
+        accountName: customerAccount.accName,
+        accountId: customerAccount.id,
+        note: 'الدفع الاولى الى ${BillType.sales.accounts[BillAccounts.caches]!.accName}',
+        date: date,
+      )
+    ];
+  }
 }

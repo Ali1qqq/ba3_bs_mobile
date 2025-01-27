@@ -30,15 +30,36 @@ enum RecordType {
 }
 
 enum BillType {
-  sales(label: 'sales', value: 'فاتورة مبيعات', typeGuide: "6ed3786c-08c6-453b-afeb-a0e9075dd26d", color: 4282339765, accounts: {
-    BillAccounts.store: AccountModel(accName: "المستودع الرئيسي", id: '6d9836d1-fccd-4006-804f-81709eecde57'),
-    BillAccounts.additions: AccountModel(accName: "ايرادات مختلفة", id: "1a1416bb-426b-4348-98cf-f1b026cc6c7d"),
-    BillAccounts.discounts: AccountModel(accName: "الحسم الممنوح", id: "e903d658-f30f-46c8-82c0-fee86256a511"),
-    BillAccounts.materials: AccountModel(accName: "المبيعات", id: "b1e9e80b-0d23-414d-b3be-bd0aec386002"),
-    BillAccounts.caches: AccountModel(accName: "الصندوق", id: "5b36c82d-9105-4177-a5c3-0f90e5857e3c"),
-    BillAccounts.gifts: AccountModel(accName: "هدايا البيع", id: "9d04d1f1-23f3-466e-8edb-5c16074e44ad"),
-    BillAccounts.exchangeForGifts: AccountModel(accName: "تسويات", id: "201046d2-7ca0-4ac4-a55d-b1dbf4e54dde"),
-  }),
+  sales(
+    label: 'sales',
+    value: 'فاتورة مبيعات',
+    typeGuide: "6ed3786c-08c6-453b-afeb-a0e9075dd26d",
+    color: 4282339765,
+    accounts: {
+      BillAccounts.store: AccountModel(accName: "المستودع الرئيسي", id: '6d9836d1-fccd-4006-804f-81709eecde57'),
+      BillAccounts.additions: AccountModel(accName: "ايرادات مختلفة", id: "1a1416bb-426b-4348-98cf-f1b026cc6c7d"),
+      BillAccounts.discounts: AccountModel(accName: "الحسم الممنوح", id: "e903d658-f30f-46c8-82c0-fee86256a511"),
+      BillAccounts.materials: AccountModel(accName: "المبيعات", id: "b1e9e80b-0d23-414d-b3be-bd0aec386002"),
+      BillAccounts.caches: AccountModel(accName: "الصندوق", id: "5b36c82d-9105-4177-a5c3-0f90e5857e3c"),
+      BillAccounts.gifts: AccountModel(accName: "هدايا البيع", id: "9d04d1f1-23f3-466e-8edb-5c16074e44ad"),
+      BillAccounts.exchangeForGifts: AccountModel(accName: "تسويات", id: "201046d2-7ca0-4ac4-a55d-b1dbf4e54dde"),
+    },
+  ),
+  salesService(
+    label: 'sales service',
+    value: ' مبيعات خدمة',
+    typeGuide: "5bbae172-9291-4940-bac2-25be48b8dca8",
+    color: 4282339765,
+    accounts: {
+      BillAccounts.store: AccountModel(accName: "المستودع الرئيسي", id: '6d9836d1-fccd-4006-804f-81709eecde57'),
+      BillAccounts.additions: AccountModel(accName: "ايرادات مختلفة", id: "1a1416bb-426b-4348-98cf-f1b026cc6c7d"),
+      BillAccounts.discounts: AccountModel(accName: "الحسم الممنوح", id: "e903d658-f30f-46c8-82c0-fee86256a511"),
+      BillAccounts.materials: AccountModel(accName: "المبيعات", id: "b1e9e80b-0d23-414d-b3be-bd0aec386002"),
+      BillAccounts.caches: AccountModel(accName: "الصندوق", id: "5b36c82d-9105-4177-a5c3-0f90e5857e3c"),
+      BillAccounts.gifts: AccountModel(accName: "هدايا البيع", id: "9d04d1f1-23f3-466e-8edb-5c16074e44ad"),
+      BillAccounts.exchangeForGifts: AccountModel(accName: "تسويات", id: "201046d2-7ca0-4ac4-a55d-b1dbf4e54dde"),
+    },
+  ),
   purchase(
     label: 'purchase',
     value: 'فاتورة مشتريات',
@@ -58,44 +79,65 @@ enum BillType {
     label: 'salesReturn',
     value: 'فاتورة مرتجع مبيع',
     typeGuide: "2373523c-9f23-4ce7-a6a2-6277757fc381",
-    color: 4278228616,
-    accounts: {},
+    color: 4282339765,
+    accounts: {
+      BillAccounts.store: AccountModel(accName: "المستودع الرئيسي", id: '6d9836d1-fccd-4006-804f-81709eecde57'),
+      BillAccounts.caches: AccountModel(accName: "الصندوق", id: "5b36c82d-9105-4177-a5c3-0f90e5857e3c"),
+      BillAccounts.materials: AccountModel(accName: "مردود المبيعات", id: "3c360b04-9a62-449c-929d-806b06810bcc"),
+    },
   ),
   purchaseReturn(
     label: 'purchaseReturn',
     value: 'قاتورة مرتجع شراء',
     typeGuide: "507f9e7d-e44e-4c4e-9761-bb3cd4fc1e0d",
     color: 4278228616,
-    accounts: {},
+    accounts: {
+      BillAccounts.store: AccountModel(accName: "المستودع الرئيسي", id: '6d9836d1-fccd-4006-804f-81709eecde57'),
+      BillAccounts.materials: AccountModel(accName: 'مردود المشتريات', id: "ee4e9396-56cd-41bd-af14-f5f588b21dd9"),
+      BillAccounts.caches: AccountModel(accName: "الصندوق", id: "5b36c82d-9105-4177-a5c3-0f90e5857e3c"),
+    },
   ),
   adjustmentEntry(
     label: 'adjustmentEntry',
     value: 'فاتورة تسوية ادخال',
     typeGuide: "06f0e6ea-3493-480c-9e0c-573baf049605",
-    color: 4278228616,
-    accounts: {},
+    color: 4286141768,
+    accounts: {
+      BillAccounts.store: AccountModel(accName: "المستودع الرئيسي", id: '6d9836d1-fccd-4006-804f-81709eecde57'),
+      BillAccounts.caches: AccountModel(accName: "تسويات", id: "mTfITBGSrwFyie049qPC"),
+      BillAccounts.materials: AccountModel(accName: "تسوية جردية", id: "60106f64-7148-468a-b38d-626e35c4043e"),
+    },
   ),
   outputAdjustment(
     label: 'outputAdjustment',
     value: 'فاتورة تسوية اخراج',
     typeGuide: "563af9aa-5d7e-470b-8c3c-fee784da810a",
-    color: 4278228616,
-    accounts: {},
+    color: 4294924066,
+    accounts: {
+      BillAccounts.store: AccountModel(accName: "المستودع الرئيسي", id: '6d9836d1-fccd-4006-804f-81709eecde57'),
+      BillAccounts.materials: AccountModel(accName: "تسويات", id: "mTfITBGSrwFyie049qPC"),
+      BillAccounts.caches: AccountModel(accName: "تسوية جردية", id: "60106f64-7148-468a-b38d-626e35c4043e"),
+    },
   ),
   firstPeriodInventory(
       label: 'firstPeriodInventory',
       value: 'بضاعة أول المدة',
       typeGuide: "5a9e7782-cde5-41db-886a-ac89732feda7",
       color: 4287349578,
-      accounts: {}),
-  transferIn(
-      label: 'transferIn', value: 'إد.عملية مناقلة', typeGuide: "f0f2a5db-53ed-4e53-9686-d6a809911327", color: 4278228616, accounts: {}),
+      accounts: {
+        BillAccounts.store: AccountModel(accName: "المستودع الرئيسي", id: '6d9836d1-fccd-4006-804f-81709eecde57'),
+      }),
+  transferIn(label: 'transferIn', value: 'تسوية الزيادة', typeGuide: "494fa945-3fe5-4fc3-86d6-7a9999b6c9e8", color: 4278228616, accounts: {
+    BillAccounts.store: AccountModel(accName: "المستودع الرئيسي", id: '6d9836d1-fccd-4006-804f-81709eecde57'),
+  }),
   transferOut(
     label: 'transferOut',
-    value: 'إخ.عملية مناقلة',
-    typeGuide: "1e90ef6a-f7ef-484e-9035-0ab761371545",
+    value: 'تسوية النقص',
+    typeGuide: "35c75331-1917-451e-84de-d26861134cd4",
     color: 4278228616,
-    accounts: {},
+    accounts: {
+      BillAccounts.store: AccountModel(accName: "المستودع الرئيسي", id: '6d9836d1-fccd-4006-804f-81709eecde57'),
+    },
   );
 
   final String label;
@@ -144,11 +186,15 @@ enum BillPatternType {
   firstPeriodInventory(label: 'بضاعة اول مدة', value: 'firstPeriodInventory'),
   transferOut(
     value: 'transferOut',
-    label: 'إخ.عملية مناقلة',
+    label: 'تسوية النقص',
+  ),
+  salesService(
+    value: 'sales service',
+    label: 'مبيع خدمة',
   ),
   transferIn(
     value: 'transferIn',
-    label: 'إد.عملية مناقلة',
+    label: 'تسوية الزيادة',
   );
 
   final String label;
@@ -577,3 +623,5 @@ enum ChequesStrategyType {
   refundStrategy,
   refundChequesStrategy,
 }
+
+enum NavigationDirection { next, previous, specific }

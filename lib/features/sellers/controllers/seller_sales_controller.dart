@@ -1,7 +1,7 @@
 import 'dart:developer';
 
 import 'package:ba3_bs_mobile/core/helper/enums/enums.dart';
-import 'package:ba3_bs_mobile/core/helper/extensions/bisc/string_extension.dart';
+import 'package:ba3_bs_mobile/core/helper/extensions/basic/string_extension.dart';
 import 'package:ba3_bs_mobile/core/helper/extensions/getx_controller_extensions.dart';
 import 'package:ba3_bs_mobile/core/models/date_filter.dart';
 import 'package:ba3_bs_mobile/core/network/api_constants.dart';

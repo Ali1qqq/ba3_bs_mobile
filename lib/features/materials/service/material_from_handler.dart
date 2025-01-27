@@ -1,5 +1,5 @@
-import 'package:ba3_bs_mobile/core/helper/extensions/bisc/double_nullable_to_string.dart';
-import 'package:ba3_bs_mobile/core/helper/extensions/bisc/int_nullable_to_string.dart';
+import 'package:ba3_bs_mobile/core/helper/extensions/basic/double_nullable_to_string.dart';
+import 'package:ba3_bs_mobile/core/helper/extensions/basic/int_nullable_to_string.dart';
 import 'package:ba3_bs_mobile/features/materials/controllers/material_controller.dart';
 import 'package:ba3_bs_mobile/features/materials/data/models/material_model.dart';
 import 'package:ba3_bs_mobile/features/tax/data/models/tax_model.dart';

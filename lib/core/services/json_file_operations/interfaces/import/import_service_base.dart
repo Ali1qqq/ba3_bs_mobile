@@ -11,7 +11,7 @@ abstract class ImportServiceBase<T> implements IImportService<T> {
   List<T> fromImportJson(Map<String, dynamic> json);
 
   @override
-  List<T> fromImportXml(XmlDocument document);
+  Future<List<T>> fromImportXml(XmlDocument document);
 
   @override
   List<T> importFromJsonFile(File file) {
@@ -20,7 +20,7 @@ abstract class ImportServiceBase<T> implements IImportService<T> {
   }
 
   @override
-  List<T> importFromXmlFile(File file) {
+  Future<List<T>> importFromXmlFile(File file) async {
     final xmlContent = file.readAsStringSync();
     final XmlDocument document = XmlDocument.parse(xmlContent);
 

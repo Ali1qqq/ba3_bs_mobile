@@ -1,4 +1,5 @@
 import 'package:ba3_bs_mobile/core/helper/enums/enums.dart';
+import 'package:ba3_bs_mobile/core/helper/extensions/basic/list_extensions.dart';
 import 'package:ba3_bs_mobile/core/helper/mixin/floating_launcher.dart';
 import 'package:ba3_bs_mobile/features/accounts/data/models/account_model.dart';
 import 'package:ba3_bs_mobile/features/bill/controllers/bill/all_bills_controller.dart';
@@ -20,27 +21,101 @@ class EntryBondController extends GetxController with FloatingLauncher {
 
   EntryBondController(this._entryBondsFirebaseRepo, this._accountsStatementsFirebaseRepo);
 
-  // Method to create a bond based on bill type
-  Future<void> saveEntryBondModel({required EntryBondModel entryBondModel}) async {
+  /// Method to save an Entry Bond and update related account statements
+  Future<void> saveEntryBondModel({
+    required EntryBondModel entryBondModel,
+    Map<String, AccountModel> modifiedAccounts = const {},
+  }) async {
     final result = await _entryBondsFirebaseRepo.save(entryBondModel);
 
     result.fold(
       (failure) => AppUIUtils.onFailure(failure.message),
-      (savedEntryBondModel) async {
-        if (savedEntryBondModel.items?.itemList == null || savedEntryBondModel.items!.itemList.isEmpty) return;
-
-        final entryBondItems = savedEntryBondModel.items!.itemList;
-        for (final entryBondItem in entryBondItems) {
-          final relatedItems = entryBondItems.where((item) => item.account.id == entryBondItem.account.id).toList();
-
-          await _accountsStatementsFirebaseRepo.save(EntryBondItems(
-            id: entryBondItem.originId!,
-            docId: entryBondItem.docId,
-            itemList: relatedItems,
-          ));
-        }
-      },
+      (savedEntryBondModel) => _onEntryBondSaved(
+        entryBondModel: savedEntryBondModel,
+        modifiedAccounts: modifiedAccounts,
+      ),
     );
+  }
+
+  /// Handles logic after an Entry Bond is successfully saved
+  Future<void> _onEntryBondSaved({
+    required EntryBondModel entryBondModel,
+    Map<String, AccountModel> modifiedAccounts = const {},
+  }) async {
+    final entryBondItems = entryBondModel.items?.itemList;
+
+    // Exit early if there are no items
+    if (entryBondItems == null || entryBondItems.isEmpty) return;
+
+    // Group items by account and save them
+    await _saveGroupedEntryBondItems(entryBondItems);
+
+    // Handle modifications to the Entry Bond items
+    await _handleModifiedEntryBondItems(
+      entryBondModel: entryBondModel,
+      modifiedAccounts: modifiedAccounts,
+    );
+  }
+
+  /// Saves grouped Entry Bond items by account
+  Future<void> _saveGroupedEntryBondItems(List<EntryBondItemModel> entryBondItems) async {
+    // Group items by account ID
+
+    final itemsGroupedByAccount = entryBondItems.groupBy((item) => item.account.id);
+    // log('itemsGroupedByAccount $itemsGroupedByAccount');
+
+    for (final accountId in itemsGroupedByAccount.keys) {
+      final groupedItems = itemsGroupedByAccount[accountId]!;
+
+      await _accountsStatementsFirebaseRepo.save(
+        EntryBondItems(
+          id: groupedItems.first.originId!,
+          docId: groupedItems.first.docId,
+          itemList: groupedItems,
+        ),
+      );
+    }
+  }
+
+  /// Handles modifications to the Entry Bond items
+  Future<void> _handleModifiedEntryBondItems({
+    required EntryBondModel entryBondModel,
+    Map<String, AccountModel> modifiedAccounts = const {},
+  }) async {
+    final modifiedEntryBondItems = _mapToEntryBondItems(
+      originId: entryBondModel.origin!.originId!,
+      modifiedAccounts: modifiedAccounts,
+    );
+
+    if (modifiedEntryBondItems.isEmpty) return;
+
+    // Delete modified Entry Bond items
+    for (final entryBondItem in modifiedEntryBondItems) {
+      final result = await _accountsStatementsFirebaseRepo.delete(entryBondItem);
+
+      result.fold(
+        (failure) => AppUIUtils.onFailure('${failure.message} in _handleModifiedEntryBondItems'),
+        (_) {},
+      );
+    }
+  }
+
+  /// Converts modified bill type accounts to EntryBondItems
+  List<EntryBondItems> _mapToEntryBondItems({
+    required String originId,
+    required Map<String, AccountModel> modifiedAccounts,
+  }) {
+    return modifiedAccounts.entries.map((entry) {
+      final accountModel = entry.value;
+      return EntryBondItems(
+        id: originId,
+        itemList: [
+          EntryBondItemModel(
+            account: AccountEntity.fromAccountModel(accountModel),
+          ),
+        ],
+      );
+    }).toList();
   }
 
   Future<void> saveAllEntryBondModels({
@@ -70,41 +145,44 @@ class EntryBondController extends GetxController with FloatingLauncher {
 
     result.fold(
       (failure) => AppUIUtils.onFailure(failure.message),
-      (entryBondModel) async {
-        final List<Future<void>> deletedTasks = [];
-        final errors = <String>[]; // Collect error messages.
+      (entryBondModel) async => await onEntryBondDeleted(entryBondModel: entryBondModel, entryId: entryId),
+    );
+  }
 
-        final entryBondItems = entryBondModel.items!.itemList;
+  Future<void> onEntryBondDeleted({required EntryBondModel entryBondModel, required String entryId}) async {
+    final List<Future<void>> deletedTasks = [];
+    final errors = <String>[]; // Collect error messages.
 
-        for (final entryBondItem in entryBondItems) {
-          final relatedItems = entryBondItems.where((item) => item.account.id == entryBondItem.account.id).toList();
+    final entryBondItems = entryBondModel.items!.itemList;
 
-          deletedTasks.add(
-            _accountsStatementsFirebaseRepo
-                .delete(EntryBondItems(docId: entryBondItem.docId, id: entryBondItem.originId!, itemList: relatedItems))
-                .then(
-              (deleteResult) {
-                deleteResult.fold(
-                  (failure) => errors.add(failure.message), // Collect errors.
-                  (_) {},
-                );
-              },
-            ),
-          );
-        }
+    for (final entryBondItem in entryBondItems) {
+      final itemsGroupedByAccount = entryBondItems.where((item) => item.account.id == entryBondItem.account.id).toList();
 
-        await Future.wait(deletedTasks);
+      deletedTasks.add(
+        _accountsStatementsFirebaseRepo
+            .delete(EntryBondItems(docId: entryBondItem.docId, id: entryBondItem.originId!, itemList: itemsGroupedByAccount))
+            .then(
+          (deleteResult) {
+            deleteResult.fold(
+              (failure) => errors.add(failure.message), // Collect errors.
+              (_) {},
+            );
+          },
+        ),
+      );
+    }
 
-        if (errors.isNotEmpty) {
-          AppUIUtils.onFailure('Some deletions failed: ${errors.join(', ')}');
-        }
+    await Future.wait(deletedTasks);
 
-        final deleteBondResult = await _entryBondsFirebaseRepo.delete(entryId);
-        deleteBondResult.fold(
-          (failure) => AppUIUtils.onFailure(failure.message),
-          (_) {},
-        );
-      },
+    if (errors.isNotEmpty) {
+      AppUIUtils.onFailure('Some deletions failed: ${errors.join(', ')}');
+      return;
+    }
+
+    final deleteBondResult = await _entryBondsFirebaseRepo.delete(entryId);
+    deleteBondResult.fold(
+      (failure) => AppUIUtils.onFailure(failure.message),
+      (_) {},
     );
   }
 

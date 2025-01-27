@@ -14,6 +14,14 @@ class BillUtils {
     return emptyBillModel;
   }
 
+  List<BillModel> appendEmptyBillModelNew(BillTypeModel billTypeModel, int lastBillNumber) {
+    final List<BillModel> bills = [];
+    final emptyBillModel = BillModel.empty(billTypeModel: billTypeModel, lastBillNumber: lastBillNumber);
+
+    bills.add(emptyBillModel);
+    return bills;
+  }
+
   bool validateCustomerAccount(AccountModel? customerAccount) {
     if (customerAccount == null) {
       AppUIUtils.onFailure('من فضلك أدخل اسم العميل!');

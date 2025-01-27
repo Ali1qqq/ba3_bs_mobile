@@ -1,7 +1,7 @@
 import 'dart:developer';
 
 import 'package:ba3_bs_mobile/core/helper/enums/enums.dart';
-import 'package:ba3_bs_mobile/core/helper/extensions/bisc/string_extension.dart';
+import 'package:ba3_bs_mobile/core/helper/extensions/basic/string_extension.dart';
 import 'package:ba3_bs_mobile/core/helper/extensions/date_time_extensions.dart';
 import 'package:ba3_bs_mobile/features/accounts/controllers/accounts_controller.dart';
 import 'package:ba3_bs_mobile/features/cheques/data/models/cheques_model.dart';
@@ -236,8 +236,7 @@ class ChequesDetailsController extends GetxController with AppValidator {
     setIsPayed(true);
     final updatedModel = chequesModel.copyWith(chequesPayGuid: generateId(RecordType.entryBond));
 
-    final creator =
-        ChequesStrategyBondFactory.determineStrategy(updatedModel, type: ChequesStrategyType.payStrategy).first;
+    final creator = ChequesStrategyBondFactory.determineStrategy(updatedModel, type: ChequesStrategyType.payStrategy).first;
     EntryBondModel entryBondModel = creator.createEntryBond(originType: EntryBondType.cheque, model: updatedModel);
 
     await _saveOrUpdateCheques(chequesType: chequesType, existingChequesModel: updatedModel);
@@ -255,8 +254,7 @@ class ChequesDetailsController extends GetxController with AppValidator {
     setIsRefundPay(true);
     final updatedModel = chequesModel.copyWith(chequesRefundPayGuid: generateId(RecordType.entryBond));
 
-    final creator =
-        ChequesStrategyBondFactory.determineStrategy(updatedModel, type: ChequesStrategyType.refundStrategy).first;
+    final creator = ChequesStrategyBondFactory.determineStrategy(updatedModel, type: ChequesStrategyType.refundStrategy).first;
 
     EntryBondModel entryBondModel = creator.createEntryBond(originType: EntryBondType.cheque, model: updatedModel);
 

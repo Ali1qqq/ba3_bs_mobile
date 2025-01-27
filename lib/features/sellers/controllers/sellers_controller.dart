@@ -1,38 +1,32 @@
 import 'dart:developer';
 
 import 'package:ba3_bs_mobile/core/helper/extensions/getx_controller_extensions.dart';
-import 'package:ba3_bs_mobile/core/helper/extensions/role_item_type_extension.dart';
 import 'package:ba3_bs_mobile/core/router/app_routes.dart';
 import 'package:ba3_bs_mobile/features/bill/controllers/bill/bill_details_controller.dart';
 import 'package:ba3_bs_mobile/features/users_management/controllers/user_management_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:logger/logger.dart';
 
 import '../../../core/dialogs/seller_selection_dialog_content.dart';
 import '../../../core/helper/mixin/app_navigator.dart';
 import '../../../core/services/firebase/implementations/repos/bulk_savable_datasource_repo.dart';
 import '../../../core/utils/app_ui_utils.dart';
 import '../../floating_window/services/overlay_service.dart';
-import '../../users_management/data/models/role_model.dart';
 import '../data/models/seller_model.dart';
 
 class SellersController extends GetxController with AppNavigator {
   final BulkSavableDatasourceRepository<SellerModel> _sellersFirebaseRepo;
 
-  SellersController(this._sellersFirebaseRepo);
+  // final ImportRepository<SellerModel> _sellersImportRepo;
+
+  SellersController(this._sellersFirebaseRepo /*, this._sellersImportRepo*/);
 
   List<SellerModel> sellers = [];
-
-  List<SellerModel> get allSellers => RoleItemType.viewSellers.hasAdminPermission
-      ? sellers
-      : sellers
-          .where(
-            (seller) => seller.costGuid == read<UserManagementController>().loggedInUserModel!.userSellerId,
-          )
-          .toList();
   bool isLoading = true;
 
   SellerModel? selectedSellerAccount;
+  final logger = Logger();
 
   @override
   void onInit() {
@@ -52,15 +46,26 @@ class SellersController extends GetxController with AppNavigator {
         update();
       },
     );
-    // try {
-    //   sellers = _sellersRepository.getAllSellers();
-    // } catch (e) {
-    //   debugPrint('Error in fetchSellers: $e');
-    // } finally {
-    //   isLoading = false;
-    //   update();
-    // }
   }
+
+/*
+  Future<void> fetchAllSellersFromLocal() async {
+    FilePickerResult? resultFile = await FilePicker.platform.pickFiles();
+
+    if (resultFile != null) {
+      File file = File(resultFile.files.single.path!);
+      final result = await _sellersImportRepo.importXmlFile(file);
+
+      result.fold(
+            (failure) {
+          logger.e("Error log", error: failure.message);
+          AppUIUtils.onFailure(failure.message);
+        },
+            (fetchedSellers) => _handelFetchAllSellersFromLocalSuccess(fetchedSellers),
+      );
+    }
+  }
+*/
 
   Future<void> addSeller(SellerModel seller) async {
     final result = await _sellersFirebaseRepo.save(seller);
@@ -101,6 +106,16 @@ class SellersController extends GetxController with AppNavigator {
   String getSellerNameById(String? id) {
     if (id == null || id.isEmpty) return '';
     return sellers.firstWhere((seller) => seller.costGuid == id).costName ?? '';
+  }
+
+  // Get seller ID by name
+  String getSellerIdByName(String? name) {
+    // log(name.toString());
+    // log("sellers    ${sellers.firstWhereOrNull((seller) => seller.costName == name)?.costGuid}");
+    if (name == 'BASUES') name = 'BASUS';
+
+    if (name == null || name.isEmpty) return '';
+    return sellers.firstWhereOrNull((seller) => seller.costName == name)?.costGuid ?? '';
   }
 
   // Get seller  by ID

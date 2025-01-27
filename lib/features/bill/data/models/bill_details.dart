@@ -15,6 +15,7 @@ class BillDetails with EquatableMixin {
   final double? billGiftsTotal;
   final double? billDiscountsTotal;
   final double? billAdditionsTotal;
+  final double? billFirstPay;
 
   BillDetails({
     this.billGuid,
@@ -30,6 +31,7 @@ class BillDetails with EquatableMixin {
     this.billGiftsTotal,
     this.billDiscountsTotal,
     this.billAdditionsTotal,
+    this.billFirstPay,
   });
 
   factory BillDetails.fromJson(Map<String, dynamic> json) => BillDetails(
@@ -46,6 +48,7 @@ class BillDetails with EquatableMixin {
         billGiftsTotal: json['billGiftsTotal'],
         billDiscountsTotal: json['billDiscountsTotal'],
         billAdditionsTotal: json['billAdditionsTotal'],
+        billFirstPay: json['billFirstPay'],
       );
 
   factory BillDetails.fromBillData({
@@ -61,11 +64,13 @@ class BillDetails with EquatableMixin {
     required double billGiftsTotal,
     required double billDiscountsTotal,
     required double billAdditionsTotal,
+    required double billFirstPay,
   }) =>
       BillDetails(
         billGuid: existingDetails?.billGuid,
         billNumber: existingDetails?.billNumber,
         note: note,
+        billFirstPay: billFirstPay,
         billCustomerId: billCustomerId,
         billSellerId: billSellerId,
         billPayType: billPayType,
@@ -92,6 +97,7 @@ class BillDetails with EquatableMixin {
         'billGiftsTotal': billGiftsTotal,
         'billDiscountsTotal': billDiscountsTotal,
         'billAdditionsTotal': billAdditionsTotal,
+        'billFirstPay': billFirstPay,
       };
 
   BillDetails copyWith({
@@ -108,6 +114,7 @@ class BillDetails with EquatableMixin {
     final double? billGiftsTotal,
     final double? billDiscountsTotal,
     final double? billAdditionsTotal,
+    final double? billFirstPay,
   }) =>
       BillDetails(
         billGuid: billGuid ?? this.billGuid,
@@ -123,6 +130,7 @@ class BillDetails with EquatableMixin {
         billDiscountsTotal: billDiscountsTotal ?? this.billDiscountsTotal,
         billGiftsTotal: billGiftsTotal ?? this.billGiftsTotal,
         billAdditionsTotal: billAdditionsTotal ?? this.billAdditionsTotal,
+        billFirstPay: billFirstPay ?? this.billFirstPay,
       );
 
   @override

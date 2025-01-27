@@ -178,17 +178,13 @@ class AppBindings extends Bindings {
     return _Repositories(
       translationRepo: TranslationRepository(translationService),
       patternsRepo: RemoteDataSourceRepository(PatternsDatasource(databaseService: fireStoreService)),
-      billsRepo:
-          CompoundDatasourceRepository(BillCompoundDatasource(compoundDatabaseService: compoundFireStoreService)),
-      bondsRepo:
-          CompoundDatasourceRepository(BondCompoundDatasource(compoundDatabaseService: compoundFireStoreService)),
-      chequesRepo:
-          CompoundDatasourceRepository(ChequesCompoundDatasource(compoundDatabaseService: compoundFireStoreService)),
+      billsRepo: CompoundDatasourceRepository(BillCompoundDatasource(compoundDatabaseService: compoundFireStoreService)),
+      bondsRepo: CompoundDatasourceRepository(BondCompoundDatasource(compoundDatabaseService: compoundFireStoreService)),
+      chequesRepo: CompoundDatasourceRepository(ChequesCompoundDatasource(compoundDatabaseService: compoundFireStoreService)),
       rolesRepo: RemoteDataSourceRepository(RolesDatasource(databaseService: fireStoreService)),
       usersRepo: FilterableDatasourceRepository(UsersDatasource(databaseService: fireStoreService)),
       entryBondsRepo: RemoteDataSourceRepository(EntryBondsDatasource(databaseService: fireStoreService)),
-      accountsStatementsRepo:
-          CompoundDatasourceRepository(AccountsStatementsDatasource(compoundDatabaseService: compoundFireStoreService)),
+      accountsStatementsRepo: CompoundDatasourceRepository(AccountsStatementsDatasource(compoundDatabaseService: compoundFireStoreService)),
       billImportExportRepo: ImportExportRepository(billImportService, billExportService),
       chequesImportExportRepo: ImportExportRepository(chequesImportService, chequesExportService),
       userTimeRepo: UserTimeRepository(),
@@ -210,7 +206,9 @@ class AppBindings extends Bindings {
 // Permanent Controllers Initialization
   void _initializePermanentControllers(_Repositories repositories) {
     put(
-      SellersController(repositories.sellersRepo),
+      SellersController(
+        repositories.sellersRepo,
+      ),
       permanent: true,
     );
   }
