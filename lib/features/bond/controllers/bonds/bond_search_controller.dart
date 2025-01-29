@@ -221,4 +221,9 @@ class BondSearchController extends GetxController {
 
   /// Displays an error message
   void _displayErrorMessage(String message) => AppUIUtils.onFailure(message);
+
+  void insertLastAndUpdate(BondModel newBond) {
+    bonds.add(newBond);
+    _setCurrentBond(bonds.indexOf(newBond));
+  }
 }

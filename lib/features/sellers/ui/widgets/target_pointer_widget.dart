@@ -5,8 +5,11 @@ import 'package:syncfusion_flutter_gauges/gauges.dart';
 
 class TargetPointerWidget extends StatefulWidget {
   final double value;
+  final double maxValue;
+  final double minValue;
+  final double midValue;
 
-  const TargetPointerWidget({super.key, required this.value});
+  const TargetPointerWidget({super.key, required this.value, required this.maxValue, required this.minValue, required this.midValue});
 
   @override
   State<TargetPointerWidget> createState() => TargetPointerWidgetState();
@@ -24,7 +27,7 @@ class TargetPointerWidgetState extends State<TargetPointerWidget> {
       children: [
         _buildWidgetPointerExample(context),
         Container(
-            height: 75,
+            height: 50,
             width: 100,
             decoration: BoxDecoration(
               color: const Color.fromRGBO(33, 33, 33, 1),
@@ -37,7 +40,7 @@ class TargetPointerWidgetState extends State<TargetPointerWidget> {
                 style: const TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
-                  fontSize: 25,
+                  fontSize: 20,
                 ),
               ),
             )),
@@ -110,19 +113,19 @@ class TargetPointerWidgetState extends State<TargetPointerWidget> {
     return SfRadialGauge(
       axes: <RadialAxis>[
         RadialAxis(
-          interval: 5000,
-          labelOffset: 0.1,
-          tickOffset: 0.125,
+          interval: widget.maxValue / 10,
+          labelOffset: 0.2,
+          tickOffset: 0.100,
           minorTicksPerInterval: 0,
           labelsPosition: ElementsPosition.outside,
           offsetUnit: GaugeSizeUnit.factor,
           showAxisLine: false,
           showLastLabel: true,
-          maximum: 75000,
+          maximum: widget.maxValue,
           pointers: <GaugePointer>[
             NeedlePointer(
               needleEndWidth: 5,
-              needleLength: 0.7,
+              needleLength: 0.6,
               value: _value,
               knobStyle: const KnobStyle(knobRadius: 0),
             ),
@@ -130,23 +133,29 @@ class TargetPointerWidgetState extends State<TargetPointerWidget> {
           ranges: <GaugeRange>[
             GaugeRange(
               startValue: 0,
-              endValue: 50000,
-              startWidth: 25,
-              endWidth: 25,
+              label: widget.minValue.toString(),
+              labelStyle: GaugeTextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+              endValue: widget.minValue,
+              startWidth: 40,
+              endWidth: 40,
               color: const Color.fromRGBO(74, 177, 70, 1),
             ),
             GaugeRange(
-              startValue: 50000,
-              endValue: 65000,
-              startWidth: 25,
-              endWidth: 25,
+              startValue: widget.minValue,
+              endValue: widget.midValue,
+              label: widget.midValue.toString(),
+              labelStyle: GaugeTextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+              startWidth: 40,
+              endWidth: 40,
               color: const Color.fromRGBO(251, 190, 32, 1),
             ),
             GaugeRange(
-              startValue: 65000,
-              endValue: 75000,
-              startWidth: 25,
-              endWidth: 25,
+              startValue: widget.midValue,
+              endValue: widget.maxValue,
+              label: widget.maxValue.toString(),
+              labelStyle: GaugeTextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+              startWidth: 40,
+              endWidth: 40,
               color: const Color.fromRGBO(237, 34, 35, 1),
             )
           ],

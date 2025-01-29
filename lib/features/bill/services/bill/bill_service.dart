@@ -169,7 +169,7 @@ class BillDetailsService with PdfBase, FloatingLauncher {
     if (isSave) {
       billController.updateIsBillSaved = true;
 
-      if (hasModelId(currentBill.billId) && hasModelItems(currentBill.items.itemList)) {
+      if (hasModelId(currentBill.billId) && hasModelItems(currentBill.items.itemList) && currentBill.status == Status.approved) {
         generateAndSendPdf(
           fileName: AppStrings.newBill,
           itemModel: currentBill,
@@ -181,7 +181,8 @@ class BillDetailsService with PdfBase, FloatingLauncher {
       if (hasModelId(currentBill.billId) &&
           hasModelItems(currentBill.items.itemList) &&
           hasModelId(previousBill.billId) &&
-          hasModelItems(previousBill.items.itemList)) {
+          hasModelItems(previousBill.items.itemList) &&
+          currentBill.status == Status.approved) {
         generateAndSendPdf(
           fileName: AppStrings.updatedBill,
           itemModel: [previousBill, currentBill],

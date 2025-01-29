@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:ba3_bs_mobile/core/helper/extensions/getx_controller_extensions.dart';
+import 'package:ba3_bs_mobile/core/helper/extensions/role_item_type_extension.dart';
 import 'package:ba3_bs_mobile/core/router/app_routes.dart';
 import 'package:ba3_bs_mobile/features/bill/controllers/bill/bill_details_controller.dart';
 import 'package:ba3_bs_mobile/features/users_management/controllers/user_management_controller.dart';
@@ -13,6 +14,8 @@ import '../../../core/helper/mixin/app_navigator.dart';
 import '../../../core/services/firebase/implementations/repos/bulk_savable_datasource_repo.dart';
 import '../../../core/utils/app_ui_utils.dart';
 import '../../floating_window/services/overlay_service.dart';
+import '../../users_management/data/models/role_model.dart';
+import '../../users_management/data/models/user_model.dart';
 import '../data/models/seller_model.dart';
 
 class SellersController extends GetxController with AppNavigator {
@@ -87,7 +90,8 @@ class SellersController extends GetxController with AppNavigator {
 
   // Navigation to the screen displaying all sellers
   void navigateToAllSellersScreen() {
-    to(AppRoutes.showAllSellersScreen);
+    read<SellersController>().fetchProbabilitySellers();
+    to(AppRoutes.allSellersScreen);
   }
 
   // Search for sellers by text query
@@ -186,5 +190,22 @@ class SellersController extends GetxController with AppNavigator {
     } else {
       AppUIUtils.showErrorSnackBar(title: 'فحص الحسابات', message: 'هذا الحساب غير موجود');
     }
+  }
+
+  fetchProbabilitySellers() {
+    if (RoleItemType.viewSellers.hasAdminPermission) {
+      getAllSellers();
+    } else {
+      fetchLoginSellers();
+    }
+  }
+
+  fetchLoginSellers() async {
+    UserModel userModel = read<UserManagementController>().loggedInUserModel!;
+    final result = await _sellersFirebaseRepo.getById(userModel.userSellerId!);
+    result.fold(
+      (failure) => AppUIUtils.onFailure(failure.message),
+      (fetchedSeller) => sellers.assignAll([fetchedSeller]),
+    );
   }
 }

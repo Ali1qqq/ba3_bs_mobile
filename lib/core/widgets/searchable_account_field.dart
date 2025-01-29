@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../constants/app_constants.dart';
 import 'custom_text_field_with_icon.dart';
 
 class SearchableAccountField extends StatelessWidget {
@@ -27,7 +28,7 @@ class SearchableAccountField extends StatelessWidget {
   Widget build(BuildContext context) {
     return SizedBox(
       width: width ?? Get.width * 0.45,
-      height: height,
+      height: AppConstants.constHeightTextField,
       child: Row(
         children: [
           SizedBox(width: 100, child: Text(label)),

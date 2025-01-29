@@ -212,4 +212,10 @@ class BondDetailsController extends GetxController with AppValidator {
       itemModel: bondModel,
     );
   }
+
+  appendNewBill({required BondType bondType, required int lastBondNumber}) {
+    BondModel newBond = BondModel.empty(bondType: bondType, lastBondNumber: lastBondNumber);
+
+    bondSearchController.insertLastAndUpdate(newBond);
+  }
 }

@@ -113,6 +113,7 @@ class BondDetailsService with PdfBase, FloatingLauncher {
         );
       }
     }
+    bondSearchController.updateBond(currentBond);
 
     final creator = EntryBondCreatorFactory.resolveEntryBondCreator(currentBond);
 

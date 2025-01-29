@@ -1,3 +1,4 @@
+import 'package:ba3_bs_mobile/core/constants/app_constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -73,7 +74,7 @@ class _CustomTextFieldWithoutIconState extends State<CustomTextFieldWithoutIcon>
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: widget.height,
+      height: AppConstants.constHeightTextField,
       child: TextFormField(
         maxLines: widget.maxLine,
         maxLength: widget.maxLength,
@@ -85,12 +86,12 @@ class _CustomTextFieldWithoutIconState extends State<CustomTextFieldWithoutIcon>
         keyboardType: widget.keyboardType,
         scrollPadding: EdgeInsets.zero,
         cursorHeight: 15,
-        onTap: () => widget.textEditingController.selection =
-            TextSelection(baseOffset: 0, extentOffset: widget.textEditingController.text.length),
+        onTap: () =>
+            widget.textEditingController.selection = TextSelection(baseOffset: 0, extentOffset: widget.textEditingController.text.length),
         inputFormatters: widget.inputFormatters,
         style: widget.textStyle ?? const TextStyle(fontSize: 14),
         decoration: InputDecoration(
-            fillColor:widget.filedColor?? Colors.white,
+            fillColor: widget.filedColor ?? Colors.white,
             filled: true,
             isDense: true,
             border: UnderlineInputBorder(

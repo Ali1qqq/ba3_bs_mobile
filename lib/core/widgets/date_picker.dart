@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:ba3_bs_mobile/core/widgets/custom_text_field_without_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:syncfusion_flutter_datepicker/datepicker.dart';
@@ -15,12 +16,12 @@ class DatePicker extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return SizedBox(
       height: AppConstants.constHeightTextField,
-      decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(5),
-          border: const Border.symmetric(vertical: BorderSide(width: 1))),
+      // decoration: BoxDecoration(
+      //     color: Colors.white,
+      //     borderRadius: BorderRadius.circular(5),
+      //     border: const Border.symmetric(vertical: BorderSide(width: 1))),
       child: InkWell(
         onTap: () {
           OverlayService.showDialog(
@@ -92,21 +93,23 @@ class DatePicker extends StatelessWidget {
           //   ],
           // );
         },
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Expanded(
-                child: Text(
-                  initDate ?? '',
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(fontSize: 14),
-                ),
-              ),
-              const Icon(Icons.date_range,color: Colors.blue,size: 18,),
-            ],
-          ),
+        child: CustomTextFieldWithoutIcon(
+          enabled: false,
+          textEditingController: TextEditingController()..text = initDate ?? '',
+          // padding: const EdgeInsets.all(8.0),
+          // child: Row(
+          //   mainAxisAlignment: MainAxisAlignment.center,
+          //   children: [
+          //     Expanded(
+          //       child: Text(
+          //         initDate ?? '',
+          //         textAlign: TextAlign.center,
+          //         style: const TextStyle(fontSize: 14),
+          //       ),
+          //     ),
+          //     const Icon(Icons.date_range,color: Colors.blue,size: 18,),
+          //   ],
+          // ),
         ),
       ),
     );

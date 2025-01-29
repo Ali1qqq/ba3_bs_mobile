@@ -339,4 +339,10 @@ class BillDetailsController extends IBillController with AppValidator, AppNaviga
         stateManager: billDetailsPlutoController.recordsTableStateManager,
         plutoController: billDetailsPlutoController,
       );
+
+  appendNewBill({required BillTypeModel billTypeModel, required int lastBillNumber}) {
+    BillModel newBill = BillModel.empty(billTypeModel: billTypeModel, lastBillNumber: lastBillNumber);
+
+    billSearchController.insertLastAndUpdate(newBill);
+  }
 }

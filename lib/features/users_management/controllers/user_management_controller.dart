@@ -102,12 +102,10 @@ class UserManagementController extends GetxController with AppNavigator, Firesto
       .toList();
 
   // Check if all roles are selected
-  bool areAllRolesSelected() =>
-      RoleItemType.values.every((type) => roleFormHandler.rolesMap[type]?.length == RoleItem.values.length);
+  bool areAllRolesSelected() => RoleItemType.values.every((type) => roleFormHandler.rolesMap[type]?.length == RoleItem.values.length);
 
   // Check if all roles are selected for a specific RoleItemType
-  bool areAllRolesSelectedForType(RoleItemType type) =>
-      roleFormHandler.rolesMap[type]?.length == RoleItem.values.length;
+  bool areAllRolesSelectedForType(RoleItemType type) => roleFormHandler.rolesMap[type]?.length == RoleItem.values.length;
 
   // Select all roles
   void selectAllRoles() {
@@ -237,20 +235,19 @@ class UserManagementController extends GetxController with AppNavigator, Firesto
       await _handleNoMatch();
       return;
     }
+    final firstFetchedUser = fetchedUsers.firstWhereOrNull(
+      (user) => user.userName == loginNameController.text,
+    );
 
-    final firstFetchedUser = fetchedUsers.first;
+    if (firstFetchedUser == null) {
+      AppUIUtils.onFailure('أسم المستخدم غير صحيح!');
+      return;
+    }
 
     if (!_isUserActive(firstFetchedUser)) {
       if (currentRoute != AppRoutes.loginScreen) {
         offAll(AppRoutes.loginScreen);
       }
-      return;
-    }
-
-    final isLoginNameMatch = firstFetchedUser.userName?.trim() == loginNameController.text;
-
-    if (!isLoginNameMatch) {
-      AppUIUtils.onFailure('أسم المستخدم غير صحيح!');
       return;
     }
 

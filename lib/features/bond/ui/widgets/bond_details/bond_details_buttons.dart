@@ -33,18 +33,19 @@ class BondDetailsButtons extends StatelessWidget {
         spacing: 20,
         runSpacing: 20,
         children: [
-          if (bondSearchController.isNew)
-            Obx(() {
-              return AppButton(
-                  title: 'إضافة',
-                  color: bondDetailsController.isBondSaved.value ? Colors.green : Colors.blue.shade700,
-                  onPressed: bondDetailsController.isBondSaved.value
-                      ? () {}
-                      : () async {
-                          await bondDetailsController.saveBond(BondType.byTypeGuide(bondModel.payTypeGuid!));
-                        },
-                  iconData: Icons.add_chart_outlined);
-            }),
+          Obx(() {
+            return AppButton(
+                title: bondDetailsController.isBondSaved.value ? 'جديد' : 'إضافة',
+                height: 20,
+                color: bondDetailsController.isBondSaved.value ? Colors.green : Colors.blue.shade700,
+                onPressed: bondDetailsController.isBondSaved.value
+                    ? () => bondDetailsController.appendNewBill(
+                        bondType: BondType.byTypeGuide(bondModel.payTypeGuid!), lastBondNumber: bondSearchController.bonds.last.payNumber!)
+                    : () async {
+                        await bondDetailsController.saveBond(BondType.byTypeGuide(bondModel.payTypeGuid!));
+                      },
+                iconData: Icons.add_chart_outlined);
+          }),
           if (!bondSearchController.isNew) ...[
             AppButton(
               title: 'السند',

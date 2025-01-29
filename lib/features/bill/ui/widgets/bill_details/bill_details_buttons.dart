@@ -38,7 +38,7 @@ class BillDetailsButtons extends StatelessWidget {
         spacing: 20,
         runSpacing: 20,
         children: [
-          if (billSearchController.isNew) _buildAddButton(),
+          _buildAddButton(),
           if (!billSearchController.isNew && RoleItemType.viewBill.hasAdminPermission)
             if (billModel.billTypeModel.billPatternType!.hasCashesAccount || billSearchController.isPending)
               _buildApprovalOrBondButton(context),
@@ -76,12 +76,15 @@ class BillDetailsButtons extends StatelessWidget {
     return Obx(() {
       final isBillSaved = billDetailsController.isBillSaved.value;
       return AppButton(
-        title: 'إضافة',
+        title: isBillSaved ? 'جديد' : 'إضافة',
         height: 20,
         width: 100,
         fontSize: 14,
         color: isBillSaved ? Colors.green : Colors.blue.shade700,
-        onPressed: isBillSaved ? () {} : () => billDetailsController.saveBill(billModel.billTypeModel),
+        onPressed: isBillSaved
+            ? () => billDetailsController.appendNewBill(
+                billTypeModel: billModel.billTypeModel, lastBillNumber: billSearchController.bills.last.billDetails.billNumber!)
+            : () => billDetailsController.saveBill(billModel.billTypeModel),
         iconData: Icons.add_chart_outlined,
       );
     });

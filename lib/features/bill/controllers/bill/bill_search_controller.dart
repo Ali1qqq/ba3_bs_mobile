@@ -225,4 +225,9 @@ class BillSearchController extends GetxController {
 
   /// Displays an error message
   void _displayErrorMessage(String message) => AppUIUtils.onFailure(message);
+
+  insertLastAndUpdate(BillModel newBill) {
+    bills.add(newBill);
+    _setCurrentBill(bills.indexOf(newBill));
+  }
 }

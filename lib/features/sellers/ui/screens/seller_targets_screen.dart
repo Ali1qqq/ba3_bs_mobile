@@ -33,13 +33,17 @@ class SellerTargetScreen extends StatelessWidget {
                       ),
                       SizedBox(
                           width: MediaQuery.sizeOf(context).width,
-                          height: 500,
+                          height: 400,
                           child: TargetPointerWidget(
+                            maxValue: 350000,
+                            midValue: 250000,
+                            minValue: 150000,
                             key: salesController.mobilesKey,
                             value: salesController.totalMobilesSales,
                           )),
                     ],
                   ),
+                  Divider(),
                   Column(
                     children: [
                       const Text(
@@ -48,8 +52,11 @@ class SellerTargetScreen extends StatelessWidget {
                       ),
                       SizedBox(
                           width: MediaQuery.sizeOf(context).width,
-                          height: 500,
+                          height: 400,
                           child: TargetPointerWidget(
+                            maxValue: 200000,
+                            midValue: 150000,
+                            minValue: 75000,
                             key: salesController.accessoriesKey,
                             value: salesController.totalAccessoriesSales,
                           )),
