@@ -278,6 +278,18 @@ class UserManagementController extends GetxController with AppNavigator, Firesto
     offAll(AppRoutes.mainLayout);
   }
 
+  refreshLoggedInUser() async {
+    final result = await _usersFirebaseRepo.getById(loggedInUserModel!.userId!);
+    result.fold(
+      (failure) => AppUIUtils.onFailure(failure.message),
+      (fetchedUser) => loggedInUserModel = fetchedUser,
+    );
+  }
+
+  setLoggedInUser(UserModel userModel) {
+    loggedInUserModel = userModel;
+  }
+
   void navigateToAddRoleScreen([RoleModel? role]) {
     roleFormHandler.init(role);
     to(AppRoutes.addRoleScreen);

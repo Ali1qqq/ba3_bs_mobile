@@ -82,6 +82,7 @@ class UserTimeController extends GetxController {
       logOutState.value = RequestState.loading;
     }
 
+    await read<UserManagementController>().refreshLoggedInUser();
     UserModel? userModel = getUserById();
 
     /// check if user in regin
@@ -108,6 +109,8 @@ class UserTimeController extends GetxController {
   }
 
   UserModel? getUserById() => read<UserManagementController>().loggedInUserModel!;
+
+  // UserModel? getUserById() => read<UserManagementController>().loggedInUserModel!;
 
   Future<void> checkLogInAndSave() async {
     await checkUserLog(
