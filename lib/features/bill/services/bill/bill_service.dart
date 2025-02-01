@@ -1,10 +1,12 @@
 import 'dart:developer';
 
+import 'package:ba3_bs_mobile/core/helper/extensions/basic/list_extensions.dart';
 import 'package:ba3_bs_mobile/core/helper/extensions/bill_pattern_type_extension.dart';
 import 'package:ba3_bs_mobile/core/helper/extensions/role_item_type_extension.dart';
 import 'package:ba3_bs_mobile/core/helper/mixin/floating_launcher.dart';
 import 'package:ba3_bs_mobile/core/i_controllers/i_bill_controller.dart';
 import 'package:ba3_bs_mobile/core/i_controllers/i_pluto_controller.dart';
+import 'package:ba3_bs_mobile/core/services/entry_bond_creator/implementations/entry_bonds_generator.dart';
 import 'package:ba3_bs_mobile/features/bill/controllers/bill/bill_search_controller.dart';
 import 'package:ba3_bs_mobile/features/users_management/data/models/role_model.dart';
 import 'package:flutter/cupertino.dart';
@@ -17,26 +19,24 @@ import '../../../../core/dialogs/e_invoice_dialog_content.dart';
 import '../../../../core/helper/enums/enums.dart';
 import '../../../../core/helper/extensions/getx_controller_extensions.dart';
 import '../../../../core/helper/mixin/pdf_base.dart';
-import '../../../../core/services/entry_bond_creator/implementations/entry_bond_creator_factory.dart';
 import '../../../../core/utils/app_ui_utils.dart';
 import '../../../accounts/data/models/account_model.dart';
-import '../../../bond/controllers/entry_bond/entry_bond_controller.dart';
 import '../../../bond/ui/screens/entry_bond_details_screen.dart';
 import '../../../floating_window/services/overlay_service.dart';
 import '../../../materials/controllers/material_controller.dart';
 import '../../../materials/data/models/material_model.dart';
+import '../../../materials/service/mat_statement_generator.dart';
 import '../../../patterns/data/models/bill_type_model.dart';
 import '../../controllers/bill/all_bills_controller.dart';
+import '../../data/models/bill_items.dart';
 import '../../data/models/bill_model.dart';
 import '../../data/models/invoice_record_model.dart';
 
-class BillDetailsService with PdfBase, FloatingLauncher {
+class BillDetailsService with PdfBase, EntryBondsGenerator, MatsStatementsGenerator, FloatingLauncher {
   final IPlutoController<InvoiceRecordModel> plutoController;
   final IBillController billController;
 
   BillDetailsService(this.plutoController, this.billController);
-
-  EntryBondController get entryBondController => read<EntryBondController>();
 
   BillModel? createBillModel({
     BillModel? billModel,
@@ -71,13 +71,15 @@ class BillDetailsService with PdfBase, FloatingLauncher {
   void launchFloatingEntryBondDetailsScreen({required BuildContext context, required BillModel billModel}) {
     if (!hasModelId(billModel.billId)) return;
 
-    final creator = EntryBondCreatorFactory.resolveEntryBondCreator(billModel);
+    // final creator = EntryBondCreatorFactory.resolveEntryBondCreator(billModel);
+    //
+    // final entryBondModel = creator.createEntryBond(
+    //   isSimulatedVat: true,
+    //   originType: EntryBondType.bill,
+    //   model: billModel,
+    // );
 
-    final entryBondModel = creator.createEntryBond(
-      isSimulatedVat: true,
-      originType: EntryBondType.bill,
-      model: billModel,
-    );
+    final entryBondModel = createSimulatedVatEntryBond(billModel);
 
     launchFloatingWindow(
       context: context,
@@ -104,6 +106,10 @@ class BillDetailsService with PdfBase, FloatingLauncher {
     if (billModel.status == Status.approved && billModel.billTypeModel.billPatternType!.hasMaterialAccount) {
       entryBondController.deleteEntryBondModel(entryId: billModel.billId!);
     }
+
+    if (billModel.status == Status.approved) {
+      deleteMatsStatementsModels(billModel);
+    }
   }
 
   Future<void> handleUpdateBillStatusSuccess({
@@ -113,32 +119,40 @@ class BillDetailsService with PdfBase, FloatingLauncher {
     AppUIUtils.onSuccess('تم القبول بنجاح');
     billSearchController.updateBill(updatedBillModel);
 
-    if (updatedBillModel.status == Status.approved && updatedBillModel.billTypeModel.billPatternType!.hasCashesAccount) {
-      final creator = EntryBondCreatorFactory.resolveEntryBondCreator(updatedBillModel);
+    if (updatedBillModel.status == Status.approved && updatedBillModel.billTypeModel.billPatternType!.hasMaterialAccount) {
+      createAndStoreEntryBond(model: updatedBillModel);
 
-      entryBondController.saveEntryBondModel(
-        entryBondModel: creator.createEntryBond(
-          isSimulatedVat: false,
-          originType: EntryBondType.bill,
-          model: updatedBillModel,
-        ),
+      // final creator = EntryBondCreatorFactory.resolveEntryBondCreator(updatedBillModel);
+      //
+      // entryBondController.saveEntryBondModel(
+      //   entryBondModel: creator.createEntryBond(
+      //     isSimulatedVat: false,
+      //     originType: EntryBondType.bill,
+      //     model: updatedBillModel,
+      //   ),
+      // );
+    }
+
+    if (updatedBillModel.status == Status.approved) {
+      generateAndSaveMatsStatements(
+        sourceModels: [updatedBillModel],
+        onProgress: (progress) {
+          log('Progress: ${(progress * 100).toStringAsFixed(2)}%');
+        },
       );
     }
   }
 
-  Map<String, AccountModel> findModifiedBillTypeAccounts({
-    required BillModel previousBill,
-    required BillModel currentBill,
-  }) {
+  Map<String, AccountModel> findModifiedBillTypeAccounts({required BillModel previousBill, required BillModel currentBill}) {
     // Extract accounts from the bill type models or default to empty maps
     final previousAccounts = previousBill.billTypeModel.accounts ?? {};
     final currentAccounts = currentBill.billTypeModel.accounts ?? {};
 
     // Identify accounts that are present in both bills but have changed
     final Map<String, AccountModel> modifiedAccounts = Map.fromEntries(
-      previousAccounts.entries.where((MapEntry<Account, AccountModel> entry) {
-        final currentAccount = currentAccounts[entry.key];
-        return currentAccount != null && currentAccount != entry.value;
+      previousAccounts.entries.where((MapEntry<Account, AccountModel> previousAccount) {
+        final currentAccountModel = currentAccounts[previousAccount.key];
+        return currentAccountModel != null && currentAccountModel != previousAccount.value;
       }).map(
         // Use the account key's label for the map
         (entry) => MapEntry(entry.key.label, entry.value),
@@ -154,6 +168,17 @@ class BillDetailsService with PdfBase, FloatingLauncher {
     return modifiedAccounts;
   }
 
+  Map<String, List<BillItem>> findDeletedMaterials({required BillModel previousBill, required BillModel currentBill}) {
+    final previousGroupedItems = previousBill.items.itemList.groupBy((item) => item.itemGuid);
+    final currentGroupedItems = currentBill.items.itemList.groupBy((item) => item.itemGuid);
+
+    return Map.fromEntries(
+      previousGroupedItems.entries.where(
+        (entry) => !currentGroupedItems.containsKey(entry.key),
+      ),
+    );
+  }
+
   Future<void> handleSaveOrUpdateSuccess({
     BillModel? previousBill,
     required BillModel currentBill,
@@ -166,10 +191,12 @@ class BillDetailsService with PdfBase, FloatingLauncher {
 
     Map<String, AccountModel> modifiedBillTypeAccounts = {};
 
+    Map<String, List<BillItem>> deletedMaterials = {};
+
     if (isSave) {
       billController.updateIsBillSaved = true;
 
-      if (hasModelId(currentBill.billId) && hasModelItems(currentBill.items.itemList) && currentBill.status == Status.approved) {
+      if (hasModelId(currentBill.billId) && hasModelItems(currentBill.items.itemList)) {
         generateAndSendPdf(
           fileName: AppStrings.newBill,
           itemModel: currentBill,
@@ -177,12 +204,12 @@ class BillDetailsService with PdfBase, FloatingLauncher {
       }
     } else {
       modifiedBillTypeAccounts = findModifiedBillTypeAccounts(previousBill: previousBill!, currentBill: currentBill);
+      deletedMaterials = findDeletedMaterials(previousBill: previousBill, currentBill: currentBill);
 
       if (hasModelId(currentBill.billId) &&
           hasModelItems(currentBill.items.itemList) &&
           hasModelId(previousBill.billId) &&
-          hasModelItems(previousBill.items.itemList) &&
-          currentBill.status == Status.approved) {
+          hasModelItems(previousBill.items.itemList)) {
         generateAndSendPdf(
           fileName: AppStrings.updatedBill,
           itemModel: [previousBill, currentBill],
@@ -193,16 +220,25 @@ class BillDetailsService with PdfBase, FloatingLauncher {
     billSearchController.updateBill(currentBill);
 
     if (currentBill.status == Status.approved && currentBill.billTypeModel.billPatternType!.hasMaterialAccount) {
-      final creator = EntryBondCreatorFactory.resolveEntryBondCreator(currentBill);
-
-      entryBondController.saveEntryBondModel(
+      createAndStoreEntryBond(
         modifiedAccounts: modifiedBillTypeAccounts,
-        entryBondModel: creator.createEntryBond(
-          isSimulatedVat: false,
-          originType: EntryBondType.bill,
-          model: currentBill,
-        ),
+        model: currentBill,
       );
+
+      // final creator = EntryBondCreatorFactory.resolveEntryBondCreator(currentBill);
+      //
+      // entryBondController.saveEntryBondModel(
+      //   modifiedAccounts: modifiedBillTypeAccounts,
+      //   entryBondModel: creator.createEntryBond(
+      //     isSimulatedVat: false,
+      //     originType: EntryBondType.bill,
+      //     model: currentBill,
+      //   ),
+      // );
+    }
+
+    if (currentBill.status == Status.approved) {
+      generateAndSaveMatStatement(model: currentBill, deletedMaterials: deletedMaterials);
     }
   }
 
@@ -243,7 +279,7 @@ class BillDetailsService with PdfBase, FloatingLauncher {
     required String barCode,
   }) async {
     final materialController = read<MaterialController>();
-    final searchedMaterials = await materialController.searchOfProductByText(barCode);
+    final searchedMaterials = materialController.searchOfProductByText(barCode);
 
     final MaterialModel? selectedMaterial = searchedMaterials.length == 1 ? searchedMaterials.first : null;
 

@@ -76,7 +76,7 @@ class GetProductByEnterAction extends PlutoGridShortcutAction {
     final materialController = read<MaterialController>();
 
     // Search for matching materials
-    var searchedMaterials = await materialController.searchOfProductByText(productText);
+    var searchedMaterials = materialController.searchOfProductByText(productText);
     MaterialModel? selectedMaterial;
 
     if (searchedMaterials.length == 1) {
@@ -121,7 +121,7 @@ class GetProductByEnterAction extends PlutoGridShortcutAction {
           OverlayService.back();
         },
         onSubmitted: (_) async {
-          searchedMaterials = await materialController.searchOfProductByText(productTextController.text);
+          searchedMaterials = materialController.searchOfProductByText(productTextController.text);
           materialController.update();
         },
         productTextController: productTextController,

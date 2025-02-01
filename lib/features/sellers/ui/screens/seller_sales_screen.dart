@@ -39,7 +39,7 @@ class SellerSalesScreen extends StatelessWidget {
   AppBar _buildAppBar(BuildContext context, SellerSalesController controller) {
     return AppBar(
       leadingWidth: 400,
-      leading: _buildLeadingSection(controller),
+      leading: _buildLeadingSection(controller, context),
       title: Text('سجل مبيعات ${controller.selectedSeller?.costName}'),
       centerTitle: true,
       // actions: _buildActionButtons(controller),
@@ -47,12 +47,23 @@ class SellerSalesScreen extends StatelessWidget {
   }
 
   /// Creates the leading section containing back button and date range picker.
-  Widget _buildLeadingSection(SellerSalesController controller) {
+  Widget _buildLeadingSection(SellerSalesController controller, BuildContext context) {
     return Row(
       children: [
-        const BackButton(),
+        BackButton(
+          onPressed: () {
+            controller.setInFilterMode = false;
+            Navigator.maybePop(context);
+          },
+        ),
         const HorizontalSpace(20),
-        DateRangePicker(onSubmit: controller.onSubmitDateRangePicker),
+        DateRangePicker(
+          onSubmit: () {
+            controller.onSubmitDateRangePicker();
+          },
+          pickedDateRange: controller.dateRange,
+          onSelectionChanged: controller.onSelectionChanged,
+        ),
         const HorizontalSpace(20),
         IconButton(
           onPressed: controller.inFilterMode ? controller.clearFilter : null,

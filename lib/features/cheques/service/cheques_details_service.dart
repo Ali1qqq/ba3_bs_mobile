@@ -1,6 +1,5 @@
 import 'package:ba3_bs_mobile/features/accounts/data/models/account_model.dart';
 import 'package:flutter/cupertino.dart';
-
 import 'package:get/get.dart';
 
 import '../../../../core/helper/enums/enums.dart';
@@ -8,27 +7,26 @@ import '../../../../core/helper/extensions/getx_controller_extensions.dart';
 import '../../../../core/helper/mixin/floating_launcher.dart';
 import '../../../../core/i_controllers/pdf_base.dart';
 import '../../../../core/utils/app_ui_utils.dart';
-import '../../../core/services/entry_bond_creator/implementations/entry_bond_creator_factory.dart';
-import '../../bond/controllers/entry_bond/entry_bond_controller.dart';
-import '../../bond/data/models/entry_bond_model.dart';
+import '../../../core/constants/app_strings.dart';
+import '../../../core/services/entry_bond_creator/implementations/entry_bonds_generator.dart';
 import '../../bond/ui/screens/entry_bond_details_screen.dart';
 import '../controllers/cheques/all_cheques_controller.dart';
 import '../controllers/cheques/cheques_details_controller.dart';
 import '../controllers/cheques/cheques_search_controller.dart';
 import '../data/models/cheques_model.dart';
-import 'cheques_entry_bond_creator.dart';
 
-
-class ChequesDetailsService with PdfBase, FloatingLauncher {
+class ChequesDetailsService with PdfBase, EntryBondsGenerator, FloatingLauncher {
   void launchChequesEntryBondScreen({
     required BuildContext context,
     required ChequesModel chequesModel,
-    required  ChequesStrategyType chequesStrategyType,
+    required ChequesStrategyType chequesStrategyType,
   }) {
-    final creators = ChequesStrategyBondFactory.determineStrategy(chequesModel, type: chequesStrategyType);
+    // final creators = ChequesStrategyBondFactory.determineStrategy(chequesModel, type: chequesStrategyType);
+    //
+    // final EntryBondModel entryBondModel =
+    //     creators.first.createEntryBond(model: chequesModel, originType: EntryBondType.cheque);
 
-    final EntryBondModel entryBondModel = creators.first.createEntryBond(model: chequesModel, originType: EntryBondType.cheque);
-
+    final entryBondModel = createChequeEntryBondByStrategy(chequesModel, chequesStrategyType: chequesStrategyType);
 
     launchFloatingWindow(
       context: context,
@@ -52,7 +50,6 @@ class ChequesDetailsService with PdfBase, FloatingLauncher {
     required String chequesAccount2Name,
     required bool isPayed,
     required bool isRefund,
-
   }) {
     return ChequesModel.fromChequesData(
       chequesAccount2Name: chequesAccount2Name,
@@ -69,11 +66,8 @@ class ChequesDetailsService with PdfBase, FloatingLauncher {
       chequesDate: chequesDate,
       isPayed: isPayed,
       isRefund: isRefund,
-
     );
   }
-
-  EntryBondController get entryBondController => read<EntryBondController>();
 
   Future<void> handleDeleteSuccess(ChequesModel chequesModel, ChequesSearchController chequesSearchController, [fromChequesById]) async {
     // Only fetchCheques if open cheques details by cheques id from AllChequesScreen
@@ -84,12 +78,19 @@ class ChequesDetailsService with PdfBase, FloatingLauncher {
       chequesSearchController.removeCheques(chequesModel);
     }
     entryBondController.deleteEntryBondModel(entryId: chequesModel.chequesGuid!);
+    if (chequesModel.chequesPayGuid != null) {
+      entryBondController.deleteEntryBondModel(entryId: chequesModel.chequesPayGuid!);
+    }
+    if (chequesModel.chequesRefundPayGuid != null) {
+      entryBondController.deleteEntryBondModel(entryId: chequesModel.chequesRefundPayGuid!);
+    }
 
     AppUIUtils.onSuccess('تم حذف الشيك بنجاح!');
   }
 
   Future<void> handleSaveOrUpdateSuccess({
-    required ChequesModel chequesModel,
+    required ChequesModel currentChequesModel,
+    ChequesModel? prevChequesModel,
     required ChequesDetailsController chequesDetailsController,
     required ChequesSearchController chequesSearchController,
     required bool isSave,
@@ -100,20 +101,31 @@ class ChequesDetailsService with PdfBase, FloatingLauncher {
 
     if (isSave) {
       chequesDetailsController.updateIsChequesSaved(true);
+      //TODO
+      // generateAndSendPdf(
+      //   fileName: AppStrings.newBond,
+      //   itemModel: currentChequesModel,
+      // );
     } else {
-      chequesSearchController.updateCheques(chequesModel);
-    }
-
-    final creators = EntryBondCreatorFactory.resolveEntryBondCreators(chequesModel);
-
-    for (final creator in creators) {
-      entryBondController.saveEntryBondModel(
-        entryBondModel: creator.createEntryBond(
-          originType: EntryBondType.cheque,
-          model: chequesModel,
-        ),
+      chequesSearchController.updateCheques(currentChequesModel);
+      generateAndSendPdf(
+        fileName: AppStrings.newBond,
+        itemModel: [prevChequesModel!, currentChequesModel],
       );
     }
+
+    await createAndStoreEntryBond(model: currentChequesModel);
+
+    // final creators = EntryBondCreatorFactory.resolveEntryBondCreators(currentChequesModel);
+    //
+    // for (final creator in creators) {
+    //   entryBondController.saveEntryBondModel(
+    //     entryBondModel: creator.createEntryBond(
+    //       originType: EntryBondType.cheque,
+    //       model: currentChequesModel,
+    //     ),
+    //   );
+    // }
   }
 
   bool validateAccount(AccountModel? customerAccount) {

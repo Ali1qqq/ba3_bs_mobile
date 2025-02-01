@@ -45,21 +45,6 @@ enum BillType {
       BillAccounts.exchangeForGifts: AccountModel(accName: "تسويات", id: "201046d2-7ca0-4ac4-a55d-b1dbf4e54dde"),
     },
   ),
-  salesService(
-    label: 'sales service',
-    value: ' مبيعات خدمة',
-    typeGuide: "5bbae172-9291-4940-bac2-25be48b8dca8",
-    color: 4282339765,
-    accounts: {
-      BillAccounts.store: AccountModel(accName: "المستودع الرئيسي", id: '6d9836d1-fccd-4006-804f-81709eecde57'),
-      BillAccounts.additions: AccountModel(accName: "ايرادات مختلفة", id: "1a1416bb-426b-4348-98cf-f1b026cc6c7d"),
-      BillAccounts.discounts: AccountModel(accName: "الحسم الممنوح", id: "e903d658-f30f-46c8-82c0-fee86256a511"),
-      BillAccounts.materials: AccountModel(accName: "المبيعات", id: "b1e9e80b-0d23-414d-b3be-bd0aec386002"),
-      BillAccounts.caches: AccountModel(accName: "الصندوق", id: "5b36c82d-9105-4177-a5c3-0f90e5857e3c"),
-      BillAccounts.gifts: AccountModel(accName: "هدايا البيع", id: "9d04d1f1-23f3-466e-8edb-5c16074e44ad"),
-      BillAccounts.exchangeForGifts: AccountModel(accName: "تسويات", id: "201046d2-7ca0-4ac4-a55d-b1dbf4e54dde"),
-    },
-  ),
   purchase(
     label: 'purchase',
     value: 'فاتورة مشتريات',
@@ -625,3 +610,19 @@ enum ChequesStrategyType {
 }
 
 enum NavigationDirection { next, previous, specific }
+
+enum MatOriginType {
+  bill('bill');
+
+  final String label;
+
+  const MatOriginType(this.label);
+
+  // Factory constructor with error handling for unmatched labels
+  factory MatOriginType.byLabel(String label) {
+    return MatOriginType.values.firstWhere(
+      (type) => type.label == label,
+      orElse: () => throw ArgumentError('No matching MatOriginType for label: $label'),
+    );
+  }
+}

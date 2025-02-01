@@ -14,9 +14,9 @@ class ChequesCompoundDatasource extends CompoundDatasourceBase<ChequesModel, Che
   String get rootCollectionPath => ApiConstants.cheques; // Collection name in Firestore
 
   @override
-  Future<List<ChequesModel>> fetchAll({required ChequesType itemTypeModel}) async {
-    final rootDocumentId = getRootDocumentId(itemTypeModel);
-    final subCollectionPath = getSubCollectionPath(itemTypeModel);
+  Future<List<ChequesModel>> fetchAll({required ChequesType itemIdentifier}) async {
+    final rootDocumentId = getRootDocumentId(itemIdentifier);
+    final subCollectionPath = getSubCollectionPath(itemIdentifier);
 
     final data = await compoundDatabaseService.fetchAll(
       rootCollectionPath: rootCollectionPath,
@@ -33,11 +33,11 @@ class ChequesCompoundDatasource extends CompoundDatasourceBase<ChequesModel, Che
 
   @override
   Future<List<ChequesModel>> fetchWhere<V>(
-      {required ChequesType itemTypeModel, required String field, required V value, DateFilter? dateFilter}) async {
+      {required ChequesType itemIdentifier, required String field, required V value, DateFilter? dateFilter}) async {
     final data = await compoundDatabaseService.fetchWhere(
         rootCollectionPath: rootCollectionPath,
-        rootDocumentId: getRootDocumentId(itemTypeModel),
-        subCollectionPath: getSubCollectionPath(itemTypeModel),
+        rootDocumentId: getRootDocumentId(itemIdentifier),
+        subCollectionPath: getSubCollectionPath(itemIdentifier),
         field: field,
         value: value,
         dateFilter: dateFilter);
@@ -48,9 +48,9 @@ class ChequesCompoundDatasource extends CompoundDatasourceBase<ChequesModel, Che
   }
 
   @override
-  Future<ChequesModel> fetchById({required String id, required ChequesType itemTypeModel}) async {
-    final rootDocumentId = getRootDocumentId(itemTypeModel);
-    final subCollectionPath = getSubCollectionPath(itemTypeModel);
+  Future<ChequesModel> fetchById({required String id, required ChequesType itemIdentifier}) async {
+    final rootDocumentId = getRootDocumentId(itemIdentifier);
+    final subCollectionPath = getSubCollectionPath(itemIdentifier);
 
     final data = await compoundDatabaseService.fetchById(
       rootCollectionPath: rootCollectionPath,
@@ -110,9 +110,9 @@ class ChequesCompoundDatasource extends CompoundDatasourceBase<ChequesModel, Che
       );
 
   @override
-  Future<int> countDocuments({required ChequesType itemTypeModel, QueryFilter<dynamic>? countQueryFilter}) async {
-    final rootDocumentId = getRootDocumentId(itemTypeModel);
-    final subCollectionPath = getSubCollectionPath(itemTypeModel);
+  Future<int> countDocuments({required ChequesType itemIdentifier, QueryFilter<dynamic>? countQueryFilter}) async {
+    final rootDocumentId = getRootDocumentId(itemIdentifier);
+    final subCollectionPath = getSubCollectionPath(itemIdentifier);
 
     final count = await compoundDatabaseService.countDocuments(
       rootCollectionPath: rootCollectionPath,
@@ -125,15 +125,15 @@ class ChequesCompoundDatasource extends CompoundDatasourceBase<ChequesModel, Che
   }
 
   @override
-  Future<Map<ChequesType, List<ChequesModel>>> fetchAllNested({required List<ChequesType> itemTypes}) async {
+  Future<Map<ChequesType, List<ChequesModel>>> fetchAllNested({required List<ChequesType> itemIdentifiers}) async {
     final chequesMapByType = <ChequesType, List<ChequesModel>>{};
 
     final List<Future<void>> fetchTasks = [];
     // Create tasks to fetch all bills for each type
 
-    for (final chequesTypeModel in itemTypes) {
+    for (final chequesTypeModel in itemIdentifiers) {
       fetchTasks.add(
-        fetchAll(itemTypeModel: chequesTypeModel).then((result) {
+        fetchAll(itemIdentifier: chequesTypeModel).then((result) {
           chequesMapByType[chequesTypeModel] = result;
         }),
       );
@@ -145,9 +145,9 @@ class ChequesCompoundDatasource extends CompoundDatasourceBase<ChequesModel, Che
   }
 
   @override
-  Future<List<ChequesModel>> saveAll({required List<ChequesModel> items, required ChequesType itemTypeModel}) async {
-    final rootDocumentId = getRootDocumentId(itemTypeModel);
-    final subCollectionPath = getSubCollectionPath(itemTypeModel);
+  Future<List<ChequesModel>> saveAll({required List<ChequesModel> items, required ChequesType itemIdentifier}) async {
+    final rootDocumentId = getRootDocumentId(itemIdentifier);
+    final subCollectionPath = getSubCollectionPath(itemIdentifier);
 
     final savedData = await compoundDatabaseService.saveAll(
       rootCollectionPath: rootCollectionPath,
@@ -165,17 +165,20 @@ class ChequesCompoundDatasource extends CompoundDatasourceBase<ChequesModel, Che
   }
 
   @override
-  Future<Map<ChequesType, List<ChequesModel>>> saveAllNested(
-      {required List<ChequesType> itemTypes, required List<ChequesModel> items}) async {
+  Future<Map<ChequesType, List<ChequesModel>>> saveAllNested({
+    required List<ChequesType> itemIdentifiers,
+    required List<ChequesModel> items,
+    void Function(double progress)? onProgress,
+  }) async {
     final chequesByType = <ChequesType, List<ChequesModel>>{};
 
     final List<Future<void>> fetchTasks = [];
     // Create tasks to fetch all bills for each type
 
-    for (final chequesType in itemTypes) {
+    for (final chequesType in itemIdentifiers) {
       fetchTasks.add(
         saveAll(
-                itemTypeModel: chequesType,
+                itemIdentifier: chequesType,
                 items: items
                     .where(
                       (bond) => bond.chequesTypeGuid == chequesType.typeGuide,

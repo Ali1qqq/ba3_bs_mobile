@@ -1,7 +1,7 @@
 import 'dart:developer';
 
-import 'package:ba3_bs_mobile/core/helper/extensions/bill_pattern_type_extension.dart';
 import 'package:ba3_bs_mobile/core/helper/extensions/basic/string_extension.dart';
+import 'package:ba3_bs_mobile/core/helper/extensions/bill_pattern_type_extension.dart';
 import 'package:ba3_bs_mobile/features/patterns/data/models/bill_type_model.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -273,7 +273,7 @@ class BillPlutoGridService {
     final materialController = read<MaterialController>();
 
     // Search for matching materials
-    var searchedMaterials = await materialController.searchOfProductByText(productText);
+    var searchedMaterials = materialController.searchOfProductByText(productText);
     MaterialModel? selectedMaterial;
 
     if (searchedMaterials.length == 1) {
@@ -323,7 +323,7 @@ class BillPlutoGridService {
           OverlayService.back();
         },
         onSubmitted: (_) async {
-          searchedMaterials = await materialController.searchOfProductByText(productTextController.text);
+          searchedMaterials = materialController.searchOfProductByText(productTextController.text);
           materialController.update();
         },
         productTextController: productTextController,

@@ -15,7 +15,7 @@ Future<MaterialModel?> searchProductTextDialog(String productText) async {
 
   List<MaterialModel> searchedMaterials;
 
-  searchedMaterials = await read<MaterialController>().searchOfProductByText(productTextController.text);
+  searchedMaterials = read<MaterialController>().searchOfProductByText(productTextController.text);
 
   MaterialModel? selectedMaterial;
 
@@ -58,7 +58,7 @@ Future<MaterialModel?> searchProductTextDialog(String productText) async {
                         child: CustomTextFieldWithIcon(
                             controller: productTextController,
                             onSubmitted: (_) async {
-                              searchedMaterials = await materialController.searchOfProductByText(productTextController.text);
+                              searchedMaterials = materialController.searchOfProductByText(productTextController.text);
                               materialController.update();
                             },
                             onIconPressed: () {}),

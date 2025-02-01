@@ -14,9 +14,9 @@ class AccountsStatementsDatasource extends CompoundDatasourceBase<EntryBondItems
   String get rootCollectionPath => ApiConstants.accountsStatements; // Collection name in Firestore
 
   @override
-  Future<List<EntryBondItems>> fetchAll({required AccountEntity itemTypeModel}) async {
-    final rootDocumentId = getRootDocumentId(itemTypeModel);
-    final subcollectionPath = getSubCollectionPath(itemTypeModel);
+  Future<List<EntryBondItems>> fetchAll({required AccountEntity itemIdentifier}) async {
+    final rootDocumentId = getRootDocumentId(itemIdentifier);
+    final subcollectionPath = getSubCollectionPath(itemIdentifier);
 
     final dataList = await compoundDatabaseService.fetchAll(
       rootCollectionPath: rootCollectionPath,
@@ -32,15 +32,15 @@ class AccountsStatementsDatasource extends CompoundDatasourceBase<EntryBondItems
 
   @override
   Future<List<EntryBondItems>> fetchWhere<V>({
-    required AccountEntity itemTypeModel,
+    required AccountEntity itemIdentifier,
     required String field,
     required V value,
     DateFilter? dateFilter,
   }) async {
     final dataList = await compoundDatabaseService.fetchWhere(
       rootCollectionPath: rootCollectionPath,
-      rootDocumentId: getRootDocumentId(itemTypeModel),
-      subCollectionPath: getSubCollectionPath(itemTypeModel),
+      rootDocumentId: getRootDocumentId(itemIdentifier),
+      subCollectionPath: getSubCollectionPath(itemIdentifier),
       field: field,
       value: value,
       dateFilter: dateFilter,
@@ -53,9 +53,9 @@ class AccountsStatementsDatasource extends CompoundDatasourceBase<EntryBondItems
   }
 
   @override
-  Future<EntryBondItems> fetchById({required String id, required AccountEntity itemTypeModel}) async {
-    final rootDocumentId = getRootDocumentId(itemTypeModel);
-    final subcollectionPath = getSubCollectionPath(itemTypeModel);
+  Future<EntryBondItems> fetchById({required String id, required AccountEntity itemIdentifier}) async {
+    final rootDocumentId = getRootDocumentId(itemIdentifier);
+    final subcollectionPath = getSubCollectionPath(itemIdentifier);
 
     final data = await compoundDatabaseService.fetchById(
       rootCollectionPath: rootCollectionPath,
@@ -78,7 +78,7 @@ class AccountsStatementsDatasource extends CompoundDatasourceBase<EntryBondItems
       rootCollectionPath: rootCollectionPath,
       rootDocumentId: rootDocumentId,
       subCollectionPath: subcollectionPath,
-      subDocumentId: item.docId ??  item.id,
+      subDocumentId: item.docId ?? item.id,
     );
   }
 
@@ -88,7 +88,6 @@ class AccountsStatementsDatasource extends CompoundDatasourceBase<EntryBondItems
 
     final rootDocumentId = getRootDocumentId(account);
     final subCollectionPath = getSubCollectionPath(account);
-
     final savedData = await compoundDatabaseService.add(
       rootCollectionPath: rootCollectionPath,
       rootDocumentId: rootDocumentId,
@@ -101,9 +100,9 @@ class AccountsStatementsDatasource extends CompoundDatasourceBase<EntryBondItems
   }
 
   @override
-  Future<int> countDocuments({required AccountEntity itemTypeModel, QueryFilter? countQueryFilter}) async {
-    final rootDocumentId = getRootDocumentId(itemTypeModel);
-    final subCollectionPath = getSubCollectionPath(itemTypeModel);
+  Future<int> countDocuments({required AccountEntity itemIdentifier, QueryFilter? countQueryFilter}) async {
+    final rootDocumentId = getRootDocumentId(itemIdentifier);
+    final subCollectionPath = getSubCollectionPath(itemIdentifier);
 
     final count = await compoundDatabaseService.countDocuments(
       rootCollectionPath: rootCollectionPath,
@@ -116,15 +115,15 @@ class AccountsStatementsDatasource extends CompoundDatasourceBase<EntryBondItems
   }
 
   @override
-  Future<Map<AccountEntity, List<EntryBondItems>>> fetchAllNested({required List<AccountEntity> itemTypes}) async {
+  Future<Map<AccountEntity, List<EntryBondItems>>> fetchAllNested({required List<AccountEntity> itemIdentifiers}) async {
     final billsByType = <AccountEntity, List<EntryBondItems>>{};
 
     final List<Future<void>> fetchTasks = [];
     // Create tasks to fetch all bills for each type
 
-    for (final billTypeModel in itemTypes) {
+    for (final billTypeModel in itemIdentifiers) {
       fetchTasks.add(
-        fetchAll(itemTypeModel: billTypeModel).then((result) {
+        fetchAll(itemIdentifier: billTypeModel).then((result) {
           billsByType[billTypeModel] = result;
         }),
       );
@@ -136,22 +135,25 @@ class AccountsStatementsDatasource extends CompoundDatasourceBase<EntryBondItems
   }
 
   @override
-  Future<Map<AccountEntity, List<EntryBondItems>>> saveAllNested(
-      {required List<AccountEntity> itemTypes, required List<EntryBondItems> items}) async {
+  Future<Map<AccountEntity, List<EntryBondItems>>> saveAllNested({
+    required List<AccountEntity> itemIdentifiers,
+    required List<EntryBondItems> items,
+    void Function(double progress)? onProgress,
+  }) async {
     final billsByType = <AccountEntity, List<EntryBondItems>>{};
 
     final List<Future<void>> fetchTasks = [];
     // Create tasks to fetch all bills for each type
 
-    for (final accountEntity in itemTypes) {
+    for (final accountEntity in itemIdentifiers) {
       fetchTasks.add(
         saveAll(
-            itemTypeModel: accountEntity,
-            items: items
-                .where(
-                  (element) => element.itemList.first.account.id == accountEntity.id,
-            )
-                .toList())
+                itemIdentifier: accountEntity,
+                items: items
+                    .where(
+                      (element) => element.itemList.first.account.id == accountEntity.id,
+                    )
+                    .toList())
             .then((result) {
           billsByType[accountEntity] = result;
         }),
@@ -165,9 +167,9 @@ class AccountsStatementsDatasource extends CompoundDatasourceBase<EntryBondItems
   }
 
   @override
-  Future<List<EntryBondItems>> saveAll({required List<EntryBondItems> items, required AccountEntity itemTypeModel}) async {
-    final rootDocumentId = getRootDocumentId(itemTypeModel);
-    final subCollectionPath = getSubCollectionPath(itemTypeModel);
+  Future<List<EntryBondItems>> saveAll({required List<EntryBondItems> items, required AccountEntity itemIdentifier}) async {
+    final rootDocumentId = getRootDocumentId(itemIdentifier);
+    final subCollectionPath = getSubCollectionPath(itemIdentifier);
 
     final savedData = await compoundDatabaseService.saveAll(
       rootCollectionPath: rootCollectionPath,

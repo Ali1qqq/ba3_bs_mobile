@@ -192,11 +192,11 @@ class SellersController extends GetxController with AppNavigator {
     }
   }
 
-  fetchProbabilitySellers() {
+  fetchProbabilitySellers() async {
     if (RoleItemType.viewSellers.hasAdminPermission) {
-      getAllSellers();
+      await getAllSellers();
     } else {
-      fetchLoginSellers();
+      await fetchLoginSellers();
     }
   }
 

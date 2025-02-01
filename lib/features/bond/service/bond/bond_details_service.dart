@@ -13,34 +13,33 @@ import '../../../../core/helper/extensions/getx_controller_extensions.dart';
 import '../../../../core/helper/mixin/floating_launcher.dart';
 import '../../../../core/helper/mixin/pdf_base.dart';
 import '../../../../core/i_controllers/i_recodes_pluto_controller.dart';
-import '../../../../core/services/entry_bond_creator/implementations/entry_bond_creator_factory.dart';
+import '../../../../core/services/entry_bond_creator/implementations/entry_bonds_generator.dart';
 import '../../../../core/utils/app_ui_utils.dart';
 import '../../controllers/bonds/all_bond_controller.dart';
 import '../../controllers/bonds/bond_search_controller.dart';
-import '../../controllers/entry_bond/entry_bond_controller.dart';
 import '../../data/models/bond_model.dart';
 import '../../ui/screens/entry_bond_details_screen.dart';
 
-class BondDetailsService with PdfBase, FloatingLauncher {
+class BondDetailsService with PdfBase, EntryBondsGenerator, FloatingLauncher {
   final IRecodesPlutoController<PayItem> plutoController;
   final BondDetailsController bondController;
 
   BondDetailsService(this.plutoController, this.bondController);
 
-  EntryBondController get entryBondController => read<EntryBondController>();
-
   void launchBondEntryBondScreen({required BuildContext context, required BondModel bondModel}) {
-    final creator = EntryBondCreatorFactory.resolveEntryBondCreator(bondModel);
+    // final creator = EntryBondCreatorFactory.resolveEntryBondCreator(bondModel);
+    //
+    // final entryBond = creator.createEntryBond(
+    //   originType: EntryBondType.cheque,
+    //   model: bondModel,
+    // );
 
-    final entryBond = creator.createEntryBond(
-      originType: EntryBondType.cheque,
-      model: bondModel,
-    );
+    final entryBondModel = createEntryBond(bondModel);
 
     launchFloatingWindow(
       context: context,
       minimizedTitle: 'سند خاص ب ${BondType.byTypeGuide(bondModel.payTypeGuid!).value}',
-      floatingScreen: EntryBondDetailsScreen(entryBondModel: entryBond),
+      floatingScreen: EntryBondDetailsScreen(entryBondModel: entryBondModel),
     );
   }
 
@@ -88,9 +87,9 @@ class BondDetailsService with PdfBase, FloatingLauncher {
     AppUIUtils.onSuccess(successMessage);
 
     Map<String, AccountModel> modifiedBondTypeAccounts = {};
-
     if (isSave) {
       bondDetailsController.updateIsBondSaved(true);
+
       if (hasModelId(currentBond.payGuid) && hasModelItems(currentBond.payItems.itemList)) {
         generateAndSendPdf(
           fileName: AppStrings.newBond,
@@ -102,7 +101,6 @@ class BondDetailsService with PdfBase, FloatingLauncher {
         previousBond: previousBond!,
         currentBond: currentBond,
       );
-      bondSearchController.updateBond(currentBond);
       if (hasModelId(currentBond.payGuid) &&
           hasModelItems(currentBond.payItems.itemList) &&
           hasModelId(previousBond.payGuid) &&
@@ -115,15 +113,20 @@ class BondDetailsService with PdfBase, FloatingLauncher {
     }
     bondSearchController.updateBond(currentBond);
 
-    final creator = EntryBondCreatorFactory.resolveEntryBondCreator(currentBond);
-
-    entryBondController.saveEntryBondModel(
+    createAndStoreEntryBond(
+      model: currentBond,
       modifiedAccounts: modifiedBondTypeAccounts,
-      entryBondModel: creator.createEntryBond(
-        originType: EntryBondType.bond,
-        model: currentBond,
-      ),
     );
+
+    // final creator = EntryBondCreatorFactory.resolveEntryBondCreator(currentBond);
+    //
+    // entryBondController.saveEntryBondModel(
+    //   modifiedAccounts: modifiedBondTypeAccounts,
+    //   entryBondModel: creator.createEntryBond(
+    //     originType: EntryBondType.bond,
+    //     model: currentBond,
+    //   ),
+    // );
   }
 
   bool validateAccount(AccountModel? customerAccount) {

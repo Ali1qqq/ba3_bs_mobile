@@ -8,28 +8,28 @@ import '../../../../network/error/error_handler.dart';
 import '../../../../network/error/failure.dart';
 import '../../interfaces/compound_datasource_base.dart';
 
-class CompoundDatasourceRepository<T, ItemTypeModel> {
-  final CompoundDatasourceBase<T, ItemTypeModel> _dataSource;
+class CompoundDatasourceRepository<T, I> {
+  final CompoundDatasourceBase<T, I> _dataSource;
 
   CompoundDatasourceRepository(this._dataSource);
 
   Future<Either<Failure, List<T>>> fetchWhere<V>(
-      {required ItemTypeModel itemTypeModel, required String field, required V value, DateFilter? dateFilter}) async {
+      {required I itemIdentifier, required String field, required V value, DateFilter? dateFilter}) async {
     try {
-      final savedItems = await _dataSource.fetchWhere(itemTypeModel: itemTypeModel, field: field, value: value, dateFilter: dateFilter);
+      final savedItems = await _dataSource.fetchWhere(itemIdentifier: itemIdentifier, field: field, value: value, dateFilter: dateFilter);
       return Right(savedItems); // Return the list of saved items
-    } catch (e) {
-      log('Error in fetchWhere: $e');
+    } catch (e, stackTrace) {
+      log('Error in fetchWhere: $e', stackTrace: stackTrace);
       return Left(ErrorHandler(e).failure); // Return error
     }
   }
 
-  Future<Either<Failure, T>> getById({required String id, required ItemTypeModel itemTypeModel}) async {
+  Future<Either<Failure, T>> getById({required String id, required I itemIdentifier}) async {
     try {
-      final item = await _dataSource.fetchById(id: id, itemTypeModel: itemTypeModel);
+      final item = await _dataSource.fetchById(id: id, itemIdentifier: itemIdentifier);
       return Right(item); // Return the found item
-    } catch (e) {
-      log('Error: $e');
+    } catch (e, stackTrace) {
+      log('Error in getById: $e', stackTrace: stackTrace);
       return Left(ErrorHandler(e).failure); // Handle the error and return Failure
     }
   }
@@ -38,8 +38,8 @@ class CompoundDatasourceRepository<T, ItemTypeModel> {
     try {
       await _dataSource.delete(item: item);
       return const Right(unit); // Return success
-    } catch (e) {
-      log('Error: $e');
+    } catch (e, stackTrace) {
+      log('Error in delete: $e', stackTrace: stackTrace);
       return Left(ErrorHandler(e).failure); // Return error
     }
   }
@@ -48,58 +48,62 @@ class CompoundDatasourceRepository<T, ItemTypeModel> {
     try {
       final savedItem = await _dataSource.save(item: item);
       return Right(savedItem); // Return success
-    } catch (e) {
-      log('Error in save: $e');
+    } catch (e, stackTrace) {
+      log('Error in save: $e', stackTrace: stackTrace);
       return Left(ErrorHandler(e).failure); // Return error
     }
   }
 
-  Future<Either<Failure, int>> count({required ItemTypeModel itemTypeModel, QueryFilter? countQueryFilter}) async {
+  Future<Either<Failure, int>> count({required I itemIdentifier, QueryFilter? countQueryFilter}) async {
     try {
-      final count = await _dataSource.countDocuments(itemTypeModel: itemTypeModel, countQueryFilter: countQueryFilter);
+      final count = await _dataSource.countDocuments(itemIdentifier: itemIdentifier, countQueryFilter: countQueryFilter);
       return Right(count); // Return the found item
-    } catch (e) {
-      log('Error in count: $e');
+    } catch (e, stackTrace) {
+      log('Error in count: $e', stackTrace: stackTrace);
       return Left(ErrorHandler(e).failure); // Handle the error and return Failure
     }
   }
 
-  Future<Either<Failure, List<T>>> getAll(ItemTypeModel itemTypeModel) async {
+  Future<Either<Failure, List<T>>> getAll(I itemIdentifier) async {
     try {
-      final items = await _dataSource.fetchAll(itemTypeModel: itemTypeModel);
+      final items = await _dataSource.fetchAll(itemIdentifier: itemIdentifier);
       return Right(items); // Return list of items
-    } catch (e) {
-      log('Error: $e');
+    } catch (e, stackTrace) {
+      log('Error in getAll: $e', stackTrace: stackTrace);
       return Left(ErrorHandler(e).failure); // Return error
     }
   }
 
-  Future<Either<Failure, List<T>>> saveAll(List<T> items, ItemTypeModel itemTypeModel) async {
+  Future<Either<Failure, List<T>>> saveAll(List<T> items, I itemIdentifier) async {
     try {
-      final savedItems = await _dataSource.saveAll(items: items, itemTypeModel: itemTypeModel);
+      final savedItems = await _dataSource.saveAll(items: items, itemIdentifier: itemIdentifier);
       return Right(savedItems); // Return the list of saved items
-    } catch (e) {
-      log('Error in fetchWhere: $e');
+    } catch (e, stackTrace) {
+      log('Error in saveAll: $e', stackTrace: stackTrace);
       return Left(ErrorHandler(e).failure); // Return error
     }
   }
 
-  Future<Either<Failure, Map<ItemTypeModel, List<T>>>> saveAllNested(List<T> items, List<ItemTypeModel> itemTypeModel) async {
+  Future<Either<Failure, Map<I, List<T>>>> saveAllNested(
+    List<T> items,
+    List<I> itemIdentifiers,
+    void Function(double progress)? onProgress,
+  ) async {
     try {
-      final savedItems = await _dataSource.saveAllNested(items: items, itemTypes: itemTypeModel);
+      final savedItems = await _dataSource.saveAllNested(items: items, itemIdentifiers: itemIdentifiers, onProgress: onProgress);
       return Right(savedItems); // Return the list of saved items
-    } catch (e) {
-      log('Error in saveAllNested: $e');
+    } catch (e, stackTrace) {
+      log('Error in saveAllNested: $e', stackTrace: stackTrace);
       return Left(ErrorHandler(e).failure); // Return error
     }
   }
 
-  Future<Either<Failure, Map<ItemTypeModel, List<T>>>> fetchAllNested(List<ItemTypeModel> itemTypes) async {
+  Future<Either<Failure, Map<I, List<T>>>> fetchAllNested(List<I> itemIdentifiers) async {
     try {
-      final nestedItems = await _dataSource.fetchAllNested(itemTypes: itemTypes);
+      final nestedItems = await _dataSource.fetchAllNested(itemIdentifiers: itemIdentifiers);
       return Right(nestedItems); // Return list of  Nested items
-    } catch (e) {
-      log('Error in fetchAllNested: $e');
+    } catch (e, stackTrace) {
+      log('Error in fetchAllNested: $e', stackTrace: stackTrace);
       return Left(ErrorHandler(e).failure); // Handle the error and return Failure
     }
   }

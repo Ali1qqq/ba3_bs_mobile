@@ -148,33 +148,53 @@ class MaterialController extends GetxController with AppNavigator {
     to(AppRoutes.showAllMaterialsScreen);
   }
 
-  Future<List<MaterialModel>> searchOfProductByText(query) async {
-    await reloadMaterials();
-
-    List<MaterialModel> searchedMaterials = [];
-
-    query = AppServiceUtils.replaceArabicNumbersWithEnglish(query);
-
-    String query2 = '';
-    String query3 = '';
-
-    if (query.contains(" ")) {
-      query3 = query.split(" ")[0];
-      query2 = query.split(" ")[1];
-    } else {
-      query3 = query;
-      query2 = query;
+  List<MaterialModel> searchOfProductByText(String query) {
+    if (materials.isEmpty) {
+      log('Materials list is empty');
     }
 
-    searchedMaterials = materials.where((item) {
-      bool prodName = item.matName.toString().toLowerCase().contains(query3.toLowerCase()) &&
-          item.matName.toString().toLowerCase().contains(query2.toLowerCase());
-      bool prodCode = item.matCode.toString().toLowerCase().contains(query.toLowerCase());
-      bool prodBarcode = item.matBarCode != null ? item.matBarCode!.toLowerCase().contains(query.toLowerCase()) : false;
-      return (prodName || prodCode || prodBarcode);
-    }).toList();
+    // تحويل الأرقام العربية إلى إنجليزية
+    query = AppServiceUtils.replaceArabicNumbersWithEnglish(query);
+    String lowerQuery = query.toLowerCase().trim();
 
-    return searchedMaterials;
+    // تقسيم الإدخال إلى كلمات مع إزالة الفراغات الزائدة
+    List<String> searchParts = lowerQuery.split(RegExp(r'\s+')); // يدعم أي عدد من الفراغات
+
+    // 1️⃣ البحث عن تطابق كامل
+    var exactMatch = materials.firstWhereOrNull(
+      (item) =>
+          item.matName!.toLowerCase() == lowerQuery ||
+          item.matCode!.toString().toLowerCase() == lowerQuery ||
+          (item.matBarCode != null && item.matBarCode!.toLowerCase() == lowerQuery),
+    );
+
+    if (exactMatch != null) {
+      return [exactMatch]; // إرجاع المنتج المطابق فقط
+    }
+
+    // 2️⃣ البحث عن المنتجات التي يبدأ اسمها أو كودها بالكلمات المدخلة
+    var startsWithMatches = materials
+        .where(
+          (item) =>
+              searchParts.every((part) => item.matName!.toLowerCase().startsWith(part)) ||
+              searchParts.every((part) => item.matCode.toString().toLowerCase().startsWith(part)) ||
+              (item.matBarCode != null && searchParts.every((part) => item.matBarCode!.toLowerCase().startsWith(part))),
+        )
+        .toList();
+
+    if (startsWithMatches.isNotEmpty) {
+      return startsWithMatches; // إرجاع المنتجات التي تبدأ بالكلمات المدخلة
+    }
+
+    // 3️⃣ البحث عن أي تطابق جزئي لكل الكلمات المدخلة
+    return materials
+        .where(
+          (item) =>
+              searchParts.every((part) => item.matName.toString().toLowerCase().contains(part)) ||
+              searchParts.every((part) => item.matCode.toString().toLowerCase().contains(part)) ||
+              (item.matBarCode != null && searchParts.every((part) => item.matBarCode!.toLowerCase().contains(part))),
+        )
+        .toList();
   }
 
   String? getMaterialNameById(String? id) {

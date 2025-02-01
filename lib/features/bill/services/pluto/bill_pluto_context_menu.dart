@@ -6,8 +6,10 @@ import 'package:flutter/material.dart';
 import 'package:pluto_grid/pluto_grid.dart';
 
 import '../../../../core/helper/enums/enums.dart';
+import '../../../../core/helper/extensions/getx_controller_extensions.dart';
 import '../../../../core/i_controllers/i_pluto_controller.dart';
 import '../../../../core/widgets/app_button.dart';
+import '../../../materials/controllers/mats_statement_controller.dart';
 import '../../../materials/data/models/material_model.dart';
 import 'bill_pluto_grid_service.dart';
 import 'bill_pluto_utils.dart';
@@ -32,7 +34,7 @@ class BillPlutoContextMenu {
         itemLabelBuilder: (type) => '${type.label}: ${invoiceUtils.getPrice(type: type, materialModel: materialModel).toStringAsFixed(2)}',
         onSelected: (PriceType type) {
           final PlutoRow selectedRow = controller.recordsTableStateManager.rows[index];
-          final int quantity = AppServiceUtils.getItemQuantity(selectedRow, AppConstants.invRecQuantity);
+          final int quantity = AppServiceUtils.getItemQuantity(selectedRow);
 
           gridService.updateInvoiceValuesBySubTotal(
             selectedRow: selectedRow,
@@ -43,6 +45,37 @@ class BillPlutoContextMenu {
         },
         onCloseCallback: () {
           debugPrint('PriceType menu closed.');
+        });
+  }
+
+  List<String> materialMenu = [
+    'حركة المادة',
+  ];
+
+  void showMaterialMenu({
+    required BuildContext context,
+    required Offset tapPosition,
+    required MaterialModel materialModel,
+    required BillPlutoUtils invoiceUtils,
+    required BillPlutoGridService gridService,
+    required int index,
+  }) {
+    OverlayService.showPopupMenu(
+        context: context,
+        tapPosition: tapPosition,
+        padding: const EdgeInsets.symmetric(horizontal: 22.0, vertical: 8.0),
+        items: materialMenu,
+        itemLabelBuilder: (item) => item,
+        onSelected: (String selectedMenuItem) {
+          final PlutoRow selectedRow = controller.recordsTableStateManager.rows[index];
+          final String matName = AppServiceUtils.getCellValue(selectedRow, AppConstants.invRecProduct);
+
+          if (selectedMenuItem == 'حركة المادة') {
+            read<MaterialsStatementController>().fetchMatStatements(matName, context: context);
+          }
+        },
+        onCloseCallback: () {
+          debugPrint('Material Menu closed.');
         });
   }
 

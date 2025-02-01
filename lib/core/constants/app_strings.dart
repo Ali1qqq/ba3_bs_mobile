@@ -26,4 +26,6 @@ class AppStrings {
 
   static const String before = 'قبل';
   static const String after = 'بعد';
+
+  static const String materialGroupIdFiled = 'materialGroupIdFiled'; // نصف القطر بالمتر
 }

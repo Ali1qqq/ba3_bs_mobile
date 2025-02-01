@@ -348,11 +348,25 @@ class BillDetailsPlutoController extends IPlutoController<InvoiceRecordModel> {
 
   void _handleContextMenu(PlutoGridOnRowDoubleTapEvent event, MaterialModel materialModel, BuildContext context) {
     final field = event.cell.column.field;
-    if (field == AppConstants.invRecSubTotal) {
-      _showPriceTypeMenu(event, materialModel, context);
-    } else if (field == AppConstants.invRecId) {
+
+    if (field == AppConstants.invRecId) {
       _showDeleteConfirmationDialog(event, context);
+    } else if (field == AppConstants.invRecProduct) {
+      _showMatMenu(event, materialModel, context);
+    } else if (field == AppConstants.invRecSubTotal) {
+      _showPriceTypeMenu(event, materialModel, context);
     }
+  }
+
+  void _showMatMenu(event, MaterialModel materialModel, BuildContext context) {
+    _contextMenu.showMaterialMenu(
+      context: context,
+      index: event.rowIdx,
+      materialModel: materialModel,
+      tapPosition: event.offset,
+      invoiceUtils: _plutoUtils,
+      gridService: _gridService,
+    );
   }
 
   @override

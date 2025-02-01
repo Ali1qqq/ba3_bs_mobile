@@ -23,13 +23,13 @@ class BillSearchController extends GetxController {
 
   /// Initializes the bill search with the given bills and controllers.
   void initialize({
-    required List<BillModel> allBills,
-    required BillModel newBill,
+    required int lastBillNumber,
+    required BillModel currentBill,
     required BillDetailsController billDetailsController,
     required BillDetailsPlutoController billDetailsPlutoController,
   }) {
-    bills = _prepareBillList(allBills, newBill);
-    currentBillIndex = _getBillIndexByNumber(newBill.billDetails.billNumber);
+    bills = _prepareBillList(lastBillNumber, currentBill);
+    currentBillIndex = _getBillIndexByNumber(currentBill.billDetails.billNumber);
     currentBill = bills[currentBillIndex];
 
     this.billDetailsController = billDetailsController;
@@ -39,12 +39,22 @@ class BillSearchController extends GetxController {
   }
 
   /// Prepares a list of bills with placeholders up to the last bill number.
-  List<BillModel> _prepareBillList(List<BillModel> allBills, BillModel currentBill) {
-    final placeholders = List<BillModel>.filled(
-      allBills.last.billDetails.billNumber! - 1,
-      _createPlaceholderBill(currentBill),
+  List<BillModel> _prepareBillList(int lastBillNumber, BillModel currentBill) {
+    // Create a growable list of placeholder bills
+    final placeholders = List<BillModel>.generate(
+      lastBillNumber - 1,
+      (index) => _createPlaceholderBill(currentBill),
     );
-    return [...placeholders, currentBill];
+
+    final currentBillNumber = currentBill.billDetails.billNumber!;
+
+    // If the current bill is the last one, append it to the list
+    if (currentBillNumber == lastBillNumber) {
+      return [...placeholders, currentBill];
+    } else {
+      // Otherwise, insert the current bill at the correct position
+      return placeholders..insert(currentBillNumber - 1, currentBill);
+    }
   }
 
   /// Creates a placeholder bill for missing entries.
@@ -91,16 +101,26 @@ class BillSearchController extends GetxController {
     final billIndex = _getBillIndexByNumber(billToDelete.billDetails.billNumber);
     if (billIndex != -1) {
       bills.removeAt(billIndex);
-      reloadCurrentBill();
+      reloadCurrentBill(billToDelete: billToDelete);
     }
   }
 
   /// Reloads the current bill or shows an error if unavailable.
-  void reloadCurrentBill() {
+  void reloadCurrentBill({required BillModel billToDelete}) {
+    log('currentBillIndex $currentBillIndex');
+    log('bills.length ${bills.length}');
     if (currentBillIndex < bills.length) {
+      log('currentBillIndex < bills.length');
+
       _setCurrentBill(currentBillIndex);
     } else {
-      _displayErrorMessage('لا يوجد فاتورة أخرى');
+      log('_displayErrorMessage');
+      billDetailsController.appendNewBill(
+        billTypeModel: billToDelete.billTypeModel,
+        lastBillNumber: billToDelete.billDetails.billNumber!,
+      );
+
+      //   _displayErrorMessage('لا يوجد فاتورة أخرى');
     }
   }
 
@@ -135,6 +155,8 @@ class BillSearchController extends GetxController {
   }
 
   bool _validateAndHandleBillNumber(int billNumber) {
+    log('billNumber: ${billNumber}');
+    log('bills.last.billDetails.billNumber: ${bills.last.billDetails.billNumber}');
     if (!_isValidBillNumber(billNumber)) {
       _showInvalidBillNumberError(billNumber);
       return false;

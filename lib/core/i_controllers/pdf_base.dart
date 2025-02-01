@@ -4,9 +4,10 @@ import 'dart:io';
 import 'package:get/get.dart';
 
 import '../constants/app_assets.dart';
-import '../constants/app_strings.dart';
+import '../constants/app_constants.dart';
 import '../services/mailer_messaging/implementations/gmail_messaging_service.dart';
 import '../services/mailer_messaging/implementations/mailer_messaging_repo.dart';
+import '../services/pdf_generator/implementations/pdf_generator_factory.dart';
 import '../services/pdf_generator/implementations/pdf_generator_repo.dart';
 import '../services/pdf_generator/interfaces/i_pdf_generator.dart';
 import '../utils/app_ui_utils.dart';
@@ -31,8 +32,8 @@ mixin PdfBase {
     );
 
     result.fold(
-          (failure) => _onEmailSendFailure(failure.message),
-          (_) => _onEmailSendSuccess(attachments),
+      (failure) => _onEmailSendFailure(failure.message),
+      (_) => _onEmailSendSuccess(attachments),
     );
   }
 
@@ -63,28 +64,16 @@ mixin PdfBase {
 
   /// Generates a PDF and sends it via email
   Future<void> generateAndSendPdf<T>({
-    required IPdfGenerator<T> pdfGenerator,
     required T itemModel,
-    required String? itemModelId,
-    required List items,
     required String fileName,
-    String recipientEmail = AppStrings.recipientEmail,
+    String recipientEmail = AppConstants.recipientEmail,
     String logoSrc = AppAssets.ba3Logo,
     String fontSrc = AppAssets.notoSansArabicRegular,
     String? url,
     String? subject,
     String? body,
   }) async {
-    if (!hasModelId(itemModelId)) return;
-
-    if (!hasModelItems(items)) return;
-
-    final pdfFilePath = await _generatePdf(
-        pdfGenerator: pdfGenerator,
-        itemModel: itemModel,
-        fileName: fileName,
-        logoSrc: logoSrc,
-        fontSrc: fontSrc);
+    final pdfFilePath = await _generatePdf(itemModel: itemModel, fileName: fileName, logoSrc: logoSrc, fontSrc: fontSrc);
 
     await sendToEmail(
       recipientEmail: recipientEmail,
@@ -97,13 +86,14 @@ mixin PdfBase {
 
   /// Generates the bill PDF and returns the file path
   Future<String> _generatePdf<T>({
-    required IPdfGenerator<T> pdfGenerator,
     required T itemModel,
     required String fileName,
     String? logoSrc,
     String? fontSrc,
   }) async {
-    final pdfGeneratorRepo = PdfGeneratorRepository<T>(pdfGenerator: pdfGenerator);
+    final IPdfGenerator pdfGenerator = PdfGeneratorFactory.resolveGenerator(itemModel);
+
+    final pdfGeneratorRepo = PdfGeneratorRepository(pdfGenerator: pdfGenerator);
 
     return await pdfGeneratorRepo.savePdf(itemModel, fileName, logoSrc: logoSrc, fontSrc: fontSrc);
   }

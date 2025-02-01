@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:ba3_bs_mobile/core/helper/enums/enums.dart';
 import 'package:ba3_bs_mobile/core/helper/extensions/basic/string_extension.dart';
 import 'package:ba3_bs_mobile/core/helper/extensions/date_time_extensions.dart';
@@ -10,17 +8,16 @@ import 'package:get/get.dart';
 
 import '../../../../core/helper/extensions/getx_controller_extensions.dart';
 import '../../../../core/helper/validators/app_validator.dart';
+import '../../../../core/services/entry_bond_creator/implementations/entry_bonds_generator.dart';
 import '../../../../core/services/firebase/implementations/repos/compound_datasource_repo.dart';
 import '../../../../core/utils/app_ui_utils.dart';
 import '../../../../core/utils/generate_id.dart';
 import '../../../accounts/data/models/account_model.dart';
 import '../../../bond/controllers/entry_bond/entry_bond_controller.dart';
-import '../../../bond/data/models/entry_bond_model.dart';
 import '../../service/cheques_details_service.dart';
-import '../../service/cheques_entry_bond_creator.dart';
 import 'cheques_search_controller.dart';
 
-class ChequesDetailsController extends GetxController with AppValidator {
+class ChequesDetailsController extends GetxController with AppValidator, EntryBondsGenerator {
   ChequesDetailsController(
     this._chequesFirebaseRepo, {
     required this.chequesSearchController,
@@ -141,9 +138,10 @@ class ChequesDetailsController extends GetxController with AppValidator {
     // Handle the result (success or failure)
     result.fold(
       (failure) => AppUIUtils.onFailure(failure.message),
-      (chequesModel) {
+      (currentChequesModel) {
         _chequesService.handleSaveOrUpdateSuccess(
-            chequesModel: chequesModel,
+            prevChequesModel: existingChequesModel,
+            currentChequesModel: currentChequesModel,
             chequesSearchController: chequesSearchController,
             isSave: existingChequesModel == null,
             chequesDetailsController: this);
@@ -234,13 +232,22 @@ class ChequesDetailsController extends GetxController with AppValidator {
 
   void savePayCheques(ChequesModel chequesModel) async {
     setIsPayed(true);
+
     final updatedModel = chequesModel.copyWith(chequesPayGuid: generateId(RecordType.entryBond));
 
-    final creator = ChequesStrategyBondFactory.determineStrategy(updatedModel, type: ChequesStrategyType.payStrategy).first;
-    EntryBondModel entryBondModel = creator.createEntryBond(originType: EntryBondType.cheque, model: updatedModel);
+    // final creator =
+    //     ChequesStrategyBondFactory.determineStrategy(updatedModel, type: ChequesStrategyType.payStrategy).first;
+    //
+    // EntryBondModel entryBondModel = creator.createEntryBond(originType: EntryBondType.cheque, model: updatedModel);
 
     await _saveOrUpdateCheques(chequesType: chequesType, existingChequesModel: updatedModel);
-    read<EntryBondController>().saveEntryBondModel(entryBondModel: entryBondModel);
+
+    // read<EntryBondController>().saveEntryBondModel(entryBondModel: entryBondModel);
+
+    createAndStoreChequeEntryBondByStrategy(
+      updatedModel,
+      chequesStrategyType: ChequesStrategyType.payStrategy,
+    );
   }
 
   void clearPayCheques(ChequesModel chequesModel) async {
@@ -252,16 +259,24 @@ class ChequesDetailsController extends GetxController with AppValidator {
 
   void refundPayCheques(ChequesModel chequesModel) async {
     setIsRefundPay(true);
+
     final updatedModel = chequesModel.copyWith(chequesRefundPayGuid: generateId(RecordType.entryBond));
 
-    final creator = ChequesStrategyBondFactory.determineStrategy(updatedModel, type: ChequesStrategyType.refundStrategy).first;
-
-    EntryBondModel entryBondModel = creator.createEntryBond(originType: EntryBondType.cheque, model: updatedModel);
+    // final creator =
+    //     ChequesStrategyBondFactory.determineStrategy(updatedModel, type: ChequesStrategyType.refundStrategy).first;
+    //
+    // EntryBondModel entryBondModel = creator.createEntryBond(originType: EntryBondType.cheque, model: updatedModel);
 
     await _saveOrUpdateCheques(chequesType: chequesType, existingChequesModel: updatedModel);
 
-    log(entryBondModel.origin!.toJson().toString());
-    read<EntryBondController>().saveEntryBondModel(entryBondModel: entryBondModel);
+    // log(entryBondModel.origin!.toJson().toString());
+
+    // read<EntryBondController>().saveEntryBondModel(entryBondModel: entryBondModel);
+
+    createAndStoreChequeEntryBondByStrategy(
+      updatedModel,
+      chequesStrategyType: ChequesStrategyType.refundStrategy,
+    );
   }
 
   void deleteRefundPayCheques(ChequesModel chequesModel) async {

@@ -4,12 +4,12 @@ import 'dart:io';
 import 'package:ba3_bs_mobile/core/services/firebase/implementations/repos/compound_datasource_repo.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
 import '../../../../core/helper/enums/enums.dart';
 import '../../../../core/helper/mixin/app_navigator.dart';
 import '../../../../core/router/app_routes.dart';
+import '../../../../core/services/entry_bond_creator/implementations/entry_bonds_generator.dart';
 import '../../../../core/services/json_file_operations/implementations/import_export_repo.dart';
 import '../../../../core/utils/app_service_utils.dart';
 import '../../../../core/utils/app_ui_utils.dart';
@@ -20,7 +20,7 @@ import '../../ui/screens/cheques_details.dart';
 import 'cheques_details_controller.dart';
 import 'cheques_search_controller.dart';
 
-class AllChequesController extends FloatingChequesDetailsLauncher with AppNavigator {
+class AllChequesController extends FloatingChequesDetailsLauncher with EntryBondsGenerator, AppNavigator {
   final CompoundDatasourceRepository<ChequesModel, ChequesType> _chequesFirebaseRepo;
   final ImportExportRepository<ChequesModel> _jsonImportExportRepo;
 
@@ -59,15 +59,24 @@ class AllChequesController extends FloatingChequesDetailsLauncher with AppNaviga
 
       result.fold(
         (failure) => AppUIUtils.onFailure(failure.message),
-        (fetchedCheques) {
-          log('chequesList.length ${chequesList.length}');
-          log('chequesList.firstOrNull ${chequesList.firstOrNull?.toJson()}');
+        (fetchedChequesFromNetwork) async {
+          final fetchedCheques = fetchedChequesFromNetwork;
+
+          log('chequesList.length ${fetchedCheques.length}');
+          // log('chequesList.firstOrNull ${chequesList.firstOrNull?.toJson()}');
 
           chequesList.assignAll(fetchedCheques);
+          if (chequesList.isNotEmpty) {
+            await _chequesFirebaseRepo.saveAllNested(
+              chequesList,
+              ChequesType.values,
+              (progress) {},
+            );
+
+            await createAndStoreEntryBonds(sourceModels: chequesList);
+          }
         },
       );
-    } else {
-      // User canceled the picker
     }
 
     isLoading = false;
@@ -132,8 +141,8 @@ class AllChequesController extends FloatingChequesDetailsLauncher with AppNaviga
 
     launchFloatingWindow(
       context: context,
-      defaultHeight: 0.65.sh,
-      defaultWidth: 0.5.sw,
+      defaultHeight: 600,
+      defaultWidth: 600,
       minimizedTitle: ChequesType.byTypeGuide(lastChequesModel.chequesTypeGuid!).value,
       floatingScreen: ChequesDetailsScreen(
         tag: controllerTag,
@@ -169,7 +178,7 @@ class AllChequesController extends FloatingChequesDetailsLauncher with AppNaviga
   Future<ChequesModel> fetchChequesById(String chequesId, ChequesType itemTypeModel) async {
     late ChequesModel chequesModel;
 
-    final result = await _chequesFirebaseRepo.getById(id: chequesId, itemTypeModel: itemTypeModel);
+    final result = await _chequesFirebaseRepo.getById(id: chequesId, itemIdentifier: itemTypeModel);
 
     result.fold(
       (failure) => AppUIUtils.onFailure(failure.message),
@@ -177,4 +186,12 @@ class AllChequesController extends FloatingChequesDetailsLauncher with AppNaviga
     );
     return chequesModel;
   }
+
+/*  generateEntryBondsFromAllBonds({required List<ChequesModel> cheques}) {
+    final entryBonds = generateEntryBonds(cheques);
+
+    for (final entryBond in entryBonds) {
+      entryBondController.saveEntryBondModel(entryBondModel: entryBond);
+    }
+  }*/
 }

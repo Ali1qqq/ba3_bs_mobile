@@ -5,6 +5,7 @@ import 'package:pluto_grid/pluto_grid.dart';
 
 import '../../features/accounts/controllers/accounts_controller.dart';
 import '../../features/accounts/data/models/account_model.dart';
+import '../constants/app_constants.dart';
 import '../helper/extensions/getx_controller_extensions.dart';
 
 class AppServiceUtils {
@@ -185,13 +186,15 @@ class AppServiceUtils {
     return quantity * (subtotal + (vat ?? 0));
   }
 
-  static int getItemQuantity(PlutoRow row, String cellKey) {
-    final String cellValue = row.cells[cellKey]?.value.toString() ?? '';
+  static int getItemQuantity(PlutoRow row) {
+    final String cellValue = getCellValue(row, AppConstants.invRecQuantity);
 
     int invRecQuantity = AppServiceUtils.replaceArabicNumbersWithEnglish(cellValue).toInt;
 
     return invRecQuantity;
   }
+
+  static String getCellValue(PlutoRow row, String cellKey) => row.cells[cellKey]?.value.toString() ?? '';
 
   static String zeroToEmpty(double? value) => value == null || value == 0 ? '' : value.toStringAsFixed(2);
 
@@ -228,5 +231,22 @@ class AppServiceUtils {
     String monthName = DateFormat.MMMM().format(date);
     String year = DateFormat.y().format(date);
     return "$dayName - $monthName -  $year";
+  }
+
+  String formatDateTimeFromString(String isoString) {
+    DateTime dateTime = DateTime.parse(isoString);
+
+    // تحديد الفترة (AM/PM)
+    String period = dateTime.hour >= 12 ? "PM" : "AM";
+
+    // تحويل الساعة إلى تنسيق 12 ساعة
+    int hour = dateTime.hour % 12;
+    if (hour == 0) hour = 12; // تحويل الساعة 0 إلى 12
+
+    // تنسيق التاريخ والوقت
+    String formattedDateTime = "${dateTime.year}-${dateTime.month.toString().padLeft(2, '0')}-${dateTime.day.toString().padLeft(2, '0')} \n"
+        "${hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')} $period";
+
+    return formattedDateTime;
   }
 }

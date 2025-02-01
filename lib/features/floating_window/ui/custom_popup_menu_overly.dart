@@ -10,6 +10,8 @@ void customPopupMenuOverlay<T>({
   required VoidCallback back,
   required OverlayEntryWithPriorityManager overlayEntryWithPriorityInstance,
   required ValueChanged<T> onSelected,
+  EdgeInsets? padding,
+  double? elevation,
   VoidCallback? onCloseCallback,
   int? priority,
 }) {
@@ -17,7 +19,7 @@ void customPopupMenuOverlay<T>({
 
   Widget buildMenu() {
     return Material(
-      elevation: 4.0,
+      elevation: elevation ?? 4.0,
       borderRadius: BorderRadius.circular(8.0),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -28,7 +30,7 @@ void customPopupMenuOverlay<T>({
               onSelected.call(item);
             },
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+              padding: padding ?? const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
               child: Text(
                 itemLabelBuilder(item),
                 style: const TextStyle(fontSize: 16.0, color: Colors.black),

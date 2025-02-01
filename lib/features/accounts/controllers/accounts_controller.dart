@@ -119,12 +119,36 @@ class AccountsController extends GetxController with AppNavigator {
     to(AppRoutes.addAccountScreen);
   }
 
-  List<AccountModel> searchAccountsByNameOrCode(text) {
+  List<AccountModel> searchAccountsByNameOrCode(String text) {
     if (accounts.isEmpty) {
       log('Accounts isEmpty');
-      // fetchAccounts();
     }
 
+    // تنظيف النص المدخل من الفراغات الزائدة وتحويله إلى قائمة من الكلمات
+    List<String> searchParts = text.toLowerCase().split(' ');
+
+    // البحث عن تطابق كامل أولاً
+    var exactMatch = accounts.firstWhereOrNull(
+      (item) => item.accName?.toLowerCase() == text.toLowerCase() || item.accCode == text,
+    );
+
+    if (exactMatch != null) {
+      return [exactMatch]; // إرجاع الحساب المطابق فقط
+    }
+
+    // البحث عن تطابق جزئي متتابع
+    var partialMatch = accounts.firstWhereOrNull(
+      (item) {
+        String name = item.accName!.toLowerCase();
+        return searchParts.every((part) => name.contains(part)); // التحقق من أن جميع أجزاء النص المدخل موجودة في الاسم
+      },
+    );
+
+    if (partialMatch != null) {
+      return [partialMatch]; // إرجاع أول تطابق جزئي متتابع
+    }
+
+    // البحث العادي عند عدم وجود تطابق متتابع
     return accounts.where((item) => item.accName!.toLowerCase().contains(text.toLowerCase()) || item.accCode!.contains(text)).toList();
   }
 

@@ -30,7 +30,7 @@ class EntryBondCreatorFactory {
     throw UnimplementedError("No EntryBondCreator implementation for model of type ${model.runtimeType}");
   }
 
-  static EntryBondType determineOriginType<T>(T model) {
+  static EntryBondType resolveOriginType<T>(T model) {
     if (model is ChequesModel) {
       return EntryBondType.cheque;
     } else if (model is BondModel) {
