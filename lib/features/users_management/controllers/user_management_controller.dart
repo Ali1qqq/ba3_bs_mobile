@@ -278,6 +278,8 @@ class UserManagementController extends GetxController with AppNavigator, Firesto
     offAll(AppRoutes.mainLayout);
   }
 
+  ///TODO:
+
   refreshLoggedInUser() async {
     final result = await _usersFirebaseRepo.getById(loggedInUserModel!.userId!);
     result.fold(
