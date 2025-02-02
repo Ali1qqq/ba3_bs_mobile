@@ -4,6 +4,7 @@ import 'package:get/get_state_manager/src/rx_flutter/rx_obx_widget.dart';
 
 import '../../../../../core/helper/enums/enums.dart';
 import 'bill_type_item_widget.dart';
+import 'bill_type_shimmer_widget.dart';
 
 class AllBillsTypesList extends StatelessWidget {
   const AllBillsTypesList({super.key, required this.allBillsController});
@@ -12,13 +13,19 @@ class AllBillsTypesList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        ...allBillsController.billsTypes.map(
-          (billTypeModel) => Obx(
-            () => BillTypeItemWidget(
+    return Obx(
+          () {
+        return Wrap(
+          spacing: 10,
+          runSpacing: 10,
+          alignment: WrapAlignment.start,
+          crossAxisAlignment: WrapCrossAlignment.start,
+          children: allBillsController.getBillsTypesRequestState.value == RequestState.loading
+              ? List.generate(10, (index) => const BillTypeShimmerWidget()) // Show shimmer placeholders
+              : allBillsController.billsTypes
+              .map(
+                (billTypeModel) => BillTypeItemWidget(
               text: billTypeModel.fullName!,
-              isLoading: allBillsController.getBillsByTypeRequestState.value == RequestState.loading,
               color: Color(billTypeModel.color!),
               onTap: () {
                 allBillsController.openFloatingBillDetails(context, billTypeModel);
@@ -26,14 +33,13 @@ class AllBillsTypesList extends StatelessWidget {
               pendingBillsCounts: allBillsController.pendingBillsCounts(billTypeModel),
               allBillsCounts: allBillsController.allBillsCounts(billTypeModel),
               onPendingBillsPressed: () {
-                allBillsController
-                  ..fetchPendingBills(billTypeModel)
-                  ..navigateToPendingBillsScreen();
+                allBillsController.fetchPendingBills(billTypeModel);
               },
             ),
-          ),
-        )
-      ],
+          )
+              .toList(),
+        );
+      },
     );
   }
 }

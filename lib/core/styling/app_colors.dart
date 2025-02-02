@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 
 class AppColors {
@@ -13,9 +12,9 @@ class AppColors {
   static const Color greenColor = Colors.green;
   static const Color tooltipBgColor = Colors.grey;
   static const Color tooltipTextColor = Colors.black;
-  static const Color whiteColor=Color(0xffFDFDFD);
-  static const Color blueColor=Color(0xff243698);
-  static const Color backGroundColor=Color(0xffF0F0F0);
-  static const Color grayColor=Color(0xff6B7586);
+  static const Color whiteColor = Color(0xffFDFDFD);
+  static const Color blueColor = Color(0xff243698);
+  static const Color backGroundColor = Color(0xffF0F0F0);
+  static const Color grayColor = Color(0xff6B7586);
+  static final Color lightBlueColor = Colors.blue.shade700;
 }
-
