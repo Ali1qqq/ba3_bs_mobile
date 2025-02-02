@@ -10,6 +10,7 @@ import '../../../../core/helper/extensions/getx_controller_extensions.dart';
 import '../../../../core/services/pdf_generator/implementations/pdf_generator_base.dart';
 import '../../../accounts/controllers/accounts_controller.dart';
 import '../../data/models/bond_model.dart';
+import '../../data/models/pay_item_model.dart';
 
 class BondComparisonPdfGenerator extends PdfGeneratorBase<List<BondModel>> with PdfHelperMixin {
   final _accountsController = read<AccountsController>();
@@ -31,10 +32,10 @@ class BondComparisonPdfGenerator extends PdfGeneratorBase<List<BondModel>> with 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        buildTitleText(fileName, 24, font, FontWeight.bold),
-        buildDetailRow('الرقم التعريفي للسند: ', afterUpdate.payGuid.toString(), font),
-        buildDetailRow('رقم السند: ', afterUpdate.payNumber.toString().toString(), font),
-        buildDetailRow('نوع السند: ', BondType.byTypeGuide(afterUpdate.payTypeGuid!).value, font),
+        buildTitleText(fileName, 24, font: font, weight: FontWeight.bold),
+        buildDetailRow('الرقم التعريفي للسند: ', afterUpdate.payGuid.toString(), font: font),
+        buildDetailRow('رقم السند: ', afterUpdate.payNumber.toString().toString(), font: font),
+        buildDetailRow('نوع السند: ', BondType.byTypeGuide(afterUpdate.payTypeGuid!).value, font: font),
       ],
     );
   }
@@ -60,7 +61,7 @@ class BondComparisonPdfGenerator extends PdfGeneratorBase<List<BondModel>> with 
     final dataItems = _buildItemsComparisonData(beforeUpdate, afterUpdate, font);
 
     return <Widget>[
-      buildTitleText('تفاصيل التعديلات', 20, font),
+      buildTitleText('تفاصيل التعديلات', 20, font: font),
 
       /// Table for seller, customer, and date
       TableHelper.fromTextArray(
@@ -103,12 +104,32 @@ class BondComparisonPdfGenerator extends PdfGeneratorBase<List<BondModel>> with 
 
   List<List<dynamic>> _buildItemsComparisonData(BondModel beforeUpdate, BondModel afterUpdate, Font? font) {
     // Create maps of items for easier lookup by item GUID
-    final itemsBefore = beforeUpdate.payItems.itemList.groupBy(
-      (p0) => p0.entryAccountGuid,
-    );
-    final itemsAfter = afterUpdate.payItems.itemList.groupBy(
-      (p0) => p0.entryAccountGuid,
-    );
+    final itemsBefore = beforeUpdate.payItems.itemList
+        .mergeBy(
+          (payEntry) => payEntry.entryAccountGuid,
+          (existing, current) => PayItem(
+              entryAccountName: existing.entryAccountName,
+              entryNote: existing.entryNote! + current.entryNote!,
+              entryCredit: existing.entryCredit! + current.entryCredit!,
+              entryDebit: existing.entryDebit! + current.entryDebit!,
+              entryDate: existing.entryDate),
+        )
+        .toMap(
+          (e) => e.entryAccountGuid,
+        );
+    final itemsAfter = afterUpdate.payItems.itemList
+        .mergeBy(
+          (payEntry) => payEntry.entryAccountGuid,
+          (existing, current) => PayItem(
+              entryAccountName: existing.entryAccountName,
+              entryNote: existing.entryNote! + current.entryNote!,
+              entryCredit: existing.entryCredit! + current.entryCredit!,
+              entryDebit: existing.entryDebit! + current.entryDebit!,
+              entryDate: existing.entryDate),
+        )
+        .toMap(
+          (e) => e.entryAccountGuid,
+        );
 
     // Combine all GUIDs from both before and after updates
     final allGuids = {...itemsBefore.keys, ...itemsAfter.keys};
@@ -118,34 +139,14 @@ class BondComparisonPdfGenerator extends PdfGeneratorBase<List<BondModel>> with 
       final after = itemsAfter[guid];
 
       return [
-        buildTextCell(before?.firstOrNull?.entryAccountName ?? '', font),
-        buildTextCell(after?.firstOrNull?.entryAccountName ?? '', font),
-        (before?.fold(
-                  0.0,
-                  (previousValue, element) => previousValue + element.entryDebit!,
-                ) ??
-                0)
-            .toString(),
-        (after?.fold(
-                  0.0,
-                  (previousValue, element) => previousValue + element.entryDebit!,
-                ) ??
-                0)
-            .toString(),
-        (before?.fold(
-                  0.0,
-                  (previousValue, element) => previousValue + element.entryCredit!,
-                ) ??
-                0)
-            .toString(),
-        (after?.fold(
-                  0.0,
-                  (previousValue, element) => previousValue + element.entryCredit!,
-                ) ??
-                0)
-            .toString(),
-        before?.firstOrNull?.entryNote ?? '',
-        after?.firstOrNull?.entryNote ?? '',
+        buildTextCell(before?.entryAccountName ?? '', font),
+        buildTextCell(after?.entryAccountName ?? '', font),
+        (before?.entryDebit.toString()),
+        (after?.entryDebit.toString()),
+        (before?.entryCredit.toString()),
+        (after?.entryCredit.toString()),
+        before?.entryNote ?? '',
+        after?.entryNote ?? '',
       ];
     }).toList();
   }

@@ -1,8 +1,18 @@
+import 'package:get/get.dart';
+
+import '../../../core/helper/enums/enums.dart';
+import '../../../core/helper/extensions/getx_controller_extensions.dart';
+import '../../../core/services/firebase/implementations/repos/filterable_datasource_repo.dart';
+import '../../../core/utils/app_ui_utils.dart';
+import '../../users_management/data/models/role_model.dart';
+import '../../users_management/data/models/user_model.dart';
+import '../../users_management/services/role_form_handler.dart';
+import '../../users_management/services/user_form_handler.dart';
+
 import 'dart:developer';
 
 import 'package:ba3_bs_mobile/core/constants/app_constants.dart';
 import 'package:ba3_bs_mobile/core/dialogs/custom_date_picker_dialog.dart';
-import 'package:ba3_bs_mobile/core/helper/enums/enums.dart';
 import 'package:ba3_bs_mobile/core/helper/extensions/time_extensions.dart';
 import 'package:ba3_bs_mobile/core/helper/mixin/app_navigator.dart';
 import 'package:ba3_bs_mobile/core/models/query_filter.dart';
@@ -10,22 +20,14 @@ import 'package:ba3_bs_mobile/features/users_management/services/role_service.da
 import 'package:ba3_bs_mobile/features/users_management/services/user_service.dart';
 import 'package:day_night_time_picker/day_night_time_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
-import '../../../core/helper/extensions/getx_controller_extensions.dart';
 import '../../../core/network/api_constants.dart';
 import '../../../core/network/error/failure.dart';
 import '../../../core/router/app_routes.dart';
-import '../../../core/services/firebase/implementations/repos/filterable_datasource_repo.dart';
 import '../../../core/services/firebase/implementations/repos/remote_datasource_repo.dart';
 import '../../../core/services/firebase/implementations/services/firestore_guest_user.dart';
 import '../../../core/services/get_x/shared_preferences_service.dart';
-import '../../../core/utils/app_ui_utils.dart';
 import '../../changes/controller/changes_controller.dart';
-import '../data/models/role_model.dart';
-import '../data/models/user_model.dart';
-import '../services/role_form_handler.dart';
-import '../services/user_form_handler.dart';
 
 class UserManagementController extends GetxController with AppNavigator, FirestoreGuestUser {
   final RemoteDataSourceRepository<RoleModel> _rolesFirebaseRepo;
@@ -98,14 +100,16 @@ class UserManagementController extends GetxController with AppNavigator, Firesto
   List<UserModel> get userHaveChanges => allUsers
       .where(
         (user) => user.userId != loggedInUserModel?.userId,
-      )
+  )
       .toList();
 
   // Check if all roles are selected
-  bool areAllRolesSelected() => RoleItemType.values.every((type) => roleFormHandler.rolesMap[type]?.length == RoleItem.values.length);
+  bool areAllRolesSelected() =>
+      RoleItemType.values.every((type) => roleFormHandler.rolesMap[type]?.length == RoleItem.values.length);
 
   // Check if all roles are selected for a specific RoleItemType
-  bool areAllRolesSelectedForType(RoleItemType type) => roleFormHandler.rolesMap[type]?.length == RoleItem.values.length;
+  bool areAllRolesSelectedForType(RoleItemType type) =>
+      roleFormHandler.rolesMap[type]?.length == RoleItem.values.length;
 
   // Select all roles
   void selectAllRoles() {
@@ -139,8 +143,8 @@ class UserManagementController extends GetxController with AppNavigator, Firesto
     final result = await _rolesFirebaseRepo.getAll();
 
     result.fold(
-      (failure) => AppUIUtils.onFailure(failure.message),
-      (fetchedRoles) {
+          (failure) => AppUIUtils.onFailure(failure.message),
+          (fetchedRoles) {
         allRoles = fetchedRoles;
       },
     );
@@ -153,8 +157,8 @@ class UserManagementController extends GetxController with AppNavigator, Firesto
     log('getAllUsers');
     final result = await _usersFirebaseRepo.getAll();
     result.fold(
-      (failure) => AppUIUtils.onFailure(failure.message),
-      (fetchedUsers) async {
+          (failure) => AppUIUtils.onFailure(failure.message),
+          (fetchedUsers) async {
         allUsers = fetchedUsers;
 
         checkGuestLoginButtonVisibility(
@@ -170,8 +174,8 @@ class UserManagementController extends GetxController with AppNavigator, Firesto
     final result = await _usersFirebaseRepo.getById(userId);
 
     result.fold(
-      (failure) => _handleUserFetchFailure(failure),
-      (user) => _handleUserFetchSuccess(user),
+          (failure) => _handleUserFetchFailure(failure),
+          (user) => _handleUserFetchSuccess(user),
     );
   }
 
@@ -225,8 +229,8 @@ class UserManagementController extends GetxController with AppNavigator, Firesto
     );
 
     result.fold(
-      (failure) => AppUIUtils.onFailure(failure.message),
-      (fetchedUsers) => _handleGetUserPinSuccess(fetchedUsers),
+          (failure) => AppUIUtils.onFailure(failure.message),
+          (fetchedUsers) => _handleGetUserPinSuccess(fetchedUsers),
     );
   }
 
@@ -236,7 +240,7 @@ class UserManagementController extends GetxController with AppNavigator, Firesto
       return;
     }
     final firstFetchedUser = fetchedUsers.firstWhereOrNull(
-      (user) => user.userName == loginNameController.text,
+          (user) => user.userName == loginNameController.text,
     );
 
     if (firstFetchedUser == null) {
@@ -283,8 +287,8 @@ class UserManagementController extends GetxController with AppNavigator, Firesto
   refreshLoggedInUser() async {
     final result = await _usersFirebaseRepo.getById(loggedInUserModel!.userId!);
     result.fold(
-      (failure) => AppUIUtils.onFailure(failure.message),
-      (fetchedUser) => loggedInUserModel = fetchedUser,
+          (failure) => AppUIUtils.onFailure(failure.message),
+          (fetchedUser) => loggedInUserModel = fetchedUser,
     );
   }
 
@@ -337,8 +341,8 @@ class UserManagementController extends GetxController with AppNavigator, Firesto
     final result = await _rolesFirebaseRepo.save(updatedRoleModel);
 
     result.fold(
-      (failure) => AppUIUtils.onFailure(failure.message),
-      (success) {
+          (failure) => AppUIUtils.onFailure(failure.message),
+          (success) {
         AppUIUtils.onSuccess('تم الحفظ بنجاح');
         getAllRoles();
       },
@@ -368,8 +372,8 @@ class UserManagementController extends GetxController with AppNavigator, Firesto
     final result = await _usersFirebaseRepo.save(updatedUserModel);
 
     result.fold(
-      (failure) => AppUIUtils.onFailure(failure.message),
-      (userModel) => _onUserSaved(userModel),
+          (failure) => AppUIUtils.onFailure(failure.message),
+          (userModel) => _onUserSaved(userModel),
     );
   }
 
@@ -425,7 +429,7 @@ class UserManagementController extends GetxController with AppNavigator, Firesto
   List<UserModel> get nonLoggedInUsers => allUsers
       .where(
         (user) => user.userId != loggedInUserModel?.userId,
-      )
+  )
       .toList();
 
   void _onUserSaved(UserModel userModel) {

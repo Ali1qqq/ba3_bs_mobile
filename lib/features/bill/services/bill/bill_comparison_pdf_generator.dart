@@ -34,9 +34,21 @@ class BillComparisonPdfGenerator extends PdfGeneratorBase<List<BillModel>> with 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        buildTitleText(fileName, 24, font, FontWeight.bold),
-        buildDetailRow('الرقم التعريفي للفاتورة: ', afterUpdate.billId!, font),
-        buildDetailRow(' رقم الفاتورة: ', afterUpdate.billDetails.billNumber.toString(), font),
+        buildTitleText(
+          fileName,
+          32,
+          font: font,
+          weight: FontWeight.bold,
+          color: PdfColors.red,
+        ),
+        buildDetailRow('الرقم التعريفي للفاتورة: ', afterUpdate.billId!, font: font),
+        buildDetailRow(' رقم الفاتورة: ', afterUpdate.billDetails.billNumber.toString(), font: font),
+        buildDetailRow(
+          'نوع الفاتورة: ',
+          billName(afterUpdate),
+          font: font,
+          valueColor: PdfColor.fromInt(afterUpdate.billTypeModel.color!),
+        ),
       ],
     );
   }
@@ -47,24 +59,40 @@ class BillComparisonPdfGenerator extends PdfGeneratorBase<List<BillModel>> with 
     final afterUpdate = itemModel[1];
 
     return [
-      buildTitleText('تفاصيل التعديلات', 20, font, FontWeight.bold),
+      buildTitleText('تفاصيل التعديلات', 20, font: font, weight: FontWeight.bold),
       _buildComparisonTable(beforeUpdate, afterUpdate, font),
       SizedBox(height: 20),
       _buildItemsTable(beforeUpdate, afterUpdate, font),
       Divider(),
-      _buildSummary(beforeUpdate, afterUpdate),
+      _buildSummary(beforeUpdate, afterUpdate, font),
     ];
   }
 
   Widget _buildComparisonTable(BillModel beforeUpdate, BillModel afterUpdate, Font? font) {
     return TableHelper.fromTextArray(
-      headers: ['Field', AppStrings.before, AppStrings.after],
-      data: _buildComparisonData(beforeUpdate, afterUpdate),
+      headers: ['الحقل', AppStrings.before, AppStrings.after],
+      data: _buildComparisonData(beforeUpdate, afterUpdate, font),
       headerDirection: TextDirection.rtl,
-      headerStyle: TextStyle(fontWeight: FontWeight.bold, font: font),
-      cellStyle: TextStyle(font: font),
       tableDirection: TextDirection.rtl,
-      headerDecoration: const BoxDecoration(color: PdfColors.grey300),
+      // White text for contrast
+      headerStyle: TextStyle(
+        fontWeight: FontWeight.bold,
+        font: font,
+        color: PdfColors.white,
+      ),
+      // Black text for better readability
+      cellStyle: TextStyle(
+        font: font,
+        color: PdfColors.black,
+      ),
+
+      headerDecoration: BoxDecoration(
+        color: PdfColor.fromInt(afterUpdate.billTypeModel.color!), // Header color
+      ),
+      // Row background (lighter version of header)
+      rowDecoration: BoxDecoration(
+        color: PdfColor.fromInt(lightenColor(afterUpdate.billTypeModel.color!, 0.9)),
+      ),
       cellHeight: 30,
       columnWidths: _columnWidthsSummary,
       cellAlignments: _cellAlignmentsSummary,
@@ -75,12 +103,30 @@ class BillComparisonPdfGenerator extends PdfGeneratorBase<List<BillModel>> with 
     return TableHelper.fromTextArray(
       headers: _itemHeaders,
       data: _buildItemsComparisonData(beforeUpdate, afterUpdate, font),
-      headerDirection: TextDirection.rtl,
       headerAlignments: _headerAlignmentsItems,
-      headerStyle: TextStyle(fontWeight: FontWeight.bold, font: font, fontSize: 10),
-      cellStyle: TextStyle(font: font, fontSize: 10),
+      headerDirection: TextDirection.rtl,
       tableDirection: TextDirection.rtl,
-      headerDecoration: const BoxDecoration(color: PdfColors.grey300),
+      // White text for contrast
+      headerStyle: TextStyle(
+        fontSize: 10,
+        fontWeight: FontWeight.bold,
+        font: font,
+        color: PdfColors.white,
+      ),
+      // Black text for better readability
+      cellStyle: TextStyle(
+        fontSize: 10,
+        font: font,
+        color: PdfColors.black,
+      ),
+      // Header background
+      headerDecoration: BoxDecoration(
+        color: PdfColor.fromInt(afterUpdate.billTypeModel.color!), // Header color
+      ),
+      // Row background (lighter version of header)
+      rowDecoration: BoxDecoration(
+        color: PdfColor.fromInt(lightenColor(afterUpdate.billTypeModel.color!, 0.9)),
+      ),
       cellHeight: 30,
       columnWidths: _columnWidthsItems,
       cellAlignments: _cellAlignmentsItems,
@@ -95,23 +141,67 @@ class BillComparisonPdfGenerator extends PdfGeneratorBase<List<BillModel>> with 
     return allGuids.map((guid) {
       final before = itemsBefore[guid];
       final after = itemsAfter[guid];
+      final statusLabel = getItemStatus(before?.itemQuantity, after?.itemQuantity);
+      final itemName = before?.itemName ?? after?.itemName;
 
       return [
-        buildTextCell(before?.itemName ?? after?.itemName, font),
+        // Item Name + Status]
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            Text(
+              statusLabel,
+              textDirection: TextDirection.rtl,
+              style: TextStyle(
+                font: font,
+                fontSize: 10,
+                fontWeight: FontWeight.bold, // Make it bold
+                color: PdfColors.red, // Change color to red
+              ),
+            ),
+            buildTextCell(itemName, font),
+          ],
+        ),
+
+        // Barcode (no highlight)
         buildBarcode(guid),
+
+        // Quantity
         before?.itemQuantity.toString() ?? '0',
-        after?.itemQuantity.toString() ?? '0',
+        highlightChange(
+          before?.itemQuantity.toString() ?? '0',
+          after?.itemQuantity.toString() ?? '0',
+          font,
+        ),
+
+        // SubTotal
         before?.itemSubTotalPrice?.toStringAsFixed(2) ?? '0.00',
-        after?.itemSubTotalPrice?.toStringAsFixed(2) ?? '0.00',
+        highlightChange(
+          before?.itemSubTotalPrice?.toStringAsFixed(2) ?? '0.00',
+          after?.itemSubTotalPrice?.toStringAsFixed(2) ?? '0.00',
+          font,
+        ),
+
+        // VAT
         before?.itemVatPrice?.toStringAsFixed(2) ?? '0.00',
-        after?.itemVatPrice?.toStringAsFixed(2) ?? '0.00',
+        highlightChange(
+          before?.itemVatPrice?.toStringAsFixed(2) ?? '0.00',
+          after?.itemVatPrice?.toStringAsFixed(2) ?? '0.00',
+          font,
+        ),
+
+        // Total
         before?.itemTotalPrice.toDouble.toStringAsFixed(2) ?? '0.00',
-        after?.itemTotalPrice.toDouble.toStringAsFixed(2) ?? '0.00',
+        highlightChange(
+          before?.itemTotalPrice.toDouble.toStringAsFixed(2) ?? '0.00',
+          after?.itemTotalPrice.toDouble.toStringAsFixed(2) ?? '0.00',
+          font,
+        ),
       ];
     }).toList();
   }
 
-  Widget _buildSummary(BillModel beforeUpdate, BillModel afterUpdate) {
+  Widget _buildSummary(BillModel beforeUpdate, BillModel afterUpdate, Font? font) {
     final beforeTotal = beforeUpdate.billDetails.billTotal ?? 0;
     final afterTotal = afterUpdate.billDetails.billTotal ?? 0;
 
@@ -120,26 +210,53 @@ class BillComparisonPdfGenerator extends PdfGeneratorBase<List<BillModel>> with 
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          _buildSummaryRow('Total Before Update:', beforeTotal.toStringAsFixed(2)),
-          _buildSummaryRow('Total After Update:', afterTotal.toStringAsFixed(2)),
+          _buildSummaryRow(
+            title: 'المجموع قبل التعديل:',
+            value: Text(beforeTotal.toStringAsFixed(2)),
+            font: font,
+          ),
+          _buildSummaryRow(
+            title: 'المجموع بعد التعديل:',
+            value: highlightChange(
+              beforeTotal.toStringAsFixed(2),
+              afterTotal.toStringAsFixed(2),
+              font,
+            ),
+            font: font,
+          ),
           Divider(),
-          _buildSummaryRow('Difference:', (afterTotal - beforeTotal).toStringAsFixed(2), style: TextStyle(fontWeight: FontWeight.bold)),
+          _buildSummaryRow(
+            title: 'الفرق:',
+            value: Text(
+              (afterTotal - beforeTotal).toStringAsFixed(2),
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            weight: FontWeight.bold,
+            font: font,
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildSummaryRow(String title, String value, {TextStyle? style}) {
+  Widget _buildSummaryRow({required String title, required Widget value, Font? font, FontWeight? weight}) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(title, style: style),
-        Text(value, style: style),
+        value,
+        Text(
+          title,
+          textDirection: TextDirection.rtl,
+          style: TextStyle(
+            font: font,
+            fontWeight: weight,
+          ),
+        ),
       ],
     );
   }
 
-  List<List<dynamic>> _buildComparisonData(BillModel beforeUpdate, BillModel afterUpdate) {
+  List<List<dynamic>> _buildComparisonData(BillModel beforeUpdate, BillModel afterUpdate, Font? font) {
     final beforeCustomerName = _accountsController.getAccountNameById(beforeUpdate.billDetails.billCustomerId);
     final afterCustomerName = _accountsController.getAccountNameById(afterUpdate.billDetails.billCustomerId);
 
@@ -147,23 +264,39 @@ class BillComparisonPdfGenerator extends PdfGeneratorBase<List<BillModel>> with 
     final afterSellerName = _sellerController.getSellerNameById(afterUpdate.billDetails.billSellerId);
 
     return [
-      ['العميل', beforeCustomerName, afterCustomerName],
-      ['البائع', beforeSellerName, afterSellerName],
-      ['التاريخ', beforeUpdate.billDetails.billDate?.dayMonthYear ?? '', afterUpdate.billDetails.billDate?.dayMonthYear ?? ''],
+      [
+        'العميل',
+        beforeCustomerName,
+        highlightChange(beforeCustomerName, afterCustomerName, font),
+      ],
+      [
+        'البائع',
+        beforeSellerName,
+        highlightChange(beforeSellerName, afterSellerName, font),
+      ],
+      [
+        'التاريخ',
+        beforeUpdate.billDetails.billDate?.dayMonthYear ?? '',
+        highlightChange(
+          beforeUpdate.billDetails.billDate?.dayMonthYear,
+          afterUpdate.billDetails.billDate?.dayMonthYear,
+          font,
+        ),
+      ],
     ];
   }
 
   final _itemHeaders = [
-    'Item Name',
-    'Barcode',
-    'Quantity (${AppStrings.before})',
-    'Quantity (${AppStrings.after})',
-    'Unit Price (${AppStrings.before})',
-    'Unit Price (${AppStrings.after})',
-    'VAT (${AppStrings.before})',
-    'VAT (${AppStrings.after})',
-    'Total (${AppStrings.before})',
-    'Total (${AppStrings.after})'
+    'المادة',
+    'الباركود',
+    'الكمية ${AppStrings.before}',
+    'الكمية ${AppStrings.after}',
+    'سعر الوحدة ${AppStrings.before}',
+    'سعر الوحدة ${AppStrings.after}',
+    'الضريبة ${AppStrings.before}',
+    'الضريبة ${AppStrings.after}',
+    'المجموع ${AppStrings.before}',
+    'المجموع ${AppStrings.after}'
   ];
 
   final _columnWidthsSummary = {
@@ -179,16 +312,16 @@ class BillComparisonPdfGenerator extends PdfGeneratorBase<List<BillModel>> with 
   };
 
   final _columnWidthsItems = {
-    0: const FixedColumnWidth(120),
+    0: const FixedColumnWidth(130),
     1: const FixedColumnWidth(100),
-    2: const FixedColumnWidth(100),
-    3: const FixedColumnWidth(100),
+    2: const FixedColumnWidth(90),
+    3: const FixedColumnWidth(90),
     4: const FixedColumnWidth(90),
-    5: const FixedColumnWidth(80),
-    6: const FixedColumnWidth(90),
+    5: const FixedColumnWidth(90),
+    6: const FixedColumnWidth(80),
     7: const FixedColumnWidth(80),
     8: const FixedColumnWidth(90),
-    9: const FixedColumnWidth(80),
+    9: const FixedColumnWidth(90),
   };
 
   final _headerAlignmentsItems = {

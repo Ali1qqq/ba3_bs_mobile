@@ -23,21 +23,21 @@ class ChequesPdfGenerator extends PdfGeneratorBase<ChequesModel> with PdfHelperM
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        buildTitleText(fileName, 24, font, FontWeight.bold),
-        buildDetailRow('رقم الشيك التعريفي: ', afterUpdate.chequesGuid.toString(), font),
-        buildDetailRow('رقم الشيك: ', afterUpdate.chequesNumber.toString().toString(), font),
-        buildDetailRow('نوع الشيك: ', ChequesType.byTypeGuide(afterUpdate.chequesTypeGuid!).value, font),
+        buildTitleText(fileName, 24, font: font, weight: FontWeight.bold),
+        buildDetailRow('رقم الشيك التعريفي: ', afterUpdate.chequesGuid.toString(), font: font),
+        buildDetailRow('رقم الشيك: ', afterUpdate.chequesNumber.toString().toString(), font: font),
+        buildDetailRow('نوع الشيك: ', ChequesType.byTypeGuide(afterUpdate.chequesTypeGuid!).value, font: font),
       ],
     );
   }
 
   @override
   List<Widget> buildBody(ChequesModel itemModel, {Font? font}) {
-    final headersComparison = ['Field', "Values"];
+    final headersComparison = ['Field', 'Values'];
     final dataComparison = _buildComparisonData(itemModel);
 
     return <Widget>[
-      buildTitleText('تفاصيل التعديلات', 20, font),
+      buildTitleText('تفاصيل التعديلات', 20, font: font),
 
       /// Table for seller, customer, and date
       TableHelper.fromTextArray(
@@ -58,23 +58,23 @@ class ChequesPdfGenerator extends PdfGeneratorBase<ChequesModel> with PdfHelperM
   }
 
   Map<int, TableColumnWidth> get _columnWidthsSummary => {
-        0: const FixedColumnWidth(80), // Field
-        1: const FixedColumnWidth(150), // Before
-        2: const FixedColumnWidth(150), // After
-      };
+    0: const FixedColumnWidth(80), // Field
+    1: const FixedColumnWidth(150), // Before
+    2: const FixedColumnWidth(150), // After
+  };
 
   Map<int, Alignment> get _cellAlignmentsSummary => {
-        0: Alignment.center,
-        1: Alignment.center,
-        2: Alignment.center,
-        3: Alignment.center,
-        4: Alignment.center,
-        5: Alignment.center,
-        6: Alignment.center,
-        7: Alignment.center,
-        8: Alignment.center,
-        9: Alignment.center,
-      };
+    0: Alignment.center,
+    1: Alignment.center,
+    2: Alignment.center,
+    3: Alignment.center,
+    4: Alignment.center,
+    5: Alignment.center,
+    6: Alignment.center,
+    7: Alignment.center,
+    8: Alignment.center,
+    9: Alignment.center,
+  };
 
   List<List<dynamic>> _buildComparisonData(ChequesModel beforeUpdate) {
     return [

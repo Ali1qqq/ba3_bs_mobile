@@ -30,18 +30,30 @@ class BillPdfGenerator extends PdfGeneratorBase<BillModel> with PdfHelperMixin {
 
   Widget _buildBillDetails(String fileName, BillModel itemModel, Font? font) {
     final details = [
-      buildDetailRow('الرقم التعريفي للفاتورة: ', itemModel.billId!, font),
-      buildDetailRow('رقم الفاتورة: ', itemModel.billDetails.billNumber.toString(), font),
-      buildDetailRow('نوع الفاتورة: ', billName(itemModel), font),
-      buildDetailRow('العميل: ', _accountsController.getAccountNameById(itemModel.billDetails.billCustomerId), font),
-      buildDetailRow('البائع: ', _sellerController.getSellerNameById(itemModel.billDetails.billSellerId), font),
-      buildDetailRow('التاريخ: ', itemModel.billDetails.billDate!.dayMonthYear, font),
+      buildDetailRow('الرقم التعريفي للفاتورة: ', itemModel.billId!, font: font),
+      buildDetailRow('رقم الفاتورة: ', itemModel.billDetails.billNumber.toString(), font: font),
+      buildDetailRow(
+        'نوع الفاتورة: ',
+        billName(itemModel),
+        font: font,
+        valueColor: PdfColor.fromInt(itemModel.billTypeModel.color!),
+      ),
+      buildDetailRow('العميل: ', _accountsController.getAccountNameById(itemModel.billDetails.billCustomerId),
+          font: font),
+      buildDetailRow('البائع: ', _sellerController.getSellerNameById(itemModel.billDetails.billSellerId), font: font),
+      buildDetailRow('التاريخ: ', itemModel.billDetails.billDate!.dayMonthYear, font: font),
     ];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        buildTitleText(fileName, 24, font, FontWeight.bold),
+        buildTitleText(
+          fileName,
+          32,
+          font: font,
+          weight: FontWeight.bold,
+          color: PdfColor.fromInt(itemModel.billTypeModel.color!),
+        ),
         ...details.expand((detail) => [buildSpacing(), detail]),
       ],
     );
@@ -50,7 +62,7 @@ class BillPdfGenerator extends PdfGeneratorBase<BillModel> with PdfHelperMixin {
   @override
   List<Widget> buildBody(BillModel itemModel, {Font? font}) {
     return [
-      buildTitleText('تفاصيل الفاتورة', 20, font, FontWeight.bold),
+      buildTitleText('تفاصيل الفاتورة', 20, font: font, weight: FontWeight.bold),
       _buildTable(itemModel, font),
       Divider(),
       _buildTotalSection(itemModel),
@@ -64,10 +76,26 @@ class BillPdfGenerator extends PdfGeneratorBase<BillModel> with PdfHelperMixin {
     return TableHelper.fromTextArray(
       headers: headers,
       data: data,
-      headerStyle: TextStyle(fontWeight: FontWeight.bold, font: font),
-      cellStyle: TextStyle(font: font),
       tableDirection: TextDirection.rtl,
-      headerDecoration: const BoxDecoration(color: PdfColors.grey300),
+      // White text for contrast
+      headerStyle: TextStyle(
+        fontWeight: FontWeight.bold,
+        font: font,
+        color: PdfColors.white,
+      ),
+      // Black text for better readability
+      cellStyle: TextStyle(
+        font: font,
+        color: PdfColors.black,
+      ),
+      // Header background
+      headerDecoration: BoxDecoration(
+        color: PdfColor.fromInt(itemModel.billTypeModel.color!), // Header color
+      ),
+      // Row background (lighter version of header)
+      rowDecoration: BoxDecoration(
+        color: PdfColor.fromInt(lightenColor(itemModel.billTypeModel.color!, 0.9)),
+      ),
       cellHeight: 30,
       columnWidths: _columnWidths,
       cellAlignments: _cellAlignments,
@@ -123,23 +151,21 @@ class BillPdfGenerator extends PdfGeneratorBase<BillModel> with PdfHelperMixin {
 
   Widget _buildGreyLine() => Container(height: 1, color: PdfColors.grey400);
 
-  String billName(BillModel billModel) => BillType.byLabel(billModel.billTypeModel.billTypeLabel!).value;
-
   Map<int, TableColumnWidth> get _columnWidths => {
-        0: const FixedColumnWidth(150),
-        1: const FixedColumnWidth(80),
-        2: const FixedColumnWidth(60),
-        3: const FixedColumnWidth(60),
-        4: const FixedColumnWidth(50),
-        5: const FixedColumnWidth(60),
-      };
+    0: const FixedColumnWidth(150),
+    1: const FixedColumnWidth(80),
+    2: const FixedColumnWidth(60),
+    3: const FixedColumnWidth(60),
+    4: const FixedColumnWidth(50),
+    5: const FixedColumnWidth(60),
+  };
 
   Map<int, Alignment> get _cellAlignments => {
-        0: Alignment.centerLeft,
-        1: Alignment.center,
-        2: Alignment.center,
-        3: Alignment.center,
-        4: Alignment.center,
-        5: Alignment.center,
-      };
+    0: Alignment.centerLeft,
+    1: Alignment.center,
+    2: Alignment.center,
+    3: Alignment.center,
+    4: Alignment.center,
+    5: Alignment.center,
+  };
 }
