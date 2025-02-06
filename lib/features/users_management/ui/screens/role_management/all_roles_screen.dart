@@ -17,7 +17,7 @@ class AllRolesScreen extends StatelessWidget {
             AppButton(
                 title: 'إضافة',
                 onPressed: () {
-                  read<UserManagementController>().navigateToAddRoleScreen();
+                  read<UserManagementController>().userNavigator.navigateToAddRoleScreen();
                 },
                 iconData: Icons.add),
             const SizedBox(width: 10),
@@ -35,7 +35,7 @@ class AllRolesScreen extends StatelessWidget {
                     padding: const EdgeInsets.all(8.0),
                     child: InkWell(
                       onTap: () {
-                        controller.navigateToAddRoleScreen(controller.allRoles[index]);
+                        controller.userNavigator.navigateToAddRoleScreen(controller.allRoles[index]);
                       },
                       child: Container(
                         padding: const EdgeInsets.all(4),

@@ -19,26 +19,25 @@ class UserManagementLayout extends StatelessWidget {
           child: Directionality(
             textDirection: TextDirection.rtl,
             child: !userManagementController.isAdmin
-                  ? const Center(
-                      child: Text('غير مصرح لك بالدخول'),
-                    )
-                  : Column(
-                      children: [
-                        AppMenuItem(
-                            text: 'إدارة المستخدمين',
-                            onTap: () {
-                              userManagementController.navigateToLAllUsersScreen();
-                            }),
-                        AppMenuItem(
-                            text: 'إدارة الصلاحيات',
-                            onTap: () {
-                              userManagementController.navigateToLAllPermissionsScreen();
-                            }),
-                      ],
-                    ),
-            ),
+                ? const Center(
+                    child: Text('غير مصرح لك بالدخول'),
+                  )
+                : Column(
+                    children: [
+                      AppMenuItem(
+                          text: 'إدارة المستخدمين',
+                          onTap: () {
+                            userManagementController.userNavigator.navigateToAllUsersScreen();
+                          }),
+                      AppMenuItem(
+                          text: 'إدارة الصلاحيات',
+                          onTap: () {
+                            userManagementController.userNavigator.navigateToLAllPermissionsScreen();
+                          }),
+                    ],
+                  ),
           ),
-
+        ),
       ],
     );
   }

@@ -58,7 +58,7 @@ mixin FirestoreGuestUser {
   /// Checks if the guest user is marked as visible by the "show" field.
   ///
   /// Returns `true` if the "show" field exists and is `true`, otherwise `false`.
-  Future<bool> isShowGuestUser(String documentId) async {
+  Future<bool> isGuestUserEnabled(String documentId) async {
     try {
       final guestData = await fetchGuestUser(documentId);
       final isVisible = guestData?['show'] == true;

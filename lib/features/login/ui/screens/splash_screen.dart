@@ -35,7 +35,7 @@ class SplashScreen extends StatelessWidget {
     final fireStoreService = FireStoreService();
 
     final rolesRepo = RemoteDataSourceRepository(RolesDatasource(databaseService: fireStoreService));
-    final usersRepo = FilterableDatasourceRepository(UsersDatasource(databaseService: fireStoreService));
+    final usersRepo = FilterableDataSourceRepository(UsersDatasource(databaseService: fireStoreService));
 
     put(
       UserManagementController(rolesRepo, usersRepo, sharedPreferencesService),
@@ -46,7 +46,7 @@ class SplashScreen extends StatelessWidget {
   void _navigateToLogin() {
     // Delay navigation until after the current frame
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      read<UserManagementController>().navigateToLogin();
+      read<UserManagementController>().userNavigator.navigateToLogin();
     });
   }
 }

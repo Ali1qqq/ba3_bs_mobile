@@ -5,12 +5,13 @@ import 'package:flutter/material.dart';
 import '../../../../../core/styling/app_colors.dart';
 import '../../../../../core/styling/app_text_style.dart';
 import '../../../../../core/widgets/app_spacer.dart';
-import '../../../controllers/user_management_controller.dart';
+import '../../../controllers/user_details_controller.dart';
 
 class UserAllWorkingHour extends StatelessWidget {
-  const UserAllWorkingHour({super.key, required this.controller});
+  const UserAllWorkingHour({super.key, required this.userDetailsController});
 
-  final UserManagementController controller;
+
+  final UserDetailsController userDetailsController;
 
   @override
   Widget build(BuildContext context) {
@@ -29,24 +30,24 @@ class UserAllWorkingHour extends StatelessWidget {
             ListView.separated(
               shrinkWrap: true,
               itemBuilder: (context, index) => WorkingHoursItem(
-                onDelete: () => controller.deleteWorkingHour(key: index),
+                onDelete: () => userDetailsController.deleteWorkingHour(key: index),
                 onEnterTimeChange: (time) {
-                  controller.setEnterTime(index, time);
+                  userDetailsController.setEnterTime(index, time);
                 },
                 onOutTimeChange: (time) {
-                  controller.setOutTime(index, time);
+                  userDetailsController.setOutTime(index, time);
                 },
-                userWorkingHours: controller.workingHours.values.elementAt(index),
+                userWorkingHours: userDetailsController.workingHours.values.elementAt(index),
               ),
               separatorBuilder: (context, index) => VerticalSpace(),
-              itemCount: controller.workingHoursLength,
+              itemCount: userDetailsController.workingHoursLength,
             ),
             SizedBox(
               width: 80,
               // alignment: Alignment.centerRight,
               child: IconButton(
                   onPressed: () {
-                    controller.addWorkingHour();
+                    userDetailsController.addWorkingHour();
                   },
                   icon: Row(
                     children: [

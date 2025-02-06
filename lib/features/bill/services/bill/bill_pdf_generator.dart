@@ -7,7 +7,6 @@ import 'package:flutter/services.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart';
 
-import '../../../../core/helper/enums/enums.dart';
 import '../../../../core/helper/extensions/getx_controller_extensions.dart';
 import '../../../../core/helper/mixin/pdf_helper.dart';
 import '../../../../core/services/pdf_generator/implementations/pdf_generator_base.dart';

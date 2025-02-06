@@ -1,13 +1,17 @@
+import 'dart:developer';
+
+import 'package:ba3_bs_mobile/features/users_management/controllers/user_details_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get_rx/src/rx_types/rx_types.dart';
 
+import '../../../core/helper/enums/enums.dart';
 import '../../../core/helper/extensions/getx_controller_extensions.dart';
 import '../../../core/helper/validators/app_validator.dart';
-import '../controllers/user_management_controller.dart';
+import '../../../core/utils/app_service_utils.dart';
 import '../data/models/user_model.dart';
 
 class UserFormHandler with AppValidator {
-  UserManagementController get userManagementController => read<UserManagementController>();
+  UserDetailsController get userManagementController => read<UserDetailsController>();
 
   final formKey = GlobalKey<FormState>();
   final userNameController = TextEditingController();
@@ -15,6 +19,9 @@ class UserFormHandler with AppValidator {
 
   RxnString selectedSellerId = RxnString();
   RxnString selectedRoleId = RxnString();
+
+  Rx<bool> get isUserActive => userActiveStatus.value == UserActiveStatus.active ? true.obs : false.obs;
+  Rx<UserActiveStatus> userActiveStatus = UserActiveStatus.active.obs;
 
   void init(UserModel? user) {
     if (user != null) {
@@ -25,15 +32,19 @@ class UserFormHandler with AppValidator {
 
       userNameController.text = user.userName ?? '';
       passController.text = user.userPassword ?? '';
-      userManagementController.workingHours=user.userWorkingHours??{};
-      userManagementController.holidays=user.userHolidays?.toSet()?? {};
+      userActiveStatus.value = user.userActiveStatus!;
+
+      userManagementController.workingHours = user.userWorkingHours ?? {};
+      userManagementController.holidays = user.userHolidays?.toSet() ?? {};
+      log(isUserActive.toString());
     } else {
       userManagementController.selectedUserModel = null;
 
       selectedSellerId.value = null;
       selectedRoleId.value = null;
-      userManagementController.workingHours={};
-      userManagementController.holidays= {};
+      userActiveStatus.value = UserActiveStatus.active;
+      userManagementController.workingHours = {};
+      userManagementController.holidays = {};
 
       clear();
     }
@@ -59,11 +70,26 @@ class UserFormHandler with AppValidator {
     selectedRoleId.value = roleId;
   }
 
-  void updatePasswordVisibility() {
-    userManagementController.isPasswordVisible.value = !userManagementController.isPasswordVisible.value;
+  changeUserState() {
+    if (isUserActive.value) {
+      userActiveStatus.value = UserActiveStatus.inactive;
+    } else {
+      userActiveStatus.value = UserActiveStatus.active;
+    }
+    userManagementController.update();
   }
 
   String? passwordValidator(String? value, String fieldName) => isPasswordValid(value, fieldName);
 
   String? defaultValidator(String? value, String fieldName) => isFieldValid(value, fieldName);
+
+  List<String> get userHolidays => userManagementController.selectedUserModel?.userHolidays?.toList() ?? [];
+
+  List<String>? get userHolidaysWithDay => userHolidays
+      .map(
+        (date) => AppServiceUtils.getDayNameAndMonthName(date),
+      )
+      .toList();
+
+  int get userHolidaysLength => userHolidays.length;
 }

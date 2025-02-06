@@ -194,4 +194,11 @@ class BondCompoundDatasource extends CompoundDatasourceBase<BondModel, BondType>
 
     return savedData.map(BondModel.fromJson).toList();
   }
+
+  @override
+  Future<double?> fetchMetaData({required String id, required BondType
+  itemIdentifier}) {
+    // TODO: implement fetchMetaData
+    throw UnimplementedError();
+  }
 }

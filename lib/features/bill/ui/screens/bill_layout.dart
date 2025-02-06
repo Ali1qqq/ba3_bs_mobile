@@ -1,3 +1,4 @@
+import 'package:ba3_bs_mobile/core/helper/extensions/role_item_type_extension.dart';
 import 'package:ba3_bs_mobile/core/widgets/organized_widget.dart';
 import 'package:ba3_bs_mobile/features/bill/controllers/bill/all_bills_controller.dart';
 import 'package:flutter/material.dart';
@@ -10,6 +11,7 @@ import '../../../../core/helper/extensions/getx_controller_extensions.dart';
 import '../../../../core/styling/app_colors.dart';
 import '../../../../core/styling/app_text_style.dart';
 import '../../../../core/widgets/app_button.dart';
+import '../../../users_management/data/models/role_model.dart';
 import '../widgets/bill_layout/all_bills_types_list.dart';
 
 class BillLayout extends StatelessWidget {
@@ -35,13 +37,14 @@ class BillLayout extends StatelessWidget {
                   onPressed: allBillsController.refreshBillsTypes,
                 ),
                 actions: [
-                  Padding(
-                    padding: EdgeInsets.all(8),
-                    child: AppButton(
-                      title: "تحميل الفواتيير",
-                      onPressed: () => allBillsController.fetchAllBillsFromLocal(),
+                  if (RoleItemType.administrator.hasAdminPermission)
+                    Padding(
+                      padding: EdgeInsets.all(8),
+                      child: AppButton(
+                        title: "تحميل الفواتيير",
+                        onPressed: () => allBillsController.fetchAllBillsFromLocal(),
+                      ),
                     ),
-                  ),
                 ],
               ),
               body: Padding(

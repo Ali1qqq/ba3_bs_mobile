@@ -1,11 +1,21 @@
-import '../../../../core/helper/enums/enums.dart';
+import 'package:ba3_bs_mobile/core/utils/app_service_utils.dart';
+import 'package:ba3_bs_mobile/features/pluto/data/models/pluto_adaptable.dart';
+import 'package:flutter/material.dart';
+import 'package:pluto_grid/pluto_grid.dart';
 
-class UserModel {
+import '../../../../core/constants/app_strings.dart';
+import '../../../../core/helper/enums/enums.dart';
+import '../../../../core/widgets/pluto_auto_id_column.dart';
+
+class UserModel implements PlutoAdaptable {
   final String? userId;
   final String? userName;
   final String? userPassword;
   final String? userRoleId;
   final String? userSellerId;
+  final String? loginDelay;
+  final String? logoutDelay;
+  final bool? haveHoliday;
 
   final UserWorkStatus? userWorkStatus;
   final UserActiveStatus? userActiveStatus;
@@ -26,6 +36,9 @@ class UserModel {
     this.userActiveStatus,
     this.userHolidays,
     this.userWorkingHours,
+    this.haveHoliday,
+    this.loginDelay,
+    this.logoutDelay,
   });
 
   Map<String, dynamic> toJson() {
@@ -46,9 +59,14 @@ class UserModel {
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
     Map<String, UserTimeModel> userTimeModel = <String, UserTimeModel>{};
+
     (json['userTime'] ?? {}).forEach((k, v) {
       userTimeModel[k] = UserTimeModel.fromJson(v);
     });
+
+    var sortedEntries = userTimeModel.entries.toList()..sort((a, b) => a.value.dayName!.compareTo(b.value.dayName!));
+
+    userTimeModel = Map.fromEntries(sortedEntries);
 
     Map<String, UserWorkingHours> userDailyTime = <String, UserWorkingHours>{};
 
@@ -84,6 +102,9 @@ class UserModel {
     final List<String>? userHolidays,
     final Map<String, UserTimeModel>? userTimeModel,
     final Map<String, UserWorkingHours>? userWorkingHours,
+    final String? loginDelay,
+    final String? logoutDelay,
+    final bool? haveHoliday,
   }) =>
       UserModel(
         userId: userId ?? this.userId,
@@ -96,7 +117,94 @@ class UserModel {
         userActiveStatus: userActiveStatus ?? this.userActiveStatus,
         userHolidays: userHolidays ?? this.userHolidays,
         userWorkingHours: userWorkingHours ?? this.userWorkingHours,
+        loginDelay: loginDelay ?? this.loginDelay,
+        logoutDelay: logoutDelay ?? this.logoutDelay,
+        haveHoliday: haveHoliday ?? this.haveHoliday,
       );
+
+  @override
+  Map<PlutoColumn, dynamic> toPlutoGridFormat([type]) {
+    Color getStatusColor(String status) {
+      return status == UserWorkStatus.online.label ? Colors.lightGreen : Colors.redAccent;
+    }
+
+    Widget buildStatusCell(String status) {
+      return Center(
+        child: Container(
+          padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+          decoration: BoxDecoration(
+            color: getStatusColor(status),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Text(
+            status,
+            style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+          ),
+        ),
+      );
+    }
+
+    bool hasHolidayToday() {
+      return userHolidays?.contains(DateTime.now().toString().split(" ")[0]) ?? false;
+    }
+
+    return {
+      PlutoColumn(
+        title: 'الرقم التعريفي',
+        field: AppStrings.userIdFiled,
+        type: PlutoColumnType.text(),
+        hide: true,
+      ): userId,
+      createAutoIdColumn(): '',
+      PlutoColumn(
+        title: 'اسم الموظف',
+        field: 'اسم الموظف',
+        width: 120,
+        frozen: PlutoColumnFrozen.start,
+        type: PlutoColumnType.text(),
+      ): userName,
+      PlutoColumn(
+        title: 'اخر دخول',
+        field: 'اخر دخول',
+        width: 120,
+        textAlign: PlutoColumnTextAlign.center,
+        type: PlutoColumnType.text(),
+      ): hasHolidayToday()
+          ? 'اجازة'
+          : AppServiceUtils.formatDateTimeFromString(
+              userTimeModel?.values.toList().lastOrNull?.logInDateList?.lastOrNull?.toIso8601String()),
+      PlutoColumn(
+        title: 'اخر خروج',
+        field: 'اخر خروج',
+        width: 120,
+        textAlign: PlutoColumnTextAlign.center,
+        type: PlutoColumnType.text(),
+      ): hasHolidayToday()
+          ? 'اجازة'
+          : AppServiceUtils.formatDateTimeFromString(userTimeModel?.values.lastOrNull?.logOutDateList?.lastOrNull?.toIso8601String()),
+      PlutoColumn(
+        title: 'عطل هذا الشهر',
+        field: 'عطل هذا الشهر',
+        width: 400,
+        renderer: (context) => Center(
+          child: Text(
+            context.cell.value.toString(),
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+          ),
+        ),
+        textAlign: PlutoColumnTextAlign.center,
+        type: PlutoColumnType.text(),
+      ): userHolidays?.where((date) => date.split("-")[1] == DateTime.now().month.toString().padLeft(2, '0')).toList().join(" , "),
+      PlutoColumn(
+        title: 'الحالة',
+        field: 'الحالة',
+        width: 120,
+        textAlign: PlutoColumnTextAlign.center,
+        renderer: (context) => buildStatusCell(context.cell.value.toString()),
+        type: PlutoColumnType.text(),
+      ): hasHolidayToday() ? 'اجازة' : userWorkStatus?.label,
+    };
+  }
 }
 
 class UserWorkingHours {

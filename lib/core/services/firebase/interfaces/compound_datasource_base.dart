@@ -25,6 +25,9 @@ abstract class CompoundDatasourceBase<T, I> with FirestorePathHelper<I>, Firesto
 
   Future<T> fetchById({required String id, required I itemIdentifier});
 
+
+  Future<double?> fetchMetaData({required String id, required I itemIdentifier});
+
   Future<void> delete({required T item});
 
   Future<T> save({required T item});

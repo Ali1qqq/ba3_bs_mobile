@@ -1,5 +1,6 @@
-import 'package:ba3_bs_mobile/core/services/local_database/interfaces/i_local_database_service.dart';
 import 'package:hive/hive.dart';
+
+import '../../interfaces/i_local_database_service.dart';
 
 class HiveDatabaseService<T> implements ILocalDatabaseService<T> {
   final Box<T> _box;
@@ -7,67 +8,47 @@ class HiveDatabaseService<T> implements ILocalDatabaseService<T> {
   HiveDatabaseService(this._box);
 
   @override
-  Future<void> insert(T data) async {
-    if (data is HiveObject) {
-      if (!data.isInBox) {
-        await _box.add(data); // Add object to the box if it's not already in it
-      }
-      await data.save(); // Save the object to the box
-    } else {
-      throw Exception('Data must be a HiveObject');
-    }
+  Future<void> insert(String id, T data) async {
+    await _box.put(id, data); // Insert or update the object with the given ID
   }
 
   @override
-  Future<void> insertAll(List<T> data) async {
-    for (var item in data) {
-      await insert(item);
-    }
+  Future<void> insertAll(Map<String, T> data) async {
+    await _box.putAll(data); // Insert multiple objects with their respective IDs
   }
 
   @override
   Future<List<T>> fetchAll() async {
-    return _box.values.toList(); // Get all values from the box
+    return _box.values.toList(); // Retrieve all objects
   }
 
   @override
   Future<T?> fetchById(String id) async {
-    return _box.get(id); // Fetch an item by its ID
+    return _box.get(id); // Fetch a specific object by ID
   }
 
   @override
-  Future<void> update(T data) async {
-    if (data is HiveObject) {
-      await data.save(); // Save the updated object
-    } else {
-      throw Exception('Data must be a HiveObject');
-    }
+  Future<void> update(String id, T data) async {
+    await _box.put(id, data); // Update the existing object
   }
 
   @override
-  Future<void> delete(T item) async {
-    if (item is HiveObject) {
-      await item.delete(); // Delete the object from the box
-    } else {
-      // Optionally log or handle unexpected types
-      throw Exception('Item is not a HiveObject and cannot be deleted.');
-    } // Delete the item by ID
+  Future<void> delete(String id) async {
+    await _box.delete(id); // Delete an object by ID
   }
 
   @override
-  Future<void> deleteAll(List<T> data) async {
-    for (var item in data) {
-      if (item is HiveObject) {
-        await item.delete(); // Delete the object from the box
-      } else {
-        // Optionally log or handle unexpected types
-        throw Exception('Item is not a HiveObject and cannot be deleted.');
-      }
-    }
+  Future<void> deleteAll(List<String> ids) async {
+    await _box.deleteAll(ids); // Delete multiple objects by their IDs
   }
 
   @override
   Future<void> clear() async {
-    await _box.clear(); // Clear all data from the box
+    await _box.clear(); // Clear all data
+  }
+
+  @override
+  Future<void> updateAll(Map<String, T> data) async {
+    await _box.putAll(data); // Update multiple objects at once
   }
 }

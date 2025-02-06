@@ -1,6 +1,9 @@
 import 'dart:developer';
 
+import 'package:ba3_bs_mobile/core/helper/extensions/basic/list_extensions.dart';
 import 'package:ba3_bs_mobile/core/helper/extensions/getx_controller_extensions.dart';
+import 'package:ba3_bs_mobile/features/materials/data/models/materials/material_model.dart';
+import 'package:ba3_bs_mobile/features/materials/ui/screens/material_statement_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 
@@ -9,8 +12,6 @@ import '../../../core/helper/mixin/floating_launcher.dart';
 import '../../../core/services/firebase/implementations/repos/compound_datasource_repo.dart';
 import '../../../core/utils/app_ui_utils.dart';
 import '../data/models/mat_statement/mat_statement_model.dart';
-import '../data/models/material_model.dart';
-import '../ui/screens/material_statement_screen.dart';
 import 'material_controller.dart';
 
 class MaterialsStatementController extends GetxController with FloatingLauncher, AppNavigator {
@@ -27,8 +28,19 @@ class MaterialsStatementController extends GetxController with FloatingLauncher,
     int counter = 0;
     for (final matStatement in matsStatements) {
       await saveMatStatementModel(matStatementModel: matStatement);
-
       onProgress?.call((++counter) / matsStatements.length);
+      final materialStatementList = await fetchMatStatementById(matStatement.matId!);
+      if (materialStatementList != null) {
+        if (matStatement.quantity! > 0) {
+          await read<MaterialController>().updateMaterialQuantityAndPrice(
+              matId: matStatement.matId!,
+              quantity: _calculateQuantity(matsStatements),
+              quantityInStatement: matStatement.quantity!,
+              priceInStatement: matStatement.price!);
+        } else {
+          await read<MaterialController>().updateMaterialQuantity(matStatement.matId!, matStatement.defQuantity!);
+        }
+      }
     }
   }
 
@@ -48,6 +60,22 @@ class MaterialsStatementController extends GetxController with FloatingLauncher,
       (failure) => AppUIUtils.onFailure(failure.message),
       (_) => AppUIUtils.onSuccess('تم الحذف بنجاح'),
     );
+
+    final materialStatementList = await fetchMatStatementById(matStatementModel.matId!);
+    if (materialStatementList != null) {
+      if (matStatementModel.quantity! < 0) {
+
+        await read<MaterialController>().updateMaterialQuantityAndPriceWhenDeleteBill(
+            matId: matStatementModel.matId!,
+            quantity: _calculateQuantity(materialStatementList),
+            currentMinPrice: _calculateMinPrice(materialStatementList));
+      } else {
+        await read<MaterialController>().setMaterialQuantity(
+          matStatementModel.matId!,
+          _calculateQuantity(materialStatementList),
+        );
+      }
+    }
   }
 
   Future<void> deleteAllMatStatementModel(List<MatStatementModel> matStatementsModels) async {
@@ -56,14 +84,7 @@ class MaterialsStatementController extends GetxController with FloatingLauncher,
 
     for (final matStatementModel in matStatementsModels) {
       deletedTasks.add(
-        _matStatementsRepo.delete(matStatementModel).then(
-          (deleteResult) {
-            deleteResult.fold(
-              (failure) => errors.add(failure.message), // Collect errors.
-              (_) {},
-            );
-          },
-        ),
+        deleteMatStatementModel(matStatementModel),
       );
     }
 
@@ -74,71 +95,12 @@ class MaterialsStatementController extends GetxController with FloatingLauncher,
     }
   }
 
-// // Text Controllers
-// final productForSearchController = TextEditingController();
-// final groupForSearchController = TextEditingController();
-// final accountNameController = TextEditingController();
-// final storeForSearchController = TextEditingController();
-// final startDateController = TextEditingController()..text = _formattedToday;
-// final endDateController = TextEditingController()..text = _formattedToday;
-//
-  // Data
   final List<MatStatementModel> matStatements = [];
   MaterialModel? selectedMat;
 
-// List<EntryBondItemModel> filteredEntryBondItems = [];
-//
-
-  // State variables
   bool isLoadingPlutoGrid = false;
 
   int totalQuantity = 0;
-
-// double debitValue = 0.0;
-// double creditValue = 0.0;
-
-// @override
-// void onInit() {
-//   super.onInit();
-//   resetFields();
-// }
-//
-// /// Clears fields and resets state
-// void resetFields({String? initialAccount}) {
-//   productForSearchController.clear();
-//   groupForSearchController.clear();
-//   storeForSearchController.clear();
-//   startDateController.text = _formattedToday;
-//   endDateController.text = _formattedToday;
-//
-//   if (initialAccount != null) {
-//     accountNameController.text = initialAccount;
-//   } else {
-//     accountNameController.clear();
-//   }
-// }
-//
-// // Event Handlers
-// void onAccountNameSubmitted(String text, BuildContext context) async {
-//   final convertArabicNumbers = AppUIUtils.convertArabicNumbers(text);
-//
-//   AccountModel? accountModel = await _materialsController.openAccountSelectionDialog(
-//     query: convertArabicNumbers,
-//     context: context,
-//   );
-//   if (accountModel != null) {
-//     accountNameController.text = accountModel.accName!;
-//   }
-// }
-//
-// void onStartDateSubmitted(String text) {
-//   startDateController.text = AppUIUtils.getDateFromString(text);
-// }
-//
-// void onEndDateSubmitted(String text) {
-//   endDateController.text = AppUIUtils.getDateFromString(text);
-// }
-//
 
   bool isMatValid(MaterialModel? materialByName) {
     if (materialByName == null || materialByName.id == null) {
@@ -151,7 +113,6 @@ class MaterialsStatementController extends GetxController with FloatingLauncher,
     return true;
   }
 
-// Fetch bond items for the selected account
   Future<void> fetchMatStatements(String name, {required BuildContext context}) async {
     log('name $name');
     final materialByName = _materialsController.getMaterialByName(name);
@@ -177,32 +138,13 @@ class MaterialsStatementController extends GetxController with FloatingLauncher,
     );
   }
 
-// void filterByDate() {
-//   final DateFormat dateFormat = DateFormat('yyyy-MM-dd'); // Format for start and end dates
-//
-//   final DateTime startDate = dateFormat.parse(startDateController.text);
-//   final DateTime endDate = dateFormat.parse(endDateController.text);
-//
-//   filteredEntryBondItems = entryBondItems.where((item) {
-//     final String? entryBondItemDateStr = item.date; // Ensure `date` is the correct field
-//     if (entryBondItemDateStr == null) return false;
-//
-//     DateTime? entryBondItemDate;
-//     try {
-//       entryBondItemDate = dateFormat.parse(entryBondItemDateStr);
-//     } catch (e) {
-//       log('Error parsing item.date: $entryBondItemDateStr. Error: $e');
-//       return false; // Skip invalid date formats
-//     }
-//
-//     return entryBondItemDate.isAfter(startDate.subtract(const Duration(days: 1))) &&
-//         entryBondItemDate.isBefore(endDate.add(const Duration(days: 1)));
-//   }).toList();
-// }
-//
-// /// Navigation handler
-// void navigateToAccountStatementScreen() => to(AppRoutes.accountStatementScreen);
-//
+  Future<List<MatStatementModel>?> fetchMatStatementById(String matId) async {
+    final result = await _matStatementsRepo.getAll(matId);
+    return result.fold(
+      (failure) => AppUIUtils.onFailure(failure.message),
+      (fetchedItems) => fetchedItems,
+    );
+  }
 
   /// Calculates debit, credit, and total values
   void _calculateValues(List<MatStatementModel> items) {
@@ -215,39 +157,35 @@ class MaterialsStatementController extends GetxController with FloatingLauncher,
 
   _resetValues() {
     totalQuantity = 0;
-    // debitValue = 0.0;
-    // creditValue = 0.0;
   }
 
   _updateValues(List<MatStatementModel> items) {
-    // debitValue = _calculateSum(items: items, type: BondItemType.debtor);
-    // creditValue = _calculateSum(items: items, type: BondItemType.creditor);
-
-    totalQuantity = _calculateSum(items);
+    totalQuantity = _calculateQuantity(items);
   }
 
-  int _calculateSum(List<MatStatementModel> items) => items.fold(
+  int _calculateQuantity(List<MatStatementModel> items) => items.fold(
         0,
         (sum, item) => sum + (item.quantity ?? 0),
       );
 
-  String get screenTitle => 'حركات ${selectedMat?.matName}';
+  double _calculateMinPrice(List<MatStatementModel> items) {
+    if (items.isEmpty) return 0.0;
+    items.sortBy((item) => item.date!);
+    double currentPrice = 0.0;
+    int currentQuantity = 0;
+    for (final matStatementModel in items) {
+      if (matStatementModel.quantity! > 0) {
+        currentPrice = ((currentPrice * currentQuantity) +
+            (matStatementModel.price! * matStatementModel.quantity!)) / (currentQuantity + matStatementModel.quantity!);
+        currentQuantity += matStatementModel.quantity!;
 
-// // Helper Methods
-// static String get _formattedToday => DateTime.now().dayMonthYear;
-//
-// void _showErrorSnackBar(String title, String message) {
-//   Get.snackbar(title, message, icon: const Icon(Icons.error_outline));
-// }
-//
-// void launchBondEntryBondScreen({required BuildContext context, required String originId}) async {
-//   EntryBondModel entryBondModel = await read<EntryBondController>().getEntryBondById(entryId: originId);
-//
-//   if (!context.mounted) return;
-//   launchFloatingWindow(
-//     context: context,
-//     minimizedTitle: 'سند خاص ب ${entryBondModel.origin!.originType!.label}',
-//     floatingScreen: EntryBondDetailsScreen(entryBondModel: entryBondModel),
-//   );
-// }
+      } else {
+        currentQuantity += matStatementModel.quantity!;
+      }
+    }
+    log('final price is $currentPrice');
+    return currentPrice;
+  }
+
+  String get screenTitle => 'حركات ${selectedMat?.matName}';
 }

@@ -7,7 +7,7 @@ import 'package:get/get.dart';
 import '../../../core/helper/extensions/getx_controller_extensions.dart';
 import '../../../core/services/firebase/implementations/repos/listen_datasource_repo.dart';
 import '../../../core/utils/app_ui_utils.dart';
-import '../../materials/data/models/material_model.dart';
+import '../../materials/data/models/materials/material_model.dart';
 import '../../users_management/controllers/user_management_controller.dart';
 import '../../users_management/data/models/user_model.dart';
 import '../data/model/changes_model.dart';
@@ -82,22 +82,24 @@ class ChangesController extends GetxController {
   void _processChange(ChangesModel change) {
     try {
       currentChange.value = change;
-      log("Processing change for target user: ${change.targetUserId}");
+      log("Processing change for current user: ${change.targetUserId}");
       log('change items: ${change.changeItems.length}');
 
       List<MaterialModel> materialsToSave = [];
       List<MaterialModel> materialsToDelete = [];
+      List<MaterialModel> materialsToUpdate = [];
 
       // Iterate over the changeItems and classify each one
       change.changeItems.forEach((collection, changes) {
         for (final changeItem in changes) {
-          _handleChangeItem(changeItem, materialsToSave, materialsToDelete); // Collect items for update or delete
+          _handleChangeItem(changeItem, materialsToSave, materialsToDelete, materialsToUpdate); // Collect items for update or delete
         }
       });
 
       // After processing all items, call saveMaterials and deleteMaterials to handle both
       saveMaterials(materialsToSave);
       deleteMaterials(materialsToDelete);
+      updateMaterials(materialsToUpdate);
 
       deleteChanges(change);
     } catch (e, stack) {
@@ -115,24 +117,34 @@ class ChangesController extends GetxController {
   }
 
   /// Determines how to process a specific change item based on its type and collection.
-  void _handleChangeItem(ChangeItem changeItem, List<MaterialModel> materialsToSave, List<MaterialModel> materialsToDelete) {
+  void _handleChangeItem(ChangeItem changeItem, List<MaterialModel> materialsToSave, List<MaterialModel> materialsToDelete,
+      List<MaterialModel> materialsToUpdate) {
     final targetCollection = changeItem.target.targetCollection;
     final changeType = changeItem.target.changeType;
 
     if (targetCollection == ChangeCollection.materials) {
-      if (changeType == ChangeType.addOrUpdate) {
-        _handleAddOrUpdateMaterial(changeItem, materialsToSave); // Add/Update goes to materialsToSave
+      if (changeType == ChangeType.add) {
+        _handleAddMaterial(changeItem, materialsToSave); // Add/Update goes to materialsToSave
       } else if (changeType == ChangeType.remove) {
         _handleDelete(changeItem, materialsToDelete); // Delete goes to materialsToDelete
+      } else if (changeType == ChangeType.update) {
+        _handleUpdateMaterial(changeItem, materialsToUpdate); // Delete goes to materialsToDelete
       }
     }
   }
 
   /// Handles an add or update operation for a specific change item.
-  void _handleAddOrUpdateMaterial(ChangeItem changeItem, List<MaterialModel> materialsToSave) {
+  void _handleAddMaterial(ChangeItem changeItem, List<MaterialModel> materialsToSave) {
     // Assuming changeItem contains the required material data for saving
     MaterialModel material = _extractMaterialsFromChangeItem(changeItem);
     materialsToSave.add(material); // Add to the materials list for saving
+    log("Add/Update operation for item(${changeItem.target.targetCollection}): ${changeItem.change}");
+  }
+
+  void _handleUpdateMaterial(ChangeItem changeItem, List<MaterialModel> materialsToUpdate) {
+    // Assuming changeItem contains the required material data for saving
+    MaterialModel material = _extractMaterialsFromChangeItem(changeItem);
+    materialsToUpdate.add(material); // Update to the materials list for saving
     log("Add/Update operation for item(${changeItem.target.targetCollection}): ${changeItem.change}");
   }
 
@@ -144,6 +156,14 @@ class ChangesController extends GetxController {
     if (materialsToSave.isNotEmpty) {
       final materialController = read<MaterialController>();
       materialController.saveAllMaterial(materialsToSave); // Save all materials at once
+    }
+  }
+
+  /// Saves the materials after all change items have been processed.
+  void updateMaterials(List<MaterialModel> materialsToUpdate) {
+    if (materialsToUpdate.isNotEmpty) {
+      final materialController = read<MaterialController>();
+      materialController.updateAllMaterial(materialsToUpdate); // Save all materials at once
     }
   }
 

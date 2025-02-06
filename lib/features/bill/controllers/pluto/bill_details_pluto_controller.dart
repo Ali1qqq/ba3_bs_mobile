@@ -2,10 +2,9 @@ import 'dart:developer';
 
 import 'package:ba3_bs_mobile/core/constants/app_constants.dart';
 import 'package:ba3_bs_mobile/core/helper/extensions/basic/string_extension.dart';
+import 'package:ba3_bs_mobile/core/helper/extensions/bill_pattern_type_extension.dart';
 import 'package:ba3_bs_mobile/features/materials/controllers/material_controller.dart';
-import 'package:ba3_bs_mobile/features/materials/data/models/material_model.dart';
 import 'package:ba3_bs_mobile/features/patterns/data/models/bill_type_model.dart';
-import 'package:ba3_bs_mobile/features/tax/data/models/tax_model.dart';
 import 'package:flutter/material.dart';
 import 'package:pluto_grid/pluto_grid.dart';
 
@@ -13,6 +12,7 @@ import '../../../../core/helper/enums/enums.dart';
 import '../../../../core/helper/extensions/getx_controller_extensions.dart';
 import '../../../../core/i_controllers/i_pluto_controller.dart';
 import '../../../../core/utils/app_service_utils.dart';
+import '../../../materials/data/models/materials/material_model.dart';
 import '../../data/models/discount_addition_account_model.dart';
 import '../../data/models/invoice_record_model.dart';
 import '../../services/pluto/bill_pluto_calculator.dart';
@@ -167,13 +167,13 @@ class BillDetailsPlutoController extends IPlutoController<InvoiceRecordModel> {
     if (columnField == AppConstants.invRecSubTotal) {
       _gridService.updateInvoiceValues(subTotal, quantity, billTypeModel!);
     } else if (columnField == AppConstants.invRecTotal) {
-      _gridService.updateInvoiceValuesByTotal(total, quantity);
+      _gridService.updateInvoiceValuesByTotal(total, quantity, billTypeModel!);
     } else if (columnField == AppConstants.invRecQuantity && quantity > 0) {
       _gridService.updateInvoiceValuesByQuantity(quantity, subTotal, vat);
     } else if (columnField == AppConstants.invRecProduct) {
-      _gridService.getProduct(product, recordsTableStateManager, this, context);
+      _gridService.getProduct(product, recordsTableStateManager, this, context, billTypeModel!);
     }
-    updateAdditionDiscountCell(computeWithVatTotal);
+    if (billTypeModel!.billPatternType!.hasDiscountsAccount) updateAdditionDiscountCell(computeWithVatTotal);
   }
 
   double _getSubTotal() {
@@ -232,7 +232,8 @@ class BillDetailsPlutoController extends IPlutoController<InvoiceRecordModel> {
         materialModel: materialModel,
         tapPosition: Offset(1, 1),
         invoiceUtils: _plutoUtils,
-        gridService: _gridService);
+        gridService: _gridService,
+        billTypeModel: billTypeModel!);
   }
 
   void _showDeleteConfirmationDialog(event, BuildContext context) => _contextMenu.showDeleteConfirmationDialog(event.rowIdx, context);
@@ -291,9 +292,11 @@ class BillDetailsPlutoController extends IPlutoController<InvoiceRecordModel> {
     final materialModel = materialController.getMaterialByName(row.cells[AppConstants.invRecProduct]!.value);
 
     if (_plutoUtils.isValidItemQuantity(row, AppConstants.invRecQuantity) && materialModel != null) {
-      //TODO:
-      // change tax ratio guid
-      return _createInvoiceRecord(row, materialModel.id!, VatEnums.byGuid(materialModel.matVatGuid ?? "2").taxRatio ?? 0);
+      if (billTypeModel?.billPatternType?.hasVat ?? false) {
+        return _createInvoiceRecord(row, materialModel.id!, VatEnums.byGuid(materialModel.matVatGuid ?? "2").taxRatio ?? 0);
+      } else {
+        return _createInvoiceRecord(row, materialModel.id!, 0);
+      }
     }
 
     return null;
@@ -374,8 +377,9 @@ class BillDetailsPlutoController extends IPlutoController<InvoiceRecordModel> {
     required MaterialModel? materialModel,
     required PlutoGridStateManager stateManager,
     required IPlutoController plutoController,
+    required BillTypeModel billTypeModel,
   }) =>
-      _gridService.updateWithSelectedMaterial(materialModel, stateManager, plutoController);
+      _gridService.updateWithSelectedMaterial(materialModel, stateManager, plutoController, billTypeModel);
 }
 
 // 530 - 236

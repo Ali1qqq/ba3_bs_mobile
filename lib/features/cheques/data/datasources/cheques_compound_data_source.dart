@@ -195,4 +195,10 @@ class ChequesCompoundDatasource extends CompoundDatasourceBase<ChequesModel, Che
 
     return chequesByType;
   }
+
+  @override
+  Future<double?> fetchMetaData({required String id, required ChequesType itemIdentifier}) {
+    // TODO: implement fetchMetaData
+    throw UnimplementedError();
+  }
 }

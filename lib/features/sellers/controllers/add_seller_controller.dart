@@ -23,5 +23,7 @@ class AddSellerController extends GetxController with AppNavigator {
     }
   }
 
-  Future<void> saveOrUpdateSeller() async {}
+  Future<void> saveOrUpdateSeller() async {
+
+  }
 }

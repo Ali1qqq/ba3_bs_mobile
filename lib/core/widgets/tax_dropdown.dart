@@ -1,9 +1,9 @@
 import 'package:ba3_bs_mobile/features/floating_window/services/overlay_service.dart';
-import 'package:ba3_bs_mobile/features/tax/data/models/tax_model.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../constants/app_constants.dart';
+import '../helper/enums/enums.dart';
 import '../interfaces/i_tex_selection_handler.dart';
 
 class TaxDropdown extends StatelessWidget {

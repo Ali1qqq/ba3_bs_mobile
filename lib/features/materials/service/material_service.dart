@@ -1,5 +1,5 @@
 import 'package:ba3_bs_mobile/core/utils/generate_id.dart';
-import 'package:ba3_bs_mobile/features/materials/data/models/material_model.dart';
+import 'package:ba3_bs_mobile/features/materials/data/models/materials/material_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../../../core/helper/enums/enums.dart';
@@ -50,5 +50,16 @@ class MaterialService {
         matCurrencyVal: matCurrencyVal,
       );
     }
+  }
+
+  List<MaterialModel> getAllMaterialNotExist(List<MaterialModel> currentMaterials,List<MaterialModel>fetchedMaterials) {
+    List<MaterialModel> materials=[];
+    final existingMatNames = currentMaterials.map((e) => e.matName).toSet();
+    for (var element in fetchedMaterials) {
+      if (!existingMatNames.contains(element.matName)) {
+        materials.add(element);
+      }
+    }
+    return materials;
   }
 }

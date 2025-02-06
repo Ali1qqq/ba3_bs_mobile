@@ -135,4 +135,4 @@ class ChangeTarget {
 enum ChangeCollection { bills, accounts, bonds, cheques, users, materials }
 
 /// Enum to represent the types of changes that can occur in a collection.
-enum ChangeType { addOrUpdate, remove }
+enum ChangeType { add, remove, update }

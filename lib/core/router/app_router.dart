@@ -5,6 +5,7 @@ import 'package:ba3_bs_mobile/features/bill/ui/screens/pending_bills_screen.dart
 import 'package:ba3_bs_mobile/features/login/ui/screens/splash_screen.dart';
 import 'package:ba3_bs_mobile/features/main_layout/ui/screens/main_layout.dart';
 import 'package:ba3_bs_mobile/features/materials/ui/screens/add_material_screen.dart';
+import 'package:ba3_bs_mobile/features/materials/ui/screens/all_materials_group_screen.dart';
 import 'package:ba3_bs_mobile/features/materials/ui/screens/all_materials_screen.dart';
 import 'package:ba3_bs_mobile/features/patterns/ui/screens/add_pattern_screen.dart';
 import 'package:ba3_bs_mobile/features/patterns/ui/screens/pattern_layout.dart';
@@ -23,7 +24,9 @@ import '../../features/login/ui/screens/login_screen.dart';
 import '../../features/patterns/ui/screens/all_pattern_screen.dart';
 import '../../features/sellers/ui/screens/add_seller_screen.dart';
 import '../../features/sellers/ui/screens/all_sellers_screen.dart';
+import '../../features/user_time/ui/screens/user_details.dart';
 import '../../features/users_management/ui/screens/role_management/all_roles_screen.dart';
+import '../../features/users_management/ui/screens/user_time_list/user_time_list_screen.dart';
 import '../bindings/middlewares.dart';
 import 'app_routes.dart';
 
@@ -132,8 +135,21 @@ List<GetPage<dynamic>>? appRouter = [
     name: AppRoutes.addMaterialScreen,
     page: () => const AddMaterialScreen(),
   ),
+
   GetPage(
     name: AppRoutes.addAccountScreen,
     page: () => const AddAccountScreen(),
+  ),
+  GetPage(
+    name: AppRoutes.showAllMaterialsGroupScreen,
+    page: () => const AllMaterialsGroupScreen(),
+  ),
+  GetPage(
+    name: AppRoutes.showUserTimeListScreen,
+    page: () => const UserTimeListScreen(),
+  ),
+  GetPage(
+    name: AppRoutes.showUserDetails,
+    page: () => const UserDetails(),
   ),
 ];

@@ -1,10 +1,10 @@
 // MaterialsDataSource Implementation
 import 'package:ba3_bs_mobile/core/models/date_filter.dart';
 import 'package:ba3_bs_mobile/core/network/api_constants.dart';
+import 'package:ba3_bs_mobile/features/materials/data/models/materials/material_group.dart';
 
 import '../../../../../core/models/query_filter.dart';
 import '../../../../../core/services/firebase/interfaces/queryable_savable_datasource.dart';
-import '../../models/material_group.dart';
 
 class MaterialsGroupsDataSource extends QueryableSavableDatasource<MaterialGroupModel> {
   MaterialsGroupsDataSource({required super.databaseService});

@@ -1,4 +1,4 @@
-import 'package:ba3_bs_mobile/features/materials/data/models/material_model.dart';
+import 'package:ba3_bs_mobile/features/materials/data/models/materials/material_model.dart';
 import 'package:xml/xml.dart';
 
 import '../../../../core/services/json_file_operations/interfaces/import/import_service_base.dart';
@@ -19,49 +19,49 @@ class MaterialImport extends ImportServiceBase<MaterialModel> {
 
     List<GccMatTax> gcc = materialsGccXml.map(
       (gccMat) {
-        String getText(String tagName) {
+        String getvalue(String tagName) {
           final elements = gccMat.findElements(tagName);
-          return elements.isEmpty ? '' : elements.first.value!;
+          return elements.isEmpty ? '' : elements.first.value ?? '';
         }
 
-        return GccMatTax(vat: getText('GCCMaterialTaxRatio'), guid: getText('GCCMaterialTaxMatGUID'));
+        return GccMatTax(vat: getvalue('GCCMaterialTaxRatio'), guid: getvalue('GCCMaterialTaxMatGUID'));
       },
     ).toList();
 
     List<MaterialModel> materials = materialsXml.map((materialElement) {
-      String? getText(String tagName) {
+      String? getvalue(String tagName) {
         final elements = materialElement.findElements(tagName);
         return elements.isEmpty ? null : elements.first.value;
       }
 
       int? getInt(String tagName) {
-        final text = getText(tagName);
-        return text == null ? null : double.parse(text.toString()).toInt();
+        final value = getvalue(tagName);
+        return value == null ? null : double.parse(value.toString()).toInt();
       }
 
       double? getDouble(String tagName) {
-        final text = getText(tagName);
-        return text == null ? null : double.parse(text);
+        final value = getvalue(tagName);
+        return value == null ? null : double.parse(value);
       }
 
       DateTime? getDate(String tagName) {
-        final text = getText(tagName);
-        return text == null ? null : DateTime.parse(text);
+        final value = getvalue(tagName);
+        return value == null ? null : DateTime.parse(value);
       }
 
       return MaterialModel(
-        id: getText('mptr') ?? '',
+        id: getvalue('mptr') ?? '',
         matCode: getInt('MatCode'),
-        matName: getText('MatName') ?? '',
-        matBarCode: getText('MatBarCode') ?? '',
-        matGroupGuid: getText('MatGroupGuid') ?? '',
-        matUnity: getText('MatUnity'),
+        matName: getvalue('MatName') ?? '',
+        matBarCode: getvalue('MatBarCode') ?? '',
+        matGroupGuid: getvalue('MatGroupGuid') ?? '',
+        matUnity: getvalue('MatUnity'),
         matPriceType: getInt('MatPriceType'),
         matBonus: getInt('MatBonus'),
         matBonusOne: getInt('MatBonusOne'),
-        matCurrencyGuid: getText('MatCurrencyGuid') ?? '',
+        matCurrencyGuid: getvalue('MatCurrencyGuid') ?? '',
         matCurrencyVal: getDouble('MatCurrencyVal'),
-        matPictureGuid: getText('MatPictureGuid') ?? '',
+        matPictureGuid: getvalue('MatPictureGuid') ?? '',
         matType: getInt('MatType'),
         matSecurity: getInt('MatSecurity'),
         matFlag: getInt('MatFlag'),
@@ -76,8 +76,8 @@ class MaterialImport extends ImportServiceBase<MaterialModel> {
         matDefUnit: getInt('MatDefUnit'),
         matBranchMask: getInt('MatBranchMask'),
         matAss: getInt('MatAss'),
-        matOldGUID: getText('MatOldGUID') ?? '',
-        matNewGUID: getText('MatNewGUID') ?? '',
+        matOldGUID: getvalue('MatOldGUID') ?? '',
+        matNewGUID: getvalue('MatNewGUID') ?? '',
         matCalPriceFromDetail: getInt('MatCalPriceFromDetail'),
         matForceInExpire: getInt('MatForceInExpire'),
         matForceOutExpire: getInt('MatForceOutExpire'),
@@ -88,19 +88,19 @@ class MaterialImport extends ImportServiceBase<MaterialModel> {
         matForceOutClass: getInt('MatForceOutClass'),
         matDisableLastPrice: getInt('MatDisableLastPrice'),
         matLastPriceCurVal: getDouble('MatLastPriceCurVal'),
-        matPrevQty: getText('MatPrevQty') ?? '',
+        matPrevQty: getvalue('MatPrevQty') ?? '',
         matFirstCostDate: getDate('MatFirstCostDate'),
         matHasSegments: getInt('MatHasSegments'),
-        matParent: getText('MatParent') ?? '',
+        matParent: getvalue('MatParent') ?? '',
         matIsCompositionUpdated: getInt('MatIsCompositionUpdated'),
         matInheritsParentSpecs: getInt('MatInheritsParentSpecs'),
-        matCompositionName: getText('MatCompositionName'),
-        matCompositionLatinName: getText('MatCompositionLatinName'),
+        matCompositionName: getvalue('MatCompositionName'),
+        matCompositionLatinName: getvalue('MatCompositionLatinName'),
         movedComposite: getInt('MovedComposite'),
-        wholesalePrice: getText('Whole2') ?? '',
-        retailPrice: getText('retail2') ?? '',
-        endUserPrice: getText('EndUser2') ?? '',
-        matVatGuid: getText('MatVatGuid'),
+        wholesalePrice: getvalue('Whole2') ?? '',
+        retailPrice: getvalue('retail2') ?? '',
+        endUserPrice: getvalue('EndUser2') ?? '',
+        matVatGuid: getvalue('MatVatGuid'),
       );
     }).toList();
     // log('material last ${materials.last.toJson()}');

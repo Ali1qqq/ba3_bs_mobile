@@ -1,4 +1,5 @@
 import 'package:ba3_bs_mobile/core/widgets/organized_widget.dart';
+import 'package:ba3_bs_mobile/features/users_management/controllers/user_details_controller.dart';
 import 'package:ba3_bs_mobile/features/users_management/ui/widgets/user_management/holiday_item_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -6,12 +7,11 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../../../core/styling/app_colors.dart';
 import '../../../../../core/styling/app_text_style.dart';
 import '../../../../../core/widgets/app_spacer.dart';
-import '../../../controllers/user_management_controller.dart';
 
 class UserAllHolidays extends StatelessWidget {
-  const UserAllHolidays({super.key, required this.controller});
+  const UserAllHolidays({super.key, required this.userDetailsController});
 
-  final UserManagementController controller;
+  final UserDetailsController userDetailsController;
 
   @override
   Widget build(BuildContext context) {
@@ -33,11 +33,11 @@ class UserAllHolidays extends StatelessWidget {
               child: ListView.separated(
                 scrollDirection: Axis.horizontal,
                 itemBuilder: (context, index) => HolidayItemWidget(
-                  holiday: controller.holidays.elementAt(index),
-                  onDelete: () => controller.deleteHoliday(element: controller.holidays.elementAt(index)),
+                  holiday: userDetailsController.holidays.elementAt(index),
+                  onDelete: () => userDetailsController.deleteHoliday(element: userDetailsController.holidays.elementAt(index)),
                 ),
                 separatorBuilder: (context, index) => HorizontalSpace(),
-                itemCount: controller.holidaysLength,
+                itemCount: userDetailsController.holidaysLength,
               ),
             ),
             SizedBox(
@@ -45,7 +45,7 @@ class UserAllHolidays extends StatelessWidget {
               // alignment: Alignment.centerRight,
               child: IconButton(
                   onPressed: () {
-                    controller.addHoliday();
+                    userDetailsController.addHoliday();
                   },
                   icon: Row(
                     children: [

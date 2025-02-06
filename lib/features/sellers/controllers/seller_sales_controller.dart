@@ -7,6 +7,7 @@ import 'package:ba3_bs_mobile/core/models/date_filter.dart';
 import 'package:ba3_bs_mobile/core/network/api_constants.dart';
 import 'package:ba3_bs_mobile/core/services/firebase/implementations/repos/bulk_savable_datasource_repo.dart';
 import 'package:ba3_bs_mobile/features/pluto/controllers/pluto_controller.dart';
+import 'package:ba3_bs_mobile/features/sellers/controllers/add_seller_controller.dart';
 import 'package:ba3_bs_mobile/features/sellers/controllers/sellers_controller.dart';
 import 'package:ba3_bs_mobile/features/sellers/data/models/seller_model.dart';
 import 'package:flutter/material.dart';
@@ -20,7 +21,6 @@ import '../../../core/utils/app_ui_utils.dart';
 import '../../bill/data/models/bill_model.dart';
 import '../../patterns/data/models/bill_type_model.dart';
 import '../ui/widgets/target_pointer_widget.dart';
-import 'add_seller_controller.dart';
 
 class SellerSalesController extends GetxController with AppNavigator {
   final CompoundDatasourceRepository<BillModel, BillTypeModel> _billsFirebaseRepo;

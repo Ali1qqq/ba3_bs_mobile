@@ -1,6 +1,7 @@
 import 'package:pluto_grid/pluto_grid.dart';
 
-import '../../features/materials/data/models/material_model.dart';
+import '../../features/materials/data/models/materials/material_model.dart';
+import '../../features/patterns/data/models/bill_type_model.dart';
 import 'i_recodes_pluto_controller.dart';
 
 abstract class IPlutoController<T> extends IRecodesPlutoController<T> {
@@ -45,5 +46,6 @@ abstract class IPlutoController<T> extends IRecodesPlutoController<T> {
     required PlutoGridStateManager stateManager,
     required IPlutoController plutoController,
     required MaterialModel? materialModel,
+    required BillTypeModel billTypeModel,
   });
 }

@@ -1,10 +1,13 @@
 import 'dart:developer';
+import 'dart:io';
 
 import 'package:ba3_bs_mobile/core/helper/extensions/getx_controller_extensions.dart';
 import 'package:ba3_bs_mobile/core/helper/extensions/role_item_type_extension.dart';
 import 'package:ba3_bs_mobile/core/router/app_routes.dart';
 import 'package:ba3_bs_mobile/features/bill/controllers/bill/bill_details_controller.dart';
 import 'package:ba3_bs_mobile/features/users_management/controllers/user_management_controller.dart';
+import 'package:ba3_bs_mobile/features/users_management/data/models/user_model.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:logger/logger.dart';
@@ -12,18 +15,18 @@ import 'package:logger/logger.dart';
 import '../../../core/dialogs/seller_selection_dialog_content.dart';
 import '../../../core/helper/mixin/app_navigator.dart';
 import '../../../core/services/firebase/implementations/repos/bulk_savable_datasource_repo.dart';
+import '../../../core/services/json_file_operations/implementations/import/import_repo.dart';
 import '../../../core/utils/app_ui_utils.dart';
 import '../../floating_window/services/overlay_service.dart';
 import '../../users_management/data/models/role_model.dart';
-import '../../users_management/data/models/user_model.dart';
 import '../data/models/seller_model.dart';
 
 class SellersController extends GetxController with AppNavigator {
   final BulkSavableDatasourceRepository<SellerModel> _sellersFirebaseRepo;
 
-  // final ImportRepository<SellerModel> _sellersImportRepo;
+  final ImportRepository<SellerModel> _sellersImportRepo;
 
-  SellersController(this._sellersFirebaseRepo /*, this._sellersImportRepo*/);
+  SellersController(this._sellersFirebaseRepo, this._sellersImportRepo);
 
   List<SellerModel> sellers = [];
   bool isLoading = true;
@@ -34,7 +37,16 @@ class SellersController extends GetxController with AppNavigator {
   @override
   void onInit() {
     super.onInit();
+
     getAllSellers();
+  }
+
+  fetchProbabilitySellers() async {
+    if (RoleItemType.viewSellers.hasAdminPermission) {
+      await getAllSellers();
+    } else {
+      await fetchLoginSellers();
+    }
   }
 
   // Fetch sellers from the repository
@@ -51,7 +63,6 @@ class SellersController extends GetxController with AppNavigator {
     );
   }
 
-/*
   Future<void> fetchAllSellersFromLocal() async {
     FilePickerResult? resultFile = await FilePicker.platform.pickFiles();
 
@@ -60,15 +71,36 @@ class SellersController extends GetxController with AppNavigator {
       final result = await _sellersImportRepo.importXmlFile(file);
 
       result.fold(
-            (failure) {
+        (failure) {
           logger.e("Error log", error: failure.message);
           AppUIUtils.onFailure(failure.message);
         },
-            (fetchedSellers) => _handelFetchAllSellersFromLocalSuccess(fetchedSellers),
+        (fetchedSellers) => _handelFetchAllSellersFromLocalSuccess(fetchedSellers),
       );
     }
   }
-*/
+
+  void _handelFetchAllSellersFromLocalSuccess(List<SellerModel> fetchedSellers) async {
+    logger.d("fetchedSellers length ${fetchedSellers.length}");
+    logger.d('sellers length is ${sellers.length}');
+    logger.d('getAllSellersNotExist length is ${getAllSellersNotExist(sellers, fetchedSellers).length}');
+    if (sellers.isNotEmpty && getAllSellersNotExist(sellers, fetchedSellers).isNotEmpty) {
+      await _sellersFirebaseRepo.saveAll(getAllSellersNotExist(sellers, fetchedSellers));
+      AppUIUtils.onSuccess("تم اضافة  ${getAllSellersNotExist(sellers, fetchedSellers).length}");
+      sellers.addAll(getAllSellersNotExist(sellers, fetchedSellers));
+    }
+  }
+
+  List<SellerModel> getAllSellersNotExist(List<SellerModel> currentMaterials, List<SellerModel> fetchedMaterials) {
+    List<SellerModel> sellers = [];
+    final existingMatNames = currentMaterials.map((e) => e.costName).toSet();
+    for (var element in fetchedMaterials) {
+      if (!existingMatNames.contains(element.costName)) {
+        sellers.add(element);
+      }
+    }
+    return sellers;
+  }
 
   Future<void> addSeller(SellerModel seller) async {
     final result = await _sellersFirebaseRepo.save(seller);
@@ -90,8 +122,7 @@ class SellersController extends GetxController with AppNavigator {
 
   // Navigation to the screen displaying all sellers
   void navigateToAllSellersScreen() {
-    read<SellersController>().fetchProbabilitySellers();
-    to(AppRoutes.allSellersScreen);
+    to(AppRoutes.showAllSellersScreen);
   }
 
   // Search for sellers by text query
@@ -114,10 +145,6 @@ class SellersController extends GetxController with AppNavigator {
 
   // Get seller ID by name
   String getSellerIdByName(String? name) {
-    // log(name.toString());
-    // log("sellers    ${sellers.firstWhereOrNull((seller) => seller.costName == name)?.costGuid}");
-    if (name == 'BASUES') name = 'BASUS';
-
     if (name == null || name.isEmpty) return '';
     return sellers.firstWhereOrNull((seller) => seller.costName == name)?.costGuid ?? '';
   }
@@ -138,6 +165,15 @@ class SellersController extends GetxController with AppNavigator {
     if (newAccount != null) {
       selectedSellerAccount = newAccount;
     }
+  }
+
+  fetchLoginSellers() async {
+    UserModel userModel = read<UserManagementController>().loggedInUserModel!;
+    final result = await _sellersFirebaseRepo.getById(userModel.userSellerId!);
+    result.fold(
+      (failure) => AppUIUtils.onFailure(failure.message),
+      (fetchedSeller) => sellers.assignAll([fetchedSeller]),
+    );
   }
 
   void initSellerAccount({
@@ -190,22 +226,5 @@ class SellersController extends GetxController with AppNavigator {
     } else {
       AppUIUtils.showErrorSnackBar(title: 'فحص الحسابات', message: 'هذا الحساب غير موجود');
     }
-  }
-
-  fetchProbabilitySellers() async {
-    if (RoleItemType.viewSellers.hasAdminPermission) {
-      await getAllSellers();
-    } else {
-      await fetchLoginSellers();
-    }
-  }
-
-  fetchLoginSellers() async {
-    UserModel userModel = read<UserManagementController>().loggedInUserModel!;
-    final result = await _sellersFirebaseRepo.getById(userModel.userSellerId!);
-    result.fold(
-      (failure) => AppUIUtils.onFailure(failure.message),
-      (fetchedSeller) => sellers.assignAll([fetchedSeller]),
-    );
   }
 }

@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 
-import '../models/material_model.dart';
+import '../models/materials/material_model.dart';
 
 class MaterialRepository {
   List<MaterialModel> getAllMaterials() {

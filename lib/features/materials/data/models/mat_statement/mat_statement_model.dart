@@ -10,6 +10,7 @@ class MatStatementModel implements PlutoAdaptable {
   final MatOrigin? matOrigin;
 
   final int? quantity;
+  final int? defQuantity;
 
   final double? price;
   final DateTime? date;
@@ -27,6 +28,7 @@ class MatStatementModel implements PlutoAdaptable {
     this.matId,
     this.originId,
     this.matName,
+    this.defQuantity,
   });
 
   /// Creates an instance from a JSON object.
@@ -61,6 +63,7 @@ class MatStatementModel implements PlutoAdaptable {
   MatStatementModel copyWith({
     final MatOrigin? matOrigin,
     final int? quantity,
+    final int? defQuantity,
     final String? note,
     final String? originId,
     final double? price,
@@ -78,13 +81,14 @@ class MatStatementModel implements PlutoAdaptable {
       matId: matId ?? this.matId,
       originId: docId ?? this.originId,
       matName: matName ?? this.matName,
+      defQuantity: defQuantity ?? this.defQuantity,
     );
   }
 
   @override
   String toString() {
     return 'MatStatementItemModel(originId: $originId, matId: $matId, matName: $matName, amount: $quantity, matOriginType: ${matOrigin?.toJson()}, price: $price'
-        ', date: $date, note: $note)';
+        ', date: $date, note: $note, defQuantity : $defQuantity)';
   }
 
   @override

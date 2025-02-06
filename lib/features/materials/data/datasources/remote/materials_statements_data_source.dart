@@ -87,12 +87,12 @@ class MaterialsStatementsDatasource extends CompoundDatasourceBase<MatStatementM
     final subCollectionPath = getSubCollectionPath(id);
 
     final savedData = await compoundDatabaseService.add(
-      rootCollectionPath: rootCollectionPath,
-      rootDocumentId: rootDocumentId,
-      subCollectionPath: subCollectionPath,
-      subDocumentId: item.originId,
-      data: item.toJson(),
-    );
+        rootCollectionPath: rootCollectionPath,
+        rootDocumentId: rootDocumentId,
+        subCollectionPath: subCollectionPath,
+        subDocumentId: item.originId,
+        data: item.toJson(),
+        metaValue: (item.quantity ?? 0).toDouble());
 
     return MatStatementModel.fromJson(savedData);
   }
@@ -173,5 +173,20 @@ class MaterialsStatementsDatasource extends CompoundDatasourceBase<MatStatementM
     );
 
     return savedData.map(MatStatementModel.fromJson).toList();
+  }
+
+  @override
+  Future<double?> fetchMetaData({required String id, required String itemIdentifier})async {
+    final rootDocumentId = getRootDocumentId(itemIdentifier);
+    final subCollectionPath = getSubCollectionPath(itemIdentifier);
+
+    final metaData = await compoundDatabaseService.fetchMetaData(
+      rootCollectionPath: rootCollectionPath,
+      rootDocumentId: rootDocumentId,
+      subCollectionPath: subCollectionPath,
+
+    );
+
+    return metaData;
   }
 }

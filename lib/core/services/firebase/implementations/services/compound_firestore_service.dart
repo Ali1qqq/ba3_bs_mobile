@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../../../../models/date_filter.dart';
 import '../../../../models/query_filter.dart';
+import '../../../../network/api_constants.dart';
 import '../../interfaces/i_compound_database_service.dart';
 
 class CompoundFireStoreService extends ICompoundDatabaseService<Map<String, dynamic>> {
@@ -27,7 +28,7 @@ class CompoundFireStoreService extends ICompoundDatabaseService<Map<String, dyna
   }) async {
     // Build the base query
     Query<Map<String, dynamic>> query =
-        _firestore.collection(rootCollectionPath).doc(rootDocumentId).collection(subCollectionPath).where(field, isEqualTo: value);
+    _firestore.collection(rootCollectionPath).doc(rootDocumentId).collection(subCollectionPath).where(field, isEqualTo: value);
 
     // Apply date filter if provided
     if (dateFilter != null) {
@@ -67,12 +68,9 @@ class CompoundFireStoreService extends ICompoundDatabaseService<Map<String, dyna
     required String subCollectionPath,
     String? subDocumentId,
   }) async {
-    log('rootCollectionPath $rootCollectionPath');
-    log('rootDocumentId $rootDocumentId');
-    log('subCollectionPath $subCollectionPath');
-    log('subDocumentId $subDocumentId');
+
     final docSnapshot =
-        await _firestore.collection(rootCollectionPath).doc(rootDocumentId).collection(subCollectionPath).doc(subDocumentId).get();
+    await _firestore.collection(rootCollectionPath).doc(rootDocumentId).collection(subCollectionPath).doc(subDocumentId).get();
     if (docSnapshot.exists) {
       return docSnapshot.data()!;
     } else {
@@ -87,6 +85,7 @@ class CompoundFireStoreService extends ICompoundDatabaseService<Map<String, dyna
     required String rootDocumentId,
     required String subCollectionPath,
     String? subDocumentId,
+    double? metaValue,
   }) async {
     // Generate or use existing document ID
     final newDoc = _firestore.collection(rootCollectionPath).doc(rootDocumentId).collection(subCollectionPath).doc().id;
@@ -97,11 +96,18 @@ class CompoundFireStoreService extends ICompoundDatabaseService<Map<String, dyna
     // Ensure the docId is set in the data map if it is null
     if (data['docId'] == null) data['docId'] = docId;
 
-    final docRef = _firestore.collection(rootCollectionPath).doc(rootDocumentId).collection(subCollectionPath).doc(docId);
+    final subDocRef = _firestore.collection(rootCollectionPath).doc(rootDocumentId).collection(subCollectionPath).doc(docId);
+    final docRef = _firestore.collection(rootCollectionPath).doc(rootDocumentId);
 
-    final docSnapshot = await docRef.get();
+    log('metaValue is $metaValue');
 
-    if (docSnapshot.exists && subDocumentId != null) {
+    /// we need SetOptions(merge: true) to ensure increment or decrement
+    await docRef.set({
+      ApiConstants.metaValue: FieldValue.increment(metaValue ?? 0),
+    }, SetOptions(merge: true));
+    final subDocSnapshot = await subDocRef.get();
+
+    if (subDocSnapshot.exists && subDocumentId != null) {
       await update(
         rootCollectionPath: rootCollectionPath,
         rootDocumentId: rootDocumentId,
@@ -110,7 +116,7 @@ class CompoundFireStoreService extends ICompoundDatabaseService<Map<String, dyna
         data: data,
       );
     } else {
-      await docRef.set(data);
+      await subDocRef.set(data);
     }
 
     return data;
@@ -135,9 +141,14 @@ class CompoundFireStoreService extends ICompoundDatabaseService<Map<String, dyna
     required String rootDocumentId,
     required String subCollectionPath,
     String? subDocumentId,
+    double? metaValue,
   }) async {
-    final docRef = _firestore.collection(rootCollectionPath).doc(rootDocumentId).collection(subCollectionPath).doc(subDocumentId);
-    await docRef.delete();
+    final subDocRef = _firestore.collection(rootCollectionPath).doc(rootDocumentId).collection(subCollectionPath).doc(subDocumentId);
+    final docRef = _firestore.collection(rootCollectionPath).doc(rootDocumentId);
+    await docRef.set({
+      ApiConstants.metaValue: FieldValue.increment(metaValue ?? 0),
+    }, SetOptions(merge: true));
+    await subDocRef.delete();
   }
 
   @override
@@ -174,6 +185,7 @@ class CompoundFireStoreService extends ICompoundDatabaseService<Map<String, dyna
     required String rootCollectionPath,
     required String rootDocumentId,
     required String subCollectionPath,
+    double? metaValue,
   }) async {
     final batch = _firestore.batch();
     final addedItems = <Map<String, dynamic>>[];
@@ -184,9 +196,11 @@ class CompoundFireStoreService extends ICompoundDatabaseService<Map<String, dyna
           'docId', () => _firestore.collection(rootCollectionPath).doc(rootDocumentId).collection(subCollectionPath).doc().id);
 
       // Add the item to the batch
-      final docRef = _firestore.collection(rootCollectionPath).doc(rootDocumentId).collection(subCollectionPath).doc(docId);
+      final subDocRef = _firestore.collection(rootCollectionPath).doc(rootDocumentId).collection(subCollectionPath).doc(docId);
+      final docRef = _firestore.collection(rootCollectionPath).doc(rootDocumentId);
 
-      batch.set(docRef, item);
+      batch.set(subDocRef, item);
+      batch.set(docRef, {ApiConstants.metaValue: metaValue}, SetOptions(merge: true));
 
       // Collect the processed item
       addedItems.add(item);
@@ -195,5 +209,19 @@ class CompoundFireStoreService extends ICompoundDatabaseService<Map<String, dyna
     await batch.commit();
 
     return addedItems;
+  }
+
+  @override
+  Future<double?> fetchMetaData(
+      {required String rootCollectionPath,
+        required String rootDocumentId,
+        required String subCollectionPath,
+        String? subDocumentId}) async {
+    final docSnapshot = await _firestore.collection(rootCollectionPath).doc(rootDocumentId).get();
+    if (docSnapshot.exists) {
+      return docSnapshot.data()![ApiConstants.metaValue];
+    } else {
+      throw Exception('Document not found');
+    }
   }
 }

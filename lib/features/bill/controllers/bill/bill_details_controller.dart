@@ -7,14 +7,9 @@ import 'package:ba3_bs_mobile/core/helper/mixin/app_navigator.dart';
 import 'package:ba3_bs_mobile/core/helper/validators/app_validator.dart';
 import 'package:ba3_bs_mobile/core/i_controllers/i_bill_controller.dart';
 import 'package:ba3_bs_mobile/core/interfaces/i_store_selection_handler.dart';
-import 'package:ba3_bs_mobile/core/styling/app_colors.dart';
-import 'package:ba3_bs_mobile/core/widgets/app_button.dart';
-import 'package:ba3_bs_mobile/core/widgets/custom_text_field_without_icon.dart';
 import 'package:ba3_bs_mobile/features/bill/controllers/bill/bill_search_controller.dart';
 import 'package:ba3_bs_mobile/features/bill/data/models/bill_model.dart';
 import 'package:ba3_bs_mobile/features/bill/services/bill/bill_utils.dart';
-import 'package:ba3_bs_mobile/features/bill/ui/widgets/bill_shared/bill_header_field.dart';
-import 'package:ba3_bs_mobile/features/floating_window/services/overlay_service.dart';
 import 'package:ba3_bs_mobile/features/sellers/controllers/sellers_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -194,33 +189,60 @@ class BillDetailsController extends IBillController with AppValidator, AppNaviga
     // Validate the form first
     if (!validateForm()) return;
 
-    // Create the bill model from the provided data
-    final updatedBillModel = _createBillModelFromBillData(billTypeModel, existingBill);
-
-    // Handle null bill model
-    if (updatedBillModel == null) {
-      AppUIUtils.onFailure('من فضلك أدخل اسم العميل واسم البائع!');
-      return;
-    }
+    // 2. Create the bill model or handle failure and exit
+    final updatedBillModel = _buildBillModelOrNotifyFailure(billTypeModel, existingBill);
+    if (updatedBillModel == null) return;
 
     // Ensure there are bill items
     if (!_billService.hasModelItems(updatedBillModel.items.itemList)) return;
 
-    // Save the bill to Firestore
-    final result = await _billsFirebaseRepo.save(updatedBillModel);
+    if (_isNoUpdate(existingBill, updatedBillModel)) return;
 
-    // Handle the result (success or failure)
+    await _saveBillAndHandleResult(updatedBillModel, existingBill);
+  }
+
+  /// Checks if there's actually no change from the existing bill.
+  bool _isNoUpdate(BillModel? existingBill, BillModel updatedBill) {
+    final isNoUpdate = existingBill != null && updatedBill == existingBill;
+
+    if (isNoUpdate) AppUIUtils.onFailure('لم يتم تحديث اي شئ في الفاتورة');
+    return isNoUpdate;
+  }
+
+  /// Saves the [updatedBill] and handles success/failure UI feedback.
+  Future<void> _saveBillAndHandleResult(BillModel updatedBill, BillModel? existingBill) async {
+    final result = await _billsFirebaseRepo.save(updatedBill);
+
     result.fold(
       (failure) => AppUIUtils.onFailure(failure.message),
-      (updatedBill) {
+      (savedBill) {
         _billService.handleSaveOrUpdateSuccess(
           previousBill: existingBill,
-          currentBill: updatedBill,
+          currentBill: savedBill,
           billSearchController: billSearchController,
           isSave: existingBill == null,
         );
       },
     );
+  }
+
+  appendNewBill({required BillTypeModel billTypeModel, required int lastBillNumber}) {
+    BillModel newBill = BillModel.empty(billTypeModel: billTypeModel, lastBillNumber: lastBillNumber);
+
+    billSearchController.insertLastAndUpdate(newBill);
+  }
+
+  /// Builds the new [BillModel] from the form data.
+  /// If required fields are missing, shows a failure message and returns `null`.
+  BillModel? _buildBillModelOrNotifyFailure(BillTypeModel billTypeModel, BillModel? existingBill) {
+    final updatedBillModel = _createBillModelFromBillData(billTypeModel, existingBill);
+
+    if (updatedBillModel == null) {
+      AppUIUtils.onFailure('من فضلك أدخل اسم العميل واسم البائع!');
+      return null;
+    }
+
+    return updatedBillModel;
   }
 
   BillModel? _createBillModelFromBillData(BillTypeModel billTypeModel, [BillModel? billModel]) {
@@ -285,7 +307,7 @@ class BillDetailsController extends IBillController with AppValidator, AppNaviga
     onPayTypeChanged(InvPayType.fromIndex(bill.billDetails.billPayType!));
 
     setBillDate = bill.billDetails.billDate!;
-
+    isBillSaved.value = bill.billId != null;
     noteController.text = bill.billDetails.note ?? '';
     firstPayController.text = (bill.billDetails.billFirstPay ?? 0.0).toString();
 
@@ -312,37 +334,14 @@ class BillDetailsController extends IBillController with AppValidator, AppNaviga
     );
   }
 
-  showEInvoiceDialog(BillModel billModel, BuildContext context) {
-    _billService.showEInvoiceDialog(billModel, context);
-  }
+  showEInvoiceDialog(BillModel billModel, BuildContext context) => _billService.showEInvoiceDialog(billModel, context);
 
-  void openFirstPayDialog(BuildContext context) {
-    OverlayService.showDialog(
-        color: AppColors.backGroundColor,
-        context: context,
-        height: 200,
-        showDivider: true,
-        title: 'المزيد',
-        content: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisAlignment: MainAxisAlignment.center,
-          spacing: 5,
-          children: [
-            TextAndExpandedChildField(label: 'الدفعة الاولى', child: CustomTextFieldWithoutIcon(textEditingController: firstPayController)),
-            AppButton(title: 'تم', onPressed: () => OverlayService.back())
-          ],
-        ));
-  }
+  void openFirstPayDialog(BuildContext context) => _billService.showFirstPayDialog(context, firstPayController);
 
-  showBarCodeScanner(BuildContext context) => _billService.showBarCodeScanner(
-        context: context,
-        stateManager: billDetailsPlutoController.recordsTableStateManager,
-        plutoController: billDetailsPlutoController,
-      );
-
-  appendNewBill({required BillTypeModel billTypeModel, required int lastBillNumber}) {
-    BillModel newBill = BillModel.empty(billTypeModel: billTypeModel, lastBillNumber: lastBillNumber);
-
-    billSearchController.insertLastAndUpdate(newBill);
-  }
+  /// this for mobile
+  showBarCodeScanner(BuildContext context, BillTypeModel billTypeModel) => _billService.showBarCodeScanner(
+      context: context,
+      stateManager: billDetailsPlutoController.recordsTableStateManager,
+      plutoController: billDetailsPlutoController,
+      billTypeModel: billTypeModel);
 }

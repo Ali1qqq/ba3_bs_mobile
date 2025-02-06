@@ -16,7 +16,7 @@ import '../../../../core/i_controllers/i_pluto_controller.dart';
 import '../../../accounts/controllers/accounts_controller.dart';
 import '../../../floating_window/services/overlay_service.dart';
 import '../../../materials/controllers/material_controller.dart';
-import '../../../materials/data/models/material_model.dart';
+import '../../../materials/data/models/materials/material_model.dart';
 import '../../data/models/discount_addition_account_model.dart';
 import '../../data/models/invoice_record_model.dart';
 import 'bill_pluto_utils.dart';
@@ -31,6 +31,9 @@ class BillPlutoGridService {
   PlutoGridStateManager get additionsDiscountsStateManager => controller.additionsDiscountsStateManager;
 
   void updateCellValue(PlutoGridStateManager stateManager, String field, dynamic value) {
+    if (stateManager.currentRow!.cells[field] == null) {
+      log('field   $field');
+    }
     stateManager.changeCellValue(
       stateManager.currentRow!.cells[field]!,
       value,
@@ -100,7 +103,7 @@ class BillPlutoGridService {
     updateCellValue(mainTableStateManager, AppConstants.invRecQuantity, quantity);
   }
 
-  void updateInvoiceValuesByTotal(double total, int quantity) {
+  void updateInvoiceValuesByTotal(double total, int quantity, BillTypeModel billTypeModel) {
     final isZeroTotal = total == 0 || quantity == 0;
 
     final subTotalStr = isZeroTotal ? '' : (total / (quantity * 1.05)).toStringAsFixed(2);
@@ -108,23 +111,24 @@ class BillPlutoGridService {
 
     final totalStr = isZeroTotal ? '' : total.toStringAsFixed(2);
 
-    updateCellValue(mainTableStateManager, AppConstants.invRecVat, vat);
+    if (billTypeModel.billPatternType!.hasVat) {
+      updateCellValue(mainTableStateManager, AppConstants.invRecVat, vat);
+    }
     updateCellValue(mainTableStateManager, AppConstants.invRecSubTotal, subTotalStr);
     updateCellValue(mainTableStateManager, AppConstants.invRecTotal, totalStr);
   }
 
-  void updateInvoiceValuesBySubTotal({
-    required PlutoRow selectedRow,
-    required double subTotal,
-    required int quantity,
-  }) {
+  void updateInvoiceValuesBySubTotal(
+      {required PlutoRow selectedRow, required double subTotal, required int quantity, required BillTypeModel billTypeModel}) {
     final isZeroSubtotal = subTotal == 0;
 
     final subTotalStr = isZeroSubtotal ? '' : subTotal.toStringAsFixed(2);
     final vat = isZeroSubtotal ? '' : (subTotal * 0.05).toStringAsFixed(2);
     final total = isZeroSubtotal ? '' : ((subTotal + subTotal * 0.05) * quantity).toStringAsFixed(2);
 
-    updateSelectedRowCellValue(mainTableStateManager, selectedRow, AppConstants.invRecVat, vat);
+    if (billTypeModel.billPatternType!.hasVat) {
+      updateCellValue(mainTableStateManager, AppConstants.invRecVat, vat);
+    }
     updateSelectedRowCellValue(mainTableStateManager, selectedRow, AppConstants.invRecSubTotal, subTotalStr);
     updateSelectedRowCellValue(mainTableStateManager, selectedRow, AppConstants.invRecTotal, total);
     updateSelectedRowCellValue(mainTableStateManager, selectedRow, AppConstants.invRecQuantity, quantity);
@@ -266,7 +270,8 @@ class BillPlutoGridService {
     }
   }
 
-  void getProduct(String productText, PlutoGridStateManager stateManager, IPlutoController plutoController, BuildContext context) async {
+  void getProduct(String productText, PlutoGridStateManager stateManager, IPlutoController plutoController, BuildContext context,
+      BillTypeModel billTypeModel) async {
     // Initialize variables
 
     final productTextController = TextEditingController()..text = productText;
@@ -279,10 +284,10 @@ class BillPlutoGridService {
     if (searchedMaterials.length == 1) {
       // Single match
       selectedMaterial = searchedMaterials.first;
-      updateWithSelectedMaterial(selectedMaterial, stateManager, plutoController);
+      updateWithSelectedMaterial(selectedMaterial, stateManager, plutoController, billTypeModel);
     } else if (searchedMaterials.isEmpty) {
       // No matches
-      updateWithSelectedMaterial(null, stateManager, plutoController);
+      updateWithSelectedMaterial(null, stateManager, plutoController, billTypeModel);
     } else {
       if (!context.mounted) return;
       // Clear focus from PlutoWithEdite before showing the dialog
@@ -290,13 +295,13 @@ class BillPlutoGridService {
 
       // Multiple matches, show search dialog
       _showSearchDialog(
-        context: context,
-        productTextController: productTextController,
-        searchedMaterials: searchedMaterials,
-        materialController: materialController,
-        stateManager: stateManager,
-        plutoController: plutoController,
-      );
+          context: context,
+          productTextController: productTextController,
+          searchedMaterials: searchedMaterials,
+          materialController: materialController,
+          stateManager: stateManager,
+          plutoController: plutoController,
+          billTypeModel: billTypeModel);
     }
   }
 
@@ -306,6 +311,7 @@ class BillPlutoGridService {
       required MaterialController materialController,
       required PlutoGridStateManager stateManager,
       required IPlutoController plutoController,
+      required BillTypeModel billTypeModel,
       required BuildContext context}) {
     OverlayService.showDialog(
       context: context,
@@ -318,7 +324,7 @@ class BillPlutoGridService {
 
           final selectedMaterial = materialId != null ? materialController.getMaterialById(materialId) : null;
 
-          updateWithSelectedMaterial(selectedMaterial, stateManager, plutoController);
+          updateWithSelectedMaterial(selectedMaterial, stateManager, plutoController, billTypeModel);
 
           OverlayService.back();
         },
@@ -335,12 +341,9 @@ class BillPlutoGridService {
   }
 
   void updateWithSelectedMaterial(
-    MaterialModel? materialModel,
-    PlutoGridStateManager stateManager,
-    IPlutoController plutoController,
-  ) {
+      MaterialModel? materialModel, PlutoGridStateManager stateManager, IPlutoController plutoController, BillTypeModel billTypeModel) {
     if (materialModel != null) {
-      _updateRowWithMaterial(materialModel, stateManager);
+      _updateRowWithMaterial(materialModel, stateManager, billTypeModel);
       plutoController.moveToNextRow(stateManager, AppConstants.invRecProduct);
     } else {
       plutoController.restoreCurrentCell(stateManager);
@@ -350,7 +353,7 @@ class BillPlutoGridService {
     plutoController.update();
   }
 
-  void _updateRowWithMaterial(MaterialModel materialModel, PlutoGridStateManager stateManager) {
+  void _updateRowWithMaterial(MaterialModel materialModel, PlutoGridStateManager stateManager, BillTypeModel billTypeModel) {
     final subTotal = materialModel.endUserPrice?.toDouble ?? 0;
 
     final isZeroSubtotal = subTotal == 0;
@@ -361,7 +364,9 @@ class BillPlutoGridService {
     updateCellValue(stateManager, AppConstants.invRecProduct, materialModel.matName);
     updateCellValue(stateManager, AppConstants.invRecSubTotal, subTotal);
     updateCellValue(stateManager, AppConstants.invRecQuantity, 1);
-    updateCellValue(stateManager, AppConstants.invRecVat, vat);
+    if (billTypeModel.billPatternType!.hasVat) {
+      updateCellValue(mainTableStateManager, AppConstants.invRecVat, vat);
+    }
     updateCellValue(stateManager, AppConstants.invRecTotal, total);
   }
 }

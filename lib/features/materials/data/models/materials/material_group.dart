@@ -2,7 +2,7 @@ import 'package:pluto_grid/pluto_grid.dart';
 
 import '../../../../../core/constants/app_strings.dart';
 import '../../../../../core/widgets/pluto_auto_id_column.dart';
-import '../../../pluto/data/models/pluto_adaptable.dart';
+import '../../../../pluto/data/models/pluto_adaptable.dart';
 
 class MaterialGroupModel implements PlutoAdaptable {
   final String matGroupGuid;

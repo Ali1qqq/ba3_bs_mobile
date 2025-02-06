@@ -1,4 +1,4 @@
-import 'package:ba3_bs_mobile/core/helper/extensions/basic/list_extensions.dart';
+import 'package:ba3_bs_mobile/core/helper/extensions/bill_items_extensions.dart';
 import 'package:ba3_bs_mobile/features/bill/data/models/bill_model.dart';
 import 'package:ba3_bs_mobile/features/materials/controllers/mats_statement_controller.dart';
 import 'package:ba3_bs_mobile/features/materials/data/models/mat_statement/mat_statement_model.dart';
@@ -6,6 +6,8 @@ import 'package:ba3_bs_mobile/features/materials/service/mat_statement_creator_f
 
 import '../../../core/helper/extensions/getx_controller_extensions.dart';
 import '../../bill/data/models/bill_items.dart';
+import '../../bill/services/bill/quantity_strategy.dart';
+import '../../bill/services/bill/quantity_strategy_factory.dart';
 import 'mat_statement_creator.dart';
 
 mixin MatsStatementsGenerator {
@@ -17,10 +19,7 @@ mixin MatsStatementsGenerator {
   }) async {
     final matsStatementsModels = _generateMatsStatementsModels(sourceModels);
 
-    await _materialsStatementController.saveAllMatsStatementsModels(
-      matsStatements: matsStatementsModels,
-      onProgress: onProgress,
-    );
+    await _materialsStatementController.saveAllMatsStatementsModels(matsStatements: matsStatementsModels, onProgress: onProgress);
   }
 
   List<MatStatementModel> _generateMatsStatementsModels(List sourceModels) {
@@ -34,25 +33,27 @@ mixin MatsStatementsGenerator {
 
   Future<void> generateAndSaveMatStatement<T>({
     required T model,
-    Map<String, List<BillItem>> deletedMaterials = const {},
+    List<BillItem> deletedMaterials = const [],
+    List<BillItem> updatedMaterials = const [],
   }) async {
     final MatStatementCreator creator = MatStatementCreatorFactory.resolveMatStatementCreator(model);
-    final matsStatementModel = creator.createMatStatement(model: model);
+    final matsStatementsModels = creator.createMatStatement(model: model, updatedMaterials: updatedMaterials);
 
-    await _materialsStatementController.saveAllMatsStatementsModels(
-      matsStatements: matsStatementModel,
-    );
+    await _materialsStatementController.saveAllMatsStatementsModels(matsStatements: matsStatementsModels);
 
     if (deletedMaterials.isNotEmpty) {
-      final originId = matsStatementModel.first.originId;
+      final originId = matsStatementsModels.first.originId;
 
-      final matStatementsToDelete = deletedMaterials.entries.map((entry) {
-        final matId = entry.value.first.itemGuid;
-        return MatStatementModel(
-          matId: matId,
-          originId: originId,
-        );
-      }).toList();
+      final matStatementsToDelete = deletedMaterials.map(
+        (material) {
+          final matId = material.itemGuid;
+
+          return MatStatementModel(
+            matId: matId,
+            originId: originId,
+          );
+        },
+      ).toList();
 
       await _materialsStatementController.deleteAllMatStatementModel(matStatementsToDelete);
     }
@@ -60,24 +61,20 @@ mixin MatsStatementsGenerator {
 
   Future<void> deleteMatsStatementsModels(BillModel billModel) async {
     final String originId = billModel.billId!;
+    final QuantityStrategy quantityStrategy = QuantityStrategyFactory.getStrategy(billModel);
 
-    final matMatStatementsModels = billModel.items.itemList
+    final mergedBillItems = billModel.items.itemList.merge();
+
+    final matStatementsModels = mergedBillItems
         .map(
           (item) => MatStatementModel(
             matId: item.itemGuid,
             originId: originId,
+            quantity: -quantityStrategy.calculateQuantity(item.itemQuantity),
           ),
         )
         .toList();
 
-    final groupedMatMatStatementsModels = matMatStatementsModels.mergeBy(
-      (item) => item.matId,
-      (existing, current) => MatStatementModel(
-        matId: existing.matId,
-        originId: existing.originId,
-      ),
-    );
-
-    await _materialsStatementController.deleteAllMatStatementModel(groupedMatMatStatementsModels);
+    await _materialsStatementController.deleteAllMatStatementModel(matStatementsModels);
   }
 }

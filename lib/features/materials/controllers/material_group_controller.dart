@@ -3,15 +3,16 @@ import 'dart:io';
 
 import 'package:ba3_bs_mobile/core/services/firebase/implementations/repos/remote_datasource_repo.dart';
 import 'package:ba3_bs_mobile/core/services/json_file_operations/interfaces/import/i_import_repository.dart';
+import 'package:ba3_bs_mobile/features/materials/data/models/materials/material_group.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:get/get.dart';
 
 import '../../../core/helper/mixin/app_navigator.dart';
 import '../../../core/network/api_constants.dart';
+import '../../../core/router/app_routes.dart';
 import '../../../core/services/firebase/implementations/services/firestore_uploader.dart';
 import '../../../core/utils/app_service_utils.dart';
 import '../../../core/utils/app_ui_utils.dart';
-import '../data/models/material_group.dart';
 
 class MaterialGroupController extends GetxController with AppNavigator {
   final IImportRepository<MaterialGroupModel> _importRepository;
@@ -43,7 +44,7 @@ class MaterialGroupController extends GetxController with AppNavigator {
   }
 
   void navigateToAllMaterialScreen() {
-    // to(AppRoutes.showAllMaterialsGroupScreen);
+    to(AppRoutes.showAllMaterialsGroupScreen);
   }
 
   Future<void> fetchAllMaterialGroupGroupFromLocal() async {
@@ -86,7 +87,8 @@ class MaterialGroupController extends GetxController with AppNavigator {
     return searchedMaterialGroups;
   }
 
-  void _handelFetchAllMaterialGroupGroupFromLocalSuccess(List<MaterialGroupModel> fetchedMaterialGroupGroupFromNetwork) async {
+  void _handelFetchAllMaterialGroupGroupFromLocalSuccess(
+      List<MaterialGroupModel> fetchedMaterialGroupGroupFromNetwork) async {
     final fetchedMaterialGroup = fetchedMaterialGroupGroupFromNetwork;
     log('fetchedMaterialGroup length ${fetchedMaterialGroup.length}');
 

@@ -1,9 +1,11 @@
 import 'package:ba3_bs_mobile/core/constants/app_strings.dart';
+import 'package:ba3_bs_mobile/features/materials/controllers/material_group_controller.dart';
 import 'package:ba3_bs_mobile/features/pluto/data/models/pluto_adaptable.dart';
 import 'package:hive/hive.dart';
 import 'package:pluto_grid/pluto_grid.dart';
 
-import '../../../../core/widgets/pluto_auto_id_column.dart';
+import '../../../../../core/helper/extensions/getx_controller_extensions.dart';
+import '../../../../../core/widgets/pluto_auto_id_column.dart';
 
 part 'material_model.g.dart'; // This will be generated automatically by the build_runner
 
@@ -165,6 +167,11 @@ class MaterialModel extends HiveObject implements PlutoAdaptable {
   @HiveField(51)
   final List<MatExtraBarcodeModel>? matExtraBarcode;
 
+  @HiveField(52)
+  final int? matQuantity;
+
+  final double? calcMinPrice;
+
   MaterialModel({
     this.id,
     this.matCode,
@@ -218,6 +225,8 @@ class MaterialModel extends HiveObject implements PlutoAdaptable {
     this.endUserPrice,
     this.matVatGuid,
     this.matExtraBarcode,
+    this.matQuantity,
+    this.calcMinPrice,
   });
 
   // Factory constructor to create an instance from JSON
@@ -275,6 +284,8 @@ class MaterialModel extends HiveObject implements PlutoAdaptable {
       endUserPrice: json['EndUser2']?.toString(),
       matVatGuid: json['matVatGuid']?.toString(),
       matExtraBarcode: List.from(json['matExtraBarcode'] ?? []),
+      matQuantity: json['MatQuantity'] ?? 0,
+      calcMinPrice: json['calcMinPrice'] ?? 0.0,
     );
   }
 
@@ -285,13 +296,24 @@ class MaterialModel extends HiveObject implements PlutoAdaptable {
         'MatName': matName,
         'MatBarCode': matBarCode,
         'MatGroupGuid': matGroupGuid,
+        'MatCreateDate': matCreateDate?.toIso8601String(),
+        'MatCurrencyVal': matCurrencyVal,
+        'MatPictureGuid': matPictureGuid,
+        'MatLastPriceCurVal': matLastPriceCurVal,
+        'MatPrevQty': matPrevQty,
+        'MatCompositionLatinName': matCompositionLatinName,
+        'Whole2': wholesalePrice,
+        'retail2': retailPrice,
+        'EndUser2': endUserPrice,
+        'matVatGuid': matVatGuid,
+        'matExtraBarcode': matExtraBarcode,
+        'MatQuantity': matQuantity,
+        'calcMinPrice': calcMinPrice,
         // 'MatUnity': matUnity,
         // 'MatPriceType': matPriceType,
         // 'MatBonus': matBonus,
         // 'MatBonusOne': matBonusOne,
         // 'MatCurrencyGuid': matCurrencyGuid,
-        'MatCurrencyVal': matCurrencyVal,
-        'MatPictureGuid': matPictureGuid,
         // 'MatType': matType,
         // 'MatSecurity': matSecurity,
         // 'MatFlag': matFlag,
@@ -311,27 +333,18 @@ class MaterialModel extends HiveObject implements PlutoAdaptable {
         // 'MatCalPriceFromDetail': matCalPriceFromDetail,
         // 'MatForceInExpire': matForceInExpire,
         // 'MatForceOutExpire': matForceOutExpire,
-        'MatCreateDate': matCreateDate?.toIso8601String(),
         // 'MatIsIntegerQuantity': matIsIntegerQuantity,
         // 'MatClassFlag': matClassFlag,
         // 'MatForceInClass': matForceInClass,
         // 'MatForceOutClass': matForceOutClass,
         // 'MatDisableLastPrice': matDisableLastPrice,
-        'MatLastPriceCurVal': matLastPriceCurVal,
-        'MatPrevQty': matPrevQty,
+        // 'MovedComposite': movedComposite,
         // 'MatFirstCostDate': matFirstCostDate?.toIso8601String(),
         // 'MatHasSegments': matHasSegments,
         // 'MatParent': matParent,
         // 'MatIsCompositionUpdated': matIsCompositionUpdated,
         // 'MatInheritsParentSpecs': matInheritsParentSpecs,
         // 'MatCompositionName': matCompositionName,
-        'MatCompositionLatinName': matCompositionLatinName,
-        // 'MovedComposite': movedComposite,
-        'Whole2': wholesalePrice,
-        'retail2': retailPrice,
-        'EndUser2': endUserPrice,
-        'matVatGuid': matVatGuid,
-        'matExtraBarcode': matExtraBarcode,
       };
 
   @override
@@ -339,12 +352,34 @@ class MaterialModel extends HiveObject implements PlutoAdaptable {
     return {
       PlutoColumn(title: 'الرقم التعريفي', field: AppStrings.materialIdFiled, type: PlutoColumnType.text(), hide: true): id,
       createAutoIdColumn(): '',
-      PlutoColumn(title: 'اسم المادة', field: 'اسم المادة', type: PlutoColumnType.text()): matName,
-      PlutoColumn(title: 'رمز المادة', field: 'رمز المادة', type: PlutoColumnType.text()): matCode,
-      PlutoColumn(title: 'الباركود', field: 'الباركود', type: PlutoColumnType.text()): matBarCode,
-      PlutoColumn(title: 'التكلفة', field: 'التكلفة', type: PlutoColumnType.text()): retailPrice,
-      PlutoColumn(title: 'سعر المستهلك', field: 'سعر المستهلك', type: PlutoColumnType.text()): endUserPrice,
-      PlutoColumn(title: 'سعر الجملة', field: 'سعر الجملة', type: PlutoColumnType.text()): wholesalePrice,
+      PlutoColumn(title: 'اسم المادة', field: 'اسم المادة', type: PlutoColumnType.text(), width: 400): matName,
+      PlutoColumn(title: 'الكمية', field: 'الكمية', type: PlutoColumnType.text(), width: 120, textAlign: PlutoColumnTextAlign.center):
+          matQuantity,
+      PlutoColumn(title: 'التكلفة', field: 'التكلفة', type: PlutoColumnType.text(), width: 120, textAlign: PlutoColumnTextAlign.center):
+          retailPrice,
+      PlutoColumn(
+          title: 'الوسطي',
+          field: 'الوسطي',
+          type: PlutoColumnType.currency(
+            decimalDigits: 2,
+            symbol: '',
+          ),
+          width: 120,
+          textAlign: PlutoColumnTextAlign.center): calcMinPrice,
+      PlutoColumn(title: 'المستهلك', field: 'المستهلك', type: PlutoColumnType.text(), width: 120, textAlign: PlutoColumnTextAlign.center):
+          endUserPrice,
+      PlutoColumn(title: 'الجملة', field: 'الجملة', type: PlutoColumnType.text(), width: 120, textAlign: PlutoColumnTextAlign.center):
+          wholesalePrice,
+      PlutoColumn(
+          title: 'رمز المادة',
+          field: 'رمز المادة',
+          type: PlutoColumnType.text(),
+          width: 120,
+          textAlign: PlutoColumnTextAlign.center): matCode,
+      PlutoColumn(title: 'الباركود', field: 'الباركود', type: PlutoColumnType.text(), width: 120, textAlign: PlutoColumnTextAlign.center):
+          matBarCode,
+      PlutoColumn(title: 'المجموعة', field: 'المجموعة', type: PlutoColumnType.text()):
+          read<MaterialGroupController>().getMaterialGroupById(matGroupGuid!)?.groupName ?? '',
     };
   }
 
@@ -401,6 +436,8 @@ class MaterialModel extends HiveObject implements PlutoAdaptable {
     String? retailPrice,
     String? endUserPrice,
     String? matVatGuid,
+    int? matQuantity,
+    double? calcMinPrice,
   }) {
     return MaterialModel(
       id: id ?? this.id,
@@ -454,6 +491,8 @@ class MaterialModel extends HiveObject implements PlutoAdaptable {
       retailPrice: retailPrice ?? this.retailPrice,
       endUserPrice: endUserPrice ?? this.endUserPrice,
       matVatGuid: matVatGuid ?? this.matVatGuid,
+      matQuantity: matQuantity ?? this.matQuantity,
+      calcMinPrice: calcMinPrice ?? this.calcMinPrice,
     );
   }
 }

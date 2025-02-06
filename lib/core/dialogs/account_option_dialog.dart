@@ -1,4 +1,4 @@
-import 'package:ba3_bs_mobile/features/accounts/controllers/account_statement_controller.dart';
+import 'package:ba3_bs_mobile/features/accounts/controllers/account_statement_controller.dart' show AccountStatementController;
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 

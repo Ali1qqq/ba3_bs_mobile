@@ -36,6 +36,7 @@ class AddMaterialScreen extends StatelessWidget {
                     controller.openMaterialSelectionDialog(
                       query: text,
                       context: context,
+
                     );
                   },
                 ),

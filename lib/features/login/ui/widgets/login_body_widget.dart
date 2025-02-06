@@ -55,7 +55,7 @@ class LoginBodyWidget extends StatelessWidget {
                       color: AppColors.blueColor,
                     ),
                     onPressed: () {
-                      userManagementController.userFormHandler.updatePasswordVisibility();
+                      userManagementController.updatePasswordVisibility();
                     },
                   ),
                   errorMaxLines: 2,

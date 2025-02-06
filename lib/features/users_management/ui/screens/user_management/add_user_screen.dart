@@ -1,3 +1,4 @@
+import 'package:ba3_bs_mobile/features/users_management/controllers/user_details_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -5,7 +6,6 @@ import 'package:get/get.dart';
 import '../../../../../core/helper/extensions/getx_controller_extensions.dart';
 import '../../../../../core/widgets/app_button.dart';
 import '../../../../sellers/controllers/sellers_controller.dart';
-import '../../../controllers/user_management_controller.dart';
 import '../../widgets/user_management/user_all_holidays.dart';
 import '../../widgets/user_management/user_all_working_hours.dart';
 import '../../widgets/user_management/user_details_form_widget.dart';
@@ -15,44 +15,30 @@ class AddUserScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    UserManagementController userManagementViewController = read<UserManagementController>();
     SellersController sellerViewController = read<SellersController>();
     return Column(
       children: [
         Expanded(
-          child: GetBuilder<UserManagementController>(builder: (controller) {
+          child: GetBuilder<UserDetailsController>(builder: (controller) {
             return Scaffold(
               appBar: AppBar(
                 centerTitle: false,
                 title: Text(controller.selectedUserModel?.userName ?? 'مستخدم جديد'),
-                actions: [
-                  // if (controller.selectedUserModel?.userId != null)
-                  //   ElevatedButton(
-                  //       onPressed: () {
-                  //         Get.to(() => TimeDetailsScreen(
-                  //               oldKey: controller.loggedInUserModel!.userId!,
-                  //               name: controller.loggedInUserModel!.userName!,
-                  //             ));
-                  //       },
-                  //       child: const Text('البريك')),
-                  // const SizedBox(
-                  //   width: 20,
-                  // ),
-                ],
+                actions: [],
               ),
               body: Center(
                 child: ListView(
                   // mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
                     UserDetailsForm(
-                      userManagementController: userManagementViewController,
+                      userDetailsController: controller,
                       sellerController: sellerViewController,
                     ),
                     UserAllWorkingHour(
-                      controller: controller,
+                      userDetailsController: controller,
                     ),
                     UserAllHolidays(
-                      controller: controller,
+                      userDetailsController: controller,
                     ),
                     Center(
                       child: Padding(
@@ -62,7 +48,7 @@ class AddUserScreen extends StatelessWidget {
                           onPressed: () {
                             controller.saveOrUpdateUser();
                           },
-                          iconData: controller.roleModel?.roleId == null ? Icons.add : Icons.edit,
+                          iconData: controller.selectedUserModel?.userId == null ? Icons.add : Icons.edit,
                           color: controller.selectedUserModel?.userId == null ? null : Colors.green,
                         ),
                       ),

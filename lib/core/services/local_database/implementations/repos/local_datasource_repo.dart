@@ -30,8 +30,8 @@ class LocalDatasourceRepository<T> {
       log('remoteData ${remoteData.length}');
 
       return Right(remoteData);
-    } catch (e) {
-      log('Error in getAll: $e');
+    } catch (e, stackTrace) {
+      log('Error in getAll: $e', stackTrace: stackTrace);
       return Left(ErrorHandler(e).failure);
     }
   }
@@ -49,8 +49,8 @@ class LocalDatasourceRepository<T> {
         await localDatasource.saveData(remoteData);
       }
       return Right(remoteData);
-    } catch (e) {
-      log('Error in getById: $e');
+    } catch (e, stackTrace) {
+      log('Error in getById: $e', stackTrace: stackTrace);
       return Left(ErrorHandler(e).failure);
     }
   }
@@ -61,20 +61,40 @@ class LocalDatasourceRepository<T> {
 
       await localDatasource.saveData(data);
 
-      return Right(savedItem); // Return success
-    } catch (e) {
-      log('Error in save on LocalDatasourceRepository: $e');
-      return Left(ErrorHandler(e).failure); // Return error
+      return Right(savedItem);
+    } catch (e, stackTrace) {
+      log('Error in save: $e', stackTrace: stackTrace);
+      return Left(ErrorHandler(e).failure);
     }
   }
 
   Future<Either<Failure, List<T>>> saveAll(List<T> data) async {
     try {
       await localDatasource.saveAllData(data);
-
       return Right(data);
-    } catch (e) {
-      log('Error in saveAll: $e');
+    } catch (e, stackTrace) {
+      log('Error in saveAll: $e', stackTrace: stackTrace);
+      return Left(ErrorHandler(e).failure);
+    }
+  }
+
+  Future<Either<Failure, Unit>> update(T data) async {
+    try {
+      await remoteDatasource.save(data);
+      await localDatasource.updateData(data);
+      return Right(unit);
+    } catch (e, stackTrace) {
+      log('Error in update: $e', stackTrace: stackTrace);
+      return Left(ErrorHandler(e).failure);
+    }
+  }
+
+  Future<Either<Failure, Unit>> updateAll(List<T> data) async {
+    try {
+      await localDatasource.updateAllData(data);
+      return Right(unit);
+    } catch (e, stackTrace) {
+      log('Error in updateAll: $e', stackTrace: stackTrace);
       return Left(ErrorHandler(e).failure);
     }
   }
@@ -82,13 +102,11 @@ class LocalDatasourceRepository<T> {
   Future<Either<Failure, Unit>> delete(T item, String itemId) async {
     try {
       await remoteDatasource.delete(itemId);
-
       await localDatasource.removeData(item);
-
-      return Right(unit); // Return success
-    } catch (e) {
-      log('Error in delete on LocalDatasourceRepository: $e');
-      return Left(ErrorHandler(e).failure); // Return error
+      return Right(unit);
+    } catch (e, stackTrace) {
+      log('Error in delete: $e', stackTrace: stackTrace);
+      return Left(ErrorHandler(e).failure);
     }
   }
 
@@ -96,8 +114,8 @@ class LocalDatasourceRepository<T> {
     try {
       await localDatasource.removeAllData(data);
       return Right(unit);
-    } catch (e) {
-      log('Error in delete all: $e');
+    } catch (e, stackTrace) {
+      log('Error in deleteAll: $e', stackTrace: stackTrace);
       return Left(ErrorHandler(e).failure);
     }
   }
@@ -106,8 +124,8 @@ class LocalDatasourceRepository<T> {
     try {
       await localDatasource.clearAllData();
       return Right(unit);
-    } catch (e) {
-      log('Error in clear: $e');
+    } catch (e, stackTrace) {
+      log('Error in clear: $e', stackTrace: stackTrace);
       return Left(ErrorHandler(e).failure);
     }
   }

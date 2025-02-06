@@ -105,16 +105,23 @@ enum BillType {
     },
   ),
   firstPeriodInventory(
-      label: 'firstPeriodInventory',
-      value: 'بضاعة أول المدة',
-      typeGuide: "5a9e7782-cde5-41db-886a-ac89732feda7",
-      color: 4287349578,
-      accounts: {
-        BillAccounts.store: AccountModel(accName: "المستودع الرئيسي", id: '6d9836d1-fccd-4006-804f-81709eecde57'),
-      }),
-  transferIn(label: 'transferIn', value: 'تسوية الزيادة', typeGuide: "494fa945-3fe5-4fc3-86d6-7a9999b6c9e8", color: 4278228616, accounts: {
-    BillAccounts.store: AccountModel(accName: "المستودع الرئيسي", id: '6d9836d1-fccd-4006-804f-81709eecde57'),
-  }),
+    label: 'firstPeriodInventory',
+    value: 'بضاعة أول المدة',
+    typeGuide: "5a9e7782-cde5-41db-886a-ac89732feda7",
+    color: 4287349578,
+    accounts: {
+      BillAccounts.store: AccountModel(accName: "المستودع الرئيسي", id: '6d9836d1-fccd-4006-804f-81709eecde57'),
+    },
+  ),
+  transferIn(
+    label: 'transferIn',
+    value: 'تسوية الزيادة',
+    typeGuide: "494fa945-3fe5-4fc3-86d6-7a9999b6c9e8",
+    color: 4278228616,
+    accounts: {
+      BillAccounts.store: AccountModel(accName: "المستودع الرئيسي", id: '6d9836d1-fccd-4006-804f-81709eecde57'),
+    },
+  ),
   transferOut(
     label: 'transferOut',
     value: 'تسوية النقص',
@@ -248,7 +255,7 @@ enum Status {
 
 enum BondType {
   openingEntry(
-    label: "Opening_Entry",
+    label: "OpeningEntry",
     value: "القيد الافتتاحي",
     typeGuide: "ea69ba80-662d-4fa4-90ee-4d2e1988a8ea",
     from: 1,
@@ -259,7 +266,7 @@ enum BondType {
     color: "E6E6EF",
   ),
   receiptVoucher(
-    label: "Receipt_Voucher",
+    label: "ReceiptVoucher",
     value: "سند قبض",
     typeGuide: "3dbab874-6002-413b-9a6b-9a216f338097",
     from: 1,
@@ -270,7 +277,7 @@ enum BondType {
     color: "6DC289",
   ),
   paymentVoucher(
-    label: "Payment_Voucher",
+    label: "PaymentVoucher",
     value: "سند دفع",
     typeGuide: '5085dc23-1444-4e9a-9d8f-1794da9e7f96',
     from: 1,
@@ -281,7 +288,7 @@ enum BondType {
     color: "C26D6D",
   ),
   journalVoucher(
-    label: "Journal_Voucher",
+    label: "JournalVoucher",
     value: "سند يومية",
     typeGuide: "2a550cb5-4e91-4e68-bacc-a0e7dcbbf1de",
     from: 1,
@@ -390,6 +397,22 @@ enum EntryBondType {
     return EntryBondType.values.firstWhere(
       (type) => type.label == label,
       orElse: () => throw ArgumentError('No matching EntryBondType for label: $label'),
+    );
+  }
+}
+
+enum MatOriginType {
+  bill('bill');
+
+  final String label;
+
+  const MatOriginType(this.label);
+
+  // Factory constructor with error handling for unmatched labels
+  factory MatOriginType.byLabel(String label) {
+    return MatOriginType.values.firstWhere(
+      (type) => type.label == label,
+      orElse: () => throw ArgumentError('No matching MatOriginType for label: $label'),
     );
   }
 }
@@ -611,18 +634,38 @@ enum ChequesStrategyType {
 
 enum NavigationDirection { next, previous, specific }
 
-enum MatOriginType {
-  bill('bill');
+enum VatEnums {
+  withVat(
+      taxGuid: 'xtc33mNeCZYR98i96pd8',
+      taxName: 'ضريبة القيمة المضافة رأس الخيمة',
+      taxRatio: 0.05,
+      taxAccountGuid: 'a5c04527-63e8-4373-92e8-68d8f88bdb16'),
+  withOutVat(taxGuid: 'kCfkUHwNyRbxTlD71uXV', taxName: 'معفى', taxRatio: 0, taxAccountGuid: 'a5c04527-63e8-4373-92e8-68d8f88bdb16');
 
-  final String label;
+  final String? taxGuid;
+  final String? taxName;
+  final String? taxAccountGuid;
+  final double? taxRatio;
 
-  const MatOriginType(this.label);
+  const VatEnums({
+    required this.taxGuid,
+    required this.taxName,
+    required this.taxRatio,
+    required this.taxAccountGuid,
+  });
 
-  // Factory constructor with error handling for unmatched labels
-  factory MatOriginType.byLabel(String label) {
-    return MatOriginType.values.firstWhere(
-      (type) => type.label == label,
-      orElse: () => throw ArgumentError('No matching MatOriginType for label: $label'),
+// Factory constructor with error handling for unmatched labels
+  factory VatEnums.byName(String label) {
+    return VatEnums.values.firstWhere(
+      (type) => type.taxName == label,
+      orElse: () => throw ArgumentError('No matching Vat for label: $label'),
+    );
+  }
+
+  factory VatEnums.byGuid(String guid) {
+    return VatEnums.values.firstWhere(
+      (type) => type.taxGuid == guid,
+      orElse: () => throw ArgumentError('No matching Vat for guid: $guid'),
     );
   }
 }

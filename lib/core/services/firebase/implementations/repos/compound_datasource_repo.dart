@@ -107,4 +107,14 @@ class CompoundDatasourceRepository<T, I> {
       return Left(ErrorHandler(e).failure); // Handle the error and return Failure
     }
   }
+
+  Future<Either<Failure, double?>> getMetaData({required String id, required I itemIdentifier}) async {
+    try {
+      final item = await _dataSource.fetchMetaData(id: id, itemIdentifier: itemIdentifier);
+      return Right(item); // Return the found item
+    } catch (e, stackTrace) {
+      log('Error in getById: $e', stackTrace: stackTrace);
+      return Left(ErrorHandler(e).failure); // Handle the error and return Failure
+    }
+  }
 }

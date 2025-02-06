@@ -10,7 +10,8 @@ import '../../../../core/helper/extensions/getx_controller_extensions.dart';
 import '../../../../core/i_controllers/i_pluto_controller.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../materials/controllers/mats_statement_controller.dart';
-import '../../../materials/data/models/material_model.dart';
+import '../../../materials/data/models/materials/material_model.dart';
+import '../../../patterns/data/models/bill_type_model.dart';
 import 'bill_pluto_grid_service.dart';
 import 'bill_pluto_utils.dart';
 
@@ -26,6 +27,7 @@ class BillPlutoContextMenu {
     required BillPlutoUtils invoiceUtils,
     required BillPlutoGridService gridService,
     required int index,
+    required BillTypeModel billTypeModel,
   }) {
     OverlayService.showPopupMenu(
         context: context,
@@ -40,6 +42,7 @@ class BillPlutoContextMenu {
             selectedRow: selectedRow,
             subTotal: invoiceUtils.getPrice(type: type, materialModel: materialModel),
             quantity: quantity,
+            billTypeModel: billTypeModel,
           );
           controller.update();
         },

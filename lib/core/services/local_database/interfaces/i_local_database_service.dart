@@ -1,17 +1,19 @@
 abstract class ILocalDatabaseService<T> {
-  Future<void> insert(T data);
+  Future<void> insert(String id, T data);
 
-  Future<void> insertAll(List<T> data);
+  Future<void> insertAll(Map<String, T> data);
 
   Future<List<T>> fetchAll();
 
   Future<T?> fetchById(String id);
 
-  Future<void> update(T data);
+  Future<void> update(String id, T data);
 
-  Future<void> delete(T item);
+  Future<void> updateAll(Map<String, T> data);
 
-  Future<void> deleteAll(List<T> data);
+  Future<void> delete(String id);
+
+  Future<void> deleteAll(List<String> ids);
 
   Future<void> clear();
 }

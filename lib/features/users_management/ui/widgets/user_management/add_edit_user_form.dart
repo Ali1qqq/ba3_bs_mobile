@@ -1,21 +1,23 @@
 import 'dart:developer';
 
+import 'package:ba3_bs_mobile/core/helper/extensions/getx_controller_extensions.dart';
+import 'package:ba3_bs_mobile/features/users_management/controllers/user_details_controller.dart';
+import 'package:ba3_bs_mobile/features/users_management/controllers/user_management_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
 import '../../../../sellers/controllers/sellers_controller.dart';
-import '../../../controllers/user_management_controller.dart';
 
 class AddEditUserForm extends StatelessWidget {
   const AddEditUserForm({
     super.key,
-    required this.userManagementController,
+    required this.userDetailsController,
     required this.sellerController,
   });
 
-  final UserManagementController userManagementController;
+  final UserDetailsController userDetailsController;
   final SellersController sellerController;
 
   @override
@@ -25,7 +27,7 @@ class AddEditUserForm extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Form(
-          key: userManagementController.userFormHandler.formKey,
+          key: userDetailsController.userFormHandler.formKey,
           child: Column(
             spacing: 15,
             children: [
@@ -37,8 +39,8 @@ class AddEditUserForm extends StatelessWidget {
                     filled: true,
                     fillColor: Colors.white,
                   ),
-                  controller: userManagementController.userFormHandler.userNameController,
-                  validator: (value) => userManagementController.userFormHandler.defaultValidator(value, 'اسم الحساب'),
+                  controller: userDetailsController.userFormHandler.userNameController,
+                  validator: (value) => userDetailsController.userFormHandler.defaultValidator(value, 'اسم الحساب'),
                 ),
               ),
               SizedBox(
@@ -54,8 +56,8 @@ class AddEditUserForm extends StatelessWidget {
                   inputFormatters: [
                     LengthLimitingTextInputFormatter(6),
                   ],
-                  controller: userManagementController.userFormHandler.passController,
-                  validator: (value) => userManagementController.userFormHandler.passwordValidator(value, 'كلمة السر'),
+                  controller: userDetailsController.userFormHandler.passController,
+                  validator: (value) => userDetailsController.userFormHandler.passwordValidator(value, 'كلمة السر'),
                 ),
               ),
             ],
@@ -70,8 +72,8 @@ class AddEditUserForm extends StatelessWidget {
                 hint: const Text('الصلاحيات'),
                 icon: const SizedBox(),
                 padding: const EdgeInsets.symmetric(horizontal: 12),
-                value: userManagementController.userFormHandler.selectedRoleId.value,
-                items: userManagementController.allRoles
+                value: userDetailsController.userFormHandler.selectedRoleId.value,
+                items: read<UserManagementController>().allRoles
                     .map(
                       (role) => DropdownMenuItem(
                         value: role.roleId,
@@ -81,7 +83,7 @@ class AddEditUserForm extends StatelessWidget {
                     .toList(),
                 onChanged: (role) {
                   log('selectedRoleId $role');
-                  userManagementController.userFormHandler.setRoleId = role;
+                  userDetailsController.userFormHandler.setRoleId = role;
                 },
               ),
             ),
@@ -96,7 +98,7 @@ class AddEditUserForm extends StatelessWidget {
                 hint: const Text('البائع'),
                 icon: const SizedBox(),
                 padding: const EdgeInsets.symmetric(horizontal: 12),
-                value: userManagementController.userFormHandler.selectedSellerId.value,
+                value: userDetailsController.userFormHandler.selectedSellerId.value,
                 items: sellerController.sellers
                     .map(
                       (seller) => DropdownMenuItem(
@@ -107,7 +109,7 @@ class AddEditUserForm extends StatelessWidget {
                     .toList(),
                 onChanged: (sellerId) {
                   log('selectedSellerId $sellerId');
-                  userManagementController.userFormHandler.setSellerId = sellerId;
+                  userDetailsController.userFormHandler.setSellerId = sellerId;
                 },
               ),
             ),

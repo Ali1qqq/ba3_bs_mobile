@@ -5,14 +5,13 @@ import 'package:ba3_bs_mobile/core/helper/extensions/getx_controller_extensions.
 import 'package:ba3_bs_mobile/features/bill/data/models/bill_items.dart';
 import 'package:ba3_bs_mobile/features/bill/data/models/bill_model.dart';
 import 'package:ba3_bs_mobile/features/materials/controllers/material_controller.dart';
-import 'package:ba3_bs_mobile/features/materials/data/models/material_model.dart';
-import 'package:ba3_bs_mobile/features/tax/data/models/tax_model.dart';
 
 import '../../../../core/helper/enums/enums.dart';
 import '../../../../core/services/entry_bond_creator/implementations/base_entry_bond_creator.dart';
 import '../../../accounts/data/models/account_model.dart';
 import '../../../bill/data/models/discount_addition_account_model.dart';
 import '../../../bond/data/models/entry_bond_model.dart';
+import '../../../materials/data/models/materials/material_model.dart';
 import '../../../patterns/data/models/bill_type_model.dart';
 
 class BillEntryBondCreator extends BaseEntryBondCreator<BillModel> {

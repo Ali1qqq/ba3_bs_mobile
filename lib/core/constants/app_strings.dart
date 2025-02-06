@@ -1,14 +1,14 @@
 class AppStrings {
   static const String appTitle = 'Ba3 Business';
-
   static const String existedBill = 'فاتورة موجودة';
   static const String newBill = 'فاتورة جديدة';
   static const String updatedBill = 'فاتورة معدلة';
   static const String existedBond = 'سند موجود';
   static const String newBond = 'سند جديد';
   static const String updatedBond = 'سند معدل';
-  static const String bill = 'bill';
-  static const String recipientEmail = 'ahmed.zein1896@gmail.com';
+
+  static const String before = 'قبل';
+  static const String after = 'بعد';
 
   static const String bond = 'bond';
   static const String chequeToAccountId = '7d471b63-4499-4c2f-ba99-21912c8b98b5';
@@ -20,12 +20,9 @@ class AppStrings {
 
   static const double targetLatitude = 25.793679566610773; // Latitude المنطقة المستهدفة
   static const double targetLongitude = 55.948330278435; // Longitude المنطقة المستهدفة
-  static const double radiusInMeters = 25; // نصف القطر بالمتر
+  static const double radiusInMeters = 25;
 
   static const String materialIdFiled = 'materialIdFiled';
-
-  static const String before = 'قبل';
-  static const String after = 'بعد';
-
-  static const String materialGroupIdFiled = 'materialGroupIdFiled'; // نصف القطر بالمتر
+  static const String materialGroupIdFiled = 'materialGroupIdFiled';
+  static const String userIdFiled = 'userIdFiled';
 }

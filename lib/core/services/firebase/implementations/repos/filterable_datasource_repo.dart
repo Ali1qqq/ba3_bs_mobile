@@ -9,17 +9,17 @@ import '../../../../network/error/error_handler.dart';
 import '../../../../network/error/failure.dart';
 import 'remote_datasource_repo.dart';
 
-class FilterableDatasourceRepository<T> extends RemoteDataSourceRepository<T> {
+class FilterableDataSourceRepository<T> extends RemoteDataSourceRepository<T> {
   final FilterableDatasource<T> _filterableDatasource;
 
-  FilterableDatasourceRepository(this._filterableDatasource) : super(_filterableDatasource);
+  FilterableDataSourceRepository(this._filterableDatasource) : super(_filterableDatasource);
 
   Future<Either<Failure, List<T>>> fetchWhere({required List<QueryFilter> queryFilters, DateFilter? dateFilter}) async {
     try {
       final savedItems = await _filterableDatasource.fetchWhere(queryFilters: queryFilters);
       return Right(savedItems); // Return the list of saved items
-    } catch (e) {
-      log('Error in fetchWhere: $e');
+    } catch (e, stackTrace) {
+      log('Error in fetchWhere: $e', stackTrace: stackTrace);
       return Left(ErrorHandler(e).failure); // Return error
     }
   }

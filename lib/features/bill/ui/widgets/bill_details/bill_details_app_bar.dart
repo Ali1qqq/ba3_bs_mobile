@@ -122,7 +122,7 @@ class BillDetailsCustomAppBar extends StatelessWidget {
                   Expanded(
                     child: IconButton(
                       onPressed: () {
-                        billDetailsController.showBarCodeScanner(context);
+                        billDetailsController.showBarCodeScanner(context, billTypeModel);
                       },
                       icon: Icon(Icons.qr_code_scanner_outlined, color: Colors.black),
                     ),

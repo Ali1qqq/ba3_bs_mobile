@@ -1,7 +1,7 @@
+import 'package:ba3_bs_mobile/features/materials/data/models/materials/material_group.dart';
 import 'package:xml/xml.dart';
 
 import '../../../../core/services/json_file_operations/interfaces/import/import_service_base.dart';
-import '../data/models/material_group.dart';
 
 class MaterialGroupImport extends ImportServiceBase<MaterialGroupModel> {
   /// Converts the imported JSON structure to a list of BillModel
@@ -15,33 +15,33 @@ class MaterialGroupImport extends ImportServiceBase<MaterialGroupModel> {
     final materialsXml = document.findAllElements('G');
 
     List<MaterialGroupModel> materials = materialsXml.map((materialElement) {
-      String? getText(String tagName) {
+      String? getValue(String tagName) {
         final elements = materialElement.findElements(tagName);
-        return elements.isEmpty ? null : elements.first.text;
+        return elements.isEmpty ? null : elements.first.value;
       }
 
       int getInt(String tagName) {
-        final text = getText(tagName);
-        return text == null ? 0 : double.parse(text.toString()).toInt();
+        final value = getValue(tagName);
+        return value == null ? 0 : double.parse(value.toString()).toInt();
       }
 
       double? getDouble(String tagName) {
-        final text = getText(tagName);
-        return text == null ? null : double.parse(text);
+        final value = getValue(tagName);
+        return value == null ? null : double.parse(value);
       }
 
       return MaterialGroupModel(
-        matGroupGuid: getText('gPtr') ?? '',
+        matGroupGuid: getValue('gPtr') ?? '',
         groupBranchMask: getInt('GroupBranchMask'),
-        groupCode: getText('GroupCode') ?? '',
-        groupLatinName: getText('GroupLatinName') ?? '',
-        groupName: getText('GroupName') ?? '',
-        groupNotes: getText('GroupNotes') ?? '',
+        groupCode: getValue('GroupCode') ?? '',
+        groupLatinName: getValue('GroupLatinName') ?? '',
+        groupName: getValue('GroupName') ?? '',
+        groupNotes: getValue('GroupNotes') ?? '',
         groupNumber: getInt('GroupNumber'),
         groupSecurity: getInt('GroupSecurity'),
         groupType: getInt('GroupType'),
         groupVat: getDouble('GroupVat') ?? 0.0,
-        parentGuid: getText('ParentGuid') ?? '',
+        parentGuid: getValue('ParentGuid') ?? '',
       );
     }).toList();
 

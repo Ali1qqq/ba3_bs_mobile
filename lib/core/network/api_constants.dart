@@ -21,6 +21,8 @@ class ApiConstants {
   static const String sequentialNumbers = 'sequential_numbers';
   static const String guestUser = 'guest_user';
   static const String customers = 'customers';
+  static const String storeCart = 'StoreCart';
+  static const String materialsStatements = 'materials_statements';
 
   // Documents
   static const String guest = 'guest';
@@ -35,6 +37,5 @@ class ApiConstants {
 
   static const String billNumber = 'billDetails.billNumber';
   static const String bondNumber = 'PayNumber';
-
-  static const String materialsStatements = 'materials_statements';
+  static const String metaValue = 'metaValue';
 }

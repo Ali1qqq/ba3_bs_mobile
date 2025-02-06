@@ -30,9 +30,7 @@ class RoleModel {
             // Convert the string key to RoleItemType and map each RoleItem string back to the enum
             return MapEntry(
               RoleItemType.byValue(key), // Convert string key back to RoleItemType
-              (value as List)
-                  .map((item) => RoleItem.byValue(item))
-                  .toList(), // Convert string values back to RoleItem enums
+              (value as List).map((item) => RoleItem.byValue(item)).toList(), // Convert string values back to RoleItem enums
             );
           }) ??
           {},
@@ -73,7 +71,8 @@ enum RoleItemType {
   viewTime('الدوام'),
   viewDataBase('ادارة قواعد البيانات'),
   viewCard('ادارة البطاقات'),
-  viewHome('الصفحة الرئيسية');
+  viewHome('الصفحة الرئيسية'),
+  administrator('الادمن');
 
   final String value;
 

@@ -2,7 +2,6 @@ import 'dart:developer';
 
 import 'package:ba3_bs_mobile/core/constants/app_constants.dart';
 import 'package:ba3_bs_mobile/core/constants/app_strings.dart';
-import 'package:ba3_bs_mobile/features/materials/data/models/material_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -10,6 +9,7 @@ import 'package:pluto_grid/pluto_grid.dart';
 
 import '../../features/floating_window/services/overlay_service.dart';
 import '../../features/materials/controllers/material_controller.dart';
+import '../../features/materials/data/models/materials/material_model.dart';
 import '../dialogs/product_selection_dialog_content.dart';
 import '../helper/extensions/getx_controller_extensions.dart';
 import '../i_controllers/i_pluto_controller.dart';

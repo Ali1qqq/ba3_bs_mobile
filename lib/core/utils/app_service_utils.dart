@@ -233,7 +233,10 @@ class AppServiceUtils {
     return "$dayName - $monthName -  $year";
   }
 
-  String formatDateTimeFromString(String isoString) {
+  static String formatDateTimeFromString(String? isoString) {
+    if (isoString == null) {
+      return '';
+    }
     DateTime dateTime = DateTime.parse(isoString);
 
     // تحديد الفترة (AM/PM)
@@ -248,5 +251,19 @@ class AppServiceUtils {
         "${hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')} $period";
 
     return formattedDateTime;
+  }
+
+  static String extractTimeFromDateTime(DateTime? dateTime) {
+    if (dateTime == null) {
+      return 'null';
+    }
+    // DateTime dateTime = DateTime.parse(isoString);
+    // print(dateTime);
+    String period = dateTime.hour >= 12 ? "PM" : "AM";
+
+    int hour = dateTime.hour % 12;
+    if (hour == 0) hour = 12;
+
+    return "${hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')} $period";
   }
 }

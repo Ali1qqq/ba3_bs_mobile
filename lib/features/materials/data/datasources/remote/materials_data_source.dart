@@ -1,13 +1,13 @@
 // MaterialsDataSource Implementation
+import 'package:ba3_bs_mobile/core/models/date_filter.dart';
+import 'package:ba3_bs_mobile/core/network/api_constants.dart';
 
-import '../../../../../core/models/date_filter.dart';
 import '../../../../../core/models/query_filter.dart';
-import '../../../../../core/network/api_constants.dart';
 import '../../../../../core/services/firebase/interfaces/queryable_savable_datasource.dart';
-import '../../models/material_model.dart';
+import '../../models/materials/material_model.dart';
 
-class MaterialsDatasource extends QueryableSavableDatasource<MaterialModel> {
-  MaterialsDatasource({required super.databaseService});
+class MaterialsRemoteDatasource extends QueryableSavableDatasource<MaterialModel> {
+  MaterialsRemoteDatasource({required super.databaseService});
 
   @override
   String get path => ApiConstants.materials; // Collection name in Firestore

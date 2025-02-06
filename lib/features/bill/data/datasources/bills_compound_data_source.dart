@@ -195,4 +195,10 @@ class BillCompoundDatasource extends CompoundDatasourceBase<BillModel, BillTypeM
 
     return savedData.map(BillModel.fromJson).toList();
   }
+
+  @override
+  Future<double?> fetchMetaData({required String id, required BillTypeModel itemIdentifier}) {
+    // TODO: implement fetchMetaData
+    throw UnimplementedError();
+  }
 }

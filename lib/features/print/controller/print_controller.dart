@@ -16,7 +16,7 @@ import '../../../core/helper/extensions/getx_controller_extensions.dart';
 import '../../../core/services/translation/implementations/translation_repo.dart';
 import '../../../core/styling/printer_text_styles.dart';
 import '../../bill/data/models/invoice_record_model.dart';
-import '../../materials/data/models/material_model.dart';
+import '../../materials/data/models/materials/material_model.dart';
 import '../ui/widgets/printing_loading_dialog.dart';
 
 class PrintingController extends GetxController {
