@@ -39,7 +39,7 @@ class MainLayoutController extends GetxController {
         icon: AppAssets.patternsIcon,
         unSelectedIcon: AppAssets.patternsUnselectedIcon
       ),
-    if (RoleItemType.viewProduct.hasReadPermission)
+    if (RoleItemType.viewProduct.hasAdminPermission)
       (
         name: 'المواد',
         layout: const MaterialLayout(),
@@ -94,7 +94,7 @@ class MainLayoutController extends GetxController {
       icon: AppAssets.usersTimeIcon,
       unSelectedIcon: AppAssets.usersTimeUnselectedIcon
     ),
-    if (RoleItemType.administrator.hasReadPermission)
+    if (RoleItemType.viewUserManagement.hasAdminPermission)
       (
         name: 'لوحة التحكم',
         layout: const AllAttendanceScreen(),

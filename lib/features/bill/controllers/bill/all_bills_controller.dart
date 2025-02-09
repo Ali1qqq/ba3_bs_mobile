@@ -45,6 +45,8 @@ class AllBillsController extends FloatingBillDetailsLauncher
 
   List<BillTypeModel> billsTypes = [];
 
+  BillTypeModel get getSaleBillsType => billsTypes.firstWhere((element) => element.billTypeId == BillType.sales.typeGuide);
+
   List<BillModel> bills = [];
   Map<BillTypeModel, List<BillModel>> nestedBills = {};
 

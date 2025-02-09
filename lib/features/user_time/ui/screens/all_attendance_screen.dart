@@ -10,47 +10,46 @@ class AllAttendanceScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text("لوحة تحكم المستخدمين"),
-      ),
       body: GetBuilder<UserManagementController>(builder: (userManagementController) {
-        return SingleChildScrollView(
-          padding: const EdgeInsets.all(8.0),
-          child: SizedBox(
-            width: double.infinity,
-            child: Wrap(
-              alignment: WrapAlignment.center,
-              spacing: 10,
-              runSpacing: 10,
-              children: userManagementController.filteredUsersWithDetails.map((user) {
-                return Container(
-                  padding: const EdgeInsets.all(8),
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(10),
-                    boxShadow: [
-                      BoxShadow(color: Colors.grey.withAlpha(125), spreadRadius: 2, blurRadius: 5),
-                    ],
-                  ),
-                  height: 130,
-                  width: 225,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(user.userName!, textAlign: TextAlign.center, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                      if (user.loginDelay == "لم يسجل بعد" && user.logoutDelay == "لم يسجل بعد")
-                        Text("لم يسجل بعد", style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold))
-                      else ...[
-                        Text("تأخير الدخول: ${user.loginDelay ?? 'لا يوجد'}"),
-                        Text("الخروج مبكرا: ${user.logoutDelay ?? 'لا يوجد'}"),
+        return ListView(
+          padding: EdgeInsets.symmetric(vertical: 10),
+          children: [
+            SizedBox(
+              child: Wrap(
+                alignment: WrapAlignment.center,
+                spacing: 5,
+                runSpacing: 5,
+                children: userManagementController.filteredUsersWithDetails.map((user) {
+                  return Container(
+                    padding: const EdgeInsets.all(8),
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(10),
+                      boxShadow: [
+                        BoxShadow(color: Colors.grey.withAlpha(125), spreadRadius: 2, blurRadius: 5),
                       ],
-                    ],
-                  ),
-                );
-              }).toList(),
+                    ),
+                    height: 130,
+                    width: 180,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(user.userName!,
+                            textAlign: TextAlign.center, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                        if (user.loginDelay == "لم يسجل بعد" && user.logoutDelay == "لم يسجل بعد")
+                          Text("لم يسجل بعد", style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold))
+                        else ...[
+                          Text("تأخير الدخول: ${user.loginDelay ?? 'لا يوجد'}", textAlign: TextAlign.center),
+                          Text("الخروج مبكرا: ${user.logoutDelay ?? 'لا يوجد'}", textAlign: TextAlign.center),
+                        ],
+                      ],
+                    ),
+                  );
+                }).toList(),
+              ),
             ),
-          ),
+          ],
         );
       }),
     );

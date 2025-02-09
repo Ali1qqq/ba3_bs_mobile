@@ -74,7 +74,7 @@ class _CustomTextFieldWithoutIconState extends State<CustomTextFieldWithoutIcon>
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: AppConstants.constHeightTextField,
+      height: widget.height ?? AppConstants.constHeightTextField,
       child: TextFormField(
         maxLines: widget.maxLine,
         maxLength: widget.maxLength,

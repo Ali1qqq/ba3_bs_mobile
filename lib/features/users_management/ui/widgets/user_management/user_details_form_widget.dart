@@ -53,6 +53,7 @@ class UserDetailsForm extends StatelessWidget {
               TextAndExpandedChildField(
                 label: 'كلمة السر',
                 width: 1.sw,
+                height: 60,
                 child: CustomTextFieldWithoutIcon(
                   filedColor: AppColors.backGroundColor,
                   validator: (value) => userDetailsController.userFormHandler.passwordValidator(value, 'كلمة السر'),

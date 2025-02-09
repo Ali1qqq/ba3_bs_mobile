@@ -14,18 +14,7 @@ class AccountLayout extends StatelessWidget {
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
-        appBar: AppBar(
-          title: const Text('الحسابات'),
-          actions: [
-            // Padding(
-            //   padding: const EdgeInsets.all(8.0),
-            //   child: AppButton(
-            //     title: 'تحميل الحسابات',
-            //     onPressed: () => read<AccountsController>().fetchAllAccountsFromLocal(),
-            //   ),
-            // ),
-          ],
-        ),
+
         body: Column(
           children: [
             AppMenuItem(

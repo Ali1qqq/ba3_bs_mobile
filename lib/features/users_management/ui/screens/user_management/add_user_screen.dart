@@ -16,50 +16,44 @@ class AddUserScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     SellersController sellerViewController = read<SellersController>();
-    return Column(
-      children: [
-        Expanded(
-          child: GetBuilder<UserDetailsController>(builder: (controller) {
-            return Scaffold(
-              appBar: AppBar(
-                centerTitle: false,
-                title: Text(controller.selectedUserModel?.userName ?? 'مستخدم جديد'),
-                actions: [],
-              ),
-              body: Center(
-                child: ListView(
-                  // mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    UserDetailsForm(
-                      userDetailsController: controller,
-                      sellerController: sellerViewController,
-                    ),
-                    UserAllWorkingHour(
-                      userDetailsController: controller,
-                    ),
-                    UserAllHolidays(
-                      userDetailsController: controller,
-                    ),
-                    Center(
-                      child: Padding(
-                        padding: EdgeInsets.only(bottom: .15.sh),
-                        child: AppButton(
-                          title: controller.selectedUserModel?.userId == null ? 'إضافة' : 'تعديل',
-                          onPressed: () {
-                            controller.saveOrUpdateUser();
-                          },
-                          iconData: controller.selectedUserModel?.userId == null ? Icons.add : Icons.edit,
-                          color: controller.selectedUserModel?.userId == null ? null : Colors.green,
-                        ),
-                      ),
-                    )
-                  ],
-                ),
-              ),
-            );
-          }),
+    return GetBuilder<UserDetailsController>(builder: (controller) {
+      return Scaffold(
+        appBar: AppBar(
+          centerTitle: false,
+          title: Text(controller.selectedUserModel?.userName ?? 'مستخدم جديد'),
+          actions: [],
         ),
-      ],
-    );
+        body: Center(
+          child: ListView(
+            // mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              UserDetailsForm(
+                userDetailsController: controller,
+                sellerController: sellerViewController,
+              ),
+              UserAllWorkingHour(
+                userDetailsController: controller,
+              ),
+              UserAllHolidays(
+                userDetailsController: controller,
+              ),
+              Center(
+                child: Padding(
+                  padding: EdgeInsets.only(bottom: .15.sh),
+                  child: AppButton(
+                    title: controller.selectedUserModel?.userId == null ? 'إضافة' : 'تعديل',
+                    onPressed: () {
+                      controller.saveOrUpdateUser();
+                    },
+                    iconData: controller.selectedUserModel?.userId == null ? Icons.add : Icons.edit,
+                    color: controller.selectedUserModel?.userId == null ? null : Colors.green,
+                  ),
+                ),
+              )
+            ],
+          ),
+        ),
+      );
+    });
   }
 }

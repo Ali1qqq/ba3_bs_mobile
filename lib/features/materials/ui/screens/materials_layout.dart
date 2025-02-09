@@ -26,7 +26,6 @@ class MaterialLayout extends StatelessWidget {
           children: [
             Scaffold(
               appBar: AppBar(
-                title: const Text("المواد"),
                 actions: RoleItemType.administrator.hasAdminPermission
                     ? [
                         Padding(

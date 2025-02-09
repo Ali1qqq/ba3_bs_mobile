@@ -147,7 +147,7 @@ class UserManagementController extends GetxController with AppNavigator, Firesto
         allUsers.assignAll(fetchedUsers);
 
         checkGuestLoginButtonVisibility(
-          fetchedUsers.firstWhere((user) => user.userName == ApiConstants.guest),
+          fetchedUsers.firstWhereOrNull((user) => user.userName == ApiConstants.guest) ?? UserModel(),
         );
       },
     );

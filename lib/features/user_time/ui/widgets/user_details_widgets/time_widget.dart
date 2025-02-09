@@ -75,7 +75,7 @@ class TimeWidget extends StatelessWidget {
 
   Widget _buildLogList(String label, List<DateTime>? logList) {
     return SizedBox(
-      width: 0.45.sw,
+      width: 0.40.sw,
       child: ListView.separated(
         physics: const ClampingScrollPhysics(),
         shrinkWrap: true,

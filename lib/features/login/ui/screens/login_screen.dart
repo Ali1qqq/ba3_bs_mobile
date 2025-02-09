@@ -55,7 +55,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                 boxShadow: [BoxShadow(color: AppColors.grayColor, blurRadius: 25, spreadRadius: 0.1)],
                 color: Colors.white,
               ),
-              child: Column(
+              child: ListView(
                 children: [
                   SizedBox(
                     height: 0.3.sh,

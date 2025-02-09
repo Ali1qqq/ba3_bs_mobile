@@ -44,6 +44,7 @@ class AllBondsController extends FloatingBondDetailsLauncher with EntryBondsGene
   // Initializer
   void _initializeServices() {
     _bondUtils = BondUtils();
+    fetchAllBondsCountsByTypes(BondType.values);
   }
 
   @override
@@ -231,5 +232,37 @@ class AllBondsController extends FloatingBondDetailsLauncher with EntryBondsGene
       bondDetailsController: bondDetailsController,
       bondDetailsPlutoController: bondDetailsPlutoController,
     );
+  }
+
+  final allBondsCountsByType = <BondType, int>{};
+
+  int allBondsCounts(BondType bondTypeModel) {
+    return allBondsCountsByType[bondTypeModel] ?? 0;
+  }
+
+  Future<void> fetchAllBondsCountsByTypes(List<BondType> fetchedBondTypes) async {
+    final List<Future<void>> fetchTasks = [];
+    final errors = <String>[]; // Collect error messages.
+
+    for (final bondTypeModel in fetchedBondTypes) {
+      fetchTasks.add(
+        _bondsFirebaseRepo.count(itemIdentifier: bondTypeModel).then((result) {
+          result.fold(
+            (failure) => errors.add('Failed to fetch count for ${bondTypeModel.label}: ${failure.message}'),
+            (count) {
+              allBondsCountsByType[bondTypeModel] = count;
+            },
+          );
+        }),
+      );
+    }
+
+    // Wait for all tasks to complete.
+    await Future.wait(fetchTasks);
+    update();
+    // Handle errors if any.
+    if (errors.isNotEmpty) {
+      AppUIUtils.onFailure('Some counts failed to fetch: ${errors.join(', ')}');
+    }
   }
 }

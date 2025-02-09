@@ -21,6 +21,9 @@ class AppStrings {
   static const double targetLatitude = 25.793679566610773; // Latitude المنطقة المستهدفة
   static const double targetLongitude = 55.948330278435; // Longitude المنطقة المستهدفة
   static const double radiusInMeters = 25;
+  static const double secondTargetLatitude = 25.765046214850365; // Latitude المنطقة المستهدفة
+  static const double secondTargetLongitude = 55.970645196084746; // Longitude المنطقة المستهدفة
+  static const double secondRadiusInMeters = 50;
 
   static const String materialIdFiled = 'materialIdFiled';
   static const String materialGroupIdFiled = 'materialGroupIdFiled';

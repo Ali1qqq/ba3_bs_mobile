@@ -76,23 +76,21 @@ class UserService {
               userDateTime.month,
               userDateTime.day,
               workingDateTime.hour,
-              workingDateTime.minute,
+              workingDateTime.minute + 4,
             ))
           : DateTime(
               userDateTime.year,
               userDateTime.month,
               userDateTime.day,
               workingDateTime.hour,
-              workingDateTime.minute,
+              workingDateTime.minute - 4,
             ).difference(userDateTime);
 
-      // إضافة الفرق إذا لم يكن سالبًا
       if (!delay.isNegative) {
         totalMinutes += delay.inMinutes;
       }
     }
 
-    // إرجاع النتيجة المنسقة إذا كان هناك تأخير
     return totalMinutes > 0 ? formatDelay(totalMinutes) : null;
   }
 

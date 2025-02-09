@@ -61,7 +61,9 @@ class UserTimeController extends GetxController {
       },
       (location) {
         return isWithinRegion =
-            _userTimeServices.isWithinRegion(location, AppStrings.targetLatitude, AppStrings.targetLongitude, AppStrings.radiusInMeters);
+            _userTimeServices.isWithinRegion(location, AppStrings.targetLatitude, AppStrings.targetLongitude, AppStrings.radiusInMeters) ||
+                _userTimeServices.isWithinRegion(
+                    location, AppStrings.secondTargetLatitude, AppStrings.secondTargetLongitude, AppStrings.secondRadiusInMeters);
       },
     );
 

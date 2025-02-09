@@ -1,6 +1,7 @@
 import 'package:ba3_bs_mobile/core/services/translation/interfaces/i_api_client.dart';
 import 'package:ba3_bs_mobile/features/cheques/service/cheques_export.dart';
 import 'package:ba3_bs_mobile/features/materials/service/materials_groups_import.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dio/dio.dart';
 import 'package:get/get_instance/src/bindings_interface.dart';
 import 'package:hive/hive.dart';
@@ -62,6 +63,7 @@ import '../../features/sellers/data/models/seller_model.dart';
 import '../../features/sellers/service/seller_import.dart';
 import '../../features/user_time/controller/user_time_controller.dart';
 import '../../features/user_time/data/repositories/user_time_repo.dart';
+import '../../features/users_management/controllers/user_details_controller.dart';
 import '../../features/users_management/data/datasources/roles_data_source.dart';
 import '../../features/users_management/data/datasources/users_data_source.dart';
 import '../../features/users_management/data/models/role_model.dart';
@@ -98,11 +100,23 @@ class AppBindings extends Bindings {
 // Initialize services
     final dioClient = _initializeDioClient();
 
-    final fireStoreService = _initializeFireStoreService();
+    final FirebaseFirestore firestoreInstance = FirebaseFirestore.instance;
+    // final FirebaseFirestore firestoreInstance = FirebaseFirestore.instanceFor(app: Firebase.app(), databaseId: 'test');
+
+    final fireStoreService = _initializeFireStoreService(firestoreInstance);
+
+    final compoundFireStoreService = _initializeCompoundFireStoreService(firestoreInstance);
+
+    lazyPut(firestoreInstance);
+
+    final rolesRepo = RemoteDataSourceRepository(RolesDatasource(databaseService: fireStoreService));
+    final usersRepo = FilterableDataSourceRepository(UsersDatasource(databaseService: fireStoreService));
+
+    lazyPut(rolesRepo);
+
+    lazyPut(usersRepo);
 
     final materialsHiveService = await _initializeHiveService<MaterialModel>(boxName: ApiConstants.materials);
-
-    final compoundFireStoreService = _initializeCompoundFireStoreService();
 
     final translationService = _initializeTranslationService(dioClient);
 
@@ -155,9 +169,10 @@ class AppBindings extends Bindings {
   // Initialize external services
   IAPiClient _initializeDioClient() => DioClient<Map<String, dynamic>>(Dio());
 
-  IRemoteDatabaseService<Map<String, dynamic>> _initializeFireStoreService() => FireStoreService();
+  IRemoteDatabaseService<Map<String, dynamic>> _initializeFireStoreService(FirebaseFirestore instance) => FireStoreService(instance);
 
-  ICompoundDatabaseService<Map<String, dynamic>> _initializeCompoundFireStoreService() => CompoundFireStoreService();
+  ICompoundDatabaseService<Map<String, dynamic>> _initializeCompoundFireStoreService(FirebaseFirestore instance) =>
+      CompoundFireStoreService(instance);
 
   ITranslationService _initializeTranslationService(IAPiClient dioClient) => GoogleTranslationService(
         baseUrl: ApiConstants.translationBaseUrl,
@@ -264,6 +279,7 @@ class AppBindings extends Bindings {
       ChangesController(repositories.listenableDatasourceRepo),
     );
     lazyPut(() => AddSellerController());
+    lazyPut(UserDetailsController(read<FilterableDataSourceRepository<UserModel>>()));
   }
 }
 

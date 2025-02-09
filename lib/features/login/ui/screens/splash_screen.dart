@@ -3,11 +3,10 @@ import 'package:flutter/material.dart';
 import '../../../../core/helper/extensions/getx_controller_extensions.dart';
 import '../../../../core/services/firebase/implementations/repos/filterable_datasource_repo.dart';
 import '../../../../core/services/firebase/implementations/repos/remote_datasource_repo.dart';
-import '../../../../core/services/firebase/implementations/services/firestore_service.dart';
 import '../../../../core/services/get_x/shared_preferences_service.dart';
 import '../../../users_management/controllers/user_management_controller.dart';
-import '../../../users_management/data/datasources/roles_data_source.dart';
-import '../../../users_management/data/datasources/users_data_source.dart';
+import '../../../users_management/data/models/role_model.dart';
+import '../../../users_management/data/models/user_model.dart';
 import '../widgets/login_logo_widget.dart';
 
 class SplashScreen extends StatelessWidget {
@@ -32,13 +31,10 @@ class SplashScreen extends StatelessWidget {
 
   Future<void> _initializeApp() async {
     final sharedPreferencesService = await putAsync(SharedPreferencesService().init());
-    final fireStoreService = FireStoreService();
-
-    final rolesRepo = RemoteDataSourceRepository(RolesDatasource(databaseService: fireStoreService));
-    final usersRepo = FilterableDataSourceRepository(UsersDatasource(databaseService: fireStoreService));
 
     put(
-      UserManagementController(rolesRepo, usersRepo, sharedPreferencesService),
+      UserManagementController(
+          read<RemoteDataSourceRepository<RoleModel>>(), read<FilterableDataSourceRepository<UserModel>>(), sharedPreferencesService),
       permanent: true,
     );
   }

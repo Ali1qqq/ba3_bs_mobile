@@ -9,11 +9,13 @@ import '../../../../models/date_filter.dart';
 
 // FirebaseFirestoreService Implementation
 class FireStoreService extends IRemoteDatabaseService<Map<String, dynamic>> {
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseFirestore _firestoreInstance;
+
+  FireStoreService(FirebaseFirestore instance) : _firestoreInstance = instance;
 
   @override
   Future<List<Map<String, dynamic>>> fetchAll({required String path}) async {
-    final snapshot = await _firestore.collection(path).get();
+    final snapshot = await _firestoreInstance.collection(path).get();
     return snapshot.docs.map((doc) => doc.data()).toList();
   }
 
@@ -25,7 +27,7 @@ class FireStoreService extends IRemoteDatabaseService<Map<String, dynamic>> {
   }) async {
     // Build the base query and apply filters
     final query = _applyDateFilterIfNeeded(
-      _applyFilters(_firestore.collection(path), queryFilters),
+      _applyFilters(_firestoreInstance.collection(path), queryFilters),
       dateFilter,
     );
 
@@ -53,7 +55,7 @@ class FireStoreService extends IRemoteDatabaseService<Map<String, dynamic>> {
 
   @override
   Future<Map<String, dynamic>> fetchById({required String path, String? documentId}) async {
-    final doc = await _firestore.collection(path).doc(documentId).get();
+    final doc = await _firestoreInstance.collection(path).doc(documentId).get();
     if (doc.exists) {
       return doc.data()!;
     } else {
@@ -65,18 +67,18 @@ class FireStoreService extends IRemoteDatabaseService<Map<String, dynamic>> {
   Future<void> delete({required String path, String? documentId, String? mapFieldName}) async {
     if (mapFieldName != null) {
       // If mapFieldName is provided, delete the specific map field
-      await _firestore.collection(path).doc(documentId).update({
+      await _firestoreInstance.collection(path).doc(documentId).update({
         mapFieldName: FieldValue.delete(),
       });
     } else {
       // If mapFieldName is null, delete the entire document
-      await _firestore.collection(path).doc(documentId).delete();
+      await _firestoreInstance.collection(path).doc(documentId).delete();
     }
   }
 
   @override
   Future<Map<String, dynamic>> add({required Map<String, dynamic> data, required String path, String? documentId}) async {
-    final newDoc = _firestore.collection(path).doc().id;
+    final newDoc = _firestoreInstance.collection(path).doc().id;
 
     // Use the provided document ID or generate a new one if not provided
     final docId = documentId ?? (data['docId'] ?? newDoc);
@@ -84,7 +86,7 @@ class FireStoreService extends IRemoteDatabaseService<Map<String, dynamic>> {
     // Ensure the docId is set in the data map if it is null
     if (data['docId'] == null) data['docId'] = docId;
 
-    final docRef = _firestore.collection(path).doc(docId);
+    final docRef = _firestoreInstance.collection(path).doc(docId);
 
     final docSnapshot = await docRef.get();
 
@@ -100,20 +102,24 @@ class FireStoreService extends IRemoteDatabaseService<Map<String, dynamic>> {
   @override
   Future<void> update({required String path, String? documentId, required Map<String, dynamic> data}) async {
     log('update path $path, $documentId');
-    await _firestore.collection(path).doc(documentId).update(data);
+    await _firestoreInstance.collection(path).doc(documentId).update(data);
   }
 
   @override
-  Future<List<Map<String, dynamic>>> addAll({required String path, required List<Map<String, dynamic>> data}) async {
-    final batch = _firestore.batch();
+  Future<List<Map<String, dynamic>>> addAll({
+    required String path,
+    required List<Map<String, dynamic>> data,
+  }) async {
+    final batch = _firestoreInstance.batch();
     final addedItems = <Map<String, dynamic>>[];
 
     for (final item in data) {
-      // Ensure the document ID is set
-      final docId = item.putIfAbsent('docId', () => _firestore.collection(path).doc().id);
+      // Generate a document ID if not already set
+      final docId = item['docId'] ?? _firestoreInstance.collection(path).doc().id;
+      item['docId'] = docId;
 
       // Add the item to the batch
-      final docRef = _firestore.collection(path).doc(docId);
+      final docRef = _firestoreInstance.collection(path).doc(docId);
       batch.set(docRef, item);
 
       // Collect the processed item
@@ -130,7 +136,7 @@ class FireStoreService extends IRemoteDatabaseService<Map<String, dynamic>> {
       throw ArgumentError("Document ID cannot be null or empty");
     }
 
-    final documentStream = _firestore.collection(path).doc(documentId).snapshots();
+    final documentStream = _firestoreInstance.collection(path).doc(documentId).snapshots();
 
     return documentStream.map((snapshot) {
       if (snapshot.exists) {
@@ -151,7 +157,7 @@ class FireStoreService extends IRemoteDatabaseService<Map<String, dynamic>> {
     required String docIdField,
     required String nestedFieldPath,
   }) async {
-    final batch = _firestore.batch();
+    final batch = _firestoreInstance.batch();
 
     // List to track the items being processed
     final processedItems = <Map<String, dynamic>>[];
@@ -164,7 +170,7 @@ class FireStoreService extends IRemoteDatabaseService<Map<String, dynamic>> {
       }
 
       // Reference to the document
-      final docRef = _firestore.collection(path).doc(docId);
+      final docRef = _firestoreInstance.collection(path).doc(docId);
 
       // Check if the document exists
       final docSnapshot = await docRef.get();
