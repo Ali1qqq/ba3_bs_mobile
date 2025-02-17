@@ -1,7 +1,7 @@
 import 'package:ba3_bs_mobile/core/helper/extensions/getx_controller_extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:get/get_navigation/src/root/get_material_app.dart';
+import 'package:get/get.dart';
 
 import 'core/bindings/bindings.dart';
 import 'core/constants/app_strings.dart';
@@ -35,7 +35,7 @@ class MyApp extends StatelessWidget {
         locale: Locale(translationController.localLangCode),
         translations: AppTranslations(),
         fallbackLocale: Locale('en', 'US'),
-        title: AppStrings.appTitle,
+        title: AppStrings.appTitle.tr,
         theme: AppThemes.defaultTheme,
         getPages: appRouter,
       ),

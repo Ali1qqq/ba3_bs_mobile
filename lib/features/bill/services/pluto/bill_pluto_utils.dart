@@ -1,5 +1,6 @@
 import 'package:ba3_bs_mobile/core/constants/app_constants.dart';
 import 'package:ba3_bs_mobile/core/helper/extensions/basic/string_extension.dart';
+import 'package:ba3_bs_mobile/core/utils/app_ui_utils.dart';
 import 'package:math_expressions/math_expressions.dart';
 import 'package:pluto_grid/pluto_grid.dart';
 
@@ -23,12 +24,19 @@ class BillPlutoUtils {
         return double.tryParse(materialModel.wholesalePrice ?? '') ?? 0;
       case PriceType.retail:
         return double.tryParse(materialModel.retailPrice ?? '') ?? 0;
+      case PriceType.mainPrice:
+        return double.tryParse(materialModel.calcMinPrice.toString()) ?? 0;
     }
   }
 
   double parseExpression(String expression) {
     if (expression.isEmpty) return 0;
-    return Parser().parse(expression).evaluate(EvaluationType.REAL, ContextModel());
+    try {
+      return Parser().parse(expression).evaluate(EvaluationType.REAL, ContextModel());
+    } catch (e) {
+      AppUIUtils.onFailure('من فضلك قم بادخال قيمة صحيحة');
+      return 0;
+    }
   }
 
   bool isValidItemQuantity(PlutoRow row, String cellKey) {

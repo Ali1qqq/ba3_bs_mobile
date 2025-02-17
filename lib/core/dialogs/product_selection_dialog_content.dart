@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pluto_grid/pluto_grid.dart';
 
-import '../../features/bill/ui/widgets/bill_shared/custom_text_field.dart';
 import '../../features/materials/data/models/materials/material_model.dart';
+import '../widgets/custom_text_field_with_icon.dart';
 import '../widgets/pluto_grid_with_app_bar_.dart';
 
 class ProductSelectionDialogContent extends StatelessWidget {
@@ -50,7 +50,7 @@ class ProductSelectionDialogContent extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: CustomTextFieldWithIcon(
-                controller: productTextController,
+                textEditingController: productTextController,
                 onSubmitted: onSubmitted,
                 onIconPressed: () {},
               ),

@@ -176,7 +176,7 @@ class MaterialsStatementsDatasource extends CompoundDatasourceBase<MatStatementM
   }
 
   @override
-  Future<double?> fetchMetaData({required String id, required String itemIdentifier})async {
+  Future<double?> fetchMetaData({required String id, required String itemIdentifier}) async {
     final rootDocumentId = getRootDocumentId(itemIdentifier);
     final subCollectionPath = getSubCollectionPath(itemIdentifier);
 
@@ -184,7 +184,6 @@ class MaterialsStatementsDatasource extends CompoundDatasourceBase<MatStatementM
       rootCollectionPath: rootCollectionPath,
       rootDocumentId: rootDocumentId,
       subCollectionPath: subCollectionPath,
-
     );
 
     return metaData;

@@ -17,7 +17,12 @@ class ChequesDetailsScreen extends StatelessWidget {
   final ChequesDetailsController chequesDetailsController;
   final ChequesSearchController chequesSearchController;
 
-  const ChequesDetailsScreen({super.key, required this.tag, required this.chequesTypeModel, required this.chequesDetailsController, required this.chequesSearchController});
+  const ChequesDetailsScreen(
+      {super.key,
+      required this.tag,
+      required this.chequesTypeModel,
+      required this.chequesDetailsController,
+      required this.chequesSearchController});
 
   @override
   Widget build(BuildContext context) {
@@ -30,13 +35,18 @@ class ChequesDetailsScreen extends StatelessWidget {
               tag: tag,
               builder: (_) {
                 return Scaffold(
-                  appBar: ChequesDetailsAppBar(chequesDetailsController: chequesDetailsController, chequesSearchController: chequesSearchController, chequesTypeModel: chequesTypeModel),
+                  appBar: ChequesDetailsAppBar(
+                      chequesDetailsController: chequesDetailsController,
+                      chequesSearchController: chequesSearchController,
+                      chequesTypeModel: chequesTypeModel),
                   body: CustomScrollView(
                     slivers: [
                       SliverToBoxAdapter(
                           child: Column(
                         children: [
-                           ChequesDetailsHeader(chequesDetailsController:chequesDetailsController ,),
+                          ChequesDetailsHeader(
+                            chequesDetailsController: chequesDetailsController,
+                          ),
                           const VerticalSpace(20),
                           AddChequeForm(
                             chequesDetailsController: chequesDetailsController,
@@ -52,6 +62,7 @@ class ChequesDetailsScreen extends StatelessWidget {
                               mainAxisAlignment: MainAxisAlignment.end,
                               children: [
                                 const Divider(),
+                                const VerticalSpace(),
                                 AddChequeButtons(
                                   chequesDetailsController: chequesDetailsController,
                                   chequesSearchController: chequesSearchController,

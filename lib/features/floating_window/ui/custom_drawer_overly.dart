@@ -116,11 +116,11 @@ class _CustomDrawerOverlyState<T> extends State<CustomDrawerOverly<T>> {
             children: [
               Expanded(
                 child: Center(
-                  // child: Text(
+                    // child: Text(
                     // widget.itemLabelBuilder(widget.value),
                     // style: widget.textStyle,
-                  // ),
-                ),
+                    // ),
+                    ),
               ),
               const Icon(
                 Icons.arrow_drop_down,

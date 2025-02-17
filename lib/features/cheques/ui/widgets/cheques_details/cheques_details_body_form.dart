@@ -1,3 +1,4 @@
+import 'package:ba3_bs_mobile/core/constants/app_strings.dart';
 import 'package:ba3_bs_mobile/core/widgets/searchable_account_field.dart';
 import 'package:ba3_bs_mobile/features/cheques/controllers/cheques/cheques_details_controller.dart';
 import 'package:flutter/material.dart';
@@ -29,7 +30,7 @@ class AddChequeForm extends StatelessWidget {
           children: [
             FormFieldRow(
                 firstItem: TextAndExpandedChildField(
-                  label: 'تاريخ التحرير',
+                  label: AppStrings.editingDate.tr,
                   child: Obx(() {
                     return DatePicker(
                       initDate: chequesDetailsController.chequesDate.value,
@@ -38,7 +39,7 @@ class AddChequeForm extends StatelessWidget {
                   }),
                 ),
                 secondItem: TextAndExpandedChildField(
-                  label: "تاريخ الاستحقاق",
+                  label: AppStrings.duesDate.tr,
                   child: Obx(() {
                     return DatePicker(
                       initDate: chequesDetailsController.chequesDueDate.value,
@@ -49,7 +50,7 @@ class AddChequeForm extends StatelessWidget {
             const VerticalSpace(),
             FormFieldRow(
                 firstItem: TextAndExpandedChildField(
-                  label: 'رقم الشيك',
+                  label: AppStrings.chequesNumber.tr,
                   child: CustomTextFieldWithoutIcon(
                     textEditingController: chequesDetailsController.chequesNumController,
                     suffixIcon: const SizedBox.shrink(),
@@ -57,7 +58,7 @@ class AddChequeForm extends StatelessWidget {
                   ),
                 ),
                 secondItem: TextAndExpandedChildField(
-                  label: "قيمة الشيك",
+                  label: AppStrings.chequesAmount.tr,
                   child: CustomTextFieldWithoutIcon(
                     textEditingController: chequesDetailsController.chequesAmountController,
                     suffixIcon: const SizedBox.shrink(),
@@ -67,7 +68,7 @@ class AddChequeForm extends StatelessWidget {
             const VerticalSpace(),
             FormFieldRow(
                 firstItem: SearchableAccountField(
-                  label: 'الحساب',
+                  label: AppStrings.account.tr,
                   onSubmitted: (text) async {
                     AccountModel? accountModel = await read<AccountsController>().openAccountSelectionDialog(
                       query: text,
@@ -81,7 +82,7 @@ class AddChequeForm extends StatelessWidget {
                   validator: (value) => chequesDetailsController.validator(value, 'الحساب المدفوع له'),
                 ),
                 secondItem: SearchableAccountField(
-                  label: "دفع إلى",
+                  label: '${AppStrings.pay.tr} ${AppStrings.to.tr}',
                   textEditingController: chequesDetailsController.chequesAccPtrController,
                   validator: (value) => chequesDetailsController.validator(value, 'الحساب'),
                   onSubmitted: (text) async {
@@ -95,17 +96,22 @@ class AddChequeForm extends StatelessWidget {
                   },
                 )),
             const VerticalSpace(),
-            FormFieldRow(
-                firstItem: TextAndExpandedChildField(
-                  label: "البيان",
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Text(AppStrings.illustration.tr),
+                HorizontalSpace(70),
+                Expanded(
                   child: CustomTextFieldWithoutIcon(
+                    height: 60,
                     keyboardType: TextInputType.multiline,
                     maxLine: 4,
                     textEditingController: chequesDetailsController.chequesNoteController,
                     suffixIcon: const SizedBox.shrink(),
                   ),
-                ),
-                secondItem: const SizedBox()),
+                )
+              ],
+            )
           ],
         ),
       ),

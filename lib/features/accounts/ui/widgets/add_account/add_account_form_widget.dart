@@ -1,6 +1,8 @@
 import 'package:ba3_bs_mobile/features/accounts/data/models/account_model.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:get/get.dart';
 
+import '../../../../../core/constants/app_strings.dart';
 import '../../../../../core/widgets/custom_text_field_without_icon.dart';
 import '../../../../../core/widgets/searchable_account_field.dart';
 import '../../../../bill/ui/widgets/bill_shared/bill_header_field.dart';
@@ -21,7 +23,7 @@ class AddAccountFormWidget extends StatelessWidget {
         children: [
           FormFieldRow(
             firstItem: TextAndExpandedChildField(
-              label: "اسم الحساب",
+              label: AppStrings.accountName.tr,
               child: CustomTextFieldWithoutIcon(
                 suffixIcon: SizedBox(),
                 validator: (value) => controller.accountFromHandler.defaultValidator(value, "اسم الحساب"),
@@ -29,7 +31,7 @@ class AddAccountFormWidget extends StatelessWidget {
               ),
             ),
             secondItem: TextAndExpandedChildField(
-              label: "اسم الحساب اللاتيني",
+              label: AppStrings.latinAccountName.tr,
               child: CustomTextFieldWithoutIcon(
                 suffixIcon: SizedBox(),
                 textEditingController: controller.accountFromHandler.latinNameController,
@@ -39,7 +41,7 @@ class AddAccountFormWidget extends StatelessWidget {
           FormFieldRow(
             firstItem: SearchableAccountField(
               textEditingController: controller.accountFromHandler.accParentName,
-              label: 'الحساب الاب',
+              label: AppStrings.fatherAccount.tr,
               onSubmitted: (text) async {
                 AccountModel? accountModel = await controller.openAccountSelectionDialog(
                   query: text,
@@ -51,7 +53,7 @@ class AddAccountFormWidget extends StatelessWidget {
               },
             ),
             secondItem: TextAndExpandedChildField(
-              label: "رمز الحساب",
+              label: AppStrings.accountCode.tr,
               child: CustomTextFieldWithoutIcon(
                 suffixIcon: SizedBox(),
                 validator: (value) => controller.accountFromHandler.defaultValidator(value, "رمز الحساب"),

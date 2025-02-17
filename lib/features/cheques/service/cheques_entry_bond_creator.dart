@@ -1,4 +1,4 @@
-import 'package:ba3_bs_mobile/core/helper/extensions/date_time_extensions.dart';
+import 'package:ba3_bs_mobile/core/helper/extensions/date_time/date_time_extensions.dart';
 import 'package:ba3_bs_mobile/features/cheques/data/models/cheques_model.dart';
 
 import '../../../core/constants/app_constants.dart';
@@ -80,19 +80,23 @@ abstract class BaseChequesBondStrategy extends BaseEntryBondCreator<ChequesModel
 class ChequesBondStrategy extends BaseChequesBondStrategy {
   @override
   List<EntryBondItemModel> generateItems({required ChequesModel model, bool? isSimulatedVat}) {
-    final date = model.chequesDate ?? DateTime.now().dayMonthYear;
-    final note = "سند قيد ل${ChequesType.byTypeGuide(model.chequesTypeGuid!).value} رقم :${model.chequesNumber}";
-    final amount = model.chequesVal!;
-    final originId = model.chequesGuid!;
-    return createBondItems(
-      note: note,
-      originId: originId,
-      amount: amount,
-      date: date,
-      docId: model.chequesGuid,
-      creditAccount: AccountEntity(id: model.chequesAccount2Guid!, name: model.chequesAccount2Name!),
-      debitAccount: AccountEntity(id: model.accPtr!, name: model.accPtrName!),
-    );
+    if (DateTime.parse(model.chequesDate!).year != DateTime.now().year) {
+      return [];
+    } else {
+      final date = model.chequesDate ?? DateTime.now().dayMonthYear;
+      final note = "سند قيد ل${ChequesType.byTypeGuide(model.chequesTypeGuid!).value} رقم :${model.chequesNumber}";
+      final amount = model.chequesVal!;
+      final originId = model.chequesGuid!;
+      return createBondItems(
+        note: note,
+        originId: originId,
+        amount: amount,
+        date: date,
+        docId: model.chequesGuid,
+        creditAccount: AccountEntity(id: model.chequesAccount2Guid!, name: model.chequesAccount2Name!),
+        debitAccount: AccountEntity(id: model.accPtr!, name: model.accPtrName!),
+      );
+    }
   }
 
   @override

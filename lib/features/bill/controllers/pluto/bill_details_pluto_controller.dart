@@ -106,7 +106,7 @@ class BillDetailsPlutoController extends IPlutoController<InvoiceRecordModel> {
   void moveToNextRow(PlutoGridStateManager stateManager, String cellField) => _gridService.moveToNextRow(stateManager, cellField);
 
   @override
-  void restoreCurrentCell(PlutoGridStateManager stateManager) => _gridService.restoreCurrentCell(stateManager);
+  void restoreCurrentCell(PlutoGridStateManager stateManager) => _gridService.restoreCurrentCell(stateManager, billTypeModel!);
 
   @override
   void onInit() {
@@ -169,7 +169,7 @@ class BillDetailsPlutoController extends IPlutoController<InvoiceRecordModel> {
     } else if (columnField == AppConstants.invRecTotal) {
       _gridService.updateInvoiceValuesByTotal(total, quantity, billTypeModel!);
     } else if (columnField == AppConstants.invRecQuantity && quantity > 0) {
-      _gridService.updateInvoiceValuesByQuantity(quantity, subTotal, vat);
+      _gridService.updateInvoiceValuesByQuantity(quantity, subTotal, vat, billTypeModel!);
     } else if (columnField == AppConstants.invRecProduct) {
       _gridService.getProduct(product, recordsTableStateManager, this, context, billTypeModel!);
     }
@@ -225,7 +225,7 @@ class BillDetailsPlutoController extends IPlutoController<InvoiceRecordModel> {
   //   }
   // }
 
-  void _showPriceTypeMenu(event, MaterialModel materialModel, BuildContext context) {
+  void _showPriceTypeMenu(event, MaterialModel materialModel, BuildContext context, BillTypeModel billTypeModel) {
     _contextMenu.showPriceTypeMenu(
         context: context,
         index: event.rowIdx,
@@ -233,7 +233,7 @@ class BillDetailsPlutoController extends IPlutoController<InvoiceRecordModel> {
         tapPosition: Offset(1, 1),
         invoiceUtils: _plutoUtils,
         gridService: _gridService,
-        billTypeModel: billTypeModel!);
+        billTypeModel: billTypeModel);
   }
 
   void _showDeleteConfirmationDialog(event, BuildContext context) => _contextMenu.showDeleteConfirmationDialog(event.rowIdx, context);
@@ -357,7 +357,7 @@ class BillDetailsPlutoController extends IPlutoController<InvoiceRecordModel> {
     } else if (field == AppConstants.invRecProduct) {
       _showMatMenu(event, materialModel, context);
     } else if (field == AppConstants.invRecSubTotal) {
-      _showPriceTypeMenu(event, materialModel, context);
+      _showPriceTypeMenu(event, materialModel, context, billTypeModel!);
     }
   }
 

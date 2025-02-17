@@ -28,7 +28,7 @@ class BillMatStatementCreator implements MatStatementCreator<BillModel> {
             originId: model.billId,
             quantity: quantityStrategy.calculateQuantity(matItem.itemQuantity),
             date: model.billDetails.billDate!,
-            price: matItem.itemSubTotalPrice,
+            price: double.parse(matItem.itemTotalPrice) / matItem.itemQuantity,
             note: '${model.billTypeModel.fullName}',
             defQuantity: quantityStrategy.calculateQuantity(updatedMaterials
                     .firstWhereOrNull(

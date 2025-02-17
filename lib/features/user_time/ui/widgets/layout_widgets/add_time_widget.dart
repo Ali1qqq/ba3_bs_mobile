@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:get/get_state_manager/src/rx_flutter/rx_obx_widget.dart';
+import 'package:get/get.dart';
 
+import '../../../../../core/constants/app_strings.dart';
 import '../../../../../core/helper/enums/enums.dart';
 import '../../../../../core/styling/app_text_style.dart';
 import '../../../../../core/widgets/app_button.dart';
@@ -23,7 +24,7 @@ class AddTimeWidget extends StatelessWidget {
       child: OrganizedWidget(
         titleWidget: Center(
             child: Text(
-          "تسجيل الدوام",
+          AppStrings.work.tr,
           style: AppTextStyles.headLineStyle2,
         )),
         bodyWidget: Column(
@@ -33,14 +34,14 @@ class AddTimeWidget extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   AppButton(
-                    title: "دخول",
+                    title: AppStrings.checkIn.tr,
                     onPressed: () => userTimeController.checkLogInAndSave(),
                     isLoading: userTimeController.logInState.value == RequestState.loading,
                   ),
                   SizedBox(
                     width: 125.w,
                     child: Text(
-                      userTimeController.lastEnterTime.value,
+                      userTimeController.lastEnterTime.value.tr,
                       style: AppTextStyles.headLineStyle3,
                     ),
                   ),
@@ -53,14 +54,14 @@ class AddTimeWidget extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   AppButton(
-                    title: "خروج",
+                    title: AppStrings.checkOut.tr,
                     onPressed: () => userTimeController.checkLogOutAndSave(),
                     isLoading: userTimeController.logOutState.value == RequestState.loading,
                   ),
                   SizedBox(
                     width: 125.w,
                     child: Text(
-                      userTimeController.lastOutTime.value,
+                      userTimeController.lastOutTime.value.tr,
                       style: AppTextStyles.headLineStyle3,
                     ),
                   )

@@ -92,8 +92,7 @@ final Map<String, String> enUS = {
   AppStrings.control: 'Control',
   AppStrings.panel: 'Panel',
   AppStrings.controlPanel: 'Control Panel',
-  AppStrings.areYouSureYouWantToCloseTheProgram:
-      'Are you sure you want to close the program?',
+  AppStrings.areYouSureYouWantToCloseTheProgram: 'Are you sure you want to close the program?',
   AppStrings.exit: 'Exit',
   AppStrings.cancel: 'Cancel',
   AppStrings.user: 'User',
@@ -135,6 +134,7 @@ final Map<String, String> enUS = {
   AppStrings.individual: 'Individual',
   AppStrings.tax: 'Tax',
   AppStrings.notRegisteredYet: 'Not Registered Yet',
+  AppStrings.notLoggedToday: 'Not Logged Today',
   AppStrings.nothing: 'Nothing',
   AppStrings.currentlyUnavailable: 'Currently Unavailable',
   AppStrings.minutes: 'Minutes',

@@ -37,13 +37,11 @@ class FloatingWindowService {
   }
 
   /// Initializes and returns a new instance of [FloatingWindowController].
-  static FloatingWindowController _initializeFloatingWindowController(
-      {double? defaultWidth, double? defaultHeight, String? tag}) {
+  static FloatingWindowController _initializeFloatingWindowController({double? defaultWidth, double? defaultHeight, String? tag}) {
     // Create the controller if not already created
 
     if (!Get.isRegistered<FloatingWindowController>(tag: tag)) {
-      Get.create(() => FloatingWindowController(defaultWidth: defaultWidth, defaultHeight: defaultHeight),
-          tag: tag, permanent: false);
+      Get.create(() => FloatingWindowController(defaultWidth: defaultWidth, defaultHeight: defaultHeight), tag: tag, permanent: false);
     }
 
     // Return the controller instance

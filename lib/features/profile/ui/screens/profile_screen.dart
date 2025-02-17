@@ -12,11 +12,11 @@ import '../../../../core/helper/enums/enums.dart';
 import '../../../../core/helper/extensions/getx_controller_extensions.dart';
 import '../../../../core/widgets/user_target.dart';
 import '../../../../core/widgets/user_target_shimmer_widget.dart';
-import '../../../main_layout/ui/widgets/main_header.dart';
 import '../../../user_time/ui/widgets/layout_widgets/add_time_widget.dart';
 import '../../../user_time/ui/widgets/layout_widgets/holidays_widget.dart';
 import '../../../user_time/ui/widgets/layout_widgets/user_daily_time_widget.dart';
 import '../../controller/user_time_controller.dart';
+import '../widgets/profile_footer.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -80,7 +80,7 @@ class ProfileScreen extends StatelessWidget {
                             ? UserTargetShimmerWidget()
                             : UserTargets(salesController: salesController);
                       }),
-                      const MainHeader(),
+                      const ProfileFooter(),
                     ],
                   );
           }),

@@ -27,7 +27,6 @@ class FloatingWindowController extends GetxController with CursorUpdateMixin {
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.landscapeLeft,
       DeviceOrientation.landscapeRight,
-
     ]);
   }
 
@@ -66,7 +65,6 @@ class FloatingWindowController extends GetxController with CursorUpdateMixin {
     const double minWidthRatio = 1;
     const double minHeightRatio = 1;
 
-
     final double adjustedWidthRatio = defaultWidthRatio < minWidthRatio ? minWidthRatio : defaultWidthRatio;
     final double adjustedHeightRatio = defaultHeightRatio < minHeightRatio ? minHeightRatio : defaultHeightRatio;
 
@@ -83,8 +81,8 @@ class FloatingWindowController extends GetxController with CursorUpdateMixin {
     final double windowWidth = bottomWindowWidthRatio * parentSize.value.width; // Width for the minimized container
     final double windowHeight = bottomWindowHeightRatio * parentSize.value.height; // Height for the minimized container
 
-    final targetPositionRatio = windowPositionManager.getNextWindowPositionRatio(
-        windowWidth, windowHeight, parentSize.value.width, parentSize.value.height);
+    final targetPositionRatio =
+        windowPositionManager.getNextWindowPositionRatio(windowWidth, windowHeight, parentSize.value.width, parentSize.value.height);
 
     return targetPositionRatio;
   }
@@ -142,13 +140,11 @@ class FloatingWindowController extends GetxController with CursorUpdateMixin {
 
   /// Resize to 95% of the parent container
   void maximize() {
-
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.landscapeLeft,
       DeviceOrientation.landscapeRight,
-
     ]);
-    width = parentSize.value.width ;
+    width = parentSize.value.width;
     height = parentSize.value.height;
 
     // Ensure the window stays within bounds
@@ -176,7 +172,6 @@ class FloatingWindowController extends GetxController with CursorUpdateMixin {
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
-
     ]);
     width = bottomWindowWidthRatio * parentSize.value.width; // Width for the minimized container
     height = bottomWindowHeightRatio * parentSize.value.height; // Height for the minimized container
@@ -257,8 +252,7 @@ class FloatingWindowController extends GetxController with CursorUpdateMixin {
         x += dx;
       }
     }
-    if (resizeManager.isOnRightEdge(details.localPosition, width) &&
-        !resizeManager.isOnLeftEdge(resizeStartPosition!)) {
+    if (resizeManager.isOnRightEdge(details.localPosition, width) && !resizeManager.isOnLeftEdge(resizeStartPosition!)) {
       final newWidth = width + dx;
       if (newWidth >= minWidth && newWidth <= screenWidth * .95) {
         width = newWidth;
@@ -271,8 +265,7 @@ class FloatingWindowController extends GetxController with CursorUpdateMixin {
         y += dy;
       }
     }
-    if (resizeManager.isOnBottomEdge(details.localPosition, height) &&
-        !resizeManager.isOnTopEdge(resizeStartPosition!)) {
+    if (resizeManager.isOnBottomEdge(details.localPosition, height) && !resizeManager.isOnTopEdge(resizeStartPosition!)) {
       final newHeight = height + dy;
       if (newHeight >= minHeight && newHeight <= screenHeight * .95) {
         height = newHeight;
@@ -296,8 +289,7 @@ class FloatingWindowController extends GetxController with CursorUpdateMixin {
   }
 
   void onPanStart(DragStartDetails details) {
-    final Offset localPosition =
-        getLocalPosition(floatingWindowKey: floatingWindowKey, globalPosition: details.globalPosition);
+    final Offset localPosition = getLocalPosition(floatingWindowKey: floatingWindowKey, globalPosition: details.globalPosition);
 
     if (resizeManager.isOnEdge(localPosition, width, height)) {
       isResizing = true;

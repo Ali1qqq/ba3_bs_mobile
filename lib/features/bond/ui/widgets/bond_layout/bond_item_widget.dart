@@ -1,11 +1,14 @@
+import 'package:ba3_bs_mobile/core/constants/app_strings.dart';
+import 'package:ba3_bs_mobile/core/styling/app_colors.dart';
 import 'package:ba3_bs_mobile/core/styling/app_text_style.dart';
 import 'package:ba3_bs_mobile/core/widgets/app_button.dart';
+import 'package:ba3_bs_mobile/features/bond/controllers/bonds/all_bond_controller.dart';
 import 'package:ba3_bs_mobile/features/bond/ui/widgets/bond_layout/body_bond_layout_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
 
 import '../../../../../core/helper/enums/enums.dart';
-import '../../../controllers/bonds/all_bond_controller.dart';
 
 class BondItemWidget extends StatelessWidget {
   const BondItemWidget({super.key, required this.onTap, required this.bondType, required this.bondsController});
@@ -18,15 +21,15 @@ class BondItemWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
         padding: EdgeInsets.all(15),
-        height: 160.w,
-        width: 0.9.sw,
+        width: 1.sw,
+        height: 170.h,
         alignment: Alignment.center,
         decoration: BoxDecoration(
           // color: Colors.white,
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            width: 1,
-            color: Color(int.parse("0xff${bondType.color}")),
+            width: 0.2,
+            color: AppColors.grayColor,
           ),
         ),
         child: Column(
@@ -34,28 +37,28 @@ class BondItemWidget extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Expanded(
-                  child: Text(
-                    bondType.value,
-                    style: AppTextStyles.headLineStyle2,
-                    textDirection: TextDirection.rtl,
-                  ),
+                Text(
+                  bondType.value.tr,
+                  style: AppTextStyles.headLineStyle2,
+                  textDirection: TextDirection.rtl,
                 ),
                 Image.asset(
                   bondType.icon,
-                  width: 0.1.sw,
-                  height: 0.035.sh,
+                  width: 0.065.sw,
+                  height: 0.065.sh,
                   // color: index == tabIndex ? AppColors.whiteColor : AppColors.grayColor,
                 ),
               ],
             ),
             Spacer(),
 
-            BodyBondLayoutWidget(firstText: "من  ${bondType.from}", secondText: "الى  ${bondsController.allBondsCounts(bondType)}"),
+            BodyBondLayoutWidget(
+                firstText: "${AppStrings.from.tr}  ${bondType.from}",
+                secondText: "${AppStrings.to.tr}  ${bondsController.allBondsCounts(bondType)}"),
             // BodyBondLayoutWidget(firstText: "العدد الكلي :", secondText: ((bondType.to-bondType.from)+1).toString()),
             Spacer(),
             AppButton(
-              title: "جديد",
+              title: AppStrings.newS.tr,
               onPressed: onTap,
               iconData: Icons.add,
               color: Color(int.parse("0xff${bondType.color}")).withAlpha(220),

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../../../core/constants/app_constants.dart';
+import '../../../../core/constants/app_strings.dart';
 import '../../../../core/widgets/pluto_grid_with_app_bar_.dart';
 import '../../controllers/material_controller.dart';
 
@@ -13,7 +14,7 @@ class AllMaterialsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return GetBuilder<MaterialController>(builder: (controller) {
       return PlutoGridWithAppBar(
-        title: 'جميع المواد',
+        title: AppStrings.allMaterials.tr,
         isLoading: controller.isLoading,
         tableSourceModels: controller.materials,
         onLoaded: (event) {},

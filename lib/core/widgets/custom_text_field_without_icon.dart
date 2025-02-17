@@ -81,6 +81,7 @@ class _CustomTextFieldWithoutIconState extends State<CustomTextFieldWithoutIcon>
         onChanged: widget.onChanged,
         validator: widget.validator,
         enabled: widget.enabled,
+        // readOnly: widget.enable,
         onFieldSubmitted: widget.onSubmitted,
         controller: widget.textEditingController,
         keyboardType: widget.keyboardType,
@@ -89,18 +90,18 @@ class _CustomTextFieldWithoutIconState extends State<CustomTextFieldWithoutIcon>
         onTap: () =>
             widget.textEditingController.selection = TextSelection(baseOffset: 0, extentOffset: widget.textEditingController.text.length),
         inputFormatters: widget.inputFormatters,
-        style: widget.textStyle ?? const TextStyle(fontSize: 14),
+        style: const TextStyle(fontSize: 12),
         decoration: InputDecoration(
             fillColor: widget.filedColor ?? Colors.white,
             filled: true,
             isDense: true,
-            border: UnderlineInputBorder(
-              borderSide: const BorderSide(
-                color: Colors.black, // Change the border color
-                width: 2.0, // Change the border width
-              ),
-              borderRadius: BorderRadius.circular(5.0), // Adjust border radius
-            ),
+            // border: UnderlineInputBorder(
+            //   borderSide: const BorderSide(
+            //     color: Colors.black, // Change the border color
+            //     width: 2.0, // Change the border width
+            //   ),
+            //   borderRadius: BorderRadius.circular(5.0), // Adjust border radius
+            // ),
             focusedBorder: OutlineInputBorder(
               borderSide: const BorderSide(
                 color: Colors.blue, // Change the border color when focused
@@ -108,8 +109,8 @@ class _CustomTextFieldWithoutIconState extends State<CustomTextFieldWithoutIcon>
               ),
               borderRadius: BorderRadius.circular(5.0),
             ),
-            suffixIcon: widget.suffixIcon,
-            contentPadding: const EdgeInsets.fromLTRB(12, 8, 12, 4)),
+            // suffixIcon: SizedBox.shrink(),
+            contentPadding: const EdgeInsets.fromLTRB(0, 12, 0, 12)),
         textAlign: TextAlign.center,
         // Center the text horizontally
       ),

@@ -382,7 +382,7 @@ class ChequesModel implements PlutoAdaptable {
   Map<PlutoColumn, dynamic> toPlutoGridFormat([type]) {
     return {
       PlutoColumn(title: "رقم القيد", field: AppConstants.chequesGuid, type: PlutoColumnType.text(), hide: true): chequesGuid,
-      createAutoIdColumn(): '',
+      createAutoIdColumn(): '#',
       PlutoColumn(title: "الرقم التسلسلي", field: AppConstants.chequesNumber, type: PlutoColumnType.number()): chequesNumber,
       PlutoColumn(title: "رقم الشيك", field: AppConstants.chequesNum, type: PlutoColumnType.number()): chequesNumber,
       PlutoColumn(

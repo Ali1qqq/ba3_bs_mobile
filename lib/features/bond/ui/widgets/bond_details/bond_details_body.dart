@@ -11,7 +11,12 @@ import '../../../controllers/bonds/bond_details_controller.dart';
 import '../../../controllers/pluto/bond_details_pluto_controller.dart';
 
 class BondDetailsBody extends StatelessWidget {
-  const BondDetailsBody({super.key, required this.bondTypeModel, required this.bondDetailsController, required this.bondDetailsPlutoController, required this.tag});
+  const BondDetailsBody(
+      {super.key,
+      required this.bondTypeModel,
+      required this.bondDetailsController,
+      required this.bondDetailsPlutoController,
+      required this.tag});
 
   final BondType bondTypeModel;
   final BondDetailsController bondDetailsController;
@@ -20,8 +25,7 @@ class BondDetailsBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: 200,
+    return Expanded(
       child: GetBuilder<BondDetailsPlutoController>(
         tag: tag,
         builder: (_) {
@@ -35,7 +39,8 @@ class BondDetailsBody extends StatelessWidget {
               },
               onChanged: bondDetailsPlutoController.onMainTableStateManagerChanged,
               onLoaded: bondDetailsPlutoController.onMainTableLoaded,
-              shortCut: customPlutoShortcut(GetAccountsByEnterAction(plutoController:  bondDetailsPlutoController,context:  context,textFieldName: AppConstants.entryAccountGuid)),
+              shortCut: customPlutoShortcut(GetAccountsByEnterAction(
+                  plutoController: bondDetailsPlutoController, context: context, textFieldName: AppConstants.entryAccountGuid)),
               evenRowColor: Color(int.parse("0xff${bondDetailsPlutoController.bondType.color}")),
             ),
           );

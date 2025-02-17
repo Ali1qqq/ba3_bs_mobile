@@ -15,33 +15,33 @@ class MaterialGroupImport extends ImportServiceBase<MaterialGroupModel> {
     final materialsXml = document.findAllElements('G');
 
     List<MaterialGroupModel> materials = materialsXml.map((materialElement) {
-      String? getValue(String tagName) {
+      String? getText(String tagName) {
         final elements = materialElement.findElements(tagName);
         return elements.isEmpty ? null : elements.first.value;
       }
 
       int getInt(String tagName) {
-        final value = getValue(tagName);
-        return value == null ? 0 : double.parse(value.toString()).toInt();
+        final text = getText(tagName);
+        return text == null ? 0 : double.parse(text.toString()).toInt();
       }
 
       double? getDouble(String tagName) {
-        final value = getValue(tagName);
-        return value == null ? null : double.parse(value);
+        final text = getText(tagName);
+        return text == null ? null : double.parse(text);
       }
 
       return MaterialGroupModel(
-        matGroupGuid: getValue('gPtr') ?? '',
+        matGroupGuid: getText('gPtr') ?? '',
         groupBranchMask: getInt('GroupBranchMask'),
-        groupCode: getValue('GroupCode') ?? '',
-        groupLatinName: getValue('GroupLatinName') ?? '',
-        groupName: getValue('GroupName') ?? '',
-        groupNotes: getValue('GroupNotes') ?? '',
+        groupCode: getText('GroupCode') ?? '',
+        groupLatinName: getText('GroupLatinName') ?? '',
+        groupName: getText('GroupName') ?? '',
+        groupNotes: getText('GroupNotes') ?? '',
         groupNumber: getInt('GroupNumber'),
         groupSecurity: getInt('GroupSecurity'),
         groupType: getInt('GroupType'),
         groupVat: getDouble('GroupVat') ?? 0.0,
-        parentGuid: getValue('ParentGuid') ?? '',
+        parentGuid: getText('ParentGuid') ?? '',
       );
     }).toList();
 

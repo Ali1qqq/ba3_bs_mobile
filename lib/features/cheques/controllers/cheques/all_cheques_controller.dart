@@ -67,11 +67,7 @@ class AllChequesController extends FloatingChequesDetailsLauncher with EntryBond
 
           chequesList.assignAll(fetchedCheques);
           if (chequesList.isNotEmpty) {
-            await _chequesFirebaseRepo.saveAllNested(
-              items: chequesList,
-              itemIdentifiers: ChequesType.values,
-              onProgress: (progress) {},
-            );
+            await _chequesFirebaseRepo.saveAllNested(items: chequesList, itemIdentifiers: ChequesType.values);
 
             await createAndStoreEntryBonds(sourceModels: chequesList);
           }
@@ -141,8 +137,8 @@ class AllChequesController extends FloatingChequesDetailsLauncher with EntryBond
 
     launchFloatingWindow(
       context: context,
-      defaultHeight: 600,
-      defaultWidth: 600,
+      defaultHeight: 300,
+      defaultWidth: 800,
       minimizedTitle: ChequesType.byTypeGuide(lastChequesModel.chequesTypeGuid!).value,
       floatingScreen: ChequesDetailsScreen(
         tag: controllerTag,

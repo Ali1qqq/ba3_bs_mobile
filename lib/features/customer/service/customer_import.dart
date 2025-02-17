@@ -21,7 +21,7 @@ class CustomerImport extends ImportServiceBase<CustomerModel> {
       (gccCus) {
         String getvalue(String tagName) {
           final elements = gccCus.findElements(tagName);
-          return elements.isEmpty ? '' : elements.first.value ?? '';
+          return elements.isEmpty ? '' : elements.first.value!;
         }
 
         return GccCusTax(

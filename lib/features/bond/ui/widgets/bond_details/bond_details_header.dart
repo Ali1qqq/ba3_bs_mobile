@@ -1,8 +1,8 @@
+import 'package:ba3_bs_mobile/core/constants/app_strings.dart';
 import 'package:ba3_bs_mobile/core/widgets/searchable_account_field.dart';
 import 'package:ba3_bs_mobile/features/bond/controllers/bonds/bond_details_controller.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get_state_manager/src/rx_flutter/rx_obx_widget.dart';
-
+import 'package:get/get.dart';
 import '../../../../../core/helper/extensions/getx_controller_extensions.dart';
 import '../../../../../core/widgets/app_spacer.dart';
 import '../../../../../core/widgets/custom_text_field_without_icon.dart';
@@ -30,7 +30,7 @@ class BondDetailsHeader extends StatelessWidget {
           children: [
             FormFieldRow(
                 firstItem: TextAndExpandedChildField(
-                  label: 'تاريخ السند',
+                  label: AppStrings.bondDate.tr,
                   child: Obx(() {
                     return DatePicker(
                       initDate: bondDetailsController.bondDate.value,
@@ -39,10 +39,11 @@ class BondDetailsHeader extends StatelessWidget {
                   }),
                 ),
                 secondItem: TextAndExpandedChildField(
-                  label: "البيان",
+                  label: AppStrings.illustration.tr,
                   child: CustomTextFieldWithoutIcon(
+                    height: 30,
                     textEditingController: bondDetailsController.noteController,
-                    suffixIcon: const SizedBox.shrink(),
+                    // suffixIcon: const SizedBox.shrink(),
                   ),
                 )),
             const VerticalSpace(8),
@@ -55,7 +56,7 @@ class BondDetailsHeader extends StatelessWidget {
                       }
                       return null;
                     },
-                    label: "الحساب : ",
+                    label: "${AppStrings.account.tr} : ",
                     onSubmitted: (text) async {
                       AccountModel? accountModel = await read<AccountsController>().openAccountSelectionDialog(
                         query: text,

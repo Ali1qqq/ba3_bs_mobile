@@ -31,7 +31,7 @@ class SearchableAccountField extends StatelessWidget {
       height: AppConstants.constHeightTextField,
       child: Row(
         children: [
-          SizedBox(width: 100, child: Text(label)),
+          SizedBox(width: 150, child: Text(label)),
           Expanded(
             child: CustomTextFieldWithIcon(
                 readOnly: readOnly, textEditingController: textEditingController, validator: validator, onSubmitted: onSubmitted),

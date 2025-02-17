@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
 import '../../../../core/constants/app_assets.dart';
+import '../../../../core/constants/app_config.dart';
+import '../../../../core/styling/app_text_style.dart';
 import '../../../../core/widgets/app_spacer.dart';
 import '../../controllers/main_layout_controller.dart';
 import 'drawer_list_tile.dart';
@@ -43,6 +46,13 @@ class RightMainWidget extends StatelessWidget {
                 ),
               ),
             ),
+            VerticalSpace(),
+            Center(
+              child: Text(
+                "BA3 BS Version ${AppConfig.version}",
+                style: AppTextStyles.headLineStyle4.copyWith(fontSize: 12.sp),
+              ),
+            )
           ],
         ),
       ),

@@ -134,6 +134,7 @@ final Map<String, String> urPK = {
   AppStrings.individual: 'انفرادی',
   AppStrings.tax: 'ٹیکس',
   AppStrings.notRegisteredYet: 'ابھی تک رجسٹر نہیں ہوا',
+  AppStrings.notLoggedToday: 'ابھی تک رجسٹر نہیں ہوا',
   AppStrings.nothing: 'کچھ نہیں',
   AppStrings.currentlyUnavailable: 'فی الحال دستیاب نہیں',
   AppStrings.minutes: 'منٹ',
@@ -241,13 +242,11 @@ final Map<String, String> urPK = {
   AppStrings.paymentBond: 'ادائیگی کا بانڈ',
   AppStrings.deleteRefund: 'واپسی حذف کریں',
   AppStrings.paymentDelete: 'ادائیگی حذف کریں',
-
   AppStrings.addCheques: 'چیک شامل کریں',
   AppStrings.viewCheques: 'چیکس دیکھیں',
   AppStrings.viewMaterial: 'مواد دیکھیں',
   AppStrings.viewMaterialGroups: 'مواد کے گروپس دیکھیں',
   AppStrings.downloadBonds: 'بانڈز ڈاؤن لوڈ کریں',
-
   AppStrings.downloadCheques: 'چیکس ڈاؤن لوڈ کریں',
   AppStrings.downloadMaterials: 'مواد ڈاؤن لوڈ کریں',
   AppStrings.downloadGroups: 'گروپس ڈاؤن لوڈ کریں',

@@ -2,6 +2,7 @@ import 'package:ba3_bs_mobile/core/helper/extensions/entry_bond_model_ectensions
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
+import '../../../../../core/constants/app_constants.dart';
 import '../../../data/models/entry_bond_model.dart';
 
 class BondDataGridSource extends DataGridSource {
@@ -18,11 +19,11 @@ class BondDataGridSource extends DataGridSource {
       cells: row
           .getCells()
           .map<Widget>((dataGridCell) => Container(
-                alignment: Alignment.center,
+                alignment: dataGridCell.columnName == AppConstants.rowBondDescription ? Alignment.centerRight : Alignment.center,
                 color: Colors.white,
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
                 child: Text(
-                  textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 12),
+                  textAlign: TextAlign.right,
                   dataGridCell.value == null
                       ? ''
                       : dataGridCell.value is double
@@ -36,8 +37,8 @@ class BondDataGridSource extends DataGridSource {
   }
 
   @override
-  Widget? buildTableSummaryCellWidget(GridTableSummaryRow summaryRow, GridSummaryColumn? summaryColumn,
-      RowColumnIndex rowColumnIndex, String summaryValue) {
+  Widget? buildTableSummaryCellWidget(
+      GridTableSummaryRow summaryRow, GridSummaryColumn? summaryColumn, RowColumnIndex rowColumnIndex, String summaryValue) {
     return Container(
       padding: const EdgeInsets.all(15.0),
       child: Text(summaryValue),

@@ -1,9 +1,14 @@
 import 'dart:developer';
 import 'dart:io';
 
+import 'package:ba3_bs_mobile/core/helper/enums/enums.dart';
+import 'package:ba3_bs_mobile/core/helper/extensions/basic/list_extensions.dart';
+import 'package:ba3_bs_mobile/core/helper/extensions/getx_controller_extensions.dart';
 import 'package:ba3_bs_mobile/core/router/app_routes.dart';
 import 'package:ba3_bs_mobile/core/services/json_file_operations/implementations/import_export_repo.dart';
 import 'package:ba3_bs_mobile/features/accounts/service/account_from_handler.dart';
+import 'package:ba3_bs_mobile/features/customer/controllers/customers_controller.dart';
+import 'package:ba3_bs_mobile/features/customer/data/models/customer_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -27,15 +32,19 @@ class AccountsController extends GetxController with AppNavigator {
   List<AccountModel> accounts = [];
   AccountModel? selectedAccount;
 
-  bool get isFromHandler => selectedAccount == null ? false : true;
+  bool get isEditAccount => selectedAccount == null ? false : true;
 
   late AccountFromHandler accountFromHandler;
   late AccountService accountService;
 
+  final showAddCustomerForm = false.obs;
+  final newCustomerNameController = TextEditingController();
+  final newCustomerPhoneController = TextEditingController();
+  final addedCustomers = <CustomerModel>[].obs;
+
   void setAccountParent(AccountModel accountModel) {
     accountFromHandler.accountParentModel = accountModel;
     accountFromHandler.accParentName.text = accountModel.accName!;
-    update();
   }
 
   void initializer() {
@@ -48,11 +57,11 @@ class AccountsController extends GetxController with AppNavigator {
   @override
   void onInit() {
     super.onInit();
+    log('onInit fetchAccounts');
+    read<CustomersController>().fetchCustomers();
     fetchAccounts();
     initializer();
   }
-
-  // Fetch materials from the repository
 
   Future<void> addAccount(AccountModel seller) async {
     final result = await _accountsFirebaseRepo.save(seller);
@@ -68,7 +77,9 @@ class AccountsController extends GetxController with AppNavigator {
 
     result.fold(
       (failure) => AppUIUtils.onFailure(failure.message),
-      (fetchedAccounts) {},
+      (fetchedAccounts) {
+        AppUIUtils.onSuccess('تم رفع ${fetchedAccounts.length} حساب بنجاح');
+      },
     );
   }
 
@@ -80,22 +91,30 @@ class AccountsController extends GetxController with AppNavigator {
     if (resultFile != null) {
       File file = File(resultFile.files.single.path!);
       final result = await _jsonImportExportRepo.importXmlFile(file);
+
       result.fold(
         (failure) => AppUIUtils.onFailure(failure.message),
-        (fetchedAccounts) {
-          log("fetchedAccounts length ${fetchedAccounts.length}");
-          log(fetchedAccounts.last.toJson().toString());
-
-          accounts.assignAll(fetchedAccounts);
-          addAccounts(accounts);
-        },
+        (fetchedAccounts) => _handelFetchAllAccountsFromLocalSuccess(fetchedAccounts),
       );
     }
 
     update();
   }
 
-  void fetchAccounts() async {
+  void _handelFetchAllAccountsFromLocalSuccess(List<AccountModel> fetchedAccounts) async {
+    log("fetchedAccounts length ${fetchedAccounts.length}");
+    log('current accounts length is ${accounts.length}');
+
+    final newAccounts = fetchedAccounts.subtract(accounts, (account) => account.accName);
+    log('newAccounts length is ${newAccounts.length}');
+
+    if (newAccounts.isNotEmpty) {
+      await addAccounts(newAccounts);
+      accounts.assignAll(newAccounts);
+    }
+  }
+
+  Future<void> fetchAccounts() async {
     final result = await _accountsFirebaseRepo.getAll();
 
     result.fold(
@@ -112,10 +131,15 @@ class AccountsController extends GetxController with AppNavigator {
   }
 
   void navigateToAddOrUpdateAccountScreen({String? accountId}) {
-    selectedAccount = null;
-    if (accountId != null) selectedAccount = getAccountModelById(accountId);
+    if (accountId != null) {
+      selectedAccount = getAccountModelById(accountId);
+    } else {
+      selectedAccount = null;
+    }
+    updateSelectedCustomers(selectedAccount?.accCustomer);
 
     accountFromHandler.init(accountModel: selectedAccount);
+
     to(AppRoutes.addAccountScreen);
   }
 
@@ -166,22 +190,31 @@ class AccountsController extends GetxController with AppNavigator {
   }
 
   String getAccountIdByName(String? accountName) {
-    if (accountName == null || accountName.isEmpty) return '';
-    return accounts.where((account) => account.accName == accountName).firstOrNull?.id ?? '';
+    String? accountID;
+
+    if (accountName == null || accountName.isEmpty) accountID = '';
+    accountID = accounts.where((account) => account.accName == accountName).firstOrNull?.id ?? '';
+    // if (accountID == '') log('getAccountIdByName with $accountName is null');
+    return accountID;
   }
 
   AccountModel? getAccountModelByName(String text) {
     if (text != '') {
       final AccountModel accountModel =
           accounts.firstWhere((item) => item.accName!.toLowerCase() == text.toLowerCase() || item.accCode == text, orElse: () {
+        log('getAccountModelByName is null with  $text');
         return AccountModel(accName: null);
       });
       if (accountModel.accName == null) {
+        log('getAccountModelByName is null with  $text');
+
         return null;
       } else {
         return accountModel;
       }
     }
+    log('getAccountModelByName is null with  $text');
+
     return null;
   }
 
@@ -240,45 +273,129 @@ class AccountsController extends GetxController with AppNavigator {
   }
 
   void saveOrUpdateAccount() async {
-    // Validate the input before proceeding
-    if (!accountFromHandler.validate()) return;
+    if (!_validateInput()) return;
 
-    // Create a material model based on the user input
-    final updatedAccountModel = accountService.createAccountModel(
-      accountModel: selectedAccount,
-      accName: accountFromHandler.nameController.text,
-      accCode: accountFromHandler.codeController.text,
-      accLatinName: accountFromHandler.latinNameController.text,
-      accType: accountFromHandler.accountType,
-      accParentGuid: accountFromHandler.accountParentModel?.id,
-      accParentName: accountFromHandler.accountParentModel?.accName,
-      accCheckDate: Timestamp.now().toDate(),
-    );
+    final updatedAccountModel = _createUpdatedAccountModel();
 
-    // Handle null material model
     if (updatedAccountModel == null) {
-      AppUIUtils.onFailure('');
+      AppUIUtils.onFailure('من فضلك أدخل ');
       return;
     }
-    log(updatedAccountModel.toJson().toString());
-    /* // Save changes and handle results
-    final result = await _accountsFirebaseRepo.save(updatedAccountModel);
+    await _saveAccountWithCustomers(updatedAccountModel);
+  }
+
+  bool _validateInput() => accountFromHandler.validate();
+
+  AccountModel? _createUpdatedAccountModel() => accountService.createAccountModel(
+        accountModel: selectedAccount,
+        accName: accountFromHandler.nameController.text,
+        accCode: accountFromHandler.codeController.text,
+        accLatinName: accountFromHandler.latinNameController.text,
+        accType: accountFromHandler.accountType,
+        accParentGuid: accountFromHandler.accountParentModel?.id,
+        accParentName: accountFromHandler.accountParentModel?.accName,
+        accCheckDate: Timestamp.now().toDate(),
+      );
+
+  Future<void> _saveAccountWithCustomers(AccountModel updatedAccountModel) async {
+    if (addedCustomers.isNotEmpty) {
+      final result = await read<CustomersController>().addCustomers(addedCustomers);
+
+      result.fold(
+        (failure) => AppUIUtils.onFailure(failure.message),
+        (savedCustomers) => _onSaveCustomersSuccess(
+          updatedAccountModel: updatedAccountModel,
+          savedCustomers: savedCustomers,
+        ),
+      );
+    } else {
+      await _onSaveCustomersSuccess(updatedAccountModel: updatedAccountModel);
+    }
+  }
+
+  Future<void> _onSaveCustomersSuccess({
+    required AccountModel updatedAccountModel,
+    List<CustomerModel>? savedCustomers,
+  }) async {
+    final accountWithCustomers = _attachSavedCustomers(updatedAccountModel, savedCustomers);
+
+    final result = await _accountsFirebaseRepo.save(accountWithCustomers);
 
     result.fold(
       (failure) => AppUIUtils.onFailure(failure.message),
       (_) => AppUIUtils.onSuccess('تم اضافة الحساب بنجاح'),
-    );*/
+    );
+  }
 
-    update();
+  AccountModel _attachSavedCustomers(AccountModel updatedAccountModel, List<CustomerModel>? savedCustomers) {
+    if (savedCustomers == null) return updatedAccountModel;
+
+    for (final c in savedCustomers) {
+      log('customer id ${c.id}');
+    }
+    final savedCustomerIds = savedCustomers.map((customer) => customer.id!).toList();
+    return updatedAccountModel.copyWith(accCustomer: savedCustomerIds);
   }
 
   void deleteAccount() async {
-    if (isFromHandler) {
+    if (isEditAccount) {
       final result = await _accountsFirebaseRepo.delete(selectedAccount!.id!);
       result.fold(
         (failure) => AppUIUtils.onFailure(failure.message),
-        (_) {},
+        (_) {
+          AppUIUtils.onSuccess("تم حذف الحساب بنجاح");
+        },
       );
     }
+  }
+
+  Rx<VatEnums> selectedVat = VatEnums.withVat.obs;
+
+  void toggleAddCustomerForm() {
+    showAddCustomerForm.value = !showAddCustomerForm.value;
+  }
+
+  void addNewCustomer() {
+    if (newCustomerNameController.text.isNotEmpty && newCustomerPhoneController.text.isNotEmpty) {
+      addedCustomers.add(
+        CustomerModel(
+          name: newCustomerNameController.text,
+          phone1: newCustomerPhoneController.text,
+          cusVatGuid: selectedVat.value.taxGuid,
+        ),
+      );
+      newCustomerNameController.clear();
+      newCustomerPhoneController.clear();
+      showAddCustomerForm.value = false;
+    } else {
+      Get.snackbar("خطأ", "يرجى تعبئة جميع الحقول");
+    }
+  }
+
+  void deleteCustomer({required CustomerModel customer}) {
+    addedCustomers.remove(customer);
+  }
+
+  void onSelectedVatChanged(VatEnums? newVat) {
+    if (newVat != null) {
+      selectedVat.value = newVat;
+    }
+  }
+
+  updateSelectedCustomers(List<String>? accCustomer) {
+    if (accCustomer == null || accCustomer.isEmpty) {
+      addedCustomers.clear();
+    } else {
+      setSelectedCustomers(accCustomer);
+    }
+  }
+
+  /// Handle multiple customer selection
+  void setSelectedCustomers(List<String> customerIds) {
+    addedCustomers.assignAll(
+      read<CustomersController>().customers.where(
+            (customer) => customerIds.contains(customer.id),
+          ),
+    );
   }
 }

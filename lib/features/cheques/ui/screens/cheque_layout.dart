@@ -4,6 +4,7 @@ import 'package:ba3_bs_mobile/features/cheques/controllers/cheques/all_cheques_c
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../../../core/constants/app_strings.dart';
 import '../widgets/cheques_layout/cheques_type_item_widget.dart';
 
 class ChequeLayout extends StatefulWidget {
@@ -19,35 +20,35 @@ class _ChequeLayoutState extends State<ChequeLayout> {
     return Directionality(
       textDirection: TextDirection.rtl,
       child: GetBuilder<AllChequesController>(builder: (controller) {
-        return Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: OrganizedWidget(
-            // titleWidget: Align(
-            //   child: Text(
-            //     "الشيكات",
-            //     style: AppTextStyles.headLineStyle2.copyWith(color: AppColors.blueColor),
-            //   ),
-            // ),
-            bodyWidget: Column(
-              spacing: 10,
-              children: [
-                ChequesTypeItemWidget(
-                    text: 'إضافة شيك',
-                    onPressed: () {
-                      controller.openFloatingChequesDetails(context, ChequesType.paidChecks);
-                      // Get.to(() => const ChequesDetailsScreen());
-                    }),
-                ChequesTypeItemWidget(
-                    text: 'الشيكات المستحقة',
-                    onPressed: () {
-                      controller.navigateToChequesScreen(onlyDues: true);
-                    }),
-                ChequesTypeItemWidget(
-                    text: 'معاينة الشيكات',
-                    onPressed: () {
-                      controller.navigateToChequesScreen(onlyDues: false);
-                    }),
-              ],
+        return Scaffold(
+          body: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: OrganizedWidget(
+              bodyWidget: Column(
+                spacing: 5,
+                children: [
+                  ChequesTypeItemWidget(
+                      text: AppStrings.addCheques.tr,
+                      onPressed: () {
+                        controller.openFloatingChequesDetails(context, ChequesType.paidChecks);
+                        // Get.to(() => const ChequesDetailsScreen());
+                      }),
+                  ChequesTypeItemWidget(
+                      text: AppStrings.chequesDues.tr,
+                      onPressed: () {
+                        controller
+                          ..fetchAllChequesByType(ChequesType.paidChecks)
+                          ..navigateToChequesScreen(onlyDues: true);
+                      }),
+                  ChequesTypeItemWidget(
+                      text: AppStrings.viewCheques.tr,
+                      onPressed: () {
+                        controller
+                          ..fetchAllChequesByType(ChequesType.paidChecks)
+                          ..navigateToChequesScreen(onlyDues: false);
+                      }),
+                ],
+              ),
             ),
           ),
         );

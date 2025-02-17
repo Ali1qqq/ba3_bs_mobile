@@ -55,6 +55,7 @@ class AppButton extends StatelessWidget {
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(fontSize: fontSize ?? 15),
+                          textAlign: TextAlign.center,
                         ),
                       ),
                 if (iconData != null) Icon(iconData, size: iconSize ?? 18, color: Colors.white),

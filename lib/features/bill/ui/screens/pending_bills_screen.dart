@@ -2,6 +2,7 @@ import 'package:ba3_bs_mobile/features/bill/controllers/bill/all_bills_controlle
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../../../core/constants/app_strings.dart';
 import '../../../../core/widgets/pluto_grid_with_app_bar_.dart';
 
 class PendingBillsScreen extends StatelessWidget {
@@ -11,7 +12,7 @@ class PendingBillsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return GetBuilder<AllBillsController>(builder: (controller) {
       return PlutoGridWithAppBar(
-        title: 'الفواتير المعلقة',
+        title: AppStrings.pendingBill.tr,
         onLoaded: (e) {},
         onSelected: (event) {},
         isLoading: controller.isPendingBillsLoading,

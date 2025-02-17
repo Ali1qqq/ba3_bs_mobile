@@ -407,4 +407,6 @@ abstract class AppConstants {
   static const String materialIdFiled = 'materialIdFiled';
   static const String materialGroupIdFiled = 'materialGroupIdFiled';
   static const String userIdFiled = 'userIdFiled';
+  static const String accountIdFiled = 'accountIdFiled';
+  static const String entryBonIdFiled = 'entryBonIdFiled';
 }

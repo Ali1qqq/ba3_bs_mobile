@@ -51,15 +51,4 @@ class MaterialService {
       );
     }
   }
-
-  List<MaterialModel> getAllMaterialNotExist(List<MaterialModel> currentMaterials,List<MaterialModel>fetchedMaterials) {
-    List<MaterialModel> materials=[];
-    final existingMatNames = currentMaterials.map((e) => e.matName).toSet();
-    for (var element in fetchedMaterials) {
-      if (!existingMatNames.contains(element.matName)) {
-        materials.add(element);
-      }
-    }
-    return materials;
-  }
 }

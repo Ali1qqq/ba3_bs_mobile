@@ -1,3 +1,4 @@
+import 'package:ba3_bs_mobile/core/constants/app_strings.dart';
 import 'package:ba3_bs_mobile/core/widgets/searchable_material_field.dart';
 import 'package:ba3_bs_mobile/core/widgets/tax_dropdown.dart';
 import 'package:ba3_bs_mobile/features/bill/ui/widgets/bill_shared/form_field_row.dart';
@@ -17,7 +18,7 @@ class AddMaterialScreen extends StatelessWidget {
       return Scaffold(
         appBar: AppBar(
           centerTitle: false,
-          title: Text(controller.selectedMaterial?.matName ?? 'مادة جديد'),
+          title: Text(controller.selectedMaterial?.matName ?? AppStrings.newMaterial.tr),
         ),
         body: Padding(
           padding: const EdgeInsets.all(8.0),
@@ -30,19 +31,18 @@ class AddMaterialScreen extends StatelessWidget {
               FormFieldRow(
                 firstItem: TaxDropdown(taxSelectionHandler: controller.materialFromHandler),
                 secondItem: SearchableMaterialField(
-                  label: "المجموعة",
+                  label: AppStrings.group.tr,
                   textController: controller.materialFromHandler.parentController,
                   onSubmitted: (text) {
                     controller.openMaterialSelectionDialog(
                       query: text,
                       context: context,
-
                     );
                   },
                 ),
               ),
               AppButton(
-                title: controller.selectedMaterial?.id == null ? 'إضافة' : 'تعديل',
+                title: controller.selectedMaterial?.id == null ? AppStrings.add.tr : AppStrings.edit.tr,
                 onPressed: () {
                   controller.saveOrUpdateMaterial();
                 },
@@ -50,7 +50,7 @@ class AddMaterialScreen extends StatelessWidget {
                 color: controller.selectedMaterial?.id == null ? null : Colors.green,
               ),
               AppButton(
-                title: 'حذف',
+                title: AppStrings.delete.tr,
                 onPressed: () {
                   controller.deleteMaterial();
                 },

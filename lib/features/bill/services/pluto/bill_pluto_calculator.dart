@@ -62,12 +62,10 @@ class BillPlutoCalculator {
   double get computeTotalVat => mainTableStateManager.rows.fold(
         0.0,
         (previousValue, record) {
-          double vatAmount =
-              double.tryParse(AppServiceUtils.replaceArabicNumbersWithEnglish(record.toJson()[AppConstants.invRecVat].toString())) ?? 0.0;
-          int quantity =
-              int.tryParse(AppServiceUtils.replaceArabicNumbersWithEnglish(record.toJson()[AppConstants.invRecQuantity].toString())) ?? 1;
+          double total =
+              double.tryParse(AppServiceUtils.replaceArabicNumbersWithEnglish(record.toJson()[AppConstants.invRecTotal].toString())) ?? 0.0;
 
-          return previousValue + (vatAmount * quantity);
+          return previousValue + (total / 1.05) * 0.05;
         },
       );
 

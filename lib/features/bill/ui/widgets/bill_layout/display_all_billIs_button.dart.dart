@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
+
+import '../../../../../core/constants/app_strings.dart';
 
 class DisplayAllBillsButton extends StatelessWidget {
   const DisplayAllBillsButton({
@@ -13,12 +17,12 @@ class DisplayAllBillsButton extends StatelessWidget {
     return InkWell(
       onTap: onTap,
       child: Container(
-          width: double.infinity,
+          width: 1.w,
           decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20)),
           padding: const EdgeInsets.all(30.0),
-          child: const Center(
+          child: Center(
             child: Text(
-              "عرض جميع الفواتير",
+              AppStrings.allBills.tr,
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
               textDirection: TextDirection.rtl,
             ),

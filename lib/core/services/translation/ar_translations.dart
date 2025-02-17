@@ -93,8 +93,7 @@ final Map<String, String> arAR = {
   AppStrings.control: 'التحكم',
   AppStrings.panel: 'لوحة',
   AppStrings.controlPanel: 'لوحة التحكم',
-  AppStrings.areYouSureYouWantToCloseTheProgram:
-      'هل انت متأكد انك تريد إغلاق البرنامج',
+  AppStrings.areYouSureYouWantToCloseTheProgram: 'هل انت متأكد انك تريد إغلاق البرنامج',
   AppStrings.exit: 'خروج',
   AppStrings.cancel: 'الغاء',
   AppStrings.user: 'المستخدم',
@@ -136,6 +135,7 @@ final Map<String, String> arAR = {
   AppStrings.individual: 'الإفرادي',
   AppStrings.tax: 'الضريبة',
   AppStrings.notRegisteredYet: 'لم يسجل بعد',
+  AppStrings.notLoggedToday: 'لم يسجل اليوم',
   AppStrings.nothing: 'لا يوجد',
   AppStrings.currentlyUnavailable: 'غير متوفر حاليا',
   AppStrings.minutes: 'دقائق',
@@ -261,5 +261,4 @@ final Map<String, String> arAR = {
   AppStrings.accessoriesTarget: 'تارغت الأكسسوارات',
   AppStrings.achievementsPanel: 'لوحة الأنجازات',
   AppStrings.profile: 'الملف الشخصي',
-
 };

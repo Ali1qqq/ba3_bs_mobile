@@ -832,3 +832,13 @@ extension ListExtensions<T> on List<T> {
     }).toList();
   }
 }
+
+extension FlattenExtension<E> on List<List<E>> {
+  List<E> flatten() {
+    final List<E> flattened = [];
+    for (var sublist in this) {
+      flattened.addAll(sublist);
+    }
+    return flattened;
+  }
+}

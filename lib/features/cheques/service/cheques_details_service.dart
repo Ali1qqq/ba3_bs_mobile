@@ -1,3 +1,4 @@
+import 'package:ba3_bs_mobile/core/services/entry_bond_creator/implementations/entry_bonds_generator.dart';
 import 'package:ba3_bs_mobile/features/accounts/data/models/account_model.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
@@ -5,10 +6,9 @@ import 'package:get/get.dart';
 import '../../../../core/helper/enums/enums.dart';
 import '../../../../core/helper/extensions/getx_controller_extensions.dart';
 import '../../../../core/helper/mixin/floating_launcher.dart';
-import '../../../../core/i_controllers/pdf_base.dart';
 import '../../../../core/utils/app_ui_utils.dart';
 import '../../../core/constants/app_strings.dart';
-import '../../../core/services/entry_bond_creator/implementations/entry_bonds_generator.dart';
+import '../../../core/helper/mixin/pdf_base.dart';
 import '../../bond/ui/screens/entry_bond_details_screen.dart';
 import '../controllers/cheques/all_cheques_controller.dart';
 import '../controllers/cheques/cheques_details_controller.dart';
@@ -101,15 +101,14 @@ class ChequesDetailsService with PdfBase, EntryBondsGenerator, FloatingLauncher 
 
     if (isSave) {
       chequesDetailsController.updateIsChequesSaved(true);
-      //TODO
-      // generateAndSendPdf(
-      //   fileName: AppStrings.newBond,
-      //   itemModel: currentChequesModel,
-      // );
+      generateAndSendPdf(
+        fileName: AppStrings.newBond.tr,
+        itemModel: currentChequesModel,
+      );
     } else {
       chequesSearchController.updateCheques(currentChequesModel);
       generateAndSendPdf(
-        fileName: AppStrings.newBond,
+        fileName: AppStrings.newBond.tr,
         itemModel: [prevChequesModel!, currentChequesModel],
       );
     }

@@ -21,5 +21,5 @@ extension EntryBondModelExtension on EntryBondModel {
           DataGridCell<String>(columnName: AppConstants.rowBondDescription, value: '${bondItem.note}'),
         ]);
       }).toList() ??
-          [];
+      [];
 }

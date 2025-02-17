@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
+import '../../../../core/constants/app_strings.dart';
 import '../../../../core/styling/app_colors.dart';
 import '../../../../core/styling/app_text_style.dart';
 import '../../../users_management/controllers/user_management_controller.dart';
@@ -26,14 +27,14 @@ class LoginBodyWidget extends StatelessWidget {
         children: [
           const Spacer(),
           Text(
-            "تسجيل الدخول",
+            AppStrings.login.tr,
             style: AppTextStyles.headLineStyle1,
           ),
           SizedBox(
             width: .8.sw,
             child: TextFormField(
               decoration: InputDecoration(
-                label: const Text('اسم الحساب'),
+                label: Text(AppStrings.accountName.tr),
                 filled: true,
                 fillColor: AppColors.backGroundColor,
               ),
@@ -47,7 +48,7 @@ class LoginBodyWidget extends StatelessWidget {
                 maxLength: 6,
                 obscureText: !userManagementController.isPasswordVisible.value,
                 decoration: InputDecoration(
-                  label: const Text('كلمة السر'),
+                  label: Text(AppStrings.password.tr),
                   suffixIcon: IconButton(
                     icon: Icon(
                       userManagementController.isPasswordVisible.value ? Icons.visibility : Icons.visibility_off,
@@ -70,14 +71,14 @@ class LoginBodyWidget extends StatelessWidget {
             ),
           ),
           LoginButtonWidget(
-            text: 'دخول',
+            text: AppStrings.enter.tr,
             onTap: () {
               userManagementController.validateUserInputs();
             },
           ),
           Obx(() => userManagementController.isGuestLoginButtonVisible.value
               ? LoginButtonWidget(
-                  text: 'ضيف',
+                  text: AppStrings.registrationAsAGust.tr,
                   onTap: () {
                     userManagementController.loginAsGuest();
                   },

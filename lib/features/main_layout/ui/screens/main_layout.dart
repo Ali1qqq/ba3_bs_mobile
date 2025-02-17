@@ -23,7 +23,7 @@ class MainLayout extends StatelessWidget {
       child: GetBuilder<MainLayoutController>(builder: (mainController) {
         return Scaffold(
           appBar: AppBar(
-            title: Text(mainController.appLayouts[mainController.tabIndex].name,
+            title: Text(mainController.appLayouts[mainController.tabIndex].name.tr,
                 style: AppTextStyles.headLineStyle2.copyWith(color: AppColors.blueColor)),
             centerTitle: true,
           ),

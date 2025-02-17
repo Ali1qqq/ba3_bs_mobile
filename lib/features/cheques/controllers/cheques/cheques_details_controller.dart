@@ -1,6 +1,7 @@
 import 'package:ba3_bs_mobile/core/helper/enums/enums.dart';
 import 'package:ba3_bs_mobile/core/helper/extensions/basic/string_extension.dart';
-import 'package:ba3_bs_mobile/core/helper/extensions/date_time_extensions.dart';
+import 'package:ba3_bs_mobile/core/helper/extensions/date_time/date_time_extensions.dart';
+import 'package:ba3_bs_mobile/core/utils/generate_id.dart';
 import 'package:ba3_bs_mobile/features/accounts/controllers/accounts_controller.dart';
 import 'package:ba3_bs_mobile/features/cheques/data/models/cheques_model.dart';
 import 'package:flutter/cupertino.dart';
@@ -11,7 +12,6 @@ import '../../../../core/helper/validators/app_validator.dart';
 import '../../../../core/services/entry_bond_creator/implementations/entry_bonds_generator.dart';
 import '../../../../core/services/firebase/implementations/repos/compound_datasource_repo.dart';
 import '../../../../core/utils/app_ui_utils.dart';
-import '../../../../core/utils/generate_id.dart';
 import '../../../accounts/data/models/account_model.dart';
 import '../../../bond/controllers/entry_bond/entry_bond_controller.dart';
 import '../../service/cheques_details_service.dart';

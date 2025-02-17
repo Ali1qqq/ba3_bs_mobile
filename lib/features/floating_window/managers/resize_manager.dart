@@ -21,15 +21,13 @@ class ResizeManager {
   bool isOnBottomEdge(Offset position, double height) => position.dy >= height - edgeSize;
 
   bool _isOnCorner(Offset position, double width, double height) =>
-      (isOnLeftEdge(position) || isOnRightEdge(position, width)) &&
-      (isOnTopEdge(position) || isOnBottomEdge(position, height));
+      (isOnLeftEdge(position) || isOnRightEdge(position, width)) && (isOnTopEdge(position) || isOnBottomEdge(position, height));
 
   bool isOnTopLeftCorner(Offset position) => isOnLeftEdge(position) && isOnTopEdge(position);
 
   bool isOnTopRightCorner(Offset position, double width) => isOnRightEdge(position, width) && isOnTopEdge(position);
 
-  bool isOnBottomLeftCorner(Offset position, double height) =>
-      isOnLeftEdge(position) && isOnBottomEdge(position, height);
+  bool isOnBottomLeftCorner(Offset position, double height) => isOnLeftEdge(position) && isOnBottomEdge(position, height);
 
   bool isOnBottomRightCorner(Offset position, double width, double height) =>
       isOnRightEdge(position, width) && isOnBottomEdge(position, height);

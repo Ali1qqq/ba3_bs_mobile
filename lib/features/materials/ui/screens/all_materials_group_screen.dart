@@ -1,3 +1,4 @@
+import 'package:ba3_bs_mobile/core/constants/app_strings.dart';
 import 'package:ba3_bs_mobile/features/materials/controllers/material_group_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -11,12 +12,11 @@ class AllMaterialsGroupScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return GetBuilder<MaterialGroupController>(builder: (controller) {
       return PlutoGridWithAppBar(
-        title: 'جميع المجموعات',
+        title: AppStrings.allGroups.tr,
         isLoading: controller.isLoading,
         tableSourceModels: controller.materialGroups,
         onLoaded: (event) {},
-        onSelected: (selectedRow) {
-        },
+        onSelected: (selectedRow) {},
       );
     });
   }

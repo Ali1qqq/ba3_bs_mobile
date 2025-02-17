@@ -1,22 +1,31 @@
 import 'package:flutter/material.dart';
 
-import '../../../../../core/widgets/app_spacer.dart';
-
 class FormFieldRow extends StatelessWidget {
-  const FormFieldRow({super.key, required this.firstItem, required this.secondItem});
+  const FormFieldRow({
+    super.key,
+    required this.firstItem,
+    required this.secondItem,
+    this.visible,
+    this.spacing = 20,
+  });
 
   final Widget firstItem;
   final Widget secondItem;
 
+  final bool? visible;
+  final double spacing;
+
   @override
   Widget build(BuildContext context) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Expanded(child: firstItem),
-        const HorizontalSpace(20),
-        Expanded(child: secondItem),
-      ],
-    );
+    return (visible ?? true)
+        ? Row(
+            spacing: spacing,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(child: firstItem),
+              Expanded(child: secondItem),
+            ],
+          )
+        : SizedBox();
   }
 }

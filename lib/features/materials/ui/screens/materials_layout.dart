@@ -1,3 +1,4 @@
+import 'package:ba3_bs_mobile/core/constants/app_strings.dart';
 import 'package:ba3_bs_mobile/core/helper/extensions/role_item_type_extension.dart';
 import 'package:ba3_bs_mobile/core/widgets/app_button.dart';
 import 'package:ba3_bs_mobile/features/materials/controllers/material_controller.dart';
@@ -26,13 +27,13 @@ class MaterialLayout extends StatelessWidget {
           children: [
             Scaffold(
               appBar: AppBar(
+                title: Text(AppStrings.materials.tr),
                 actions: RoleItemType.administrator.hasAdminPermission
                     ? [
                         Padding(
                           padding: EdgeInsets.all(6),
                           child: AppButton(
-                              width: 70,
-                              title: "تحميل المواد",
+                              title: AppStrings.downloadMaterials.tr,
                               onPressed: () {
                                 read<MaterialController>().fetchAllMaterialFromLocal();
                               }),
@@ -40,8 +41,7 @@ class MaterialLayout extends StatelessWidget {
                         Padding(
                           padding: EdgeInsets.all(6),
                           child: AppButton(
-                              width: 60,
-                              title: "محو المواد",
+                              title: AppStrings.deletedMaterials.tr,
                               onPressed: () {
                                 read<MaterialController>().deleteAllMaterialFromLocal();
                               }),
@@ -50,7 +50,7 @@ class MaterialLayout extends StatelessWidget {
                           padding: EdgeInsets.all(6),
                           child: AppButton(
                               width: 100,
-                              title: "تحميل المجموعات",
+                              title: AppStrings.downloadGroups.tr,
                               onPressed: () {
                                 read<MaterialGroupController>().fetchAllMaterialGroupGroupFromLocal();
                               }),
@@ -61,29 +61,32 @@ class MaterialLayout extends StatelessWidget {
               body: Column(
                 children: [
                   AppMenuItem(
-                      text: "معاينة المواد",
+                      text: AppStrings.viewMaterial.tr,
                       onTap: () {
                         read<MaterialController>()
                           ..reloadMaterials()
                           ..navigateToAllMaterialScreen();
                       }),
                   AppMenuItem(
-                      text: "معاينة المجموعات",
+                      text: AppStrings.viewMaterialGroups.tr,
                       onTap: () {
                         read<MaterialGroupController>().navigateToAllMaterialScreen();
                       }),
                   if (RoleItemType.viewProduct.hasAdminPermission)
                     AppMenuItem(
-                        text: "اضافة المواد",
+                        text: AppStrings.addMaterials.tr,
                         onTap: () {
                           read<MaterialController>().navigateToAddOrUpdateMaterialScreen(context: context);
                         }),
                 ],
               ),
+              floatingActionButton: (RoleItemType.administrator.hasAdminPermission)
+                  ? FloatingActionButton(onPressed: read<MaterialController>().resetMaterialQuantityAndPrice, child: Icon(Icons.lock_reset))
+                  : SizedBox(),
             ),
             LoadingDialog(
               isLoading: read<MaterialController>().saveAllMaterialsRequestState.value == RequestState.loading,
-              message: '${(progress * 100).toStringAsFixed(2)}% من المواد',
+              message: '${(progress * 100).toStringAsFixed(2)}% ${AppStrings.from.tr} ${AppStrings.materials.tr}',
               fontSize: 14.sp,
             )
           ],

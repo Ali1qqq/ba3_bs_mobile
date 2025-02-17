@@ -19,7 +19,7 @@ class TextAndExpandedChildField extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           SizedBox(
-            width: textWidth ?? 100,
+            width: textWidth ?? 150,
             child: Text(label, style: const TextStyle()),
           ),
           Expanded(child: child),

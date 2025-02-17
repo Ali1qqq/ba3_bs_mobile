@@ -1,3 +1,4 @@
+import 'package:ba3_bs_mobile/core/constants/app_strings.dart';
 import 'package:ba3_bs_mobile/core/helper/enums/enums.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -35,7 +36,7 @@ class BondDetailsButtons extends StatelessWidget {
         children: [
           Obx(() {
             return AppButton(
-                title: bondDetailsController.isBondSaved.value ? 'جديد' : 'إضافة',
+                title: bondDetailsController.isBondSaved.value ? AppStrings.newS.tr : AppStrings.add.tr,
                 height: 20,
                 color: bondDetailsController.isBondSaved.value ? Colors.green : Colors.blue.shade700,
                 onPressed: bondDetailsController.isBondSaved.value
@@ -48,7 +49,7 @@ class BondDetailsButtons extends StatelessWidget {
           }),
           if (!bondSearchController.isNew) ...[
             AppButton(
-              title: 'السند',
+              title: AppStrings.bond.tr,
               height: 20,
               onPressed: () async {
                 bondDetailsController.createEntryBond(bondModel, context);
@@ -56,7 +57,7 @@ class BondDetailsButtons extends StatelessWidget {
               iconData: Icons.file_open_outlined,
             ),
             AppButton(
-              title: "تعديل",
+              title: AppStrings.edit.tr,
               height: 20,
               onPressed: () async {
                 bondDetailsController.updateBond(
@@ -68,7 +69,7 @@ class BondDetailsButtons extends StatelessWidget {
             ),
             if (!bondSearchController.isNew)
               AppButton(
-                title: 'Pdf-Email',
+                title: AppStrings.pdfEmail.tr,
                 height: 20,
                 onPressed: () {
                   bondDetailsController.generateAndSendBondPdf(bondModel);
@@ -79,7 +80,7 @@ class BondDetailsButtons extends StatelessWidget {
               iconData: Icons.delete_outline,
               height: 20,
               color: Colors.red,
-              title: 'حذف',
+              title: AppStrings.delete.tr,
               onPressed: () async {
                 bondDetailsController.deleteBond(bondModel, fromBondById: fromBondById);
               },

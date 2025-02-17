@@ -5,11 +5,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
+import '../../../../core/constants/app_strings.dart';
 import '../../../../core/dialogs/loading_dialog.dart';
 import '../../../../core/helper/enums/enums.dart';
 import '../../../../core/helper/extensions/getx_controller_extensions.dart';
 import '../../../../core/styling/app_colors.dart';
-import '../../../../core/styling/app_text_style.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../users_management/data/models/role_model.dart';
 import '../widgets/bill_layout/all_bills_types_list.dart';
@@ -41,7 +41,7 @@ class BillLayout extends StatelessWidget {
                     Padding(
                       padding: EdgeInsets.all(8),
                       child: AppButton(
-                        title: "تحميل الفواتيير",
+                        title: AppStrings.downloadBills.tr,
                         onPressed: () => allBillsController.fetchAllBillsFromLocal(),
                       ),
                     ),
@@ -51,12 +51,6 @@ class BillLayout extends StatelessWidget {
                 padding: const EdgeInsets.all(8.0),
                 child: SingleChildScrollView(
                   child: OrganizedWidget(
-                    titleWidget: Align(
-                      child: Text(
-                        'الفواتير',
-                        style: AppTextStyles.headLineStyle2.copyWith(color: AppColors.blueColor),
-                      ),
-                    ),
                     bodyWidget: GetBuilder<AllBillsController>(
                       builder: (controller) => Column(
                         spacing: 10,

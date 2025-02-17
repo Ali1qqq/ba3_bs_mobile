@@ -1,10 +1,12 @@
+import 'package:ba3_bs_mobile/core/constants/app_strings.dart';
 import 'package:ba3_bs_mobile/features/accounts/controllers/accounts_controller.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get_state_manager/src/simple/get_state.dart';
+import 'package:get/get.dart';
 
 import '../../../../core/widgets/account_type_dropdown.dart';
 import '../widgets/add_account/add_account_buttons_widget.dart';
 import '../widgets/add_account/add_account_form_widget.dart';
+import '../widgets/add_account/add_customers_widget.dart';
 
 class AddAccountScreen extends StatelessWidget {
   const AddAccountScreen({super.key});
@@ -15,7 +17,7 @@ class AddAccountScreen extends StatelessWidget {
       return Scaffold(
         appBar: AppBar(
           title: Text(
-            controller.isFromHandler ? controller.selectedAccount!.accName! : "بطاقة حساب",
+            controller.isEditAccount ? controller.selectedAccount!.accName! : AppStrings.accountCard.tr,
           ),
         ),
         body: Padding(
@@ -26,6 +28,8 @@ class AddAccountScreen extends StatelessWidget {
               AddAccountFormWidget(
                 controller: controller,
               ),
+              // Button to add a new customer
+              AddCustomersWidget(),
               AccountTypeDropdown(accountSelectionHandler: controller.accountFromHandler),
               AddAccountButtonsWidget(
                 controller: controller,

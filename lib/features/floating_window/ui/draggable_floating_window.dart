@@ -128,10 +128,7 @@ class DraggableFloatingWindow extends StatelessWidget {
                                         height: controller.height,
                                         child: Tooltip(
                                           message: minimizedTitle ?? '',
-                                          textStyle: Theme.of(context)
-                                              .textTheme
-                                              .bodyMedium
-                                              ?.copyWith(fontSize: 15, color: Colors.white),
+                                          textStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(fontSize: 15, color: Colors.white),
                                           child: Row(
                                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                                             children: [

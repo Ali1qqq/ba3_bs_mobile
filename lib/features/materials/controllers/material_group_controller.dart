@@ -87,8 +87,7 @@ class MaterialGroupController extends GetxController with AppNavigator {
     return searchedMaterialGroups;
   }
 
-  void _handelFetchAllMaterialGroupGroupFromLocalSuccess(
-      List<MaterialGroupModel> fetchedMaterialGroupGroupFromNetwork) async {
+  void _handelFetchAllMaterialGroupGroupFromLocalSuccess(List<MaterialGroupModel> fetchedMaterialGroupGroupFromNetwork) async {
     final fetchedMaterialGroup = fetchedMaterialGroupGroupFromNetwork;
     log('fetchedMaterialGroup length ${fetchedMaterialGroup.length}');
 

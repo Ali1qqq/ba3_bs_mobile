@@ -1,29 +1,28 @@
 import 'package:flutter/cupertino.dart';
+import 'package:get/get.dart';
 
+import '../../../../../core/constants/app_strings.dart';
 import '../../../../../core/widgets/app_button.dart';
 import '../../../controllers/accounts_controller.dart';
 
 class AddAccountButtonsWidget extends StatelessWidget {
-
   final AccountsController controller;
-  const AddAccountButtonsWidget({
-    super.key,
-    required this.controller
-  });
+
+  const AddAccountButtonsWidget({super.key, required this.controller});
 
   @override
   Widget build(BuildContext context) {
     return Row(
-       spacing: 20,
+      spacing: 20,
       children: [
         AppButton(
-            title: controller.isFromHandler ? 'تعديل' : 'اضافة',
+            title: controller.isEditAccount ? AppStrings.edit.tr : AppStrings.add.tr,
             onPressed: () {
               controller.saveOrUpdateAccount();
             }),
-        if(controller.isFromHandler)
+        if (controller.isEditAccount)
           AppButton(
-              title: 'حذف',
+              title: AppStrings.delete.tr,
               onPressed: () {
                 controller.deleteAccount();
               }),

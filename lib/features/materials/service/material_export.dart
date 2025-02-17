@@ -6,10 +6,6 @@ class MaterialExport extends ExportServiceBase<MaterialModel> {
   /// Converts the list of `BillModel` to the exportable JSON structure
   @override
   Map<String, dynamic> toExportJson(List<MaterialModel> itemsModels) {
-    return {
-
-    };
+    return {};
   }
-
-
 }

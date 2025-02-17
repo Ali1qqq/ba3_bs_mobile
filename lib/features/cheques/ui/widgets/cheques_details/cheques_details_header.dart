@@ -1,4 +1,6 @@
+import 'package:ba3_bs_mobile/core/constants/app_strings.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import '../../../../../core/helper/enums/enums.dart';
 import '../../../../bill/ui/widgets/bill_shared/bill_header_field.dart';
 import '../../../controllers/cheques/cheques_details_controller.dart';
@@ -14,14 +16,20 @@ class ChequesDetailsHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return TextAndExpandedChildField(
-      label: 'الحالة ',
+      label: AppStrings.status.tr,
       child: Container(
-        padding: const EdgeInsets.all(8),
-        decoration: BoxDecoration(color: chequesDetailsController.isPayed! ? Colors.green : Colors.red, border: Border.all(color: Colors.white), borderRadius: BorderRadius.circular(4)),
+        // padding: const EdgeInsets.all(8),
+
+        decoration: BoxDecoration(
+            color: chequesDetailsController.isPayed! ? Colors.green : Colors.red,
+            border: Border.all(color: Colors.white),
+            borderRadius: BorderRadius.circular(4)),
         child: Center(
             child: Text(
           chequesDetailsController.isPayed! ? ChequesStatus.paid.label : ChequesStatus.notPaid.label,
-          style: const TextStyle(color: Colors.white),
+          style: const TextStyle(
+            color: Colors.white,
+          ),
         )),
       ),
     );

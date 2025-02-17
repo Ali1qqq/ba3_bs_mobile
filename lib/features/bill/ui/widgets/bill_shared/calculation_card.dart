@@ -25,26 +25,26 @@ class CalculationCard extends StatelessWidget {
       visible: visible ?? true,
       child: Container(
         width: width ?? 50.0.w,
-        height: height ?? 80.h,
+        height: height ?? 65.h,
         padding: const EdgeInsets.all(8),
         margin: const EdgeInsets.symmetric(horizontal: 8),
         decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(5)),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            Spacer(),
             Center(
               child: Text(
                 value,
                 style: TextStyle(fontSize: 20.sp, color: Colors.white),
               ),
             ),
-            Expanded(
-              child: FittedBox(
-                child: Text(
-                  label,
-                  style: const TextStyle(color: Colors.white),
-                ),
+            Spacer(),
+            FittedBox(
+              child: Text(
+                label,
+                style: TextStyle(color: Colors.white, fontSize: 12.sp),
               ),
             ),
           ],

@@ -16,9 +16,9 @@ class MaterialsRemoteDatasource extends QueryableSavableDatasource<MaterialModel
   Future<List<MaterialModel>> fetchAll() async {
     final data = await databaseService.fetchAll(path: path);
 
-    final sellers = data.map((item) => MaterialModel.fromJson(item)).toList();
+    final materials = data.map((item) => MaterialModel.fromJson(item)).toList();
 
-    return sellers;
+    return materials;
   }
 
   @override

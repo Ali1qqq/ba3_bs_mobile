@@ -35,6 +35,7 @@ import '../../features/cheques/controllers/cheques/all_cheques_controller.dart';
 import '../../features/cheques/data/datasources/cheques_compound_data_source.dart';
 import '../../features/cheques/data/models/cheques_model.dart';
 import '../../features/cheques/service/cheques_import.dart';
+import '../../features/customer/controllers/customers_controller.dart';
 import '../../features/customer/data/datasources/remote/customers_data_source.dart';
 import '../../features/customer/data/models/customer_model.dart';
 import '../../features/customer/service/customer_import.dart';
@@ -266,6 +267,7 @@ class AppBindings extends Bindings {
       repositories.listenableDatasourceRepo,
     ));
     lazyPut(MaterialsStatementController(repositories.matStatementsRepo));
+    lazyPut(CustomersController(repositories.customersRepo, repositories.customerImportRepo));
 
     lazyPut(AllBillsController(
         repositories.patternsRepo, repositories.billsRepo, repositories.serialNumbersRepo, repositories.billImportExportRepo));

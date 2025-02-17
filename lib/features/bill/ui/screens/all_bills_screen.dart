@@ -2,6 +2,7 @@ import 'package:ba3_bs_mobile/features/bill/controllers/bill/all_bills_controlle
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../../../core/constants/app_strings.dart';
 import '../../../../core/widgets/pluto_grid_with_app_bar_.dart';
 
 class AllBillsScreen extends StatelessWidget {
@@ -11,7 +12,7 @@ class AllBillsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return GetBuilder<AllBillsController>(builder: (controller) {
       return PlutoGridWithAppBar(
-        title: 'جميع الفواتير',
+        title: AppStrings.allBills.tr,
         onLoaded: (e) {},
         onSelected: (event) {},
         tableSourceModels: controller.bills,

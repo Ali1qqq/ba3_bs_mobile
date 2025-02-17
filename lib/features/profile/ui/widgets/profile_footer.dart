@@ -8,8 +8,8 @@ import '../../../../core/styling/app_colors.dart';
 import '../../../../core/widgets/language_dropdown.dart';
 import '../../../users_management/controllers/user_management_controller.dart';
 
-class MainHeader extends StatelessWidget {
-  const MainHeader({
+class ProfileFooter extends StatelessWidget {
+  const ProfileFooter({
     super.key,
   });
 

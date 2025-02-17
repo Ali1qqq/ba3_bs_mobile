@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:ba3_bs_mobile/core/widgets/app_spacer.dart';
 import 'package:ba3_bs_mobile/features/bill/controllers/bill/bill_search_controller.dart';
 import 'package:ba3_bs_mobile/features/bill/data/models/bill_model.dart';
@@ -34,7 +32,6 @@ class BillDetailsScreen extends StatelessWidget {
         tag: tag,
         builder: (_) {
           final BillModel currentBill = billSearchController.getCurrentBill;
-          log('currentBillStatus ${currentBill.status}, currentBillNumber ${currentBill.billDetails.billNumber}');
 
           return GetBuilder<BillDetailsController>(
               tag: tag,
@@ -44,8 +41,9 @@ class BillDetailsScreen extends StatelessWidget {
                     slivers: [
                       SliverToBoxAdapter(
                         child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
-                            BillDetailsCustomAppBar(
+                            BillDetailsAppBar(
                               billDetailsController: billDetailsController,
                               billSearchController: billSearchController,
                               billTypeModel: currentBill.billTypeModel,
@@ -59,13 +57,10 @@ class BillDetailsScreen extends StatelessWidget {
                               tag: tag,
                             ),
                             const VerticalSpace(10),
-                            Align(
-                              alignment: Alignment.centerLeft,
-                              child: BillDetailsCalculations(
-                                billTypeModel: currentBill.billTypeModel,
-                                billDetailsPlutoController: billDetailsPlutoController,
-                                tag: tag,
-                              ),
+                            BillDetailsCalculations(
+                              billTypeModel: currentBill.billTypeModel,
+                              billDetailsPlutoController: billDetailsPlutoController,
+                              tag: tag,
                             ),
                             const Divider(height: 10),
                             BillDetailsButtons(

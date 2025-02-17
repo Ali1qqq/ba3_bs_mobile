@@ -1,15 +1,17 @@
 import 'package:ba3_bs_mobile/core/constants/app_constants.dart';
+import 'package:ba3_bs_mobile/core/helper/extensions/basic/string_extension.dart';
+import 'package:ba3_bs_mobile/core/helper/extensions/getx_controller_extensions.dart';
 import 'package:ba3_bs_mobile/core/utils/app_service_utils.dart';
 import 'package:ba3_bs_mobile/core/widgets/app_spacer.dart';
+import 'package:ba3_bs_mobile/features/bill/ui/widgets/bill_details/add_serial_widget.dart';
 import 'package:ba3_bs_mobile/features/floating_window/services/overlay_service.dart';
+import 'package:ba3_bs_mobile/features/materials/controllers/mats_statement_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:pluto_grid/pluto_grid.dart';
 
 import '../../../../core/helper/enums/enums.dart';
-import '../../../../core/helper/extensions/getx_controller_extensions.dart';
 import '../../../../core/i_controllers/i_pluto_controller.dart';
 import '../../../../core/widgets/app_button.dart';
-import '../../../materials/controllers/mats_statement_controller.dart';
 import '../../../materials/data/models/materials/material_model.dart';
 import '../../../patterns/data/models/bill_type_model.dart';
 import 'bill_pluto_grid_service.dart';
@@ -20,66 +22,80 @@ class BillPlutoContextMenu {
 
   BillPlutoContextMenu(this.controller);
 
-  void showPriceTypeMenu({
-    required BuildContext context,
-    required Offset tapPosition,
-    required MaterialModel materialModel,
-    required BillPlutoUtils invoiceUtils,
-    required BillPlutoGridService gridService,
-    required int index,
-    required BillTypeModel billTypeModel,
-  }) {
+  void showPriceTypeMenu(
+      {required BuildContext context,
+      required Offset tapPosition,
+      required MaterialModel materialModel,
+      required BillPlutoUtils invoiceUtils,
+      required BillPlutoGridService gridService,
+      required int index,
+      required BillTypeModel billTypeModel}) {
     OverlayService.showPopupMenu(
-        context: context,
-        tapPosition: tapPosition,
-        items: PriceType.values,
-        itemLabelBuilder: (type) => '${type.label}: ${invoiceUtils.getPrice(type: type, materialModel: materialModel).toStringAsFixed(2)}',
-        onSelected: (PriceType type) {
-          final PlutoRow selectedRow = controller.recordsTableStateManager.rows[index];
-          final int quantity = AppServiceUtils.getItemQuantity(selectedRow);
+      context: context,
+      tapPosition: tapPosition,
+      items: PriceType.values,
+      itemLabelBuilder: (type) => '${type.label}: ${invoiceUtils.getPrice(type: type, materialModel: materialModel).toStringAsFixed(2)}',
+      onSelected: (PriceType type) {
+        final PlutoRow selectedRow = controller.recordsTableStateManager.rows[index];
+        final int quantity = AppServiceUtils.getItemQuantity(selectedRow);
 
-          gridService.updateInvoiceValuesBySubTotal(
-            selectedRow: selectedRow,
-            subTotal: invoiceUtils.getPrice(type: type, materialModel: materialModel),
-            quantity: quantity,
-            billTypeModel: billTypeModel,
-          );
-          controller.update();
-        },
-        onCloseCallback: () {
-          debugPrint('PriceType menu closed.');
-        });
+        gridService.updateInvoiceValuesBySubTotal(
+          selectedRow: selectedRow,
+          subTotal: invoiceUtils.getPrice(type: type, materialModel: materialModel),
+          quantity: quantity,
+        );
+        controller.update();
+      },
+      onCloseCallback: () {
+        debugPrint('PriceType menu closed.');
+      },
+    );
   }
 
   List<String> materialMenu = [
     'حركة المادة',
+    'إضافة serial',
   ];
 
-  void showMaterialMenu({
-    required BuildContext context,
-    required Offset tapPosition,
-    required MaterialModel materialModel,
-    required BillPlutoUtils invoiceUtils,
-    required BillPlutoGridService gridService,
-    required int index,
-  }) {
+  void showMaterialMenu(
+      {required BuildContext context,
+      required Offset tapPosition,
+      required MaterialModel materialModel,
+      required BillPlutoUtils invoiceUtils,
+      required BillPlutoGridService gridService,
+      required int index}) {
     OverlayService.showPopupMenu(
-        context: context,
-        tapPosition: tapPosition,
-        padding: const EdgeInsets.symmetric(horizontal: 22.0, vertical: 8.0),
-        items: materialMenu,
-        itemLabelBuilder: (item) => item,
-        onSelected: (String selectedMenuItem) {
-          final PlutoRow selectedRow = controller.recordsTableStateManager.rows[index];
-          final String matName = AppServiceUtils.getCellValue(selectedRow, AppConstants.invRecProduct);
+      context: context,
+      tapPosition: tapPosition,
+      padding: const EdgeInsets.symmetric(horizontal: 22.0, vertical: 8.0),
+      items: materialMenu,
+      itemLabelBuilder: (item) => item,
+      onSelected: (String selectedMenuItem) {
+        if (selectedMenuItem == 'حركة المادة') {
+          read<MaterialsStatementController>().fetchMatStatements(materialModel, context: context);
+        }
 
-          if (selectedMenuItem == 'حركة المادة') {
-            read<MaterialsStatementController>().fetchMatStatements(matName, context: context);
-          }
-        },
-        onCloseCallback: () {
-          debugPrint('Material Menu closed.');
-        });
+        if (selectedMenuItem == 'إضافة serial') {
+          final PlutoRow selectedRow = controller.recordsTableStateManager.rows[index];
+          final String matQuantity = AppServiceUtils.getCellValue(selectedRow, AppConstants.invRecQuantity);
+          debugPrint('matQuantity $matQuantity');
+          OverlayService.showDialog(
+            context: context,
+            content: AddSerialWidget(
+              plutoController: controller,
+              materialModel: materialModel,
+              serialCount: matQuantity.toInt,
+            ),
+            onCloseCallback: () {
+              debugPrint('Material serial dialog closed.');
+            },
+          );
+        }
+      },
+      onCloseCallback: () {
+        debugPrint('Material Menu closed.');
+      },
+    );
   }
 
   void showDeleteConfirmationDialog(int index, BuildContext context) {

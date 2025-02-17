@@ -522,7 +522,8 @@ enum CustomerAccount implements Account {
 enum PriceType {
   consumer('سعر المستهلك'),
   bulk('سعر الجملة'),
-  retail('سعر المفرق');
+  retail('سعر المفرق'),
+  mainPrice('الوسطي');
 
   final String label;
 
