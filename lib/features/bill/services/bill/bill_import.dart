@@ -44,7 +44,7 @@ class BillImport extends ImportServiceBase<BillModel> with FirestoreSequentialNu
   setLastNumber() async {
     billsNumbers.forEach(
       (billTypeGuid, number) async {
-        await satNumber(ApiConstants.bills, BillType.byTypeGuide(billTypeGuid).label, number);
+        await setLastUsedNumber(ApiConstants.bills, BillType.byTypeGuide(billTypeGuid).label, number);
       },
     );
   }

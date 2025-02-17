@@ -6,7 +6,7 @@ import '../../../../../core/styling/app_text_style.dart';
 import '../../../../../core/utils/app_service_utils.dart';
 import '../../../../../core/widgets/app_spacer.dart';
 import '../../../../../core/widgets/organized_widget.dart';
-import '../../../controller/user_time_controller.dart';
+import '../../../../profile/controller/user_time_controller.dart';
 
 class HolidaysWidget extends StatelessWidget {
   const HolidaysWidget({

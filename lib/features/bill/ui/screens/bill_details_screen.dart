@@ -17,14 +17,12 @@ import '../widgets/bill_details/bill_details_header.dart';
 class BillDetailsScreen extends StatelessWidget {
   const BillDetailsScreen({
     super.key,
-    required this.fromBillById,
     required this.billDetailsController,
     required this.billDetailsPlutoController,
     required this.billSearchController,
     required this.tag,
   });
 
-  final bool fromBillById;
   final BillDetailsController billDetailsController;
   final BillDetailsPlutoController billDetailsPlutoController;
   final BillSearchController billSearchController;
@@ -75,7 +73,6 @@ class BillDetailsScreen extends StatelessWidget {
                               billDetailsPlutoController: billDetailsPlutoController,
                               billSearchController: billSearchController,
                               billModel: currentBill,
-                              fromBillById: fromBillById,
                             ),
                           ],
                         ),

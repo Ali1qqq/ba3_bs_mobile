@@ -17,14 +17,18 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 
+import '../../../../core/constants/app_strings.dart';
 import '../../../../core/helper/enums/enums.dart';
 import '../../../../core/helper/mixin/app_navigator.dart';
 import '../../../../core/network/error/failure.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/services/entry_bond_creator/implementations/entry_bonds_generator.dart';
 import '../../../../core/services/firebase/implementations/repos/compound_datasource_repo.dart';
+import '../../../../core/services/firebase/implementations/repos/queryable_savable_repo.dart';
 import '../../../../core/services/firebase/implementations/repos/remote_datasource_repo.dart';
 import '../../../../core/utils/app_ui_utils.dart';
+import '../../../materials/data/models/materials/material_model.dart';
+import '../../../materials/ui/serials_statement_screen.dart';
 import '../../../patterns/data/models/bill_type_model.dart';
 import '../../data/models/bill_model.dart';
 import '../../services/bill/bill_utils.dart';
@@ -36,19 +40,21 @@ class AllBillsController extends FloatingBillDetailsLauncher
   // Repositories
   final RemoteDataSourceRepository<BillTypeModel> _patternsFirebaseRepo;
   final CompoundDatasourceRepository<BillModel, BillTypeModel> _billsFirebaseRepo;
+  final QueryableSavableRepository<SerialNumberModel> _serialNumbersRepo;
   final ImportExportRepository<BillModel> _jsonImportExportRepo;
 
-  AllBillsController(this._patternsFirebaseRepo, this._billsFirebaseRepo, this._jsonImportExportRepo);
+  AllBillsController(this._patternsFirebaseRepo, this._billsFirebaseRepo, this._serialNumbersRepo, this._jsonImportExportRepo);
 
   // Services
   late final BillUtils _billUtils;
 
   List<BillTypeModel> billsTypes = [];
 
-  BillTypeModel get getSaleBillsType => billsTypes.firstWhere((element) => element.billTypeId == BillType.sales.typeGuide);
+  BillTypeModel get billsTypeSales => billsTypes.firstWhere((billTypeModel) => billTypeModel.id == BillType.sales.typeGuide);
 
   List<BillModel> bills = [];
   Map<BillTypeModel, List<BillModel>> nestedBills = {};
+  List<BillModel> allNestedBills = [];
 
   List<BillModel> pendingBills = [];
 
@@ -56,8 +62,6 @@ class AllBillsController extends FloatingBillDetailsLauncher
   final allBillsCountsByType = <BillTypeModel, int>{};
 
   bool plutoGridIsLoading = true;
-
-  Rx<RequestState> getBillsByTypeRequestState = RequestState.initial.obs;
 
   bool isPendingBillsLoading = true;
 
@@ -96,19 +100,6 @@ class AllBillsController extends FloatingBillDetailsLauncher
 
   BillModel getBillById(String billId) => bills.firstWhere((bill) => bill.billId == billId);
 
-  Future<void> fetchAllBillsByType(BillTypeModel billTypeModel) async {
-    log('fetchBills');
-    final result = await _billsFirebaseRepo.getAll(billTypeModel);
-
-    result.fold(
-      (failure) => AppUIUtils.onFailure(failure.message),
-      (fetchedBills) => bills.assignAll(fetchedBills),
-    );
-
-    plutoGridIsLoading = false;
-    update();
-  }
-
   Future<void> fetchAllNestedBills() async {
     getAllNestedBillsRequestState.value = RequestState.loading;
 
@@ -120,6 +111,17 @@ class AllBillsController extends FloatingBillDetailsLauncher
     );
 
     nestedBills.forEach((k, v) => log('bill Type: ${k.billTypeLabel} has ${v.length} bills'));
+
+    allNestedBills.assignAll(nestedBills.values.expand((bills) => bills).toList());
+
+    log("allNestedBills is ${allNestedBills.length}");
+    await createAndStoreMatsStatements(
+      sourceModels: allNestedBills,
+      onProgress: (progress) {
+        uploadProgress.value = progress; // Update progress
+        log('Progress: ${(progress * 100).toStringAsFixed(2)}%');
+      },
+    );
     getAllNestedBillsRequestState.value = RequestState.success;
   }
 
@@ -127,7 +129,7 @@ class AllBillsController extends FloatingBillDetailsLauncher
     FilePickerResult? resultFile = await FilePicker.platform.pickFiles();
 
     if (resultFile != null) {
-      saveAllBillsRequestState.value = RequestState.loading;
+      //     saveAllBillsRequestState.value = RequestState.loading;
       final result = await _jsonImportExportRepo.importXmlFile(File(resultFile.files.single.path!));
 
       result.fold(
@@ -135,42 +137,42 @@ class AllBillsController extends FloatingBillDetailsLauncher
         (fetchedBills) => _onFetchBillsFromLocalSuccess(fetchedBills),
       );
     }
-
-    plutoGridIsLoading = false;
-    update();
   }
 
-  void _onFetchBillsFromLocalSuccess(List<BillModel> currentBills) async {
-    final fetchedBills = currentBills;
+  void _onFetchBillsFromLocalSuccess(List<BillModel> fetchedBills) async {
     log("fetchedBills length ${fetchedBills.length}");
 
-    bills.assignAll(
-      fetchedBills.where((element) => element.billId != 'bf23c92d-a69d-419e-a000-1043b94d16c8').toList(),
-    );
-    if (bills.isNotEmpty) {
-      await generateAndSaveMatsStatements(
-        sourceModels: bills,
-        onProgress: (progress) {
-          uploadProgress.value = progress; // Update progress
-          log('Progress: ${(progress * 100).toStringAsFixed(2)}%');
-        },
-      );
-      await _billsFirebaseRepo.saveAllNested(
-        bills,
-        billsTypes,
-        (progress) {
-          uploadProgress.value = progress; // Update progress
-          log('Progress: ${(progress * 100).toStringAsFixed(2)}%');
-        },
-      );
+    bills.assignAll(fetchedBills);
 
-      await createAndStoreEntryBonds(
-        sourceModels: bills,
+    saveAllBillsRequestState.value = RequestState.loading;
+
+    if (fetchedBills.isNotEmpty) {
+      log("saveAllNested _billsFirebaseRepo Started......");
+      await _billsFirebaseRepo.saveAllNested(
+        items: fetchedBills,
+        itemIdentifiers: billsTypes,
         onProgress: (progress) {
           uploadProgress.value = progress; // Update progress
           log('Progress: ${(progress * 100).toStringAsFixed(2)}%');
         },
       );
+      log("saveAllNested _billsFirebaseRepo Finished......");
+
+      // await createAndStoreMatsStatements(
+      //   sourceModels: fetchedBills,
+      //   onProgress: (progress) {
+      //     uploadProgress.value = progress; // Update progress
+      //     log('Progress: ${(progress * 100).toStringAsFixed(2)}%');
+      //   },
+      // );
+      //
+      // await createAndStoreEntryBonds(
+      //   sourceModels: fetchedBills,
+      //   onProgress: (progress) {
+      //     uploadProgress.value = progress; // Update progress
+      //     log('Progress: ${(progress * 100).toStringAsFixed(2)}%');
+      //   },
+      // );
     }
     saveAllBillsRequestState.value = RequestState.success;
 
@@ -227,15 +229,13 @@ class AllBillsController extends FloatingBillDetailsLauncher
       fetchTasks.add(
         _billsFirebaseRepo
             .count(
-                itemIdentifier: billTypeModel,
-                countQueryFilter: QueryFilter(
-                  field: ApiConstants.status,
-                  value: Status.pending.value,
-                ))
+          itemIdentifier: billTypeModel,
+          countQueryFilter: QueryFilter(field: ApiConstants.status, value: Status.pending.value),
+        )
             .then((result) {
           result.fold(
             (failure) => errors.add('Failed to fetch count for ${billTypeModel.fullName}: ${failure.message}'),
-            (count) => pendingBillsCountsByType[billTypeModel] = count,
+            (int count) => pendingBillsCountsByType[billTypeModel] = count,
           );
         }),
       );
@@ -259,7 +259,7 @@ class AllBillsController extends FloatingBillDetailsLauncher
         _billsFirebaseRepo.count(itemIdentifier: billTypeModel).then((result) {
           result.fold(
             (failure) => errors.add('Failed to fetch count for ${billTypeModel.fullName}: ${failure.message}'),
-            (count) => allBillsCountsByType[billTypeModel] = count,
+            (int count) => allBillsCountsByType[billTypeModel] = count,
           );
         }),
       );
@@ -296,15 +296,13 @@ class AllBillsController extends FloatingBillDetailsLauncher
 
   void openFloatingBillDetailsById(String billId, BuildContext context, BillTypeModel bilTypeModel) async {
     // final BillModel billModel = await fetchBillById(billId);
-    final BillModel billModel = await fetchBillById(billId, bilTypeModel);
+    final BillModel? billModel = await fetchBillById(billId, bilTypeModel);
+
+    if (billModel == null) return;
 
     if (!context.mounted) return;
 
-    openFloatingBillDetails(
-      context,
-      billModel.billTypeModel,
-      currentBill: billModel,
-    );
+    openFloatingBillDetails(context, billModel.billTypeModel, currentBill: billModel);
   }
 
   Future<List<BillModel>> billsCountByType(BillTypeModel billTypeModel) async {
@@ -316,28 +314,7 @@ class AllBillsController extends FloatingBillDetailsLauncher
     return _billUtils.appendEmptyBillModelNew(billTypeModel, billsCountByType);
   }
 
-  Future<void> openFloatingBillDetails(
-    BuildContext context,
-    BillTypeModel billTypeModel, {
-    BillModel? currentBill,
-  }) async {
-    // plutoGridIsLoading = false;
-    //
-    // await fetchAllBillsByType(billTypeModel);
-    //
-    // log("billNumber  ${bills.last.billDetails.billNumber.toString()}");
-    // _billsFirebaseRepo.saveLastTypeNumber(bills.last);
-    //
-    // if (!context.mounted) return;
-    //
-    // final BillModel lastBillModel = billModel ?? _billUtils.appendEmptyBillModel(bills, billTypeModel);
-    //
-    // _openBillDetailsFloatingWindow(
-    //   context: context,
-    //   modifiedBills: bills,
-    //   lastBillModel: lastBillModel,
-    // );
-
+  Future<void> openFloatingBillDetails(BuildContext context, BillTypeModel billTypeModel, {BillModel? currentBill}) async {
     final bills = await billsCountByType(billTypeModel);
 
     if (!context.mounted) return;
@@ -350,17 +327,16 @@ class AllBillsController extends FloatingBillDetailsLauncher
   }
 
   // Opens the 'Bill Details' floating window.
-  void _openBillDetailsFloatingWindow({
-    required BuildContext context,
-    required int lastBillNumber,
-    required BillModel currentBill,
-  }) {
+
+  Future<void> _openBillDetailsFloatingWindow(
+      {required BuildContext context, required int lastBillNumber, required BillModel currentBill}) async {
     final String controllerTag = AppServiceUtils.generateUniqueTag('BillDetailsController');
 
     final Map<String, GetxController> controllers = setupControllers(
       params: {
         'tag': controllerTag,
         'billsFirebaseRepo': _billsFirebaseRepo,
+        'serialNumbersRepo': _serialNumbersRepo,
         'billDetailsPlutoController': BillDetailsPlutoController(billTypeModel: currentBill.billTypeModel),
         'billSearchController': BillSearchController(),
       },
@@ -370,18 +346,19 @@ class AllBillsController extends FloatingBillDetailsLauncher
     final billDetailsPlutoController = controllers['billDetailsPlutoController'] as BillDetailsPlutoController;
     final billSearchController = controllers['billSearchController'] as BillSearchController;
 
-    initializeBillSearch(
-        currentBill: currentBill,
-        lastBillNumber: lastBillNumber,
-        billSearchController: billSearchController,
-        billDetailsController: billDetailsController,
-        billDetailsPlutoController: billDetailsPlutoController);
+    await billSearchController.initialize(
+      initialBill: currentBill,
+      lastBillNumber: lastBillNumber,
+      billDetailsController: billDetailsController,
+      billDetailsPlutoController: billDetailsPlutoController,
+    );
+
+    if (!context.mounted) return;
 
     launchFloatingWindow(
       context: context,
       minimizedTitle: BillType.byLabel(currentBill.billTypeModel.billTypeLabel!).value,
       floatingScreen: BillDetailsScreen(
-        fromBillById: false,
         billDetailsController: billDetailsController,
         billDetailsPlutoController: billDetailsPlutoController,
         billSearchController: billSearchController,
@@ -390,30 +367,72 @@ class AllBillsController extends FloatingBillDetailsLauncher
     );
   }
 
-  void initializeBillSearch({
-    required BillModel currentBill,
-    required int lastBillNumber,
-    required BillSearchController billSearchController,
-    required BillDetailsController billDetailsController,
-    required BillDetailsPlutoController billDetailsPlutoController,
-  }) {
-    billSearchController.initialize(
-      currentBill: currentBill,
-      lastBillNumber: lastBillNumber,
-      billDetailsController: billDetailsController,
-      billDetailsPlutoController: billDetailsPlutoController,
+  Future<BillModel?> fetchBillById(String billId, BillTypeModel billTypeModel) async {
+    final result = await _billsFirebaseRepo.getById(id: billId, itemIdentifier: billTypeModel);
+
+    return result.fold(
+      (failure) {
+        AppUIUtils.onFailure(failure.message);
+        return null;
+      },
+      (fetchedBill) => fetchedBill,
     );
   }
 
-  Future<BillModel> fetchBillById(String billId, BillTypeModel billTypeModel) async {
-    late BillModel billModel;
+  Future<void> fetchAllBillsMetaDataByTypes(List<BillTypeModel> fetchedBillTypes) async {
+    final List<Future<void>> fetchTasks = [];
+    final errors = <String>[]; // Collect error messages.
 
-    final result = await _billsFirebaseRepo.getById(id: billId, itemIdentifier: billTypeModel);
+    for (final billTypeModel in fetchedBillTypes) {
+      fetchTasks.add(
+        _billsFirebaseRepo.getMetaData(id: billTypeModel.billTypeId!, itemIdentifier: billTypeModel).then((result) {
+          result.fold(
+            (failure) => errors.add('Failed to fetch count for ${billTypeModel.fullName}: ${failure.message}'),
+            (double? count) => allBillsCountsByType[billTypeModel] = (count ?? 0).toInt(),
+          );
+        }),
+      );
+    }
+
+    // Wait for all tasks to complete.
+    await Future.wait(fetchTasks);
+
+    // Handle errors if any.
+    if (errors.isNotEmpty) {
+      AppUIUtils.onFailure('Some counts failed to fetch: ${errors.join(', ')}');
+    }
+  }
+
+  Future<void> fetchXXXXXX() async {
+    _billsFirebaseRepo.getMetaData(id: BillType.transferOut.typeGuide, itemIdentifier: BillType.transferOut.billTypeModel).then((result) {
+      result.fold(
+        (failure) => AppUIUtils.onFailure('Failed to fetch count for ${BillType.transferOut.label}: ${failure.message}'),
+        (double? count) {
+          log(count.toString());
+        },
+      );
+    });
+  }
+
+  Future<void> getSerialNumberStatement(String serialNumberInput, {required BuildContext context}) async {
+    final result = await _serialNumbersRepo.getById(serialNumberInput);
 
     result.fold(
       (failure) => AppUIUtils.onFailure(failure.message),
-      (fetchedBill) => billModel = fetchedBill,
+      (fetchedSerialNumberModel) {
+        serialNumberStatements.assign(fetchedSerialNumberModel);
+
+        launchFloatingWindow(
+          context: context,
+          floatingScreen: SerialsStatementScreenScreen(),
+          minimizedTitle: serialNumbersStatementScreenTitle,
+        );
+      },
     );
-    return billModel;
   }
+
+  bool isLoadingPlutoGrid = false;
+  final List<SerialNumberModel> serialNumberStatements = [];
+
+  String get serialNumbersStatementScreenTitle => AppStrings.serialNumbersStatement.tr;
 }

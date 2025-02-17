@@ -96,7 +96,7 @@ class ChequesCompoundDatasource extends CompoundDatasourceBase<ChequesModel, Che
 
   Future<ChequesModel> _assignChequesNumber(ChequesModel cheques) async {
     final newChequesNumber = await getNextNumber(rootCollectionPath, cheques.chequesTypeGuid!);
-    return cheques.copyWith(chequesNumber: newChequesNumber);
+    return cheques.copyWith(chequesNumber: newChequesNumber.nextNumber);
   }
 
   Future<Map<String, dynamic>> _saveChequesData(

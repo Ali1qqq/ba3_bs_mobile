@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:pluto_grid/pluto_grid.dart';
 
 import '../../features/materials/data/models/materials/material_model.dart';
@@ -42,6 +43,11 @@ abstract class IPlutoController<T> extends IRecodesPlutoController<T> {
 
   void restoreCurrentCell(PlutoGridStateManager stateManager);
 
+  Map<MaterialModel, List<TextEditingController>> get serialControllers => {};
+
+  void initSerialControllers(MaterialModel materialModel, int serialCount);
+
+  /// this for mobile
   void updateWithSelectedMaterial({
     required PlutoGridStateManager stateManager,
     required IPlutoController plutoController,

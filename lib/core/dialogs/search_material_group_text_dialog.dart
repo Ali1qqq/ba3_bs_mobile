@@ -6,7 +6,7 @@ import 'package:get/get.dart';
 import 'package:pluto_grid/pluto_grid.dart';
 
 import '../../features/bill/ui/widgets/bill_shared/custom_text_field.dart';
-import '../constants/app_strings.dart';
+import '../constants/app_constants.dart';
 import '../helper/extensions/getx_controller_extensions.dart';
 import '../widgets/pluto_grid_with_app_bar_.dart';
 
@@ -15,7 +15,7 @@ Future<MaterialGroupModel?> searchProductGroupTextDialog(String productGroupText
 
   List<MaterialGroupModel> searchedMaterials;
 
-  searchedMaterials =await read<MaterialGroupController>().searchOfProductByText(productGroupTextController.text);
+  searchedMaterials = await read<MaterialGroupController>().searchOfProductByText(productGroupTextController.text);
 
   MaterialGroupModel? selectedMaterial;
 
@@ -45,7 +45,7 @@ Future<MaterialGroupModel?> searchProductGroupTextDialog(String productGroupText
                               tableSourceModels: searchedMaterials,
                               onLoaded: (PlutoGridOnLoadedEvent onLoadedEvent) {},
                               onSelected: (PlutoGridOnSelectedEvent onSelectedEvent) {
-                                final materialId = onSelectedEvent.row?.cells[ AppStrings.materialGroupIdFiled]?.value;
+                                final materialId = onSelectedEvent.row?.cells[AppConstants.materialGroupIdFiled]?.value;
                                 if (materialId != null) {
                                   selectedMaterial = materialController.getMaterialGroupById(materialId);
                                   Get.back();

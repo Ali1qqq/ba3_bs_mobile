@@ -1,7 +1,9 @@
+import 'package:ba3_bs_mobile/core/constants/app_strings.dart';
 import 'package:ba3_bs_mobile/core/helper/extensions/bill_pattern_type_extension.dart';
 import 'package:ba3_bs_mobile/features/bill/data/models/bill_model.dart';
 import 'package:ba3_bs_mobile/features/patterns/data/models/bill_type_model.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:get/get.dart';
 import 'package:pluto_grid/pluto_grid.dart';
 
 import '../../../../core/constants/app_constants.dart';
@@ -178,12 +180,12 @@ class InvoiceRecordModel {
     final double vat = (quantity > 0 && hasVat) ? AppServiceUtils.toFixedDouble(subTotalStr * 0.05) : 0;
     return {
       PlutoColumn(
-        title: '',
+        title: '#',
         field: AppConstants.invRecId,
         readOnly: true,
-        width: 40,
-        enableColumnDrag: false,
+        width: 35,
         enableContextMenu: false,
+        enableDropToResize: false,
         type: PlutoColumnType.text(),
         renderer: (rendererContext) {
           if (rendererContext.row.cells[AppConstants.invRecProduct]?.value != '') {
@@ -194,7 +196,7 @@ class InvoiceRecordModel {
         },
       ): invRecId,
       PlutoColumn(
-        title: 'المادة',
+        title: AppStrings.material.tr,
         width: 300,
         field: AppConstants.invRecProduct,
         type: PlutoColumnType.text(),
@@ -203,7 +205,7 @@ class InvoiceRecordModel {
         },
       ): invRecProduct,
       PlutoColumn(
-        title: 'الكمية',
+        title: AppStrings.quantity.tr,
         field: AppConstants.invRecQuantity,
         width: 110,
         type: PlutoColumnType.text(),
@@ -212,7 +214,7 @@ class InvoiceRecordModel {
         },
       ): invRecQuantity,
       PlutoColumn(
-        title: 'الإفرادي',
+        title: AppStrings.individual.tr,
         field: AppConstants.invRecSubTotal,
         width: 110,
         type: PlutoColumnType.text(),
@@ -222,14 +224,14 @@ class InvoiceRecordModel {
       ): subTotalStr,
       if (billTypeModel.billPatternType!.hasVat)
         PlutoColumn(
-          title: 'الضريبة',
+          title: AppStrings.tax.tr,
           width: 110,
           field: AppConstants.invRecVat,
           enableEditingMode: false,
           type: PlutoColumnType.text(),
         ): vat,
       PlutoColumn(
-        title: 'المجموع',
+        title: AppStrings.total.tr,
         width: 150,
         field: AppConstants.invRecTotal,
         type: PlutoColumnType.text(),
@@ -239,7 +241,7 @@ class InvoiceRecordModel {
       ): invRecTotal,
       if (billTypeModel.billPatternType!.hasGiftsAccount)
         PlutoColumn(
-          title: 'الهدايا',
+          title: AppStrings.gifts.tr,
           width: 110,
           field: AppConstants.invRecGift,
           type: PlutoColumnType.text(),
@@ -366,27 +368,27 @@ class AdditionsDiscountsRecordModel {
   Map<PlutoColumn, dynamic> toEditedMap() {
     return {
       PlutoColumn(
-        title: AppConstants.account,
+        title: AppStrings.account.tr,
         field: AppConstants.id,
         type: PlutoColumnType.text(),
       ): account,
       PlutoColumn(
-        title: AppConstants.discountAr,
+        title: AppStrings.discount.tr,
         field: AppConstants.discount,
         type: PlutoColumnType.text(),
       ): discount,
       PlutoColumn(
-        title: AppConstants.discountRatioAr,
+        title: AppStrings.discountRatio.tr,
         field: AppConstants.discountRatio,
         type: PlutoColumnType.text(),
       ): discountRatio,
       PlutoColumn(
-        title: AppConstants.additionAr,
+        title: AppStrings.additions.tr,
         field: AppConstants.addition,
         type: PlutoColumnType.text(),
       ): addition,
       PlutoColumn(
-        title: AppConstants.additionRatioAr,
+        title: AppStrings.additionRatio.tr,
         field: AppConstants.additionRatio,
         type: PlutoColumnType.text(),
       ): additionRatio,

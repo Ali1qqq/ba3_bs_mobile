@@ -1,16 +1,17 @@
+import 'package:ba3_bs_mobile/core/constants/app_strings.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:get/get.dart';
 
-import '../../../core/constants/app_strings.dart';
+import '../../../core/constants/app_constants.dart';
 import '../../../core/helper/enums/enums.dart';
 import '../../../core/helper/extensions/getx_controller_extensions.dart';
 import '../../../core/services/firebase/implementations/repos/filterable_datasource_repo.dart';
 import '../../../core/utils/app_service_utils.dart';
 import '../../../core/utils/app_ui_utils.dart';
+import '../../user_time/data/repositories/user_time_repo.dart';
+import '../../user_time/services/user_time_services.dart';
 import '../../users_management/controllers/user_management_controller.dart';
 import '../../users_management/data/models/user_model.dart';
-import '../data/repositories/user_time_repo.dart';
-import '../services/user_time_services.dart';
 
 class UserTimeController extends GetxController {
   final FilterableDataSourceRepository<UserModel> _usersFirebaseRepo;
@@ -20,8 +21,8 @@ class UserTimeController extends GetxController {
 
   late final UserTimeServices _userTimeServices;
 
-  Rx<String> lastEnterTime = "لم يتم تسجيل الدخول بعد".obs;
-  Rx<String> lastOutTime = "لم يتم تسجيل الخروج بعد".obs;
+  Rx<String> lastEnterTime = AppStrings.notLoggedToday.tr.obs;
+  Rx<String> lastOutTime = AppStrings.notLoggedToday.tr.obs;
 
   Rx<RequestState> logInState = RequestState.initial.obs;
   Rx<RequestState> logOutState = RequestState.initial.obs;
@@ -31,10 +32,6 @@ class UserTimeController extends GetxController {
     super.onInit();
     initialize();
   }
-
-  Map<String, UserWorkingHours>? get workingHours => getUserById()?.userWorkingHours;
-
-  int get workingHoursLength => workingHours?.length ?? 0;
 
   List<String>? get userHolidays => getUserById()
       ?.userHolidays
@@ -60,10 +57,10 @@ class UserTimeController extends GetxController {
         return AppUIUtils.onFailure(failure.message);
       },
       (location) {
-        return isWithinRegion =
-            _userTimeServices.isWithinRegion(location, AppStrings.targetLatitude, AppStrings.targetLongitude, AppStrings.radiusInMeters) ||
-                _userTimeServices.isWithinRegion(
-                    location, AppStrings.secondTargetLatitude, AppStrings.secondTargetLongitude, AppStrings.secondRadiusInMeters);
+        return isWithinRegion = _userTimeServices.isWithinRegion(
+                location, AppConstants.targetLatitude, AppConstants.targetLongitude, AppConstants.radiusInMeters) ||
+            _userTimeServices.isWithinRegion(
+                location, AppConstants.secondTargetLatitude, AppConstants.secondTargetLongitude, AppConstants.secondRadiusInMeters);
       },
     );
 
@@ -83,15 +80,16 @@ class UserTimeController extends GetxController {
     } else {
       logOutState.value = RequestState.loading;
     }
-
     await read<UserManagementController>().refreshLoggedInUser();
+
     UserModel? userModel = getUserById();
 
-    /// check if user in regin
+    /// we don't need it in diskTop app
+    /*   /// check if user in regin
     if (!await isWithinRegion()) {
       handleError('خطأ في المنطقة الجغرافية', logStatus);
       return;
-    }
+    }*/
 
     /// check if user want to login again before logout
     /// or
@@ -111,8 +109,6 @@ class UserTimeController extends GetxController {
   }
 
   UserModel? getUserById() => read<UserManagementController>().loggedInUserModel!;
-
-  // UserModel? getUserById() => read<UserManagementController>().loggedInUserModel!;
 
   Future<void> checkLogInAndSave() async {
     await checkUserLog(

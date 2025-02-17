@@ -49,11 +49,13 @@ class AppButton extends StatelessWidget {
               children: [
                 isLoading
                     ? AppUIUtils.showLoadingIndicator(width: 16, height: 16)
-                    : Text(
-                        title,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(fontSize: fontSize ?? 15),
+                    : Expanded(
+                        child: Text(
+                          title,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(fontSize: fontSize ?? 15),
+                        ),
                       ),
                 if (iconData != null) Icon(iconData, size: iconSize ?? 18, color: Colors.white),
               ],

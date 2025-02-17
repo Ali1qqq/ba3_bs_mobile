@@ -1,11 +1,15 @@
 import 'package:ba3_bs_mobile/core/network/api_constants.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-mixin FirestoreSequentialNumbers {
-  static const String _parentCollection = ApiConstants.sequentialNumbers;
+import '../../../../helper/extensions/getx_controller_extensions.dart';
 
-  Future<int> getNextNumber(String category, String entityType) async {
-    final docRef = FirebaseFirestore.instance
+mixin FirestoreSequentialNumbers {
+  final FirebaseFirestore _firestoreInstance = read<FirebaseFirestore>();
+
+  final String _parentCollection = ApiConstants.sequentialNumbers;
+
+  Future<EntitySequence> getNextNumber(String category, String entityType) async {
+    final docRef = _firestoreInstance
         .collection(_parentCollection) // Parent collection
         .doc(category); // Document for category (e.g., "bills", "bonds")
 
@@ -21,7 +25,7 @@ mixin FirestoreSequentialNumbers {
           ApiConstants.lastNumber: 1,
         },
       });
-      return 1;
+      return EntitySequence(currentNumber: null, nextNumber: 1);
     }
 
     // Get the current data for the document
@@ -36,7 +40,7 @@ mixin FirestoreSequentialNumbers {
           ApiConstants.lastNumber: 1,
         },
       });
-      return 1;
+      return EntitySequence(currentNumber: null, nextNumber: 1);
     }
 
     // Extract the `lastNumber` and increment it
@@ -49,27 +53,43 @@ mixin FirestoreSequentialNumbers {
       '$entityType.${ApiConstants.lastNumber}': newNumber,
     });
 
-    return newNumber;
+    return EntitySequence(currentNumber: lastNumber == 0 ? null : lastNumber, nextNumber: newNumber);
   }
 
-  Future<void> satNumber(String category, String entityType, int number) async {
-    final docRef = FirebaseFirestore.instance
+  Future<void> setLastUsedNumber(String category, String entityType, int number) async {
+    final docRef = _firestoreInstance
         .collection(_parentCollection) // Parent collection
         .doc(category); // Document for category (e.g., "bills", "bonds")
 
-    await docRef.set({
-      entityType: {
-        ApiConstants.type: entityType,
-        ApiConstants.lastNumber: number,
+    await docRef.set(
+      {
+        entityType: {
+          ApiConstants.type: entityType,
+          ApiConstants.lastNumber: number,
+        },
       },
-    }, SetOptions(merge: true));
+      SetOptions(merge: true),
+    );
+  }
+
+  Future<void> decrementLastNumber(String category, String entityType, {int? number}) async {
+    final docRef = _firestoreInstance.collection(_parentCollection).doc(category);
+
+    await docRef.set(
+      {
+        entityType: {
+          ApiConstants.lastNumber: FieldValue.increment(number ?? -1),
+        },
+      },
+      SetOptions(merge: true),
+    );
   }
 
   Future<int> getLastNumber({required String category, required String entityType, int? number}) async {
     if (number != null) {
       return number;
     }
-    final docRef = FirebaseFirestore.instance
+    final docRef = _firestoreInstance
         .collection(_parentCollection) // Parent collection
         .doc(category); // Document for category (e.g., "bills", "bonds")
 
@@ -94,4 +114,14 @@ mixin FirestoreSequentialNumbers {
 
     return lastNumber;
   }
+}
+
+class EntitySequence {
+  final int? currentNumber;
+  final int nextNumber;
+
+  EntitySequence({
+    required this.currentNumber,
+    required this.nextNumber,
+  });
 }

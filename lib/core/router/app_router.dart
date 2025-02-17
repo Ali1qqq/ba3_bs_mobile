@@ -17,7 +17,6 @@ import 'package:ba3_bs_mobile/features/users_management/ui/screens/user_manageme
 import 'package:get/get.dart';
 
 import '../../features/accounts/ui/screens/add_account_screen.dart';
-import '../../features/bill/ui/screens/bill_details_screen.dart';
 import '../../features/bond/ui/screens/bond_details_screen.dart';
 import '../../features/cheques/ui/screens/all_cheques_view.dart';
 import '../../features/login/ui/screens/login_screen.dart';
@@ -27,7 +26,6 @@ import '../../features/sellers/ui/screens/all_sellers_screen.dart';
 import '../../features/user_time/ui/screens/user_details.dart';
 import '../../features/users_management/ui/screens/role_management/all_roles_screen.dart';
 import '../../features/users_management/ui/screens/user_time_list/user_time_list_screen.dart';
-import '../bindings/middlewares.dart';
 import 'app_routes.dart';
 
 List<GetPage<dynamic>>? appRouter = [
@@ -47,19 +45,6 @@ List<GetPage<dynamic>>? appRouter = [
     name: AppRoutes.showPendingBillsScreen,
     page: () => const PendingBillsScreen(),
   ),
-  GetPage(
-      name: AppRoutes.billDetailsScreen,
-      middlewares: [LandscapeMiddleware()],
-      page: () {
-        final Map<String, dynamic> arguments = Get.arguments as Map<String, dynamic>;
-        return BillDetailsScreen(
-          fromBillById: arguments['fromBillById'],
-          billDetailsController: arguments['billDetailsController'],
-          billDetailsPlutoController: arguments['billDetailsPlutoController'],
-          billSearchController: arguments['billSearchController'],
-          tag: arguments['tag'],
-        );
-      }),
 
   // GetPage(name: AppRoutes.entryBondDetailsScreen, page: () => const EntryBondDetailsScreen()),
 

@@ -44,6 +44,7 @@ import '../../features/materials/controllers/mats_statement_controller.dart';
 import '../../features/materials/data/datasources/local/material_local_data_source.dart';
 import '../../features/materials/data/datasources/remote/materials_data_source.dart';
 import '../../features/materials/data/datasources/remote/materials_groups_data_source.dart';
+import '../../features/materials/data/datasources/remote/materials_serials_data_source.dart';
 import '../../features/materials/data/datasources/remote/materials_statements_data_source.dart';
 import '../../features/materials/data/models/mat_statement/mat_statement_model.dart';
 import '../../features/materials/data/models/materials/material_group.dart';
@@ -55,13 +56,13 @@ import '../../features/patterns/data/datasources/patterns_data_source.dart';
 import '../../features/patterns/data/models/bill_type_model.dart';
 import '../../features/pluto/controllers/pluto_controller.dart';
 import '../../features/print/controller/print_controller.dart';
+import '../../features/profile/controller/user_time_controller.dart';
 import '../../features/sellers/controllers/add_seller_controller.dart';
 import '../../features/sellers/controllers/seller_sales_controller.dart';
 import '../../features/sellers/controllers/sellers_controller.dart';
 import '../../features/sellers/data/datasources/remote/sellers_data_source.dart';
 import '../../features/sellers/data/models/seller_model.dart';
 import '../../features/sellers/service/seller_import.dart';
-import '../../features/user_time/controller/user_time_controller.dart';
 import '../../features/user_time/data/repositories/user_time_repo.dart';
 import '../../features/users_management/controllers/user_details_controller.dart';
 import '../../features/users_management/data/datasources/roles_data_source.dart';
@@ -239,6 +240,7 @@ class AppBindings extends Bindings {
       matStatementsRepo: CompoundDatasourceRepository(
         MaterialsStatementsDatasource(compoundDatabaseService: compoundFireStoreService),
       ),
+      serialNumbersRepo: QueryableSavableRepository(MaterialsSerialsDataSource(databaseService: fireStoreService)),
     );
   }
 
@@ -265,7 +267,8 @@ class AppBindings extends Bindings {
     ));
     lazyPut(MaterialsStatementController(repositories.matStatementsRepo));
 
-    lazyPut(AllBillsController(repositories.patternsRepo, repositories.billsRepo, repositories.billImportExportRepo));
+    lazyPut(AllBillsController(
+        repositories.patternsRepo, repositories.billsRepo, repositories.serialNumbersRepo, repositories.billImportExportRepo));
     lazyPut(AllBondsController(repositories.bondsRepo, repositories.bondImportExportRepo));
     lazyPut(AllChequesController(repositories.chequesRepo, repositories.chequesImportExportRepo));
     lazyPut(BillDetailsPlutoController());
@@ -310,6 +313,7 @@ class _Repositories {
   final ImportRepository<CustomerModel> customerImportRepo;
   final BulkSavableDatasourceRepository<CustomerModel> customersRepo;
   final CompoundDatasourceRepository<MatStatementModel, String> matStatementsRepo;
+  final QueryableSavableRepository<SerialNumberModel> serialNumbersRepo;
 
   _Repositories({
     required this.translationRepo,
@@ -338,5 +342,6 @@ class _Repositories {
     required this.customerImportRepo,
     required this.customersRepo,
     required this.matStatementsRepo,
+    required this.serialNumbersRepo,
   });
 }

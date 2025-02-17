@@ -35,7 +35,7 @@ class AllSellersScreen extends StatelessWidget {
                               padding: const EdgeInsets.all(8.0),
                               child: InkWell(
                                 onTap: () => read<SellerSalesController>().onSelectSeller(
-                                  controller.sellers[index],
+                                  sellerModel: controller.sellers[index],
                                 ),
                                 child: Container(
                                   padding: const EdgeInsets.all(4),

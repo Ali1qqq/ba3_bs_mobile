@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 import '../../../../core/constants/app_assets.dart';
 import '../../../../core/widgets/app_spacer.dart';
 import '../../controllers/main_layout_controller.dart';
 import 'drawer_list_tile.dart';
-import 'main_header.dart';
 
 class RightMainWidget extends StatelessWidget {
   const RightMainWidget({super.key, required this.mainController});
@@ -34,7 +34,7 @@ class RightMainWidget extends StatelessWidget {
                 itemBuilder: (context, index) => DrawerListTile(
                   index: index,
                   tabIndex: mainController.tabIndex,
-                  title: mainController.appLayouts[index].name,
+                  title: mainController.appLayouts[index].name.tr,
                   icon: mainController.appLayouts[index].icon,
                   unSelectedIcon: mainController.appLayouts[index].unSelectedIcon,
                   onTap: () {
@@ -43,7 +43,6 @@ class RightMainWidget extends StatelessWidget {
                 ),
               ),
             ),
-            const MainHeader(),
           ],
         ),
       ),

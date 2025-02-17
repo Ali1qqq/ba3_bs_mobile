@@ -5,7 +5,7 @@ import '../../../../../core/helper/enums/enums.dart';
 import '../../../../../core/styling/app_text_style.dart';
 import '../../../../../core/widgets/app_button.dart';
 import '../../../../../core/widgets/organized_widget.dart';
-import '../../../controller/user_time_controller.dart';
+import '../../../../profile/controller/user_time_controller.dart';
 
 class AddTimeWidget extends StatelessWidget {
   const AddTimeWidget({
@@ -22,10 +22,9 @@ class AddTimeWidget extends StatelessWidget {
       child: OrganizedWidget(
         titleWidget: Center(
             child: Text(
-              "الدوام",
-              style: AppTextStyles.headLineStyle2,
-            )),
-
+          "الدوام",
+          style: AppTextStyles.headLineStyle2,
+        )),
         bodyWidget: Column(
           children: [
             Obx(() {

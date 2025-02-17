@@ -5,15 +5,15 @@ import '../../../../../core/styling/app_colors.dart';
 import '../../../../../core/styling/app_text_style.dart';
 import '../../../../../core/widgets/app_spacer.dart';
 import '../../../../../core/widgets/organized_widget.dart';
-import '../../../controller/user_time_controller.dart';
+import '../../../../users_management/data/models/user_model.dart';
 
 class UserDailyTimeWidget extends StatelessWidget {
   const UserDailyTimeWidget({
     super.key,
-    required this.userTimeController,
+    required this.userModel,
   });
 
-  final UserTimeController userTimeController;
+  final UserModel userModel;
 
   @override
   Widget build(BuildContext context) {
@@ -31,7 +31,7 @@ class UserDailyTimeWidget extends StatelessWidget {
                 separatorBuilder: (context, index) => VerticalSpace(),
                 shrinkWrap: true,
                 physics: ClampingScrollPhysics(),
-                itemCount: userTimeController.workingHoursLength,
+                itemCount: userModel.userWorkingHours?.length ?? 0,
                 padding: EdgeInsets.zero,
                 itemBuilder: (context, index) => Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -39,7 +39,7 @@ class UserDailyTimeWidget extends StatelessWidget {
                     SizedBox(
                         width: 0.3.sw,
                         child: Text(
-                          userTimeController.workingHours?[index.toString()]?.enterTime ?? '',
+                          userModel.userWorkingHours?[index.toString()]?.enterTime ?? '',
                           textAlign: TextAlign.center,
                           style: AppTextStyles.headLineStyle4,
                         )),
@@ -64,7 +64,7 @@ class UserDailyTimeWidget extends StatelessWidget {
                     SizedBox(
                         width: 0.3.sw,
                         child: Text(
-                          userTimeController.workingHours?[index.toString()]?.outTime ?? '',
+                          userModel.userWorkingHours![index.toString()]?.outTime ?? '',
                           textAlign: TextAlign.center,
                           style: AppTextStyles.headLineStyle4,
                         )),

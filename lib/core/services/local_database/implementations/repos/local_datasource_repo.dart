@@ -38,7 +38,7 @@ class LocalDatasourceRepository<T> {
 
   Future<Either<Failure, T?>> getById(String id) async {
     try {
-      final localData = await localDatasource.getDataById(id);
+      final localData = localDatasource.getDataById(id);
       if (localData != null) {
         return Right(localData);
       }

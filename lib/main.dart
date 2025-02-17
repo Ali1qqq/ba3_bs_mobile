@@ -1,3 +1,4 @@
+import 'package:ba3_bs_mobile/core/helper/extensions/getx_controller_extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get_navigation/src/root/get_material_app.dart';
@@ -6,6 +7,8 @@ import 'core/bindings/bindings.dart';
 import 'core/constants/app_strings.dart';
 import 'core/helper/init_app/app_initializer.dart';
 import 'core/router/app_router.dart';
+import 'core/services/translation/app_translations.dart';
+import 'core/services/translation/translation_controller.dart';
 import 'core/styling/app_themes.dart';
 import 'core/widgets/app_scroll_behavior.dart';
 
@@ -19,6 +22,8 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final TranslationController translationController = read<TranslationController>();
+
     return ScreenUtilInit(
       designSize: const Size(390, 852),
       splitScreenMode: true,
@@ -27,7 +32,9 @@ class MyApp extends StatelessWidget {
         initialBinding: AppBindings(),
         debugShowCheckedModeBanner: false,
         scrollBehavior: AppScrollBehavior(),
-        locale: const Locale("ar"),
+        locale: Locale(translationController.localLangCode),
+        translations: AppTranslations(),
+        fallbackLocale: Locale('en', 'US'),
         title: AppStrings.appTitle,
         theme: AppThemes.defaultTheme,
         getPages: appRouter,

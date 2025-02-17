@@ -23,7 +23,7 @@ class BillExport extends ExportServiceBase<BillModel> {
             "BillCurrencyVal": 1,
             "BillDate": billModel.billDetails.billDate?.toIso8601String() ?? "",
             "BillStoreGuid": billModel.billTypeModel.accounts?[BillAccounts.store]?.id,
-            "Note": billModel.billDetails.note ?? "",
+            "Note": billModel.billDetails.billNote ?? "",
             "BillCustAcc": "00000000-0000-0000-0000-000000000000",
             "BillMatAccGuid": "",
             "BillCostGuid": "00000000-0000-0000-0000-000000000000",

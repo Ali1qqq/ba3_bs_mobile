@@ -68,9 +68,9 @@ class AllChequesController extends FloatingChequesDetailsLauncher with EntryBond
           chequesList.assignAll(fetchedCheques);
           if (chequesList.isNotEmpty) {
             await _chequesFirebaseRepo.saveAllNested(
-              chequesList,
-              ChequesType.values,
-              (progress) {},
+              items: chequesList,
+              itemIdentifiers: ChequesType.values,
+              onProgress: (progress) {},
             );
 
             await createAndStoreEntryBonds(sourceModels: chequesList);

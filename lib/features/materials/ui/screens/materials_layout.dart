@@ -76,7 +76,7 @@ class MaterialLayout extends StatelessWidget {
                     AppMenuItem(
                         text: "اضافة المواد",
                         onTap: () {
-                          read<MaterialController>().navigateToAddOrUpdateMaterialScreen();
+                          read<MaterialController>().navigateToAddOrUpdateMaterialScreen(context: context);
                         }),
                 ],
               ),

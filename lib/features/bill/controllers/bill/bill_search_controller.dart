@@ -22,14 +22,14 @@ class BillSearchController extends GetxController {
   late BillDetailsPlutoController billDetailsPlutoController;
 
   /// Initializes the bill search with the given bills and controllers.
-  void initialize({
+  Future<void> initialize({
     required int lastBillNumber,
-    required BillModel currentBill,
+    required BillModel initialBill,
     required BillDetailsController billDetailsController,
     required BillDetailsPlutoController billDetailsPlutoController,
-  }) {
-    bills = _prepareBillList(lastBillNumber, currentBill);
-    currentBillIndex = _getBillIndexByNumber(currentBill.billDetails.billNumber);
+  }) async {
+    bills = await _prepareBillList(lastBillNumber, initialBill);
+    currentBillIndex = _getBillIndexByNumber(initialBill.billDetails.billNumber);
     currentBill = bills[currentBillIndex];
 
     this.billDetailsController = billDetailsController;
@@ -39,7 +39,7 @@ class BillSearchController extends GetxController {
   }
 
   /// Prepares a list of bills with placeholders up to the last bill number.
-  List<BillModel> _prepareBillList(int lastBillNumber, BillModel currentBill) {
+  Future<List<BillModel>> _prepareBillList(int lastBillNumber, BillModel currentBill) async {
     // Create a growable list of placeholder bills
     final placeholders = List<BillModel>.generate(
       lastBillNumber - 1,
@@ -48,11 +48,28 @@ class BillSearchController extends GetxController {
 
     final currentBillNumber = currentBill.billDetails.billNumber!;
 
-    // If the current bill is the last one, append it to the list
+    // If the current bill is the last one, fetch the last bill from the database
+    BillModel? lastBillOnDataBase;
+
+    if (currentBillNumber == lastBillNumber && lastBillNumber > 1) {
+      lastBillOnDataBase = await fetchLastBillOnDataBase(lastBillNumber - 1, currentBill);
+    }
+
+    if (lastBillOnDataBase != null) {
+      // Replace the last placeholder with lastBillOnDataBase
+      final updatedLastBillOnDataBase = lastBillOnDataBase.copyWith(
+        billDetails: lastBillOnDataBase.billDetails.copyWith(
+          next: lastBillOnDataBase.billDetails.billNumber! + 1,
+        ),
+      );
+
+      placeholders[lastBillNumber - 2] = updatedLastBillOnDataBase;
+    }
+
+    // If the current bill is the last one, append it; otherwise, insert at the correct position
     if (currentBillNumber == lastBillNumber) {
       return [...placeholders, currentBill];
     } else {
-      // Otherwise, insert the current bill at the correct position
       return placeholders..insert(currentBillNumber - 1, currentBill);
     }
   }
@@ -68,28 +85,37 @@ class BillSearchController extends GetxController {
         ),
       );
 
-  /// Validates the bill number range.
-  bool _isValidBillNumber(int? billNumber) => billNumber != null && billNumber >= 1 && billNumber <= bills.last.billDetails.billNumber!;
+  Future<BillModel?> fetchLastBillOnDataBase(int billNumber, BillModel currentBill) async {
+    BillModel? fetchedBill;
 
-  /// Displays an error message for invalid bill numbers.
-  void _showInvalidBillNumberError(int? billNumber) {
-    final firstBillNumber = bills.first.billDetails.billNumber ?? 1;
-    final lastBillNumber = bills.last.billDetails.billNumber!;
-    final message = billNumber == null
-        ? 'من فضلك أدخل رقم صحيح'
-        : billNumber < firstBillNumber
-            ? 'رقم الفاتورة غير متوفر. رقم أول فاتورة هو $firstBillNumber'
-            : 'رقم الفاتورة غير متوفر. رقم أخر فاتورة هو $lastBillNumber';
-    _displayErrorMessage(message);
+    final result = await read<AllBillsController>().fetchBillByNumber(
+      billTypeModel: currentBill.billTypeModel,
+      billNumber: billNumber,
+    );
+
+    result.fold(
+      (failure) {},
+      (fetchedBills) => fetchedBill = fetchedBills.first,
+    );
+
+    return fetchedBill;
   }
 
   /// Retrieves the index of a bill by its number.
   int _getBillIndexByNumber(int? billNumber) => bills.indexWhere((bill) => bill.billDetails.billNumber == billNumber);
 
   /// Updates a bill if it exists.
-  void updateBill(BillModel updatedBill) {
+  void updateBill(BillModel updatedBill, String from) {
+    log(' updatedBill.from $from');
+    log(' updatedBill.billNumber ${updatedBill.billDetails.billNumber}');
+    log(' updatedBill.previous ${updatedBill.billDetails.previous}');
+    log(' updatedBill.next ${updatedBill.billDetails.next}');
+
     final billIndex = _getBillIndexByNumber(updatedBill.billDetails.billNumber);
     if (billIndex != -1) {
+      log(' billIndex $billIndex');
+      log(' currentBillIndex == billIndex ${currentBillIndex == billIndex}');
+
       bills[billIndex] = updatedBill;
       if (currentBillIndex == billIndex) currentBill = updatedBill;
       update();
@@ -109,29 +135,39 @@ class BillSearchController extends GetxController {
   void reloadCurrentBill({required BillModel billToDelete}) {
     log('currentBillIndex $currentBillIndex');
     log('bills.length ${bills.length}');
-    if (currentBillIndex < bills.length) {
+
+    if (isNotLastBill) {
       log('currentBillIndex < bills.length');
 
       _setCurrentBill(currentBillIndex);
     } else {
-      log('_displayErrorMessage');
+      log('currentBillIndex !< bills.length');
+      log(' billToDelete.billDetails.previous ${billToDelete.billDetails.previous}');
+      //  updateDeletedBillPrevious(billToDelete);
+
       billDetailsController.appendNewBill(
         billTypeModel: billToDelete.billTypeModel,
         lastBillNumber: billToDelete.billDetails.billNumber!,
+        previousBillNumber: billToDelete.billDetails.previous,
       );
-
-      //   _displayErrorMessage('لا يوجد فاتورة أخرى');
     }
   }
+
+  bool get isNotLastBill => currentBillIndex < bills.length;
+
+  /// Validates the bill number range.
+  bool _isValidBillNumber(int? billNumber) => billNumber != null && billNumber >= 1 && billNumber <= bills.last.billDetails.billNumber!;
 
   /// Navigates to a bill by its number.
   Future<void> goToBillByNumber(int? billNumber) async => await _navigateToBill(billNumber!, NavigationDirection.specific);
 
   /// Moves to the next bill if possible.
-  Future<void> next() async => await _navigateToBill(currentBill.billDetails.billNumber! + 1, NavigationDirection.next);
+  Future<void> next() async =>
+      await _navigateToBill(currentBill.billDetails.next ?? currentBill.billDetails.billNumber! + 1, NavigationDirection.next);
 
   /// Moves to the previous bill if possible.
-  Future<void> previous() async => await _navigateToBill(currentBill.billDetails.billNumber! - 1, NavigationDirection.previous);
+  Future<void> previous() async =>
+      await _navigateToBill(currentBill.billDetails.previous ?? currentBill.billDetails.billNumber! - 1, NavigationDirection.previous);
 
   /// Jumps forward by 10 bills from the current bill number.
   Future<void> jumpForwardByTen() async => await _navigateToBill(currentBill.billDetails.billNumber! + 10, NavigationDirection.next);
@@ -140,10 +176,10 @@ class BillSearchController extends GetxController {
   Future<void> jumpBackwardByTen() async => await _navigateToBill(currentBill.billDetails.billNumber! - 10, NavigationDirection.previous);
 
   /// Navigates to the first bill in the list.
-  Future<void> first() async => await _navigateToBill(1, NavigationDirection.next);
+  Future<void> head() async => await _navigateToBill(1, NavigationDirection.next);
 
   /// Navigates to the last bill in the list.
-  Future<void> last() async => await _navigateToBill(bills.last.billDetails.billNumber!, NavigationDirection.previous);
+  Future<void> tail() async => await _navigateToBill(bills.last.billDetails.billNumber!, NavigationDirection.previous);
 
   /// Helper method to fetch or navigate to a specific bill.
   Future<void> _navigateToBill(int billNumber, NavigationDirection direction) async {
@@ -155,13 +191,23 @@ class BillSearchController extends GetxController {
   }
 
   bool _validateAndHandleBillNumber(int billNumber) {
-    log('billNumber: $billNumber');
-    log('bills.last.billDetails.billNumber: ${bills.last.billDetails.billNumber}');
     if (!_isValidBillNumber(billNumber)) {
       _showInvalidBillNumberError(billNumber);
       return false;
     }
     return true;
+  }
+
+  /// Displays an error message for invalid bill numbers.
+  void _showInvalidBillNumberError(int? billNumber) {
+    final firstBillNumber = bills.first.billDetails.billNumber ?? 1;
+    final lastBillNumber = bills.last.billDetails.billNumber!;
+    final message = billNumber == null
+        ? 'من فضلك أدخل رقم صحيح'
+        : billNumber < firstBillNumber
+            ? 'رقم الفاتورة غير متوفر. رقم أول فاتورة هو $firstBillNumber'
+            : 'رقم الفاتورة غير متوفر. رقم أخر فاتورة هو $lastBillNumber';
+    _displayErrorMessage(message);
   }
 
   bool _checkExistingBill(int billNumber) {
@@ -205,13 +251,25 @@ class BillSearchController extends GetxController {
 
   /// Handles a successful bill fetch and updates the list.
   void _handleFetchSuccess(List<BillModel> fetchedBills, int billNumber) {
+    log('_handleFetchSuccess');
+
     if (fetchedBills.isEmpty) {
       _displayErrorMessage('No bills returned from the fetch operation.');
       return;
     }
 
-    bills[billNumber - 1] = fetchedBills.first;
-    _setCurrentBill(billNumber - 1);
+    final fetchedBill = fetchedBills.first;
+
+    _updateBillInList(billNumber, fetchedBill);
+  }
+
+  /// Updates the bill at the specified index, handling 'isTail' logic.
+  void _updateBillInList(int billNumber, BillModel fetchedBill) {
+    final index = billNumber - 1;
+
+    bills[index] = fetchedBill;
+
+    _setCurrentBill(index);
   }
 
   /// Updates the current bill and refreshes the screen`
@@ -230,14 +288,63 @@ class BillSearchController extends GetxController {
     );
   }
 
+  void insertLastAndUpdate(BillModel newBill) {
+    _updatePreviousTail(newBill.billDetails.billNumber);
+    _addNewBill(newBill);
+  }
+
+  /// Adds the new bill to the list and sets it as the current bill.
+  void _addNewBill(BillModel newBill) {
+    bills.add(newBill);
+    _setCurrentBill(bills.length - 1);
+  }
+
+  /// Updates the 'next' field of the last bill in the list (if applicable).
+  void _updatePreviousTail(int? newBillNumber) {
+    if (bills.isEmpty) return;
+
+    final tail = getTail;
+
+    final updatedTail = tail.copyWith(
+      billDetails: tail.billDetails.copyWith(next: newBillNumber),
+    );
+
+    _replaceLastBill(updatedTail);
+  }
+
+  /// Replaces the last bill in the list with an updated version.
+  void _replaceLastBill(BillModel updatedBill) {
+    bills[bills.length - 1] = updatedBill;
+  }
+
+  bool isLastValidBill(BillModel bill) {
+    final int billIndex = _getBillIndexByNumber(bill.billDetails.billNumber);
+    if (billIndex == -1) return false; // Bill not found
+
+    // Check if any valid bill exists after this one
+    for (int i = billIndex + 1; i < bills.length; i++) {
+      if (hasValidId(bills[i])) return false;
+    }
+
+    return hasValidId(bill); // The current bill must also be valid
+  }
+
+  /// Checks if a bill has a valid (non-null, non-empty) ID
+  bool hasValidId(BillModel bill) => bill.billId != null && bill.billId!.isNotEmpty;
+
+  /// Displays an error message
+  void _displayErrorMessage(String message) => AppUIUtils.onFailure(message);
+
+  BillModel getBillByNumber(int billNumber) => bills[_getBillIndexByNumber(billNumber)];
+
   /// Gets the current bill
   BillModel get getCurrentBill => bills[currentBillIndex];
 
   /// Checks if the current bill is the last in the list
-  bool get isLast => currentBillIndex == bills.length - 1;
+  bool get isTail => currentBillIndex == bills.length - 1;
 
   /// Checks if the current bill is the last in the list
-  bool get isFirst => currentBillIndex == 0;
+  bool get isHead => currentBillIndex == 0;
 
   bool get isNew => currentBill.billId == null;
 
@@ -245,11 +352,5 @@ class BillSearchController extends GetxController {
 
   bool get isPending => currentBill.status == Status.pending;
 
-  /// Displays an error message
-  void _displayErrorMessage(String message) => AppUIUtils.onFailure(message);
-
-  insertLastAndUpdate(BillModel newBill) {
-    bills.add(newBill);
-    _setCurrentBill(bills.indexOf(newBill));
-  }
+  BillModel get getTail => bills[bills.length - 1];
 }

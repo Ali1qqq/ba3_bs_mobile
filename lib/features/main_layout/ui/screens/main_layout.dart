@@ -21,18 +21,15 @@ class MainLayout extends StatelessWidget {
 
     return SafeArea(
       child: GetBuilder<MainLayoutController>(builder: (mainController) {
-        return Directionality(
-          textDirection: TextDirection.rtl,
-          child: Scaffold(
-            appBar: AppBar(
-              title: Text(mainController.appLayouts[mainController.tabIndex].name,
-                  style: AppTextStyles.headLineStyle2.copyWith(color: AppColors.blueColor)),
-              centerTitle: true,
-            ),
-            drawer: RightMainWidget(mainController: mainController),
-            backgroundColor: AppColors.backGroundColor,
-            body: LeftMainWidget(mainController: mainController),
+        return Scaffold(
+          appBar: AppBar(
+            title: Text(mainController.appLayouts[mainController.tabIndex].name,
+                style: AppTextStyles.headLineStyle2.copyWith(color: AppColors.blueColor)),
+            centerTitle: true,
           ),
+          drawer: RightMainWidget(mainController: mainController),
+          backgroundColor: AppColors.backGroundColor,
+          body: LeftMainWidget(mainController: mainController),
         );
       }),
     );

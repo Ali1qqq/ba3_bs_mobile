@@ -1,6 +1,8 @@
 import 'package:ba3_bs_mobile/features/users_management/controllers/user_management_controller.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get_state_manager/src/simple/get_state.dart';
+import 'package:get/get.dart';
+
+import '../../../../core/constants/app_strings.dart';
 
 class AllAttendanceScreen extends StatelessWidget {
   const AllAttendanceScreen({
@@ -17,8 +19,8 @@ class AllAttendanceScreen extends StatelessWidget {
             SizedBox(
               child: Wrap(
                 alignment: WrapAlignment.center,
-                spacing: 5,
-                runSpacing: 5,
+                spacing: 20,
+                runSpacing: 20,
                 children: userManagementController.filteredUsersWithDetails.map((user) {
                   return Container(
                     padding: const EdgeInsets.all(8),
@@ -37,11 +39,11 @@ class AllAttendanceScreen extends StatelessWidget {
                       children: [
                         Text(user.userName!,
                             textAlign: TextAlign.center, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                        if (user.loginDelay == "لم يسجل بعد" && user.logoutDelay == "لم يسجل بعد")
-                          Text("لم يسجل بعد", style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold))
+                        if (user.loginDelay == AppStrings.notLoggedToday.tr && user.logoutDelay == AppStrings.notLoggedToday.tr)
+                          Text(AppStrings.notLoggedToday.tr, style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold))
                         else ...[
-                          Text("تأخير الدخول: ${user.loginDelay ?? 'لا يوجد'}", textAlign: TextAlign.center),
-                          Text("الخروج مبكرا: ${user.logoutDelay ?? 'لا يوجد'}", textAlign: TextAlign.center),
+                          Text("${AppStrings.delayedEntry.tr}: ${user.loginDelay ?? AppStrings.nothing.tr}"),
+                          Text("${AppStrings.leaveEarly.tr}: ${user.logoutDelay ?? AppStrings.nothing.tr}"),
                         ],
                       ],
                     ),

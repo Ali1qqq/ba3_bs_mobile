@@ -45,7 +45,7 @@ class ChequesDataSource extends RemoteDatasourceBase<ChequesModel> with Firestor
 
   Future<ChequesModel> _assignChequeNumber(ChequesModel cheque) async {
     final newChequesNumber = await getNextNumber(path, ChequesType.byTypeGuide(cheque.chequesTypeGuid!).value);
-    return cheque.copyWith(chequesNumber: newChequesNumber);
+    return cheque.copyWith(chequesNumber: newChequesNumber.nextNumber);
   }
 
   Future<Map<String, dynamic>> _saveChequeData(String? chequeId, Map<String, dynamic> data) async =>

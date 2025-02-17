@@ -23,7 +23,7 @@ class MaterialsLocalDatasource extends LocalDatasourceBase<MaterialModel> {
   Future<List<MaterialModel>> getAllData() => database.fetchAll();
 
   @override
-  Future<MaterialModel?> getDataById(String id) => database.fetchById(id);
+  MaterialModel? getDataById(String id) => database.fetchById(id);
 
   @override
   Future<void> removeData(MaterialModel item) {

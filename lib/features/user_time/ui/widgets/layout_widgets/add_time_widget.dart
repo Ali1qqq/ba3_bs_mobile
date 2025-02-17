@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get_state_manager/src/rx_flutter/rx_obx_widget.dart';
 
 import '../../../../../core/helper/enums/enums.dart';
 import '../../../../../core/styling/app_text_style.dart';
 import '../../../../../core/widgets/app_button.dart';
 import '../../../../../core/widgets/organized_widget.dart';
-import '../../../controller/user_time_controller.dart';
+import '../../../../profile/controller/user_time_controller.dart';
 
 class AddTimeWidget extends StatelessWidget {
   const AddTimeWidget({
@@ -36,9 +37,12 @@ class AddTimeWidget extends StatelessWidget {
                     onPressed: () => userTimeController.checkLogInAndSave(),
                     isLoading: userTimeController.logInState.value == RequestState.loading,
                   ),
-                  Text(
-                    userTimeController.lastEnterTime.value,
-                    style: AppTextStyles.headLineStyle3,
+                  SizedBox(
+                    width: 125.w,
+                    child: Text(
+                      userTimeController.lastEnterTime.value,
+                      style: AppTextStyles.headLineStyle3,
+                    ),
                   ),
                 ],
               );
@@ -53,10 +57,13 @@ class AddTimeWidget extends StatelessWidget {
                     onPressed: () => userTimeController.checkLogOutAndSave(),
                     isLoading: userTimeController.logOutState.value == RequestState.loading,
                   ),
-                  Text(
-                    userTimeController.lastOutTime.value,
-                    style: AppTextStyles.headLineStyle3,
-                  ),
+                  SizedBox(
+                    width: 125.w,
+                    child: Text(
+                      userTimeController.lastOutTime.value,
+                      style: AppTextStyles.headLineStyle3,
+                    ),
+                  )
                 ],
               );
             }),

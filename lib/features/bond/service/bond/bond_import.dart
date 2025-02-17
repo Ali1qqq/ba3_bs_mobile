@@ -42,7 +42,7 @@ class BondImport extends ImportServiceBase<BondModel> with FirestoreSequentialNu
   _setLastNumber() async {
     bondsNumbers.forEach(
       (billTypeGuid, number) async {
-        await satNumber(ApiConstants.bonds, BondType.byTypeGuide(billTypeGuid).label, number);
+        await setLastUsedNumber(ApiConstants.bonds, BondType.byTypeGuide(billTypeGuid).label, number);
       },
     );
   }

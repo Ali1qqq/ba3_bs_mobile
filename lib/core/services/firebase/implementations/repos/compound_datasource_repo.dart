@@ -1,9 +1,9 @@
 import 'dart:developer';
 
-import 'package:ba3_bs_mobile/core/models/query_filter.dart';
 import 'package:dartz/dartz.dart';
 
 import '../../../../models/date_filter.dart';
+import '../../../../models/query_filter.dart';
 import '../../../../network/error/error_handler.dart';
 import '../../../../network/error/failure.dart';
 import '../../interfaces/compound_datasource_base.dart';
@@ -84,11 +84,11 @@ class CompoundDatasourceRepository<T, I> {
     }
   }
 
-  Future<Either<Failure, Map<I, List<T>>>> saveAllNested(
-    List<T> items,
-    List<I> itemIdentifiers,
+  Future<Either<Failure, Map<I, List<T>>>> saveAllNested({
+    required List<T> items,
+    required List<I> itemIdentifiers,
     void Function(double progress)? onProgress,
-  ) async {
+  }) async {
     try {
       final savedItems = await _dataSource.saveAllNested(items: items, itemIdentifiers: itemIdentifiers, onProgress: onProgress);
       return Right(savedItems); // Return the list of saved items

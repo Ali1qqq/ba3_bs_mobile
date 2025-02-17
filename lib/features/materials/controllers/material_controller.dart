@@ -2,6 +2,7 @@ import 'dart:developer';
 import 'dart:io';
 
 import 'package:ba3_bs_mobile/core/dialogs/search_material_group_text_dialog.dart';
+import 'package:ba3_bs_mobile/core/helper/extensions/basic/list_extensions.dart';
 import 'package:ba3_bs_mobile/core/helper/extensions/basic/string_extension.dart';
 import 'package:ba3_bs_mobile/core/helper/extensions/getx_controller_extensions.dart';
 import 'package:ba3_bs_mobile/core/helper/mixin/app_navigator.dart';
@@ -13,6 +14,7 @@ import 'package:ba3_bs_mobile/features/materials/controllers/material_group_cont
 import 'package:ba3_bs_mobile/features/materials/data/models/materials/material_group.dart';
 import 'package:ba3_bs_mobile/features/materials/service/material_from_handler.dart';
 import 'package:ba3_bs_mobile/features/materials/service/material_service.dart';
+import 'package:ba3_bs_mobile/features/materials/ui/screens/add_material_screen.dart';
 import 'package:ba3_bs_mobile/features/users_management/controllers/user_management_controller.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
@@ -20,6 +22,7 @@ import 'package:get/get.dart';
 import 'package:logger/logger.dart';
 
 import '../../../core/helper/enums/enums.dart';
+import '../../../core/helper/mixin/floating_launcher.dart';
 import '../../../core/network/api_constants.dart';
 import '../../../core/services/firebase/implementations/repos/listen_datasource_repo.dart';
 import '../../../core/services/firebase/implementations/services/firestore_uploader.dart';
@@ -27,7 +30,7 @@ import '../../../core/utils/app_service_utils.dart';
 import '../../../core/utils/app_ui_utils.dart';
 import '../data/models/materials/material_model.dart';
 
-class MaterialController extends GetxController with AppNavigator {
+class MaterialController extends GetxController with AppNavigator, FloatingLauncher {
   final ImportExportRepository<MaterialModel> _jsonImportExportRepo;
   final LocalDatasourceRepository<MaterialModel> _materialsHiveRepo;
   final ListenDataSourceRepository<ChangesModel> _listenDataSourceRepository;
@@ -126,7 +129,7 @@ class MaterialController extends GetxController with AppNavigator {
 
     result.fold(
       (failure) => AppUIUtils.onFailure(failure.message),
-      (_) => AppUIUtils.onSuccess("تم حذف المواد بنجاح"),
+      (_) => AppUIUtils.onSuccess('تم حذف المواد بنجاح'),
     );
   }
 
@@ -135,17 +138,19 @@ class MaterialController extends GetxController with AppNavigator {
 
   void _handelFetchAllMaterialFromLocalSuccess(List<MaterialModel> fetchedMaterial) async {
     saveAllMaterialsRequestState.value = RequestState.loading;
-    logger.d("fetchedMaterial.length ${fetchedMaterial.length}");
-    logger.d("new Materials length ${_materialService.getAllMaterialNotExist(materials, fetchedMaterial).length}");
 
-    if (_materialService.getAllMaterialNotExist(materials, fetchedMaterial).isNotEmpty) {
+    log("fetchedMaterial length ${fetchedMaterial.length}");
+    log('current Materials length is ${materials.length}');
+
+    final newMaterials = fetchedMaterial.subtract(materials, (mat) => mat.matName);
+    log('newMaterials length is ${newMaterials.length}');
+
+    if (newMaterials.isNotEmpty) {
       // Show progress in the UI
       FirestoreUploader firestoreUploader = FirestoreUploader();
+
       await firestoreUploader.sequentially(
-        data: _materialService
-            .getAllMaterialNotExist(materials, fetchedMaterial)
-            .map((item) => {...item.toJson(), 'docId': item.id})
-            .toList(),
+        data: newMaterials.map((item) => {...item.toJson(), 'docId': item.id}).toList(),
         collectionPath: ApiConstants.materials,
         onProgress: (progress) {
           uploadProgress.value = progress; // Update progress
@@ -169,46 +174,49 @@ class MaterialController extends GetxController with AppNavigator {
       log('Materials list is empty');
     }
 
-    // تحويل الأرقام العربية إلى إنجليزية
     query = AppServiceUtils.replaceArabicNumbersWithEnglish(query);
     String lowerQuery = query.toLowerCase().trim();
 
-    // تقسيم الإدخال إلى كلمات مع إزالة الفراغات الزائدة
-    List<String> searchParts = lowerQuery.split(RegExp(r'\s+')); // يدعم أي عدد من الفراغات
+    List<String> searchParts = lowerQuery.split(RegExp(r'\s+'));
 
-    // 1️⃣ البحث عن تطابق كامل
+    // Check for exact match first
     var exactMatch = materials.firstWhereOrNull(
       (item) =>
           item.matName!.toLowerCase() == lowerQuery ||
           item.matCode!.toString().toLowerCase() == lowerQuery ||
-          (item.matBarCode != null && item.matBarCode!.toLowerCase() == lowerQuery),
+          (item.matBarCode != null && item.matBarCode!.toLowerCase() == lowerQuery) ||
+          (item.serialNumbers != null && item.serialNumbers!.keys.any((serial) => serial.toLowerCase() == lowerQuery)),
     );
 
     if (exactMatch != null) {
-      return [exactMatch]; // إرجاع المنتج المطابق فقط
+      return [exactMatch];
     }
 
-    // 2️⃣ البحث عن المنتجات التي يبدأ اسمها أو كودها بالكلمات المدخلة
+    // Check for matches where name, code, barcode, or serial numbers start with the query
     var startsWithMatches = materials
         .where(
           (item) =>
               searchParts.every((part) => item.matName!.toLowerCase().startsWith(part)) ||
               searchParts.every((part) => item.matCode.toString().toLowerCase().startsWith(part)) ||
-              (item.matBarCode != null && searchParts.every((part) => item.matBarCode!.toLowerCase().startsWith(part))),
+              (item.matBarCode != null && searchParts.every((part) => item.matBarCode!.toLowerCase().startsWith(part))) ||
+              (item.serialNumbers != null &&
+                  searchParts.every((part) => item.serialNumbers!.keys.any((serial) => serial.toLowerCase().startsWith(part)))),
         )
         .toList();
 
     if (startsWithMatches.isNotEmpty) {
-      return startsWithMatches; // إرجاع المنتجات التي تبدأ بالكلمات المدخلة
+      return startsWithMatches;
     }
 
-    // 3️⃣ البحث عن أي تطابق جزئي لكل الكلمات المدخلة
+    // Check for matches where name, code, barcode, or serial numbers contain the query
     return materials
         .where(
           (item) =>
               searchParts.every((part) => item.matName.toString().toLowerCase().contains(part)) ||
               searchParts.every((part) => item.matCode.toString().toLowerCase().contains(part)) ||
-              (item.matBarCode != null && searchParts.every((part) => item.matBarCode!.toLowerCase().contains(part))),
+              (item.matBarCode != null && searchParts.every((part) => item.matBarCode!.toLowerCase().contains(part))) ||
+              (item.serialNumbers != null &&
+                  searchParts.every((part) => item.serialNumbers!.keys.any((serial) => serial.toLowerCase().contains(part)))),
         )
         .toList();
   }
@@ -232,6 +240,11 @@ class MaterialController extends GetxController with AppNavigator {
     return materials.firstWhereOrNull((material) => material.id == id);
   }
 
+  bool doesMaterialExist(String? materialName) {
+    if (materialName == null) return false;
+    return materials.any((material) => material.matName?.trim() == materialName.trim());
+  }
+
   MaterialModel? getMaterialByName(name) {
     // log('name $name');
     // log(materials.where((element) => (element.matName!.toLowerCase().contains(name.toLowerCase()))).firstOrNull.toString());
@@ -245,6 +258,7 @@ class MaterialController extends GetxController with AppNavigator {
     // Validate the input before proceeding
 
     if (!materialFromHandler.validate()) return;
+
     // Create a material model based on the user input
     final updatedMaterialModel = _createMaterialModel();
     // Handle null material model
@@ -254,6 +268,19 @@ class MaterialController extends GetxController with AppNavigator {
     }
     // Prepare user change queue for saving
     final userChangeQueue = _prepareUserChangeQueue(updatedMaterialModel, selectedMaterial != null ? ChangeType.update : ChangeType.add);
+    // Save changes and handle results
+    final changesResult = await _listenDataSourceRepository.saveAll(userChangeQueue);
+    changesResult.fold(
+      (failure) => AppUIUtils.onFailure(failure.message),
+      (_) => _onSaveSuccess(updatedMaterialModel),
+    );
+
+    _onSaveSuccess(updatedMaterialModel);
+  }
+
+  Future<void> updateMaterial(MaterialModel updatedMaterialModel, {ChangeType changeType = ChangeType.update}) async {
+    // Prepare user change queue for saving
+    final userChangeQueue = _prepareUserChangeQueue(updatedMaterialModel, changeType);
 
     // Save changes and handle results
     final changesResult = await _listenDataSourceRepository.saveAll(userChangeQueue);
@@ -262,6 +289,8 @@ class MaterialController extends GetxController with AppNavigator {
       (failure) => AppUIUtils.onFailure(failure.message),
       (_) => _onSaveSuccess(updatedMaterialModel),
     );
+
+    _onSaveSuccess(updatedMaterialModel);
   }
 
   void deleteMaterial() async {
@@ -324,8 +353,7 @@ class MaterialController extends GetxController with AppNavigator {
       (savedMaterial) {
         AppUIUtils.onSuccess('تم الحفظ بنجاح');
         reloadMaterials();
-        log('materials length after add item: ${materials.length}');
-        log('material is  ${materials.length}');
+        // log('materials length after add item: ${materials.length}');
       },
     );
   }
@@ -347,11 +375,13 @@ class MaterialController extends GetxController with AppNavigator {
     );
   }
 
-  void navigateToAddOrUpdateMaterialScreen({String? matId}) {
+  void navigateToAddOrUpdateMaterialScreen({String? matId, required BuildContext context}) {
     selectedMaterial = null;
     if (matId != null) selectedMaterial = getMaterialById(matId);
+
     materialFromHandler.init(selectedMaterial);
-    to(AppRoutes.addMaterialScreen);
+    launchFloatingWindow(context: context, minimizedTitle: ApiConstants.materials.tr, floatingScreen: AddMaterialScreen());
+    // to(AppRoutes.addMaterialScreen);
   }
 
   void openMaterialSelectionDialog({
@@ -372,18 +402,41 @@ class MaterialController extends GetxController with AppNavigator {
   /// Updates a material's data using a provided update function.
   /// This function finds the material by `matId`, applies `updateFn` to modify it,
   /// and then saves the updated material.
-  Future<void> updateMaterial(String matId, MaterialModel Function(MaterialModel) updateFn) async {
+  Future<void> updateAndSaveMaterial(String matId, MaterialModel Function(MaterialModel) updateFn) async {
     final materialModel = materials.firstWhere((material) => material.id == matId);
     materialFromHandler.init(updateFn(materialModel));
     await saveOrUpdateMaterial();
   }
 
+  Future<void> updateMaterialByModel(MaterialModel materialModel, MaterialModel Function(MaterialModel) updateFn) async {
+    materialFromHandler.init(updateFn(materialModel));
+    await saveOrUpdateMaterial();
+  }
+
+  resetMaterialQuantityAndPrice() async {
+    log(materials
+        .where(
+          (element) => element.matQuantity != 0 || element.calcMinPrice != 0,
+        )
+        .length
+        .toString());
+    for (final material in materials.where(
+      (element) => element.matQuantity != 0 || element.calcMinPrice != 0,
+    )) {
+      await updateMaterialByModel(
+        material,
+        (materialUpdate) => materialUpdate.copyWith(matQuantity: 0, calcMinPrice: 0),
+      );
+    }
+    log("Finished");
+  }
+
   /// Increases the quantity of a material by a given amount.
   /// Uses `updateMaterial` to modify `matQuantity`.
   Future<void> updateMaterialQuantity(String matId, int quantity) async {
-    await updateMaterial(
+    await updateAndSaveMaterial(
       matId,
-          (material) => material.copyWith(
+      (material) => material.copyWith(
         matQuantity: (material.matQuantity ?? 0) + quantity,
       ),
     );
@@ -392,7 +445,7 @@ class MaterialController extends GetxController with AppNavigator {
   /// Sets the quantity of a material to a specific value.
   /// Unlike `updateMaterialQuantity`, this function replaces the quantity instead of adding to it.
   Future<void> setMaterialQuantity(String matId, int quantity) async {
-    await updateMaterial(matId, (material) => material.copyWith(matQuantity: quantity));
+    await updateAndSaveMaterial(matId, (material) => material.copyWith(matQuantity: quantity));
   }
 
   /// Updates both the quantity and minimum price of a material.
@@ -403,9 +456,9 @@ class MaterialController extends GetxController with AppNavigator {
     required double priceInStatement,
     required int quantityInStatement,
   }) async {
-    await updateMaterial(
+    await updateAndSaveMaterial(
       matId,
-          (material) => material.copyWith(
+      (material) => material.copyWith(
         matQuantity: (material.matQuantity ?? 0) + quantity,
         calcMinPrice: _calcMinPrice(
           oldMinPrice: material.calcMinPrice ?? 0,
@@ -424,9 +477,9 @@ class MaterialController extends GetxController with AppNavigator {
     required int quantity,
     required double currentMinPrice,
   }) async {
-    await updateMaterial(
+    await updateAndSaveMaterial(
       matId,
-          (material) => material.copyWith(
+      (material) => material.copyWith(
         matQuantity: quantity,
         calcMinPrice: currentMinPrice,
       ),
@@ -444,9 +497,6 @@ class MaterialController extends GetxController with AppNavigator {
     required int quantityInStatement,
   }) {
     int totalQuantity = oldQuantity + quantityInStatement;
-    return totalQuantity > 0
-        ? ((oldMinPrice * oldQuantity) + (priceInStatement * quantityInStatement)) / totalQuantity
-        : 0.0;
+    return totalQuantity > 0 ? ((oldMinPrice * oldQuantity) + (priceInStatement * quantityInStatement)) / totalQuantity : 0.0;
   }
-
 }

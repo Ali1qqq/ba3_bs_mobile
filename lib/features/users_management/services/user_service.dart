@@ -1,5 +1,7 @@
+import 'package:ba3_bs_mobile/core/constants/app_strings.dart';
 import 'package:ba3_bs_mobile/core/helper/enums/enums.dart';
 import 'package:ba3_bs_mobile/features/users_management/data/models/user_model.dart';
+import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
 class UserService {
@@ -49,7 +51,7 @@ class UserService {
     // التحقق من وجود البيانات
     final dateList = isLogin ? timeModel?.logInDateList : timeModel?.logOutDateList;
     if (dateList == null) {
-      return "لم يسجل بعد";
+      return AppStrings.notLoggedToday.tr;
     }
     if (workingHours.isEmpty) {
       return 'لم يتم تسجيل الدوام له';
@@ -58,7 +60,7 @@ class UserService {
     int totalMinutes = 0;
 
     for (int i = 0; i < dateList.length; i++) {
-      final workingTime = isLogin ? workingHours.values.elementAt(i).enterTime : workingHours.values.elementAt(i).outTime;
+      final workingTime = isLogin ? workingHours.values.elementAtOrNull(i)?.enterTime : workingHours.values.elementAtOrNull(i)?.outTime;
 
       if (workingTime == null) {
         continue; // تخطي إذا كانت القيمة فارغة

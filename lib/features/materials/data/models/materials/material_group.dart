@@ -1,6 +1,6 @@
 import 'package:pluto_grid/pluto_grid.dart';
 
-import '../../../../../core/constants/app_strings.dart';
+import '../../../../../core/constants/app_constants.dart';
 import '../../../../../core/widgets/pluto_auto_id_column.dart';
 import '../../../../pluto/data/models/pluto_adaptable.dart';
 
@@ -96,7 +96,8 @@ class MaterialGroupModel implements PlutoAdaptable {
   @override
   Map<PlutoColumn, dynamic> toPlutoGridFormat([type]) {
     return {
-      PlutoColumn(title: 'الرقم التعريفي', field: AppStrings.materialGroupIdFiled, type: PlutoColumnType.text(), hide: true): matGroupGuid,
+      PlutoColumn(title: 'الرقم التعريفي', field: AppConstants.materialGroupIdFiled, type: PlutoColumnType.text(), hide: true):
+          matGroupGuid,
       createAutoIdColumn(): '',
       PlutoColumn(title: 'اسم المجموعة', field: 'اسم المادة', type: PlutoColumnType.text()): groupName,
       PlutoColumn(title: 'رمز المجموعة', field: 'رمز المادة', type: PlutoColumnType.text()): groupCode,

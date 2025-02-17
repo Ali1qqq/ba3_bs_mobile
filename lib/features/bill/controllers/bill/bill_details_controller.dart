@@ -7,19 +7,26 @@ import 'package:ba3_bs_mobile/core/helper/mixin/app_navigator.dart';
 import 'package:ba3_bs_mobile/core/helper/validators/app_validator.dart';
 import 'package:ba3_bs_mobile/core/i_controllers/i_bill_controller.dart';
 import 'package:ba3_bs_mobile/core/interfaces/i_store_selection_handler.dart';
+import 'package:ba3_bs_mobile/core/services/firebase/implementations/repos/queryable_savable_repo.dart';
 import 'package:ba3_bs_mobile/features/bill/controllers/bill/bill_search_controller.dart';
 import 'package:ba3_bs_mobile/features/bill/data/models/bill_model.dart';
 import 'package:ba3_bs_mobile/features/bill/services/bill/bill_utils.dart';
 import 'package:ba3_bs_mobile/features/sellers/controllers/sellers_controller.dart';
+import 'package:dartz/dartz.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../../../core/constants/app_strings.dart';
 import '../../../../core/helper/enums/enums.dart';
 import '../../../../core/helper/extensions/getx_controller_extensions.dart';
+import '../../../../core/network/api_constants.dart';
+import '../../../../core/network/error/failure.dart';
 import '../../../../core/services/firebase/implementations/repos/compound_datasource_repo.dart';
+import '../../../../core/services/firebase/implementations/services/firestore_sequential_numbers.dart';
 import '../../../../core/utils/app_ui_utils.dart';
 import '../../../accounts/data/models/account_model.dart';
+import '../../../materials/controllers/material_controller.dart';
+import '../../../materials/data/models/materials/material_model.dart';
 import '../../../patterns/data/models/bill_type_model.dart';
 import '../../../print/controller/print_controller.dart';
 import '../../data/models/bill_items.dart';
@@ -28,15 +35,20 @@ import '../../services/bill/account_handler.dart';
 import '../../services/bill/bill_service.dart';
 import '../pluto/bill_details_pluto_controller.dart';
 
-class BillDetailsController extends IBillController with AppValidator, AppNavigator implements IStoreSelectionHandler {
+class BillDetailsController extends IBillController
+    with AppValidator, AppNavigator, FirestoreSequentialNumbers
+    implements IStoreSelectionHandler {
   // Repositories
 
   final CompoundDatasourceRepository<BillModel, BillTypeModel> _billsFirebaseRepo;
+
+  final QueryableSavableRepository<SerialNumberModel> _serialNumbersRepo;
   final BillDetailsPlutoController billDetailsPlutoController;
   final BillSearchController billSearchController;
 
   BillDetailsController(
-    this._billsFirebaseRepo, {
+    this._billsFirebaseRepo,
+    this._serialNumbersRepo, {
     required this.billDetailsPlutoController,
     required this.billSearchController,
   });
@@ -107,7 +119,10 @@ class BillDetailsController extends IBillController with AppValidator, AppNaviga
 
   // Initializer
   void _initializeServices() {
-    _billService = BillDetailsService(billDetailsPlutoController, this);
+    _billService = BillDetailsService(
+      plutoController: billDetailsPlutoController,
+      billDetailsController: this,
+    );
     _billUtils = BillUtils();
     _accountHandler = AccountHandler();
   }
@@ -163,17 +178,12 @@ class BillDetailsController extends IBillController with AppValidator, AppNaviga
     );
   }
 
-  Future<void> deleteBill(BillModel billModel, {bool fromBillById = false}) async {
-    log('billModel json ${billModel.toJson()}');
+  Future<void> deleteBill(BillModel billModel) async {
     final result = await _billsFirebaseRepo.delete(billModel);
 
     result.fold(
       (failure) => AppUIUtils.onFailure(failure.message),
-      (success) => _billService.handleDeleteSuccess(
-        billModel: billModel,
-        billSearchController: billSearchController,
-        fromBillById: fromBillById,
-      ),
+      (success) => _billService.handleDeleteSuccess(billToDelete: billModel, billSearchController: billSearchController),
     );
   }
 
@@ -226,8 +236,95 @@ class BillDetailsController extends IBillController with AppValidator, AppNaviga
     );
   }
 
-  appendNewBill({required BillTypeModel billTypeModel, required int lastBillNumber}) {
-    BillModel newBill = BillModel.empty(billTypeModel: billTypeModel, lastBillNumber: lastBillNumber);
+  Future<void> saveSerialNumbers(BillModel billModel, Map<MaterialModel, List<TextEditingController>> serialControllers) async {
+    // Create a list to collect the serial number models.
+    final List<SerialNumberModel> items = [];
+
+    if (billModel.billTypeModel.billPatternType == BillPatternType.purchase) {
+      // Iterate through each material's controllers.
+      serialControllers.forEach((material, controllers) {
+        for (final controller in controllers) {
+          final serialText = controller.text.trim();
+          // If the text is not empty, create a SerialNumberModel.
+          if (serialText.isNotEmpty) {
+            items.add(
+              SerialNumberModel(
+                serialNumber: serialText,
+                matId: material.id,
+                matName: material.matName,
+                buyBillId: billModel.billId,
+                buyBillNumber: billModel.billDetails.billNumber,
+                entryDate: billModel.billDetails.billDate,
+                sold: false,
+              ),
+            );
+          }
+        }
+      });
+
+      // Save all the serial numbers using your repository.
+      final result = await _serialNumbersRepo.saveAll(items);
+
+      // Handle the result of the save operation.
+      result.fold(
+        (failure) => AppUIUtils.onFailure(failure.message),
+        (success) {
+          // Update the material's serial numbers after saving successfully.
+          serialControllers.forEach(
+            (material, controllers) {
+              final materialModel = read<MaterialController>().getMaterialById(material.id!);
+
+              if (materialModel != null) {
+                final updatedSerialNumbers = {
+                  ...?materialModel.serialNumbers, // Preserve existing serials if any
+                  for (final controller in controllers) controller.text.trim(): false, // New serials default to unsold
+                };
+
+                // Update the material model with new serial numbers
+                read<MaterialController>().updateMaterial(materialModel.copyWith(serialNumbers: updatedSerialNumbers));
+              }
+            },
+          );
+
+          // Optionally, show a success message or perform further actions.
+          AppUIUtils.onSuccess('Serial numbers saved successfully.');
+        },
+      );
+    }
+  }
+
+  onSaveSerialsSuccess(
+      {required Map<MaterialModel, List<TextEditingController>> serialControllers, required Map<String, bool> updatedSerialNumbers}) {
+    // Update the material's serial numbers after saving successfully.
+    serialControllers.forEach(
+      (material, controllers) {
+        final materialModel = read<MaterialController>().getMaterialById(material.id!);
+
+        if (materialModel != null) {
+          final updatedSerialNumbers = {
+            ...?materialModel.serialNumbers, // Preserve existing serials if any
+            for (final controller in controllers) controller.text.trim(): false, // New serials default to unsold
+          };
+
+          // Update the material model with new serial numbers
+          read<MaterialController>().updateMaterial(materialModel.copyWith(serialNumbers: updatedSerialNumbers));
+        }
+      },
+    );
+
+    // Optionally, show a success message or perform further actions.
+    AppUIUtils.onSuccess('Serial numbers saved successfully.');
+  }
+
+  Future<Either<Failure, BillModel>> updateOnly(BillModel bill) async {
+    final result = await _billsFirebaseRepo.save(bill);
+
+    return result;
+  }
+
+  appendNewBill({required BillTypeModel billTypeModel, required int lastBillNumber, int? previousBillNumber}) {
+    BillModel newBill =
+        BillModel.empty(billTypeModel: billTypeModel, lastBillNumber: lastBillNumber, previousBillNumber: previousBillNumber);
 
     billSearchController.insertLastAndUpdate(newBill);
   }
@@ -280,6 +377,15 @@ class BillDetailsController extends IBillController with AppValidator, AppNaviga
     );
   }
 
+  Future<int> getLastBillNumberForType(BillTypeModel billTypeModel) async {
+    int billsCountByType = await getLastNumber(
+      category: ApiConstants.bills,
+      entityType: billTypeModel.billTypeLabel!,
+    );
+
+    return billsCountByType;
+  }
+
   prepareBillRecords(BillItems billItems, BillDetailsPlutoController billDetailsPlutoController) =>
       billDetailsPlutoController.prepareBillMaterialsRows(
         billItems.getMaterialRecords,
@@ -308,7 +414,7 @@ class BillDetailsController extends IBillController with AppValidator, AppNaviga
 
     setBillDate = bill.billDetails.billDate!;
     isBillSaved.value = bill.billId != null;
-    noteController.text = bill.billDetails.note ?? '';
+    noteController.text = bill.billDetails.billNote ?? '';
     firstPayController.text = (bill.billDetails.billFirstPay ?? 0.0).toString();
 
     initBillNumberController(bill.billDetails.billNumber);
@@ -329,7 +435,7 @@ class BillDetailsController extends IBillController with AppValidator, AppNaviga
     if (!_billService.hasModelItems(billModel.items.itemList)) return;
 
     _billService.generateAndSendPdf(
-      fileName: AppStrings.existedBill,
+      fileName: AppStrings.existedBill.tr,
       itemModel: billModel,
     );
   }

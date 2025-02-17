@@ -3,6 +3,8 @@ import 'package:get/get.dart';
 import '../../../../core/helper/mixin/controller_initializer.dart';
 import '../../../../core/helper/mixin/floating_launcher.dart';
 import '../../../../core/services/firebase/implementations/repos/compound_datasource_repo.dart';
+import '../../../../core/services/firebase/implementations/repos/queryable_savable_repo.dart';
+import '../../../materials/data/models/materials/material_model.dart';
 import '../../../patterns/data/models/bill_type_model.dart';
 import '../../controllers/bill/bill_details_controller.dart';
 import '../../controllers/bill/bill_search_controller.dart';
@@ -17,11 +19,12 @@ class FloatingBillDetailsLauncher extends GetxController with FloatingLauncher, 
 
     final billDetailsPlutoController = requireParam<BillDetailsPlutoController>(params, 'billDetailsPlutoController');
     final billSearchController = requireParam<BillSearchController>(params, 'billSearchController');
-    final billsFirebaseRepo =
-        requireParam<CompoundDatasourceRepository<BillModel, BillTypeModel>>(params, 'billsFirebaseRepo');
 
-    final billSearchControllerWithTag =
-        getOrCreateController<BillSearchController>(tag, controllerBuilder: () => billSearchController);
+    final billsFirebaseRepo = requireParam<CompoundDatasourceRepository<BillModel, BillTypeModel>>(params, 'billsFirebaseRepo');
+    final QueryableSavableRepository<SerialNumberModel> serialNumbersRepo =
+        requireParam<QueryableSavableRepository<SerialNumberModel>>(params, 'serialNumbersRepo');
+
+    final billSearchControllerWithTag = getOrCreateController<BillSearchController>(tag, controllerBuilder: () => billSearchController);
 
     final billDetailsPlutoControllerWithTag =
         getOrCreateController<BillDetailsPlutoController>(tag, controllerBuilder: () => billDetailsPlutoController);
@@ -30,6 +33,7 @@ class FloatingBillDetailsLauncher extends GetxController with FloatingLauncher, 
       tag,
       controllerBuilder: () => BillDetailsController(
         billsFirebaseRepo,
+        serialNumbersRepo,
         billDetailsPlutoController: billDetailsPlutoControllerWithTag,
         billSearchController: billSearchControllerWithTag,
       ),

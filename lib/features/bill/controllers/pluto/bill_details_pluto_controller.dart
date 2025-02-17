@@ -380,6 +380,39 @@ class BillDetailsPlutoController extends IPlutoController<InvoiceRecordModel> {
     required BillTypeModel billTypeModel,
   }) =>
       _gridService.updateWithSelectedMaterial(materialModel, stateManager, plutoController, billTypeModel);
+
+  @override
+  void initSerialControllers(MaterialModel materialModel, int serialCount) {
+    serialControllers.update(
+      materialModel,
+      (existingList) => _matchControllerCount(existingList, serialCount),
+      ifAbsent: () => _createControllers(serialCount),
+    );
+  }
+
+  /// Ensures the [controllers] list has exactly [requiredCount] items.
+  /// Adds [TextEditingController] instances if there are fewer than required,
+  /// or disposes and removes any excess controllers.
+  List<TextEditingController> _matchControllerCount(List<TextEditingController> controllers, int requiredCount) {
+    final currentCount = controllers.length;
+
+    if (currentCount < requiredCount) {
+      // Add missing controllers
+      final needed = requiredCount - currentCount;
+      controllers.addAll(_createControllers(needed));
+    } else if (currentCount > requiredCount) {
+      // Dispose of and remove extras
+      for (var i = requiredCount; i < currentCount; i++) {
+        controllers[i].dispose();
+      }
+      controllers.removeRange(requiredCount, currentCount);
+    }
+
+    return controllers;
+  }
+
+  /// Creates a list of [TextEditingController] with [count] items.
+  List<TextEditingController> _createControllers(int count) => List.generate(count, (_) => TextEditingController());
 }
 
 // 530 - 236

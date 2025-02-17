@@ -95,7 +95,7 @@ class BondCompoundDatasource extends CompoundDatasourceBase<BondModel, BondType>
 
   Future<BondModel> _assignBondNumber(BondModel bond) async {
     final newBondNumber = await getNextNumber(rootCollectionPath, BondType.byTypeGuide(bond.payTypeGuid!).label);
-    return bond.copyWith(payNumber: newBondNumber);
+    return bond.copyWith(payNumber: newBondNumber.nextNumber);
   }
 
   Future<Map<String, dynamic>> _saveBondData(
@@ -196,8 +196,7 @@ class BondCompoundDatasource extends CompoundDatasourceBase<BondModel, BondType>
   }
 
   @override
-  Future<double?> fetchMetaData({required String id, required BondType
-  itemIdentifier}) {
+  Future<double?> fetchMetaData({required String id, required BondType itemIdentifier}) {
     // TODO: implement fetchMetaData
     throw UnimplementedError();
   }
