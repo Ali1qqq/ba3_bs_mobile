@@ -5,7 +5,7 @@ abstract class ILocalDatabaseService<T> {
 
   Future<List<T>> fetchAll();
 
-  Future<T?> fetchById(String id);
+  T? fetchById(String id);
 
   Future<void> update(String id, T data);
 

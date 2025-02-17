@@ -6,7 +6,7 @@ abstract class AppConstants {
 
   static const EnvType env = EnvType.debug; //"debug" or "release"
   static const vatGCC = 0.05;
-  static const constHeightTextField = 30.0;
+  static const constHeightTextField = 25.0;
   static const vat0_01 = 0.01;
   static const rowCustomBondAmount = 'rowCustomBondAmount';
   static const rowBondId = 'id';
@@ -83,13 +83,6 @@ abstract class AppConstants {
   static const rowProductInvId = "rowProductInvId";
   static const productTypeService = "productTypeService";
   static const productTypeStore = "productTypeStore";
-
-  ////////////--------------------------------------------------
-  static const bondTypeDaily = /*"سند يومية";*/ "bondTypeDaily";
-  static const bondTypeDebit = /*"سند قبض";*/ "bondTypeDebit";
-  static const bondTypeCredit = /*"سند دفع";*/ "bondTypeCredit";
-  static const bondTypeStart = /*"قيد افتتاحي";*/ "bondTypeStart";
-  static const bondTypeInvoice = /*"سند قيد";*/ "bondTypeInvoice";
 
   ////////////--------------------------------------------------
   static const patId = "patId";
@@ -378,7 +371,40 @@ abstract class AppConstants {
 
   static const String userIdKey = 'userIdKey';
 
-  static const String recipientEmail = 'burjalarab000@gmail.com';
-// static const String recipientEmail = 'ahmed.zein1896@gmail.com';
-// static const String recipientEmail = 'alidabol567@gmail.com';
+  //static const String recipientEmail = 'burjalarab000@gmail.com';
+  static const String recipientEmail = 'ahmed.zein1896@gmail.com';
+
+  // static const String recipientEmail = 'alidabol567@gmail.com';
+
+  static const int maxItemsPerBill = 100;
+
+  static const List<String> locales = [
+    'ar',
+    'en',
+    'ur',
+    'fr',
+    'de',
+    'zh',
+  ];
+
+  static const String appLocalLangBox = 'appLocalLangBox';
+
+  static const String defaultLangCode = 'en';
+
+  static const String chequeToAccountId = '7d471b63-4499-4c2f-ba99-21912c8b98b5';
+  static const String chequeToAccountName = 'اوراق الدفع';
+  static const String bankAccountId = 'a3fe9771-c9cf-4790-b782-c1c3977bcd99';
+  static const String bankToAccountName = 'المصرف';
+  static const String returnTaxAccountId = '81e6d822-e3ee-4f42-92bf-f96eed4a0045';
+  static const String returnTaxAccountName = 'استرداد ضريبة القيمة المضافة رأس الخيمة';
+
+  static const double targetLatitude = 25.793679566610773; // Latitude المنطقة المستهدفة
+  static const double targetLongitude = 55.948330278435; // Longitude المنطقة المستهدفة
+  static const double radiusInMeters = 25;
+  static const double secondTargetLatitude = 25.765046214850365; // Latitude المنطقة المستهدفة
+  static const double secondTargetLongitude = 55.970645196084746; // Longitude المنطقة المستهدفة
+  static const double secondRadiusInMeters = 50;
+  static const String materialIdFiled = 'materialIdFiled';
+  static const String materialGroupIdFiled = 'materialGroupIdFiled';
+  static const String userIdFiled = 'userIdFiled';
 }

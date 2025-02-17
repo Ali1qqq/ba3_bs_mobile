@@ -1,4 +1,4 @@
-import 'package:ba3_bs_mobile/core/services/local_database/interfaces/i_local_database_service.dart';
+import 'i_local_database_service.dart';
 
 abstract class LocalDatasourceBase<T> {
   final ILocalDatabaseService<T> database;
@@ -11,7 +11,7 @@ abstract class LocalDatasourceBase<T> {
 
   Future<List<T>> getAllData();
 
-  Future<T?> getDataById(String id);
+  T? getDataById(String id);
 
   Future<void> updateData(T item);
 

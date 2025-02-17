@@ -23,7 +23,7 @@ class HiveDatabaseService<T> implements ILocalDatabaseService<T> {
   }
 
   @override
-  Future<T?> fetchById(String id) async {
+  T? fetchById(String id) {
     return _box.get(id); // Fetch a specific object by ID
   }
 

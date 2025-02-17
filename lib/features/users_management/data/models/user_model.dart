@@ -3,7 +3,7 @@ import 'package:ba3_bs_mobile/features/pluto/data/models/pluto_adaptable.dart';
 import 'package:flutter/material.dart';
 import 'package:pluto_grid/pluto_grid.dart';
 
-import '../../../../core/constants/app_strings.dart';
+import '../../../../core/constants/app_constants.dart';
 import '../../../../core/helper/enums/enums.dart';
 import '../../../../core/widgets/pluto_auto_id_column.dart';
 
@@ -151,7 +151,7 @@ class UserModel implements PlutoAdaptable {
     return {
       PlutoColumn(
         title: 'الرقم التعريفي',
-        field: AppStrings.userIdFiled,
+        field: AppConstants.userIdFiled,
         type: PlutoColumnType.text(),
         hide: true,
       ): userId,

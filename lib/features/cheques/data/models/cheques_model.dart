@@ -1,5 +1,4 @@
 import 'package:ba3_bs_mobile/core/constants/app_constants.dart';
-import 'package:ba3_bs_mobile/core/constants/app_strings.dart';
 import 'package:ba3_bs_mobile/core/helper/enums/enums.dart';
 import 'package:ba3_bs_mobile/core/helper/extensions/basic/string_extension.dart';
 import 'package:ba3_bs_mobile/features/pluto/data/models/pluto_adaptable.dart';
@@ -318,8 +317,8 @@ class ChequesModel implements PlutoAdaptable {
     return ChequesModel(
       chequesNumber: lastChequesNumber + 1,
       chequesTypeGuid: chequesType.typeGuide,
-      chequesAccount2Guid: AppStrings.chequeToAccountId,
-      accPtrName: AppStrings.chequeToAccountName,
+      chequesAccount2Guid: AppConstants.chequeToAccountId,
+      accPtrName: AppConstants.chequeToAccountName,
       isPayed: false,
       chequesDate: DateTime.now().toString(),
       chequesDueDate: DateTime.now().toString(),

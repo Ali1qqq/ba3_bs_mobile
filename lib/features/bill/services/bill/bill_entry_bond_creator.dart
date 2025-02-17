@@ -1,4 +1,3 @@
-import 'package:ba3_bs_mobile/core/constants/app_strings.dart';
 import 'package:ba3_bs_mobile/core/helper/extensions/bill_pattern_type_extension.dart';
 import 'package:ba3_bs_mobile/core/helper/extensions/date_time_extensions.dart';
 import 'package:ba3_bs_mobile/core/helper/extensions/getx_controller_extensions.dart';
@@ -6,6 +5,7 @@ import 'package:ba3_bs_mobile/features/bill/data/models/bill_items.dart';
 import 'package:ba3_bs_mobile/features/bill/data/models/bill_model.dart';
 import 'package:ba3_bs_mobile/features/materials/controllers/material_controller.dart';
 
+import '../../../../core/constants/app_constants.dart';
 import '../../../../core/helper/enums/enums.dart';
 import '../../../../core/services/entry_bond_creator/implementations/base_entry_bond_creator.dart';
 import '../../../accounts/data/models/account_model.dart';
@@ -221,12 +221,12 @@ class BillEntryBondCreator extends BaseEntryBondCreator<BillModel> {
     final accountId = item.matVatGuid == null
         ? VatEnums.withVat.taxAccountGuid
         : billTypeModel.billPatternType == BillPatternType.purchase || billTypeModel.billPatternType == BillPatternType.salesReturn
-            ? AppStrings.returnTaxAccountId
+            ? AppConstants.returnTaxAccountId
             : VatEnums.byGuid(item.matVatGuid!).taxAccountGuid;
     final note = 'ضريبة ${billTypeModel.shortName} عدد $quantity من ${item.matName}';
     final String accountName =
         billTypeModel.billPatternType == BillPatternType.purchase || billTypeModel.billPatternType == BillPatternType.salesReturn
-            ? AppStrings.returnTaxAccountName
+            ? AppConstants.returnTaxAccountName
             : 'ضريبة القيمة المضافة';
     return _createBondItem(
       amount: vat,

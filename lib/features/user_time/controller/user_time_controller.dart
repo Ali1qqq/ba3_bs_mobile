@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:get/get.dart';
 
-import '../../../core/constants/app_strings.dart';
+import '../../../core/constants/app_constants.dart';
 import '../../../core/helper/enums/enums.dart';
 import '../../../core/helper/extensions/getx_controller_extensions.dart';
 import '../../../core/services/firebase/implementations/repos/filterable_datasource_repo.dart';
@@ -60,10 +60,10 @@ class UserTimeController extends GetxController {
         return AppUIUtils.onFailure(failure.message);
       },
       (location) {
-        return isWithinRegion =
-            _userTimeServices.isWithinRegion(location, AppStrings.targetLatitude, AppStrings.targetLongitude, AppStrings.radiusInMeters) ||
-                _userTimeServices.isWithinRegion(
-                    location, AppStrings.secondTargetLatitude, AppStrings.secondTargetLongitude, AppStrings.secondRadiusInMeters);
+        return isWithinRegion = _userTimeServices.isWithinRegion(
+                location, AppConstants.targetLatitude, AppConstants.targetLongitude, AppConstants.radiusInMeters) ||
+            _userTimeServices.isWithinRegion(
+                location, AppConstants.secondTargetLatitude, AppConstants.secondTargetLongitude, AppConstants.secondRadiusInMeters);
       },
     );
 

@@ -1,8 +1,8 @@
-import 'package:ba3_bs_mobile/core/constants/app_strings.dart';
 import 'package:ba3_bs_mobile/features/users_management/controllers/user_management_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get_state_manager/src/simple/get_state.dart';
 
+import '../../../../../core/constants/app_constants.dart';
 import '../../../../../core/widgets/pluto_grid_with_app_bar_.dart';
 
 class UserTimeListScreen extends StatelessWidget {
@@ -17,7 +17,7 @@ class UserTimeListScreen extends StatelessWidget {
         tableSourceModels: userManagementController.filteredAllUsersWithNunTime,
         onLoaded: (event) {},
         onSelected: (selectedRow) {
-          final userId = selectedRow.row?.cells[AppStrings.userIdFiled]?.value;
+          final userId = selectedRow.row?.cells[AppConstants.userIdFiled]?.value;
           userManagementController.userNavigator.navigateToUserDetails(userId);
         },
       );

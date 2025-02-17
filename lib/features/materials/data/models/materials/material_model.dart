@@ -1,9 +1,9 @@
-import 'package:ba3_bs_mobile/core/constants/app_strings.dart';
 import 'package:ba3_bs_mobile/features/materials/controllers/material_group_controller.dart';
 import 'package:ba3_bs_mobile/features/pluto/data/models/pluto_adaptable.dart';
 import 'package:hive/hive.dart';
 import 'package:pluto_grid/pluto_grid.dart';
 
+import '../../../../../core/constants/app_constants.dart';
 import '../../../../../core/helper/extensions/getx_controller_extensions.dart';
 import '../../../../../core/widgets/pluto_auto_id_column.dart';
 
@@ -350,7 +350,7 @@ class MaterialModel extends HiveObject implements PlutoAdaptable {
   @override
   Map<PlutoColumn, dynamic> toPlutoGridFormat([type]) {
     return {
-      PlutoColumn(title: 'الرقم التعريفي', field: AppStrings.materialIdFiled, type: PlutoColumnType.text(), hide: true): id,
+      PlutoColumn(title: 'الرقم التعريفي', field: AppConstants.materialIdFiled, type: PlutoColumnType.text(), hide: true): id,
       createAutoIdColumn(): '',
       PlutoColumn(title: 'اسم المادة', field: 'اسم المادة', type: PlutoColumnType.text(), width: 400): matName,
       PlutoColumn(title: 'الكمية', field: 'الكمية', type: PlutoColumnType.text(), width: 120, textAlign: PlutoColumnTextAlign.center):
