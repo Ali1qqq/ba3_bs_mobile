@@ -94,8 +94,13 @@ class BillCompoundDatasource extends CompoundDatasourceBase<BillModel, BillTypeM
   }
 
   Future<BillModel> _assignBillNumber(BillModel bill) async {
-    final billNumber = await getNextNumber(rootCollectionPath, bill.billTypeModel.billTypeLabel!);
-    return bill.copyWith(billDetails: bill.billDetails.copyWith(billNumber: billNumber));
+    final billEntitySequence = await getNextNumber(rootCollectionPath, bill.billTypeModel.billTypeLabel!);
+    return bill.copyWith(
+      billDetails: bill.billDetails.copyWith(
+        billNumber: billEntitySequence.nextNumber,
+        previous: billEntitySequence.currentNumber,
+      ),
+    );
   }
 
   Future<Map<String, dynamic>> _saveBillData(
