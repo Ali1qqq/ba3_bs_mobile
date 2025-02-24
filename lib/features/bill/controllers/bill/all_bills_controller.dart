@@ -16,6 +16,7 @@ import 'package:dartz/dartz.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
+import 'package:pluto_grid/pluto_grid.dart';
 
 import '../../../../core/constants/app_strings.dart';
 import '../../../../core/helper/enums/enums.dart';
@@ -27,8 +28,10 @@ import '../../../../core/services/firebase/implementations/repos/compound_dataso
 import '../../../../core/services/firebase/implementations/repos/queryable_savable_repo.dart';
 import '../../../../core/services/firebase/implementations/repos/remote_datasource_repo.dart';
 import '../../../../core/utils/app_ui_utils.dart';
+import '../../../floating_window/controllers/floating_window_controller.dart';
 import '../../../materials/data/models/materials/material_model.dart';
 import '../../../materials/ui/serials_statement_screen.dart';
+import '../../../patterns/controllers/pattern_controller.dart';
 import '../../../patterns/data/models/bill_type_model.dart';
 import '../../data/models/bill_model.dart';
 import '../../services/bill/bill_utils.dart';
@@ -38,12 +41,12 @@ import 'bill_search_controller.dart';
 class AllBillsController extends FloatingBillDetailsLauncher
     with AppNavigator, EntryBondsGenerator, MatsStatementsGenerator, FirestoreSequentialNumbers {
   // Repositories
-  final RemoteDataSourceRepository<BillTypeModel> _patternsFirebaseRepo;
+
   final CompoundDatasourceRepository<BillModel, BillTypeModel> _billsFirebaseRepo;
   final QueryableSavableRepository<SerialNumberModel> _serialNumbersRepo;
   final ImportExportRepository<BillModel> _jsonImportExportRepo;
 
-  AllBillsController(this._patternsFirebaseRepo, this._billsFirebaseRepo, this._serialNumbersRepo, this._jsonImportExportRepo);
+  AllBillsController( this._billsFirebaseRepo, this._serialNumbersRepo, this._jsonImportExportRepo);
 
   // Services
   late final BillUtils _billUtils;
@@ -92,9 +95,7 @@ class AllBillsController extends FloatingBillDetailsLauncher
     read<MaterialController>().reloadMaterials();
   }
 
-  Future<void> refreshBillsTypes() async {
-    fetchBillsTypes();
-  }
+  Future<void> refreshBillsTypes() async => await fetchBillsTypes();
 
   int pendingBillsCounts(BillTypeModel billTypeModel) => pendingBillsCountsByType[billTypeModel] ?? 0;
 
@@ -182,8 +183,7 @@ class AllBillsController extends FloatingBillDetailsLauncher
   }
 
   Future<void> fetchPendingBills(BillTypeModel billTypeModel) async {
-    final result =
-        await _billsFirebaseRepo.fetchWhere(itemIdentifier: billTypeModel, field: ApiConstants.status, value: Status.pending.value);
+    final result = await _billsFirebaseRepo.fetchWhere(itemIdentifier: billTypeModel, field: ApiConstants.status, value: Status.pending.value);
 
     result.fold(
       (failure) => AppUIUtils.onFailure('لا يوجد فواتير معلقة في ${billTypeModel.fullName}'),
@@ -206,12 +206,9 @@ class AllBillsController extends FloatingBillDetailsLauncher
   Future<void> fetchBillsTypes() async {
     getBillsTypesRequestState.value = RequestState.loading;
 
-    final result = await _patternsFirebaseRepo.getAll();
+    final List<BillTypeModel> fetchedBillTypes = await read<PatternController>().getAllBillTypes();
 
-    result.fold(
-      (failure) => AppUIUtils.onFailure(failure.message),
-      (fetchedBillTypes) => _handleFetchBillTypesSuccess(fetchedBillTypes),
-    );
+    _handleFetchBillTypesSuccess(fetchedBillTypes);
   }
 
   Future<void> _handleFetchBillTypesSuccess(List<BillTypeModel> fetchedBillTypes) async {
@@ -224,6 +221,9 @@ class AllBillsController extends FloatingBillDetailsLauncher
   }
 
   Future<void> fetchPendingBillsCountsByTypes(List<BillTypeModel> fetchedBillTypes) async {
+    // Clear the existing counts to avoid accumulation
+    pendingBillsCountsByType.clear();
+
     final List<Future<void>> fetchTasks = [];
     final errors = <String>[]; // Collect error messages.
 
@@ -246,13 +246,15 @@ class AllBillsController extends FloatingBillDetailsLauncher
     // Wait for all tasks to complete.
     await Future.wait(fetchTasks);
 
-    // Handle errors if any.
     if (errors.isNotEmpty) {
       AppUIUtils.onFailure('Some counts failed to fetch: ${errors.join(', ')}');
     }
   }
 
   Future<void> fetchAllBillsCountsByTypes(List<BillTypeModel> fetchedBillTypes) async {
+    // Clear the existing counts to avoid accumulation
+    allBillsCountsByType.clear();
+
     final List<Future<void>> fetchTasks = [];
     final errors = <String>[]; // Collect error messages.
 
@@ -270,7 +272,6 @@ class AllBillsController extends FloatingBillDetailsLauncher
     // Wait for all tasks to complete.
     await Future.wait(fetchTasks);
 
-    // Handle errors if any.
     if (errors.isNotEmpty) {
       AppUIUtils.onFailure('Some counts failed to fetch: ${errors.join(', ')}');
     }
@@ -330,17 +331,15 @@ class AllBillsController extends FloatingBillDetailsLauncher
 
   // Opens the 'Bill Details' floating window.
 
-  Future<void> _openBillDetailsFloatingWindow(
-      {required BuildContext context, required int lastBillNumber, required BillModel currentBill}) async {
-    final String controllerTag = AppServiceUtils.generateUniqueTag('BillDetailsController');
+  Future<void> _openBillDetailsFloatingWindow({required BuildContext context, required int lastBillNumber, required BillModel currentBill}) async {
+    final String controllerTag = AppServiceUtils.generateUniqueTag('FloatingBillDetails');
 
     final Map<String, GetxController> controllers = setupControllers(
       params: {
         'tag': controllerTag,
         'billsFirebaseRepo': _billsFirebaseRepo,
         'serialNumbersRepo': _serialNumbersRepo,
-        'billDetailsPlutoController': BillDetailsPlutoController(billTypeModel: currentBill.billTypeModel),
-        'billSearchController': BillSearchController(),
+        'billTypeModel': currentBill.billTypeModel,
       },
     );
 
@@ -359,13 +358,22 @@ class AllBillsController extends FloatingBillDetailsLauncher
 
     launchFloatingWindow(
       context: context,
-      minimizedTitle: BillType.byLabel(currentBill.billTypeModel.billTypeLabel!).value,
+      tag: controllerTag,
+      minimizedTitle: BillType
+          .byLabel(currentBill.billTypeModel.billTypeLabel!)
+          .value,
       floatingScreen: BillDetailsScreen(
         billDetailsController: billDetailsController,
         billDetailsPlutoController: billDetailsPlutoController,
         billSearchController: billSearchController,
         tag: controllerTag,
       ),
+      onCloseCallback: () {
+        delete<BillSearchController>(tag: controllerTag, force: true);
+        delete<BillDetailsController>(tag: controllerTag, force: true);
+        delete<BillDetailsPlutoController>(tag: controllerTag, force: true);
+        delete<FloatingWindowController>(tag: controllerTag, force: true);
+      },
     );
   }
 
@@ -420,10 +428,39 @@ class AllBillsController extends FloatingBillDetailsLauncher
     final result = await _serialNumbersRepo.getById(serialNumberInput);
 
     result.fold(
-      (failure) => AppUIUtils.onFailure(failure.message),
-      (fetchedSerialNumberModel) {
-        serialNumberStatements.assign(fetchedSerialNumberModel);
+      (failure) => AppUIUtils.onFailure('⚠️ لم يتم العثور على أي فواتير  تم ذكر فيها هذا الرقم التسلسلي [$serialNumberInput] ❌'),
+      (SerialNumberModel fetchedSerialNumberModel) {
+        // Clear previous statements before adding new ones.
+        serialNumberStatements.clear();
 
+        // Iterate through transactions and create SerialTransactionModels.
+        List<SerialTransactionModel> transactionsList = [];
+
+        for (SerialTransactionModel transaction in fetchedSerialNumberModel.transactions) {
+          // Always add the transaction as a buy transaction
+          transactionsList.add(
+            SerialTransactionModel(
+              buyBillId: transaction.buyBillId,
+              buyBillNumber: transaction.buyBillNumber,
+              buyBillTypeId: transaction.buyBillTypeId,
+              sellBillId: transaction.sellBillId,
+              sellBillNumber: transaction.sellBillNumber,
+              sellBillTypeId: transaction.sellBillTypeId,
+              entryDate: transaction.entryDate,
+              sold: transaction.sold,
+              transactionOrigin: SerialTransactionOrigin(
+                serialNumber: fetchedSerialNumberModel.serialNumber,
+                matId: fetchedSerialNumberModel.matId,
+                matName: fetchedSerialNumberModel.matName,
+              ),
+            ),
+          );
+        }
+
+        // Assign the generated list to serialNumberStatements
+        serialNumberStatements.assignAll(transactionsList);
+
+        // Open the statement screen to display results
         launchFloatingWindow(
           context: context,
           floatingScreen: SerialsStatementScreenScreen(),
@@ -433,8 +470,30 @@ class AllBillsController extends FloatingBillDetailsLauncher
     );
   }
 
+  void onSerialSelected(PlutoGridOnSelectedEvent event, BuildContext context) {
+    // Extract cell values safely
+    final String? sold = event.row?.cells['sold']?.value;
+    final String? buyBillId = event.row?.cells['buyBillId']?.value;
+    final String? sellBillId = event.row?.cells['sellBillId']?.value;
+    final String? buyBillTypeId = event.row?.cells['buyBillTypeId']?.value;
+    final String? sellBillTypeId = event.row?.cells['sellBillTypeId']?.value;
+
+    // Determine bill details based on sold status
+    final bool isSold = sold == AppStrings.yes.tr;
+    final String? billId = isSold ? sellBillId : buyBillId;
+    final String? billTypeId = isSold ? sellBillTypeId : buyBillTypeId;
+
+    log('isSold: $isSold');
+
+    if (billId != null && billTypeId != null) {
+      openFloatingBillDetailsById(billId, context, BillType.byTypeGuide(billTypeId).billTypeModel);
+    } else {
+      AppUIUtils.onFailure('⚠️ Missing Bill ID or Bill Type ID');
+    }
+  }
+
   bool isLoadingPlutoGrid = false;
-  final List<SerialNumberModel> serialNumberStatements = [];
+  final List<SerialTransactionModel> serialNumberStatements = [];
 
   String get serialNumbersStatementScreenTitle => AppStrings.serialNumbersStatement.tr;
 }

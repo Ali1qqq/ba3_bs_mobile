@@ -1,4 +1,4 @@
-import '../enums/enums.dart';
+import '../../enums/enums.dart';
 
 extension BillPatternTypeExtension on BillPatternType {
   /// Returns whether the current [BillPatternType] has material account.

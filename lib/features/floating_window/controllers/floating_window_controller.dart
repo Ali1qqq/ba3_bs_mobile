@@ -24,6 +24,7 @@ class FloatingWindowController extends GetxController with CursorUpdateMixin {
     defaultHeightRatio = defaultHeight != null ? defaultHeight / 1.sh : 0.85;
 
     _initializeWindow(defaultHeight: defaultHeight, defaultWidth: defaultWidth);
+
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.landscapeLeft,
       DeviceOrientation.landscapeRight,

@@ -1,4 +1,4 @@
-import 'package:ba3_bs_mobile/core/helper/extensions/time_extensions.dart';
+import 'package:ba3_bs_mobile/core/helper/extensions/date_time/time_extensions.dart';
 import 'package:ba3_bs_mobile/features/users_management/controllers/user_management_controller.dart';
 import 'package:day_night_time_picker/lib/state/time.dart';
 import 'package:get/get.dart';

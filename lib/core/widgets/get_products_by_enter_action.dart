@@ -4,6 +4,7 @@ import 'package:ba3_bs_mobile/core/constants/app_constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
 import 'package:pluto_grid/pluto_grid.dart';
 
 import '../../features/floating_window/services/overlay_service.dart';
@@ -12,11 +13,12 @@ import '../../features/materials/data/models/materials/material_model.dart';
 import '../dialogs/product_selection_dialog_content.dart';
 import '../helper/extensions/getx_controller_extensions.dart';
 import '../i_controllers/i_pluto_controller.dart';
+import '../utils/app_ui_utils.dart';
 
 class GetProductByEnterAction extends PlutoGridShortcutAction {
-  const GetProductByEnterAction(this.controller, this.context);
+  const GetProductByEnterAction(this.plutoController, this.context);
 
-  final IPlutoController controller;
+  final IPlutoController plutoController;
   final BuildContext context;
 
   @override
@@ -24,7 +26,7 @@ class GetProductByEnterAction extends PlutoGridShortcutAction {
     required PlutoKeyManagerEvent keyEvent,
     required PlutoGridStateManager stateManager,
   }) async {
-    await getProduct(stateManager, controller);
+    await getProduct(stateManager, plutoController);
     // In SelectRow mode, the current Row is passed to the onSelected callback.
     if (stateManager.mode.isSelectMode && stateManager.onSelected != null) {
       stateManager.onSelected!(PlutoGridOnSelectedEvent(
@@ -71,23 +73,35 @@ class GetProductByEnterAction extends PlutoGridShortcutAction {
 
     // Initialize variables
     final productText = stateManager.currentCell?.value ?? '';
+
     final productTextController = TextEditingController()..text = productText;
+
     final materialController = read<MaterialController>();
 
     // Search for matching materials
     var searchedMaterials = materialController.searchOfProductByText(productText);
+
     MaterialModel? selectedMaterial;
 
     if (searchedMaterials.length == 1) {
       // Single match
       selectedMaterial = searchedMaterials.first;
-      updateWithSelectedMaterial(selectedMaterial, stateManager, plutoController);
+
+      updateWithSelectedMaterial(
+        inputSearch: productText,
+        materialModel: selectedMaterial,
+        stateManager: stateManager,
+        plutoController: plutoController,
+      );
     } else if (searchedMaterials.isEmpty) {
       // No matches
-      updateWithSelectedMaterial(null, stateManager, plutoController);
+      AppUIUtils.onFailure('هذه المادة غير موجودة');
+
+      updateWithSelectedMaterial(inputSearch: productText, materialModel: null, stateManager: stateManager, plutoController: plutoController);
     } else {
       // Multiple matches, show search dialog
       _showSearchDialog(
+        inputSearch: productText,
         productTextController: productTextController,
         searchedMaterials: searchedMaterials,
         materialController: materialController,
@@ -98,6 +112,7 @@ class GetProductByEnterAction extends PlutoGridShortcutAction {
   }
 
   void _showSearchDialog({
+    required String inputSearch,
     required TextEditingController productTextController,
     required List<MaterialModel> searchedMaterials,
     required MaterialController materialController,
@@ -112,10 +127,9 @@ class GetProductByEnterAction extends PlutoGridShortcutAction {
         searchedMaterials: searchedMaterials,
         onRowSelected: (PlutoGridOnSelectedEvent onSelectedEvent) {
           final materialId = onSelectedEvent.row?.cells[AppConstants.materialIdFiled]?.value;
-
           final selectedMaterial = materialId != null ? materialController.getMaterialById(materialId) : null;
-
-          updateWithSelectedMaterial(selectedMaterial, stateManager, plutoController);
+          updateWithSelectedMaterial(
+              inputSearch: inputSearch, materialModel: selectedMaterial, stateManager: stateManager, plutoController: plutoController);
 
           OverlayService.back();
         },
@@ -131,13 +145,15 @@ class GetProductByEnterAction extends PlutoGridShortcutAction {
     );
   }
 
-  void updateWithSelectedMaterial(
+  void updateWithSelectedMaterial({
+    required String inputSearch,
     MaterialModel? materialModel,
-    PlutoGridStateManager stateManager,
-    IPlutoController plutoController,
-  ) {
+    required PlutoGridStateManager stateManager,
+    required IPlutoController plutoController,
+  }) {
+    log(materialModel.toString());
     if (materialModel != null) {
-      _updateRowWithMaterial(materialModel, stateManager);
+      _updateRowWithMaterial(inputSearch: inputSearch, materialModel: materialModel, stateManager: stateManager);
       plutoController.moveToNextRow(stateManager, AppConstants.invRecProduct);
     } else {
       plutoController.restoreCurrentCell(stateManager);
@@ -147,7 +163,23 @@ class GetProductByEnterAction extends PlutoGridShortcutAction {
     plutoController.update();
   }
 
-  void _updateRowWithMaterial(MaterialModel materialModel, PlutoGridStateManager stateManager) {
+  void _updateRowWithMaterial({required String inputSearch, required MaterialModel materialModel, required PlutoGridStateManager stateManager}) {
+    // Check if the input search matches any serial number
+    final String? searchedSerial = materialModel.serialNumbers?.keys.toList().firstWhereOrNull(
+          (serial) => serial.toLowerCase().startsWith(inputSearch.toLowerCase().trim()),
+        );
+
+    if (!AppConstants.hideInvRecProductSoldSerial) {
+      if (searchedSerial != null && searchedSerial.isNotEmpty) {
+        // Update the grid with the found serial number
+        updateCellValue(stateManager, AppConstants.invRecProductSoldSerial, searchedSerial);
+      } else {
+        // Clear the grid value for the serial number
+        updateCellValue(stateManager, AppConstants.invRecProductSoldSerial, '');
+      }
+    }
+
+    // Update other fields with material data
     updateCellValue(stateManager, AppConstants.invRecProduct, materialModel.matName);
     updateCellValue(stateManager, AppConstants.invRecSubTotal, materialModel.endUserPrice);
     updateCellValue(stateManager, AppConstants.invRecQuantity, 1);

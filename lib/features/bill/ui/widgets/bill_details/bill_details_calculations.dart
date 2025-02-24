@@ -1,4 +1,4 @@
-import 'package:ba3_bs_mobile/core/helper/extensions/bill_pattern_type_extension.dart';
+import 'package:ba3_bs_mobile/core/helper/extensions/bill/bill_pattern_type_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';

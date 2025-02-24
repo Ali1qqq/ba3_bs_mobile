@@ -278,4 +278,10 @@ class AppStrings {
   static const totalSales = 'اجمالي المبيعات';
   static const lastCheckInTime = 'آخر توقيت للدخول';
   static const lastCheckOutTime = 'آخر توقيت للخروج';
+
+  static const String productSoldSerialNumber = 'الرقم التسلسلي المُباع';
+
+  static const String productSerialNumbers = 'الأرقام التسلسلية للمنتج';
+
+  static const String retailPrice = 'المفرق';
 }

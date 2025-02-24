@@ -269,14 +269,14 @@ class AppBindings extends Bindings {
     lazyPut(MaterialsStatementController(repositories.matStatementsRepo));
     lazyPut(CustomersController(repositories.customersRepo, repositories.customerImportRepo));
 
-    lazyPut(AllBillsController(
-        repositories.patternsRepo, repositories.billsRepo, repositories.serialNumbersRepo, repositories.billImportExportRepo));
+    lazyPut(AllBillsController(repositories.billsRepo, repositories.serialNumbersRepo, repositories.billImportExportRepo));
     lazyPut(AllBondsController(repositories.bondsRepo, repositories.bondImportExportRepo));
     lazyPut(AllChequesController(repositories.chequesRepo, repositories.chequesImportExportRepo));
-    lazyPut(BillDetailsPlutoController());
+
     lazyPut(AccountsController(repositories.accountImportExportRepo, repositories.accountsRep));
+
     lazyPut(PrintingController(repositories.translationRepo));
-    lazyPut(BillSearchController());
+
     lazyPut(AccountStatementController(repositories.accountsStatementsRepo));
     lazyPut(UserTimeController(repositories.usersRepo, repositories.userTimeRepo));
     lazyPut(SellerSalesController(repositories.billsRepo, repositories.sellersRepo));

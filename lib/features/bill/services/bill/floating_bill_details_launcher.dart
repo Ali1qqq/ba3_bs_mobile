@@ -15,23 +15,22 @@ import '../../data/models/bill_model.dart';
 class FloatingBillDetailsLauncher extends GetxController with FloatingLauncher, ControllerInitializer {
   /// Initializes all required controllers for the Bill Details screen.
   Map<String, GetxController> setupControllers({required Map<String, dynamic> params}) {
-    final tag = requireParam<String>(params, 'tag');
+    final tag = requireParam<String>(params, key: 'tag');
 
-    final billDetailsPlutoController = requireParam<BillDetailsPlutoController>(params, 'billDetailsPlutoController');
-    final billSearchController = requireParam<BillSearchController>(params, 'billSearchController');
+    final billTypeModel = requireParam<BillTypeModel>(params, key: 'billTypeModel');
 
-    final billsFirebaseRepo = requireParam<CompoundDatasourceRepository<BillModel, BillTypeModel>>(params, 'billsFirebaseRepo');
-    final QueryableSavableRepository<SerialNumberModel> serialNumbersRepo =
-        requireParam<QueryableSavableRepository<SerialNumberModel>>(params, 'serialNumbersRepo');
+    final billsFirebaseRepo = requireParam<CompoundDatasourceRepository<BillModel, BillTypeModel>>(params, key: 'billsFirebaseRepo');
 
-    final billSearchControllerWithTag = getOrCreateController<BillSearchController>(tag, controllerBuilder: () => billSearchController);
+    final serialNumbersRepo = requireParam<QueryableSavableRepository<SerialNumberModel>>(params, key: 'serialNumbersRepo');
+
+    final billSearchControllerWithTag = createController<BillSearchController>(tag, controller: BillSearchController());
 
     final billDetailsPlutoControllerWithTag =
-        getOrCreateController<BillDetailsPlutoController>(tag, controllerBuilder: () => billDetailsPlutoController);
+    createController<BillDetailsPlutoController>(tag, controller: BillDetailsPlutoController(billTypeModel));
 
-    final billDetailsControllerWithTag = getOrCreateController<BillDetailsController>(
+    final billDetailsControllerWithTag = createController<BillDetailsController>(
       tag,
-      controllerBuilder: () => BillDetailsController(
+      controller: BillDetailsController(
         billsFirebaseRepo,
         serialNumbersRepo,
         billDetailsPlutoController: billDetailsPlutoControllerWithTag,

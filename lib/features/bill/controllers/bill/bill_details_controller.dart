@@ -1,8 +1,8 @@
 import 'dart:developer';
 
 import 'package:ba3_bs_mobile/core/helper/extensions/basic/string_extension.dart';
-import 'package:ba3_bs_mobile/core/helper/extensions/bill_pattern_type_extension.dart';
-import 'package:ba3_bs_mobile/core/helper/extensions/date_time_extensions.dart';
+import 'package:ba3_bs_mobile/core/helper/extensions/bill/bill_pattern_type_extension.dart';
+import 'package:ba3_bs_mobile/core/helper/extensions/basic/date_time_extensions.dart';
 import 'package:ba3_bs_mobile/core/helper/mixin/app_navigator.dart';
 import 'package:ba3_bs_mobile/core/helper/validators/app_validator.dart';
 import 'package:ba3_bs_mobile/core/i_controllers/i_bill_controller.dart';
@@ -27,6 +27,7 @@ import '../../../../core/utils/app_ui_utils.dart';
 import '../../../accounts/data/models/account_model.dart';
 import '../../../materials/controllers/material_controller.dart';
 import '../../../materials/data/models/materials/material_model.dart';
+import '../../../materials/service/serial_number_model_factory.dart';
 import '../../../patterns/data/models/bill_type_model.dart';
 import '../../../print/controller/print_controller.dart';
 import '../../data/models/bill_items.dart';
@@ -35,9 +36,7 @@ import '../../services/bill/account_handler.dart';
 import '../../services/bill/bill_service.dart';
 import '../pluto/bill_details_pluto_controller.dart';
 
-class BillDetailsController extends IBillController
-    with AppValidator, AppNavigator, FirestoreSequentialNumbers
-    implements IStoreSelectionHandler {
+class BillDetailsController extends IBillController with AppValidator, AppNavigator, FirestoreSequentialNumbers implements IStoreSelectionHandler {
   // Repositories
 
   final CompoundDatasourceRepository<BillModel, BillTypeModel> _billsFirebaseRepo;
@@ -145,8 +144,7 @@ class BillDetailsController extends IBillController
     }
   }
 
-  Future<void> printBill(
-      {required BuildContext context, required BillModel billModel, required List<InvoiceRecordModel> invRecords}) async {
+  Future<void> printBill({required BuildContext context, required BillModel billModel, required List<InvoiceRecordModel> invRecords}) async {
     if (!_billService.hasModelId(billModel.billId)) return;
 
     await read<PrintingController>().startPrinting(
@@ -185,6 +183,187 @@ class BillDetailsController extends IBillController
       (failure) => AppUIUtils.onFailure(failure.message),
       (success) => _billService.handleDeleteSuccess(billToDelete: billModel, billSearchController: billSearchController),
     );
+  }
+
+  /// Checks if deleting the bill would affect sold serial numbers.
+  /// Returns `true` if deletion should be stopped.
+  Future<bool> _hasSoldSerialNumbers(BillModel billModel) async {
+    final materialController = read<MaterialController>();
+
+    for (BillItem item in billModel.items.itemList) {
+      final mat = materialController.getMaterialById(item.itemGuid);
+      final serialNumbers = item.itemSerialNumbers ?? [];
+
+      if (mat?.serialNumbers != null) {
+        for (final entry in mat!.serialNumbers!.entries) {
+          if (serialNumbers.contains(entry.key) && entry.value) {
+            int? sellBillNumber = await _getSellBillNumber(entry.key);
+
+            AppUIUtils.onFailure(
+              '⚠️ لا يمكن حذف هذه الفاتورة! \n\n'
+              '🔹 المادة: ${mat.matName} (${mat.id})\n'
+              '🔹 الرقم التسلسلي: [${entry.key}]\n'
+              '🔹 تم بيعه بالفعل في فاتورة مبيعات ${sellBillNumber ?? ''}.\n\n'
+              '❌ يرجى مراجعة الفواتير المرتبطة قبل المتابعة.',
+            );
+            return true; // Stop deletion
+          }
+        }
+      }
+    }
+    return false; // Safe to delete
+  }
+
+  /// Fetches the sell bill number for a given serial number.
+  Future<int?> _getSellBillNumber(String serialNumber) async {
+    final result = await _serialNumbersRepo.getById(serialNumber);
+
+    return result.fold(
+      (failure) => null, // Return null on failure
+      (SerialNumberModel serialsModel) => serialsModel.transactions.isNotEmpty
+          ? serialsModel.transactions.where((transaction) => transaction.sold ?? false).last.sellBillNumber
+          : null,
+    );
+  }
+
+  /// Deletes all sales transactions associated with a specific bill.
+  Future<void> deleteSellSerialTransactions(BillModel billToDelete) async {
+    for (final billItem in billToDelete.items.itemList) {
+      final soldSerialNumber = billItem.soldSerialNumber;
+
+      if (soldSerialNumber == null) {
+        continue; // Skip if no serial number is linked
+      }
+
+      final result = await _serialNumbersRepo.getById(soldSerialNumber);
+
+      result.fold(
+        (failure) {
+          log('❌ Failed to retrieve serial number [$soldSerialNumber]: ${failure.message}');
+        },
+        (SerialNumberModel serialsModel) async {
+          // Filter out transactions related to the deleted bill
+          final updatedTransactions = serialsModel.transactions.where((transaction) => transaction.sellBillId != billToDelete.billId).toList();
+
+          if (updatedTransactions.length == serialsModel.transactions.length) {
+            log('🔍 No transactions to delete for serial [$soldSerialNumber].');
+            return;
+          }
+
+          // Update the serial number model with filtered transactions
+          final updatedSerialModel = serialsModel.copyWith(transactions: updatedTransactions);
+
+          // Update Firestore or local database with new transaction list
+          final updateResult = await _serialNumbersRepo.save(updatedSerialModel);
+
+          updateResult.fold(
+            (failure) => log('❌ Failed to update transactions for serial [$soldSerialNumber]: ${failure.message}'),
+            (success) => log('✅ Successfully removed transactions linked to bill [${billToDelete.billId}] for serial [$soldSerialNumber].'),
+          );
+        },
+      );
+    }
+  }
+
+  Future<void> deleteBuySerialTransactions(BillModel billToDelete) async {
+    final materialController = read<MaterialController>();
+
+    for (final billItem in billToDelete.items.itemList) {
+      final materialModel = materialController.getMaterialById(billItem.itemGuid);
+      final purchaseSerialNumbers = billItem.itemSerialNumbers ?? [];
+
+      if (materialModel?.serialNumbers == null) {
+        continue; // Skip if material or serial numbers are missing
+      }
+
+      final updatedSerialNumbers = Map<String, bool>.from(materialModel!.serialNumbers!);
+
+      for (final serialNumber in purchaseSerialNumbers) {
+        await _processSerialTransaction(billToDelete, materialModel, serialNumber, updatedSerialNumbers);
+      }
+
+      // Apply the updated serial numbers to the material model
+      materialController.updateMaterial(materialModel.copyWith(serialNumbers: updatedSerialNumbers));
+    }
+  }
+
+  /// Processes a single serial number transaction:
+  /// Removes it if no transactions remain, or marks it as sold if transactions exist.
+  Future<void> _processSerialTransaction(
+    BillModel billToDelete,
+    MaterialModel materialModel,
+    String serialNumber,
+    Map<String, bool> updatedSerialNumbers,
+  ) async {
+    final result = await _serialNumbersRepo.getById(serialNumber);
+
+    await result.fold(
+      (failure) async {
+        log('❌ Failed to retrieve serial number [$serialNumber]: ${failure.message}');
+      },
+      (SerialNumberModel serialsModel) async {
+        final updatedTransactions = serialsModel.transactions.where((transaction) => transaction.buyBillId != billToDelete.billId).toList();
+
+        if (updatedTransactions.length == serialsModel.transactions.length) {
+          log('🔍 No purchase transactions to delete for serial [$serialNumber].');
+          return;
+        }
+
+        if (updatedTransactions.isEmpty) {
+          // No transactions remain, so delete the serial document
+          await _deleteSerialDocument(serialNumber, materialModel, updatedSerialNumbers);
+        } else {
+          // Update Firestore with filtered transactions
+          final updatedSerialModel = serialsModel.copyWith(transactions: updatedTransactions);
+          final updateResult = await _serialNumbersRepo.save(updatedSerialModel);
+
+          await updateResult.fold(
+            (failure) async {
+              log('❌ Failed to update transactions for serial [$serialNumber]: ${failure.message}');
+            },
+            (success) async {
+              log('✅ Successfully removed purchase transactions linked to bill [${billToDelete.billId}] for serial [$serialNumber].');
+              _updateSerialNumberStatus(materialModel, serialNumber, updatedSerialNumbers, updatedTransactions);
+            },
+          );
+        }
+      },
+    );
+  }
+
+  /// Deletes the serial document from Firestore if there are no transactions left.
+  Future<void> _deleteSerialDocument(
+    String serialNumber,
+    MaterialModel materialModel,
+    Map<String, bool> updatedSerialNumbers,
+  ) async {
+    final deleteResult = await _serialNumbersRepo.delete(serialNumber);
+
+    await deleteResult.fold(
+      (failure) async {
+        log('❌ Failed to delete serial document [$serialNumber]: ${failure.message}');
+      },
+      (success) async {
+        log('🗑️ Serial document [$serialNumber] deleted from Firestore.');
+        updatedSerialNumbers.remove(serialNumber); // Remove from materialModel
+      },
+    );
+  }
+
+  /// Updates serial number status based on remaining transactions.
+  void _updateSerialNumberStatus(
+    MaterialModel materialModel,
+    String serialNumber,
+    Map<String, bool> updatedSerialNumbers,
+    List<SerialTransactionModel> updatedTransactions,
+  ) {
+    if (updatedTransactions.isEmpty) {
+      updatedSerialNumbers.remove(serialNumber);
+      log('🗑️ Serial number [$serialNumber] removed from material (${materialModel.matName}).');
+    } else {
+      updatedSerialNumbers[serialNumber] = true;
+      log('✅ Serial number [$serialNumber] of material (${materialModel.matName}) marked as sold.');
+    }
   }
 
   Future<void> saveBill(BillTypeModel billTypeModel) async {
@@ -237,83 +416,57 @@ class BillDetailsController extends IBillController
   }
 
   Future<void> saveSerialNumbers(BillModel billModel, Map<MaterialModel, List<TextEditingController>> serialControllers) async {
+    log('saveSerialNumbers $serialControllers');
+
     // Create a list to collect the serial number models.
     final List<SerialNumberModel> items = [];
 
-    if (billModel.billTypeModel.billPatternType == BillPatternType.purchase) {
-      // Iterate through each material's controllers.
-      serialControllers.forEach((material, controllers) {
-        for (final controller in controllers) {
-          final serialText = controller.text.trim();
+    // Iterate through each material's controllers.
+    serialControllers.forEach(
+      (MaterialModel material, List<TextEditingController> serials) {
+        for (final TextEditingController serialController in serials) {
+          final serialText = serialController.text.trim();
+          log('serialText $serialText');
+
           // If the text is not empty, create a SerialNumberModel.
           if (serialText.isNotEmpty) {
-            items.add(
-              SerialNumberModel(
-                serialNumber: serialText,
-                matId: material.id,
-                matName: material.matName,
-                buyBillId: billModel.billId,
-                buyBillNumber: billModel.billDetails.billNumber,
-                entryDate: billModel.billDetails.billDate,
-                sold: false,
-              ),
-            );
+            final SerialNumberModel serialNumberModel = SerialNumberModelFactory.getModel(serialText, billModel: billModel, material: material);
+            items.add(serialNumberModel);
           }
-        }
-      });
-
-      // Save all the serial numbers using your repository.
-      final result = await _serialNumbersRepo.saveAll(items);
-
-      // Handle the result of the save operation.
-      result.fold(
-        (failure) => AppUIUtils.onFailure(failure.message),
-        (success) {
-          // Update the material's serial numbers after saving successfully.
-          serialControllers.forEach(
-            (material, controllers) {
-              final materialModel = read<MaterialController>().getMaterialById(material.id!);
-
-              if (materialModel != null) {
-                final updatedSerialNumbers = {
-                  ...?materialModel.serialNumbers, // Preserve existing serials if any
-                  for (final controller in controllers) controller.text.trim(): false, // New serials default to unsold
-                };
-
-                // Update the material model with new serial numbers
-                read<MaterialController>().updateMaterial(materialModel.copyWith(serialNumbers: updatedSerialNumbers));
-              }
-            },
-          );
-
-          // Optionally, show a success message or perform further actions.
-          AppUIUtils.onSuccess('Serial numbers saved successfully.');
-        },
-      );
-    }
-  }
-
-  onSaveSerialsSuccess(
-      {required Map<MaterialModel, List<TextEditingController>> serialControllers, required Map<String, bool> updatedSerialNumbers}) {
-    // Update the material's serial numbers after saving successfully.
-    serialControllers.forEach(
-      (material, controllers) {
-        final materialModel = read<MaterialController>().getMaterialById(material.id!);
-
-        if (materialModel != null) {
-          final updatedSerialNumbers = {
-            ...?materialModel.serialNumbers, // Preserve existing serials if any
-            for (final controller in controllers) controller.text.trim(): false, // New serials default to unsold
-          };
-
-          // Update the material model with new serial numbers
-          read<MaterialController>().updateMaterial(materialModel.copyWith(serialNumbers: updatedSerialNumbers));
         }
       },
     );
 
-    // Optionally, show a success message or perform further actions.
-    AppUIUtils.onSuccess('Serial numbers saved successfully.');
+    // Save all the serial numbers using your repository.
+    final result = await _serialNumbersRepo.saveAll(items);
+
+    // Handle the result of the save operation.
+    result.fold(
+      (failure) => AppUIUtils.onFailure(failure.message),
+      (List<SerialNumberModel> savedSerialsModels) => onSaveSerialsSuccess(serialControllers, savedSerialsModels),
+    );
+  }
+
+  void onSaveSerialsSuccess(Map<MaterialModel, List<TextEditingController>> serialControllers, List<SerialNumberModel> savedSerialsModels) {
+    serialControllers.forEach((MaterialModel material, List<TextEditingController> serials) {
+      final materialModel = read<MaterialController>().getMaterialById(material.id!);
+
+      for (final serial in savedSerialsModels) {
+        log('onSaveSerialsSuccess serial: ${serial.toJson()}');
+      }
+
+      if (materialModel != null) {
+        // Ensure non-null keys and values
+        final Map<String, bool> updatedSerialNumbers = {
+          ...?materialModel.serialNumbers, // Preserve existing serials
+          for (final serial in savedSerialsModels.where((s) => s.matId == material.id))
+            if (serial.serialNumber != null && serial.transactions.last.sold != null) serial.serialNumber!: serial.transactions.last.sold!,
+        };
+
+        // Update the material model with new serial numbers
+        read<MaterialController>().updateMaterial(materialModel.copyWith(serialNumbers: updatedSerialNumbers));
+      }
+    });
   }
 
   Future<Either<Failure, BillModel>> updateOnly(BillModel bill) async {
@@ -323,8 +476,7 @@ class BillDetailsController extends IBillController
   }
 
   appendNewBill({required BillTypeModel billTypeModel, required int lastBillNumber, int? previousBillNumber}) {
-    BillModel newBill =
-        BillModel.empty(billTypeModel: billTypeModel, lastBillNumber: lastBillNumber, previousBillNumber: previousBillNumber);
+    BillModel newBill = BillModel.empty(billTypeModel: billTypeModel, lastBillNumber: lastBillNumber, previousBillNumber: previousBillNumber);
 
     billSearchController.insertLastAndUpdate(newBill);
   }

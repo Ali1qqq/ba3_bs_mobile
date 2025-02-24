@@ -8,6 +8,8 @@ Future<T> putAsync<T>(Future<T> controller) => Get.putAsync<T>(() => controller)
 
 void lazyPut<T>(T controller) => Get.lazyPut<T>(() => controller, fenix: true);
 
+void delete<T>({String? tag, bool force = false}) => Get.delete<T>(tag: tag, force: force);
+
 extension GetXControllerExtensions on GetInterface {
   T putIfAbsent<T extends GetxController>(T controllerBuilder) {
     if (!Get.isRegistered<T>()) {

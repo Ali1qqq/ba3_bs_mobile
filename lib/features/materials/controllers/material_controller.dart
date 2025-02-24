@@ -185,7 +185,8 @@ class MaterialController extends GetxController with AppNavigator, FloatingLaunc
           item.matName!.toLowerCase() == lowerQuery ||
           item.matCode!.toString().toLowerCase() == lowerQuery ||
           (item.matBarCode != null && item.matBarCode!.toLowerCase() == lowerQuery) ||
-          (item.serialNumbers != null && item.serialNumbers!.keys.any((serial) => serial.toLowerCase() == lowerQuery)),
+          (item.serialNumbers != null &&
+              item.serialNumbers!.entries.any((entry) => entry.key.toLowerCase() == lowerQuery && entry.value == false)), // Only allow unsold serials
     );
 
     if (exactMatch != null) {
@@ -200,7 +201,12 @@ class MaterialController extends GetxController with AppNavigator, FloatingLaunc
               searchParts.every((part) => item.matCode.toString().toLowerCase().startsWith(part)) ||
               (item.matBarCode != null && searchParts.every((part) => item.matBarCode!.toLowerCase().startsWith(part))) ||
               (item.serialNumbers != null &&
-                  searchParts.every((part) => item.serialNumbers!.keys.any((serial) => serial.toLowerCase().startsWith(part)))),
+                  searchParts.every(
+                    (part) => item.serialNumbers!.entries.any(
+                      // Only allow unsold serials
+                      (entry) => entry.key.toLowerCase().startsWith(part) && entry.value == false,
+                    ),
+                  )),
         )
         .toList();
 
@@ -216,7 +222,9 @@ class MaterialController extends GetxController with AppNavigator, FloatingLaunc
               searchParts.every((part) => item.matCode.toString().toLowerCase().contains(part)) ||
               (item.matBarCode != null && searchParts.every((part) => item.matBarCode!.toLowerCase().contains(part))) ||
               (item.serialNumbers != null &&
-                  searchParts.every((part) => item.serialNumbers!.keys.any((serial) => serial.toLowerCase().contains(part)))),
+                  searchParts.every(
+                    (part) => item.serialNumbers!.entries.any((entry) => entry.key.toLowerCase().contains(part) && entry.value == false),
+                  )), // Only allow unsold serials
         )
         .toList();
   }
@@ -246,6 +254,15 @@ class MaterialController extends GetxController with AppNavigator, FloatingLaunc
   }
 
   MaterialModel? getMaterialByName(name) {
+    // log('name $name');
+    // log(materials.where((element) => (element.matName!.toLowerCase().contains(name.toLowerCase()))).firstOrNull.toString());
+    if (name != null && name != " " && name != "") {
+      return materials.where((element) => (element.matName!.toLowerCase().contains(name.toLowerCase()))).firstOrNull;
+    }
+    return null;
+  }
+
+  MaterialModel? searchMaterialByName(name) {
     // log('name $name');
     // log(materials.where((element) => (element.matName!.toLowerCase().contains(name.toLowerCase()))).firstOrNull.toString());
     if (name != null && name != " " && name != "") {
@@ -345,8 +362,7 @@ class MaterialController extends GetxController with AppNavigator, FloatingLaunc
   void _onSaveSuccess(MaterialModel materialModel) async {
     // Persist the data in Hive upon successful save
 
-    final hiveResult =
-        materialModel.id != null ? await _materialsHiveRepo.update(materialModel) : await _materialsHiveRepo.save(materialModel);
+    final hiveResult = materialModel.id != null ? await _materialsHiveRepo.update(materialModel) : await _materialsHiveRepo.save(materialModel);
 
     hiveResult.fold(
       (failure) => AppUIUtils.onFailure(failure.message),

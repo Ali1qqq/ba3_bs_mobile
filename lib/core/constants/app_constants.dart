@@ -53,7 +53,9 @@ abstract class AppConstants {
 
   ////////////--------------------------------------------------
   static const rowInvId = "invId";
-  static const rowInvProduct = "invProduct";
+  static const rowInvProduct = "invProduct";  static const String invRecProductSoldSerial = 'invRecProductSoldSerial';
+
+  static const String invRecProductSerialNumbers = 'invRecProductSerialNumbers';
   static const rowInvGift = "rowInvGift";
   static const rowInvQuantity = "invQuantity";
   static const rowInvSubTotal = "invSubTotal";
@@ -260,11 +262,7 @@ abstract class AppConstants {
     AppConstants.roleViewCard,
     AppConstants.roleViewHome
   ];
-  static const accountTypeList = [
-    AppConstants.accountTypeDefault,
-    AppConstants.accountTypeFinalAccount,
-    AppConstants.accountTypeAggregateAccount
-  ];
+  static const accountTypeList = [AppConstants.accountTypeDefault, AppConstants.accountTypeFinalAccount, AppConstants.accountTypeAggregateAccount];
 
   static const userName = "ali";
 
@@ -409,4 +407,8 @@ abstract class AppConstants {
   static const String userIdFiled = 'userIdFiled';
   static const String accountIdFiled = 'accountIdFiled';
   static const String entryBonIdFiled = 'entryBonIdFiled';
+
+  static const String billIdFiled = 'billIdFiled';
+  static const bool hideInvRecProductSoldSerial = false;
+  static const bool hideInvRecProductSerialNumbers = true;
 }

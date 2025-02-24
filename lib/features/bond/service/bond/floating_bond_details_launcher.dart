@@ -12,22 +12,21 @@ import '../../data/models/bond_model.dart';
 class FloatingBondDetailsLauncher extends GetxController with FloatingLauncher, ControllerInitializer {
   /// Initializes and manages controllers for the Bond Details screen with floating window capabilities.
   Map<String, GetxController> setupControllers({required Map<String, dynamic> params}) {
-    final tag = requireParam<String>(params, 'tag');
+    final tag = requireParam<String>(params, key: 'tag');
 
-    final bondType = requireParam<BondType>(params, 'bondType');
+    final bondType = requireParam<BondType>(params, key: 'bondType');
 
-    final bondDetailsPlutoController = requireParam<BondDetailsPlutoController>(params, 'bondDetailsPlutoController');
-    final bondSearchController = requireParam<BondSearchController>(params, 'bondSearchController');
-    final bondsFirebaseRepo = requireParam<CompoundDatasourceRepository<BondModel, BondType>>(params, 'bondsFirebaseRepo');
+    final bondDetailsPlutoController = requireParam<BondDetailsPlutoController>(params, key: 'bondDetailsPlutoController');
+    final bondSearchController = requireParam<BondSearchController>(params, key: 'bondSearchController');
+    final bondsFirebaseRepo = requireParam<CompoundDatasourceRepository<BondModel, BondType>>(params, key: 'bondsFirebaseRepo');
 
-    final bondDetailsPlutoControllerWithTag =
-        getOrCreateController<BondDetailsPlutoController>(tag, controllerBuilder: () => bondDetailsPlutoController);
+    final bondDetailsPlutoControllerWithTag = createController<BondDetailsPlutoController>(tag, controller: bondDetailsPlutoController);
 
-    final bondSearchControllerWithTag = getOrCreateController<BondSearchController>(tag, controllerBuilder: () => bondSearchController);
+    final bondSearchControllerWithTag = createController<BondSearchController>(tag, controller: bondSearchController);
 
-    final bondDetailsControllerWithTag = getOrCreateController<BondDetailsController>(
+    final bondDetailsControllerWithTag = createController<BondDetailsController>(
       tag,
-      controllerBuilder: () => BondDetailsController(
+      controller: BondDetailsController(
         bondsFirebaseRepo,
         bondDetailsPlutoController: bondDetailsPlutoControllerWithTag,
         bondSearchController: bondSearchControllerWithTag,

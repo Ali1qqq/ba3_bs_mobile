@@ -1,4 +1,4 @@
-import 'package:ba3_bs_mobile/core/helper/extensions/bill_pattern_type_extension.dart';
+import 'package:ba3_bs_mobile/core/helper/extensions/bill/bill_pattern_type_extension.dart';
 import 'package:ba3_bs_mobile/features/patterns/ui/widgets/add_pattern/text_field_with_label.dart';
 import 'package:flutter/material.dart';
 

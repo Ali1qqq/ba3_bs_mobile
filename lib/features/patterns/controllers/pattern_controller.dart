@@ -13,9 +13,7 @@ import '../services/pattern_form_handler.dart';
 class PatternController extends GetxController with AppNavigator {
   final RemoteDataSourceRepository<BillTypeModel> _repository;
 
-  PatternController(this._repository) {
-    getAllBillTypes();
-  }
+  PatternController(this._repository);
 
   List<BillTypeModel> billsTypes = [];
 
@@ -59,28 +57,19 @@ class PatternController extends GetxController with AppNavigator {
 
       case BillPatternType.buyReturn:
         fillControllers(
-            shortName: 'مرتجع شراء',
-            fullName: 'فاتورة مرتجع مشتريات',
-            latinShortName: 'Return Buy',
-            latinFullName: 'Purchase Return Invoice');
+            shortName: 'مرتجع شراء', fullName: 'فاتورة مرتجع مشتريات', latinShortName: 'Return Buy', latinFullName: 'Purchase Return Invoice');
         break;
 
       case BillPatternType.salesReturn:
         fillControllers(
-            shortName: 'مرتجع مبيعات',
-            fullName: 'فاتورة مرتجع مبيعات',
-            latinShortName: 'Return Sales',
-            latinFullName: 'Sales Return Invoice');
+            shortName: 'مرتجع مبيعات', fullName: 'فاتورة مرتجع مبيعات', latinShortName: 'Return Sales', latinFullName: 'Sales Return Invoice');
         break;
       case BillPatternType.firstPeriodInventory:
-        fillControllers(
-            shortName: 'القيد الافتتاحي', fullName: 'بضاعة اول مدة', latinShortName: 'Add', latinFullName: 'first Period Inventory');
+        fillControllers(shortName: 'القيد الافتتاحي', fullName: 'بضاعة اول مدة', latinShortName: 'Add', latinFullName: 'first Period Inventory');
       case BillPatternType.transferOut:
-        fillControllers(
-            shortName: 'القيد الافتتاحي', fullName: 'بضاعة اول مدة', latinShortName: 'Add', latinFullName: 'first Period Inventory');
+        fillControllers(shortName: 'القيد الافتتاحي', fullName: 'بضاعة اول مدة', latinShortName: 'Add', latinFullName: 'first Period Inventory');
       case BillPatternType.transferIn:
-        fillControllers(
-            shortName: 'القيد الافتتاحي', fullName: 'بضاعة اول مدة', latinShortName: 'Add', latinFullName: 'first Period Inventory');
+        fillControllers(shortName: 'القيد الافتتاحي', fullName: 'بضاعة اول مدة', latinShortName: 'Add', latinFullName: 'first Period Inventory');
       case BillPatternType.salesService:
         // TODO: Handle this case.
         throw UnimplementedError();
@@ -106,7 +95,7 @@ class PatternController extends GetxController with AppNavigator {
     to(AppRoutes.addPatternsScreen);
   }
 
-  Future<void> getAllBillTypes() async {
+  Future<List<BillTypeModel>> getAllBillTypes() async {
     final result = await _repository.getAll();
 
     result.fold(
@@ -114,8 +103,7 @@ class PatternController extends GetxController with AppNavigator {
       (fetchedBillTypes) => billsTypes.assignAll(fetchedBillTypes),
     );
 
-    isLoading = false;
-    update();
+    return billsTypes;
   }
 
   Future<void> addNewPattern() async {

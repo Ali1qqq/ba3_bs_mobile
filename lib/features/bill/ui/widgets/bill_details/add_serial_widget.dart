@@ -30,7 +30,7 @@ class _AddSerialWidgetState extends State<AddSerialWidget> {
   @override
   Widget build(BuildContext context) {
     // Retrieve the controllers for the given matId.
-    final serialsControllers = widget.plutoController.serialControllers[widget.materialModel] ?? [];
+    final serialsControllers = widget.plutoController.buyMaterialsSerialsControllers[widget.materialModel] ?? [];
 
     return Scaffold(
       backgroundColor: Colors.white,

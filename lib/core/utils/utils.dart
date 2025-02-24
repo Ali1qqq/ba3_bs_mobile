@@ -1,7 +1,13 @@
+import 'package:flutter/cupertino.dart';
+import 'package:pluto_grid/pluto_grid.dart';
+
 import '../helper/enums/enums.dart';
 
 String generateId(RecordType recordType) {
-  var epoch = DateTime.now().microsecondsSinceEpoch.toString();
+  var epoch = DateTime
+      .now()
+      .microsecondsSinceEpoch
+      .toString();
   switch (recordType) {
     case RecordType.bond:
       return "bon$epoch";
@@ -43,3 +49,31 @@ String generateId(RecordType recordType) {
       return epoch;
   }
 }
+
+PlutoColumn buildPlutoColumn({
+  required String title,
+  required String field,
+  required PlutoColumnType type,
+  double width = 150,
+  bool isReadOnly = false,
+  bool isEditable = true,
+  bool hasContextMenu = true,
+  bool isResizable = true,
+  bool isFullyHidden = false,
+  bool isUIHidden = false,
+  bool Function(PlutoRow, PlutoCell)? readOnlyCondition,
+  Widget Function(PlutoColumnRendererContext)? customRenderer,
+}) =>
+    PlutoColumn(
+      title: title,
+      field: field,
+      type: type,
+      width: isUIHidden ? 0 : width,
+      readOnly: isUIHidden ? true : isReadOnly,
+      enableEditingMode: isUIHidden ? false : isEditable,
+      enableContextMenu: isUIHidden ? false : hasContextMenu,
+      enableDropToResize: isUIHidden ? false : isResizable,
+      hide: isFullyHidden,
+      checkReadOnly: readOnlyCondition,
+      renderer: customRenderer,
+    );

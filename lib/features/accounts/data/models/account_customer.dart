@@ -5,7 +5,7 @@ import 'package:pluto_grid/pluto_grid.dart';
 
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/helper/enums/enums.dart';
-import '../../../../core/utils/generate_id.dart';
+import '../../../../core/utils/utils.dart';
 
 class AccountCustomer implements PlutoAdaptable {
   String? customerVAT;

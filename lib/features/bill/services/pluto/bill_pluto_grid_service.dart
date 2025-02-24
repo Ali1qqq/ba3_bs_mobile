@@ -1,5 +1,5 @@
 import 'package:ba3_bs_mobile/core/helper/extensions/basic/string_extension.dart';
-import 'package:ba3_bs_mobile/core/helper/extensions/bill_pattern_type_extension.dart';
+import 'package:ba3_bs_mobile/core/helper/extensions/bill/bill_pattern_type_extension.dart';
 import 'package:ba3_bs_mobile/features/materials/controllers/material_controller.dart';
 import 'package:ba3_bs_mobile/features/patterns/data/models/bill_type_model.dart';
 import 'package:flutter/cupertino.dart';

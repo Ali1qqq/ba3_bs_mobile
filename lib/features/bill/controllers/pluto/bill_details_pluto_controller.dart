@@ -2,7 +2,8 @@ import 'dart:developer';
 
 import 'package:ba3_bs_mobile/core/constants/app_constants.dart';
 import 'package:ba3_bs_mobile/core/helper/extensions/basic/string_extension.dart';
-import 'package:ba3_bs_mobile/core/helper/extensions/bill_pattern_type_extension.dart';
+import 'package:ba3_bs_mobile/core/helper/extensions/bill/bill_model_extensions.dart';
+import 'package:ba3_bs_mobile/core/helper/extensions/bill/bill_pattern_type_extension.dart';
 import 'package:ba3_bs_mobile/features/materials/controllers/material_controller.dart';
 import 'package:ba3_bs_mobile/features/patterns/data/models/bill_type_model.dart';
 import 'package:flutter/material.dart';
@@ -26,9 +27,9 @@ class BillDetailsPlutoController extends IPlutoController<InvoiceRecordModel> {
   late final BillPlutoCalculator _calculator;
   late final BillPlutoUtils _plutoUtils;
   late final BillPlutoContextMenu _contextMenu;
-  final BillTypeModel? billTypeModel;
+  final BillTypeModel billTypeModel;
 
-  BillDetailsPlutoController({this.billTypeModel});
+  BillDetailsPlutoController(this.billTypeModel);
 
   late List<PlutoColumn> recordsTableColumns;
 
@@ -46,6 +47,11 @@ class BillDetailsPlutoController extends IPlutoController<InvoiceRecordModel> {
   List<PlutoRow> additionsDiscountsRows = [];
 
   List<PlutoColumn> additionsDiscountsColumns = AdditionsDiscountsRecordModel().toEditedMap().keys.toList();
+  @override
+  Map<MaterialModel, List<TextEditingController>> buyMaterialsSerialsControllers = {};
+
+  @override
+  Map<MaterialModel, List<TextEditingController>> sellMaterialsSerialsControllers = {};
 
   // State managers
   @override
@@ -92,21 +98,23 @@ class BillDetailsPlutoController extends IPlutoController<InvoiceRecordModel> {
 
     final materialController = read<MaterialController>();
 
-    final invoiceRecords =
+    final List<InvoiceRecordModel> invoiceRecords =
         recordsTableStateManager.rows.map((row) => _processBillRow(row, materialController)).whereType<InvoiceRecordModel>().toList();
 
+    generateSellMaterialsSerialsControllers(invoiceRecords);
+
     recordsTableStateManager.setShowLoading(false);
+
     return invoiceRecords;
   }
 
-  Map<Account, List<DiscountAdditionAccountModel>> get generateDiscountsAndAdditions =>
-      _gridService.collectDiscountsAndAdditions(_plutoUtils);
+  Map<Account, List<DiscountAdditionAccountModel>> get generateDiscountsAndAdditions => _gridService.collectDiscountsAndAdditions(_plutoUtils);
 
   @override
   void moveToNextRow(PlutoGridStateManager stateManager, String cellField) => _gridService.moveToNextRow(stateManager, cellField);
 
   @override
-  void restoreCurrentCell(PlutoGridStateManager stateManager) => _gridService.restoreCurrentCell(stateManager, billTypeModel!);
+  void restoreCurrentCell(PlutoGridStateManager stateManager) => _gridService.restoreCurrentCell(stateManager, billTypeModel);
 
   @override
   void onInit() {
@@ -121,7 +129,29 @@ class BillDetailsPlutoController extends IPlutoController<InvoiceRecordModel> {
     _plutoUtils = BillPlutoUtils(this);
     _contextMenu = BillPlutoContextMenu(this);
 
-    recordsTableColumns = InvoiceRecordModel().toEditedMap(billTypeModel!).keys.toList();
+    recordsTableColumns = InvoiceRecordModel().toEditedMap(billTypeModel).keys.toList();
+  }
+
+  void generateSellMaterialsSerialsControllers(List<InvoiceRecordModel> invRecords) {
+    // Clear existing data to avoid duplicates
+    sellMaterialsSerialsControllers.clear();
+
+    for (final record in invRecords) {
+      // Extract MaterialModel and serial number
+      MaterialModel? material = read<MaterialController>().searchMaterialByName(record.invRecProduct);
+      String? serialNumber = record.invRecProductSoldSerial;
+
+      if (material != null && serialNumber != null && serialNumber.isNotEmpty) {
+        // Ensure the material exists in the map
+        sellMaterialsSerialsControllers.putIfAbsent(material, () => []);
+
+        // Add the serial number as a TextEditingController
+        sellMaterialsSerialsControllers[material]!.add(TextEditingController(text: serialNumber));
+      }
+    }
+
+    // Log for debugging
+    log('📌 Generated sellMaterialsSerialsControllers: ${sellMaterialsSerialsControllers.map((key, value) => MapEntry(key.toString(), value.map((controller) => controller.text).toList()))}');
   }
 
   onMainTableLoaded(PlutoGridOnLoadedEvent event) {
@@ -165,15 +195,15 @@ class BillDetailsPlutoController extends IPlutoController<InvoiceRecordModel> {
 
   void _handleColumnUpdate(String columnField, int quantity, double subTotal, double total, double vat, String product) {
     if (columnField == AppConstants.invRecSubTotal) {
-      _gridService.updateInvoiceValues(subTotal, quantity, billTypeModel!);
+      _gridService.updateInvoiceValues(subTotal, quantity, billTypeModel);
     } else if (columnField == AppConstants.invRecTotal) {
-      _gridService.updateInvoiceValuesByTotal(total, quantity, billTypeModel!);
+      _gridService.updateInvoiceValuesByTotal(total, quantity, billTypeModel);
     } else if (columnField == AppConstants.invRecQuantity && quantity > 0) {
-      _gridService.updateInvoiceValuesByQuantity(quantity, subTotal, vat, billTypeModel!);
+      _gridService.updateInvoiceValuesByQuantity(quantity, subTotal, vat, billTypeModel);
     } else if (columnField == AppConstants.invRecProduct) {
-      _gridService.getProduct(product, recordsTableStateManager, this, context, billTypeModel!);
+      _gridService.getProduct(product, recordsTableStateManager, this, context, billTypeModel);
     }
-    if (billTypeModel!.billPatternType!.hasDiscountsAccount) updateAdditionDiscountCell(computeWithVatTotal);
+    if (billTypeModel.billPatternType!.hasDiscountsAccount) updateAdditionDiscountCell(computeWithVatTotal);
   }
 
   double _getSubTotal() {
@@ -292,7 +322,7 @@ class BillDetailsPlutoController extends IPlutoController<InvoiceRecordModel> {
     final materialModel = materialController.getMaterialByName(row.cells[AppConstants.invRecProduct]!.value);
 
     if (_plutoUtils.isValidItemQuantity(row, AppConstants.invRecQuantity) && materialModel != null) {
-      if (billTypeModel?.billPatternType?.hasVat ?? false) {
+      if (billTypeModel.billPatternType?.hasVat ?? false) {
         return _createInvoiceRecord(row, materialModel.id!, VatEnums.byGuid(materialModel.matVatGuid ?? "2").taxRatio ?? 0);
       } else {
         return _createInvoiceRecord(row, materialModel.id!, 0);
@@ -303,8 +333,7 @@ class BillDetailsPlutoController extends IPlutoController<InvoiceRecordModel> {
   }
 
   // Helper method to create an InvoiceRecordModel from a row
-  InvoiceRecordModel _createInvoiceRecord(PlutoRow row, String matId, double matVat) =>
-      InvoiceRecordModel.fromJsonPluto(matId, row.toJson(), matVat);
+  InvoiceRecordModel _createInvoiceRecord(PlutoRow row, String matId, double matVat) => InvoiceRecordModel.fromJsonPluto(matId, row.toJson(), matVat);
 
   void prepareBillMaterialsRows(List<InvoiceRecordModel> invRecords) {
     recordsTableStateManager.removeAllRows();
@@ -312,7 +341,7 @@ class BillDetailsPlutoController extends IPlutoController<InvoiceRecordModel> {
     final newRows = recordsTableStateManager.getNewRows(count: 30);
 
     if (invRecords.isNotEmpty) {
-      recordsTableRows = _gridService.convertRecordsToRows(invRecords, billTypeModel!);
+      recordsTableRows = _gridService.convertRecordsToRows(invRecords, billTypeModel);
 
       recordsTableStateManager.appendRows(recordsTableRows);
       recordsTableStateManager.appendRows(newRows);
@@ -357,12 +386,18 @@ class BillDetailsPlutoController extends IPlutoController<InvoiceRecordModel> {
     } else if (field == AppConstants.invRecProduct) {
       _showMatMenu(event, materialModel, context);
     } else if (field == AppConstants.invRecSubTotal) {
-      _showPriceTypeMenu(event, materialModel, context, billTypeModel!);
+      _showPriceTypeMenu(event, materialModel, context, billTypeModel);
     }
   }
 
+  List<String> get materialMenu => [
+    'حركة المادة',
+    if (billTypeModel.isPurchaseRelated) 'إضافة serial',
+  ];
+
   void _showMatMenu(event, MaterialModel materialModel, BuildContext context) {
     _contextMenu.showMaterialMenu(
+      materialMenu: materialMenu,
       context: context,
       index: event.rowIdx,
       materialModel: materialModel,
@@ -383,7 +418,7 @@ class BillDetailsPlutoController extends IPlutoController<InvoiceRecordModel> {
 
   @override
   void initSerialControllers(MaterialModel materialModel, int serialCount) {
-    serialControllers.update(
+    buyMaterialsSerialsControllers.update(
       materialModel,
       (existingList) => _matchControllerCount(existingList, serialCount),
       ifAbsent: () => _createControllers(serialCount),
@@ -413,6 +448,15 @@ class BillDetailsPlutoController extends IPlutoController<InvoiceRecordModel> {
 
   /// Creates a list of [TextEditingController] with [count] items.
   List<TextEditingController> _createControllers(int count) => List.generate(count, (_) => TextEditingController());
+
+  @override
+  void onClose() {
+    for (var controllerList in buyMaterialsSerialsControllers.values) {
+      for (final controller in controllerList) {
+        controller.dispose();
+      }
+    }
+  }
 }
 
 // 530 - 236

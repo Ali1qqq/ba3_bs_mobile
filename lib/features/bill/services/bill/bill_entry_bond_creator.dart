@@ -1,5 +1,5 @@
-import 'package:ba3_bs_mobile/core/helper/extensions/bill_pattern_type_extension.dart';
-import 'package:ba3_bs_mobile/core/helper/extensions/date_time_extensions.dart';
+import 'package:ba3_bs_mobile/core/helper/extensions/bill/bill_pattern_type_extension.dart';
+import 'package:ba3_bs_mobile/core/helper/extensions/basic/date_time_extensions.dart';
 import 'package:ba3_bs_mobile/core/helper/extensions/getx_controller_extensions.dart';
 import 'package:ba3_bs_mobile/features/bill/data/models/bill_items.dart';
 import 'package:ba3_bs_mobile/features/bill/data/models/bill_model.dart';

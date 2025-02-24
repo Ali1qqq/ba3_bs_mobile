@@ -1,4 +1,4 @@
-import 'package:ba3_bs_mobile/core/helper/extensions/bill_pattern_type_extension.dart';
+import 'package:ba3_bs_mobile/core/helper/extensions/bill/bill_pattern_type_extension.dart';
 import 'package:ba3_bs_mobile/core/helper/extensions/role_item_type_extension.dart';
 import 'package:ba3_bs_mobile/features/bill/controllers/bill/bill_search_controller.dart';
 import 'package:flutter/material.dart';

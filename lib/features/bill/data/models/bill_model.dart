@@ -1,7 +1,7 @@
 import 'package:ba3_bs_mobile/core/helper/enums/enums.dart';
-import 'package:ba3_bs_mobile/core/helper/extensions/bill_pattern_type_extension.dart';
-import 'package:ba3_bs_mobile/core/helper/extensions/date_fromat_extension.dart';
-import 'package:ba3_bs_mobile/core/helper/extensions/date_time_extensions.dart';
+import 'package:ba3_bs_mobile/core/helper/extensions/bill/bill_pattern_type_extension.dart';
+import 'package:ba3_bs_mobile/core/helper/extensions/basic/date_fromat_extension.dart';
+import 'package:ba3_bs_mobile/core/helper/extensions/basic/date_time_extensions.dart';
 import 'package:ba3_bs_mobile/core/utils/app_service_utils.dart';
 import 'package:ba3_bs_mobile/features/accounts/controllers/accounts_controller.dart';
 import 'package:ba3_bs_mobile/features/accounts/data/models/account_model.dart';

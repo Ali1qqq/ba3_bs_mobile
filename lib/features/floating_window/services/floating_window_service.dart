@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 
+import '../../../core/helper/extensions/getx_controller_extensions.dart';
 import '../../../core/utils/app_service_utils.dart';
 import '../controllers/floating_window_controller.dart';
 
@@ -11,13 +12,12 @@ class FloatingWindowService {
   static void launchFloatingWindow({
     required BuildContext context,
     required Widget floatingScreen,
+    required String tag,
     String? minimizedTitle,
     VoidCallback? onCloseCallback,
     double? defaultWidth,
     double? defaultHeight,
   }) {
-    final String tag = AppServiceUtils.generateUniqueTag('FloatingWindowController');
-
     // Initialize the floating window controller
     FloatingWindowController floatingWindowController =
         _initializeFloatingWindowController(defaultWidth: defaultWidth, defaultHeight: defaultHeight, tag: tag);
@@ -37,14 +37,6 @@ class FloatingWindowService {
   }
 
   /// Initializes and returns a new instance of [FloatingWindowController].
-  static FloatingWindowController _initializeFloatingWindowController({double? defaultWidth, double? defaultHeight, String? tag}) {
-    // Create the controller if not already created
-
-    if (!Get.isRegistered<FloatingWindowController>(tag: tag)) {
-      Get.create(() => FloatingWindowController(defaultWidth: defaultWidth, defaultHeight: defaultHeight), tag: tag, permanent: false);
-    }
-
-    // Return the controller instance
-    return Get.find<FloatingWindowController>(tag: tag);
-  }
+  static FloatingWindowController _initializeFloatingWindowController({double? defaultWidth, double? defaultHeight, String? tag}) =>
+      put(FloatingWindowController(defaultWidth: defaultWidth, defaultHeight: defaultHeight), tag: tag);
 }

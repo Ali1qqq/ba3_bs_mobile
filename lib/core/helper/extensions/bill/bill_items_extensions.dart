@@ -1,7 +1,7 @@
 import 'package:ba3_bs_mobile/core/helper/extensions/basic/list_extensions.dart';
 import 'package:ba3_bs_mobile/core/helper/extensions/basic/string_extension.dart';
 
-import '../../../features/bill/data/models/bill_items.dart';
+import '../../../../features/bill/data/models/bill_items.dart';
 
 extension BillItemsExtension on List<BillItem> {
   List<BillItem> merge<T>() => mergeBy(

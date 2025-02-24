@@ -1,4 +1,4 @@
-import 'package:ba3_bs_mobile/core/helper/extensions/date_time_extensions.dart';
+import 'package:ba3_bs_mobile/core/helper/extensions/basic/date_time_extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';

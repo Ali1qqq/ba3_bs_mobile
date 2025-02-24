@@ -1,8 +1,9 @@
 import 'dart:developer';
 
 import 'package:ba3_bs_mobile/core/helper/extensions/basic/list_extensions.dart';
-import 'package:ba3_bs_mobile/core/helper/extensions/bill_items_extensions.dart';
-import 'package:ba3_bs_mobile/core/helper/extensions/bill_pattern_type_extension.dart';
+import 'package:ba3_bs_mobile/core/helper/extensions/bill/bill_items_extensions.dart';
+import 'package:ba3_bs_mobile/core/helper/extensions/bill/bill_model_extensions.dart';
+import 'package:ba3_bs_mobile/core/helper/extensions/bill/bill_pattern_type_extension.dart';
 import 'package:ba3_bs_mobile/core/helper/extensions/role_item_type_extension.dart';
 import 'package:ba3_bs_mobile/core/helper/mixin/floating_launcher.dart';
 import 'package:ba3_bs_mobile/core/i_controllers/i_pluto_controller.dart';
@@ -329,23 +330,6 @@ class BillDetailsService with PdfBase, EntryBondsGenerator, MatsStatementsGenera
     return (newItems: newItems, deletedItems: deletedItems, updatedItems: updatedItems);
   }
 
-  _handelUpdate({
-    required Map<String, AccountModel> modifiedBillTypeAccounts,
-    required BillModel previousBill,
-    required BillModel currentBill,
-  }) {
-    modifiedBillTypeAccounts = findModifiedBillTypeAccounts(previousBill: previousBill, currentBill: currentBill);
-
-    if (hasModelId(currentBill.billId) &&
-        hasModelItems(currentBill.items.itemList) &&
-        hasModelId(previousBill.billId) &&
-        hasModelItems(previousBill.items.itemList)) {
-      generateAndSendPdf(
-        fileName: AppStrings.updatedBill.tr,
-        itemModel: [previousBill, currentBill],
-      );
-    }
-  }
 
 // Updated handleSaveOrUpdateSuccess method.
   Future<void> handleSaveOrUpdateSuccess({
@@ -358,7 +342,7 @@ class BillDetailsService with PdfBase, EntryBondsGenerator, MatsStatementsGenera
     _showSuccessMessage(isSave);
 
     // 2. Prepare containers for modified accounts and deleted materials.
-    final modifiedBillTypeAccounts = <String, AccountModel>{};
+    Map<String, AccountModel> modifiedBillTypeAccounts = <String, AccountModel>{};
 
     ({List<BillItem> newItems, List<BillItem> deletedItems, List<BillItem> updatedItems})? itemChanges;
 
@@ -366,12 +350,11 @@ class BillDetailsService with PdfBase, EntryBondsGenerator, MatsStatementsGenera
     if (isSave) {
       _handleAdd(savedBill: currentBill, billSearchController: billSearchController);
     } else {
+      // Update the bill (PDF generation etc.) and collect modifications.
+      modifiedBillTypeAccounts = _handelModifiedAccountsUpdate(previousBill: previousBill!, currentBill: currentBill);
+
       // Process update and compute the differences between bill items.
-      itemChanges = _processUpdate(
-        previousBill: previousBill!,
-        currentBill: currentBill,
-        modifiedBillTypeAccounts: modifiedBillTypeAccounts,
-      );
+      itemChanges = _processUpdate(previousBill: previousBill, currentBill: currentBill);
     }
 
     // 4. Update the bill search controller.
@@ -423,7 +406,13 @@ class BillDetailsService with PdfBase, EntryBondsGenerator, MatsStatementsGenera
   }
 
   Future<void> saveMaterialsSerials(BillModel savedBill) async {
-    final Map<MaterialModel, List<TextEditingController>> serialControllers = plutoController.serialControllers;
+    final Map<MaterialModel, List<TextEditingController>> buySerialsControllers = plutoController.buyMaterialsSerialsControllers;
+    final Map<MaterialModel, List<TextEditingController>> sellSerialsControllers = plutoController.sellMaterialsSerialsControllers;
+
+    log('BillTypeUtils.isPurchaseRelated(savedBill) ${savedBill.isPurchaseRelated}');
+
+    final Map<MaterialModel, List<TextEditingController>> serialControllers =
+        savedBill.isPurchaseRelated ? buySerialsControllers : sellSerialsControllers;
 
     if (serialControllers.isNotEmpty) {
       billDetailsController.saveSerialNumbers(savedBill, serialControllers);
@@ -442,18 +431,8 @@ class BillDetailsService with PdfBase, EntryBondsGenerator, MatsStatementsGenera
   }
 
   /// Processes an update by calling the update handler and computing item changes.
-  ({List<BillItem> newItems, List<BillItem> deletedItems, List<BillItem> updatedItems})? _processUpdate({
-    required BillModel previousBill,
-    required BillModel currentBill,
-    required Map<String, AccountModel> modifiedBillTypeAccounts,
-  }) {
-    // Update the bill (PDF generation etc.) and collect modifications.
-    _handelUpdate(
-      modifiedBillTypeAccounts: modifiedBillTypeAccounts,
-      previousBill: previousBill,
-      currentBill: currentBill,
-    );
-
+  ({List<BillItem> newItems, List<BillItem> deletedItems, List<BillItem> updatedItems})? _processUpdate(
+      {required BillModel previousBill, required BillModel currentBill}) {
     // Compute the differences between the previous and current bill items.
     final changes = findBillItemChanges(previousItems: previousBill.items.itemList, currentItems: currentBill.items.itemList);
 
@@ -475,6 +454,24 @@ class BillDetailsService with PdfBase, EntryBondsGenerator, MatsStatementsGenera
           (itemChanges?.deletedItems.isNotEmpty ?? false) ||
           (itemChanges?.updatedItems.isNotEmpty ?? false);
     }
+  }
+
+  Map<String, AccountModel> _handelModifiedAccountsUpdate({
+    required BillModel previousBill,
+    required BillModel currentBill,
+  }) {
+    final Map<String, AccountModel> modifiedAccounts = findModifiedBillTypeAccounts(previousBill: previousBill, currentBill: currentBill);
+
+    if (hasModelId(currentBill.billId) &&
+        hasModelItems(currentBill.items.itemList) &&
+        hasModelId(previousBill.billId) &&
+        hasModelItems(previousBill.items.itemList)) {
+      generateAndSendPdf(
+        fileName: AppStrings.updatedBill.tr,
+        itemModel: [previousBill, currentBill],
+      );
+    }
+    return modifiedAccounts;
   }
 
   /// Adds a new bill by marking it as saved and generating its PDF.

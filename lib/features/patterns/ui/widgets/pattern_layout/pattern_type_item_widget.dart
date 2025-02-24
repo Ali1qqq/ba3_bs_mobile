@@ -1,5 +1,5 @@
 import 'package:ba3_bs_mobile/core/helper/enums/enums.dart';
-import 'package:ba3_bs_mobile/core/helper/extensions/bill_pattern_type_extension.dart';
+import 'package:ba3_bs_mobile/core/helper/extensions/bill/bill_pattern_type_extension.dart';
 import 'package:ba3_bs_mobile/core/styling/app_colors.dart';
 import 'package:ba3_bs_mobile/core/styling/app_text_style.dart';
 import 'package:ba3_bs_mobile/core/widgets/app_button.dart';

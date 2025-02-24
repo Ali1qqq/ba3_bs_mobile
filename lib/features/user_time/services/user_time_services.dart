@@ -1,4 +1,4 @@
-import 'package:ba3_bs_mobile/core/helper/extensions/date_time_extensions.dart';
+import 'package:ba3_bs_mobile/core/helper/extensions/basic/date_time_extensions.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:geolocator/geolocator.dart';
 

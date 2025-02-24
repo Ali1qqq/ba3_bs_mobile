@@ -1,5 +1,5 @@
 import 'package:ba3_bs_mobile/core/constants/app_strings.dart';
-import 'package:ba3_bs_mobile/core/helper/extensions/bill_pattern_type_extension.dart';
+import 'package:ba3_bs_mobile/core/helper/extensions/bill/bill_pattern_type_extension.dart';
 import 'package:ba3_bs_mobile/features/bill/data/models/bill_model.dart';
 import 'package:ba3_bs_mobile/features/patterns/data/models/bill_type_model.dart';
 import 'package:flutter/cupertino.dart';
@@ -9,8 +9,8 @@ import 'package:pluto_grid/pluto_grid.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/helper/enums/enums.dart';
 import '../../../../core/utils/app_service_utils.dart';
+import '../../../../core/utils/utils.dart';
 import 'bill_items.dart';
-
 class InvoiceRecordModel {
   String? invRecId;
   String? invRecProduct;
@@ -22,6 +22,8 @@ class InvoiceRecordModel {
   double? invRecVat;
   double? invRecGiftTotal;
   bool? invRecIsLocal;
+  String? invRecProductSoldSerial;
+  List<String>? invRecProductSerialNumbers;
 
   InvoiceRecordModel({
     this.invRecId,
@@ -34,51 +36,60 @@ class InvoiceRecordModel {
     this.invRecIsLocal,
     this.invRecGift,
     this.invRecGiftTotal,
+    this.invRecProductSoldSerial,
+    this.invRecProductSerialNumbers,
   });
 
   /// Factory method to create an InvoiceRecordModel from a BillItem.
   factory InvoiceRecordModel.fromBillItem(BillItem billItem) => InvoiceRecordModel(
-        invRecId: billItem.itemGuid,
-        invRecProduct: billItem.itemName,
-        invRecQuantity: billItem.itemQuantity,
-        invRecSubTotal: billItem.itemSubTotalPrice,
-        invRecTotal: double.tryParse(billItem.itemTotalPrice),
-        invRecVat: billItem.itemVatPrice,
-        invRecGift: billItem.itemGiftsNumber,
-        invRecGiftTotal: billItem.itemGiftsPrice,
-      );
+    invRecId: billItem.itemGuid,
+    invRecProduct: billItem.itemName,
+    invRecQuantity: billItem.itemQuantity,
+    invRecSubTotal: billItem.itemSubTotalPrice,
+    invRecTotal: double.tryParse(billItem.itemTotalPrice),
+    invRecVat: billItem.itemVatPrice,
+    invRecGift: billItem.itemGiftsNumber,
+    invRecGiftTotal: billItem.itemGiftsPrice,
+    invRecProductSoldSerial: billItem.soldSerialNumber,
+    invRecProductSerialNumbers: billItem.itemSerialNumbers,
+  );
 
   factory InvoiceRecordModel.fromJson(Map<dynamic, dynamic> map) => InvoiceRecordModel(
-        invRecId: map[AppConstants.invRecId],
-        invRecProduct: map[AppConstants.invRecProduct],
-        invRecQuantity: int.tryParse(map[AppConstants.invRecQuantity].toString()),
-        invRecSubTotal: double.tryParse(map[AppConstants.invRecSubTotal].toString()),
-        invRecTotal: double.tryParse(map[AppConstants.invRecTotal].toString()),
-        invRecVat: double.tryParse((map[AppConstants.invRecVat]).toString()),
-        invRecIsLocal: map[AppConstants.invRecIsLocal],
-        invRecGift: int.tryParse(map[AppConstants.invRecGift].toString()),
-        invRecGiftTotal: (map[AppConstants.invRecGiftTotal] ?? 0) * 1.0,
-      );
+    invRecId: map[AppConstants.invRecId],
+    invRecProduct: map[AppConstants.invRecProduct],
+    invRecQuantity: int.tryParse(map[AppConstants.invRecQuantity].toString()),
+    invRecSubTotal: double.tryParse(map[AppConstants.invRecSubTotal].toString()),
+    invRecTotal: double.tryParse(map[AppConstants.invRecTotal].toString()),
+    invRecVat: double.tryParse((map[AppConstants.invRecVat]).toString()),
+    invRecIsLocal: map[AppConstants.invRecIsLocal],
+    invRecGift: int.tryParse(map[AppConstants.invRecGift].toString()),
+    invRecGiftTotal: (map[AppConstants.invRecGiftTotal] ?? 0) * 1.0,
+  );
 
   toJson() => {
-        AppConstants.invRecId: invRecId,
-        AppConstants.invRecProduct: invRecProduct,
-        AppConstants.invRecQuantity: invRecQuantity,
-        AppConstants.invRecSubTotal: invRecSubTotal,
-        AppConstants.invRecTotal: invRecTotal,
-        AppConstants.invRecVat: invRecVat,
-        AppConstants.invRecIsLocal: invRecIsLocal,
-        AppConstants.invRecGift: invRecGift,
-        AppConstants.invRecGiftTotal: invRecGiftTotal,
-      };
+    AppConstants.invRecId: invRecId,
+    AppConstants.invRecProduct: invRecProduct,
+    AppConstants.invRecQuantity: invRecQuantity,
+    AppConstants.invRecSubTotal: invRecSubTotal,
+    AppConstants.invRecTotal: invRecTotal,
+    AppConstants.invRecVat: invRecVat,
+    AppConstants.invRecIsLocal: invRecIsLocal,
+    AppConstants.invRecGift: invRecGift,
+    AppConstants.invRecGiftTotal: invRecGiftTotal,
+  };
 
   factory InvoiceRecordModel.fromJsonPluto(String matId, Map<dynamic, dynamic> map, double vatRatio) {
     final int quantity = _parseInteger(map[AppConstants.invRecQuantity]) ?? 1;
     final double total = _parseDouble(map[AppConstants.invRecTotal]) ?? 0;
     final subTotal = (total / (quantity * (1 + vatRatio)));
     final vat = subTotal * vatRatio;
-    final String? prodName = map[AppConstants.invRecProduct];
     final int? giftsNumber = _parseInteger(map[AppConstants.invRecGift]);
+
+    final String? prodName = map[AppConstants.invRecProduct];
+    final String? productSoldSerial = map[AppConstants.invRecProductSoldSerial];
+
+    final List<String>? productSerialNumbers =
+    (map[AppConstants.invRecProductSerialNumbers] is List) ? List<String>.from(map[AppConstants.invRecProductSerialNumbers] as List) : null;
 
     // final double? subTotal = _parseDouble(map[AppConstants.invRecSubTotal]);
     // final double? vat = _parseDouble(map[AppConstants.invRecVat]);
@@ -99,6 +110,8 @@ class InvoiceRecordModel {
       invRecIsLocal: map[AppConstants.invRecIsLocal],
       invRecGift: giftsNumber,
       invRecGiftTotal: giftTotal,
+      invRecProductSoldSerial: productSoldSerial,
+      invRecProductSerialNumbers: productSerialNumbers,
     );
   }
 
@@ -174,20 +187,21 @@ class InvoiceRecordModel {
     final int quantity = invRecQuantity ?? 1;
     final bool hasVat = billTypeModel.billPatternType?.hasVat ?? false;
 
-    final double subTotalStr =
-        (quantity > 0) ? (hasVat ? AppServiceUtils.toFixedDouble(total / (quantity * 1.05)) : total / quantity) : total;
+    final double subTotalStr = (quantity > 0) ? (hasVat ? AppServiceUtils.toFixedDouble(total / (quantity * 1.05)) : total / quantity) : total;
 
     final double vat = (quantity > 0 && hasVat) ? AppServiceUtils.toFixedDouble(subTotalStr * 0.05) : 0;
+
     return {
-      PlutoColumn(
+      // Row Index Column
+      buildPlutoColumn(
         title: '#',
         field: AppConstants.invRecId,
-        readOnly: true,
-        width: 35,
-        enableContextMenu: false,
-        enableDropToResize: false,
         type: PlutoColumnType.text(),
-        renderer: (rendererContext) {
+        width: 35,
+        isReadOnly: true,
+        hasContextMenu: false,
+        isResizable: false,
+        customRenderer: (rendererContext) {
           if (rendererContext.row.cells[AppConstants.invRecProduct]?.value != '') {
             rendererContext.cell.value = rendererContext.rowIdx.toString();
             return Text(rendererContext.rowIdx.toString());
@@ -195,60 +209,80 @@ class InvoiceRecordModel {
           return const Text("");
         },
       ): invRecId,
-      PlutoColumn(
+
+      // Product Name Column
+      buildPlutoColumn(
         title: AppStrings.material.tr,
-        width: 300,
         field: AppConstants.invRecProduct,
         type: PlutoColumnType.text(),
-        checkReadOnly: (row, cell) {
-          return false;
-        },
+        width: 300,
       ): invRecProduct,
-      PlutoColumn(
+
+      // Quantity Column
+      buildPlutoColumn(
         title: AppStrings.quantity.tr,
         field: AppConstants.invRecQuantity,
-        width: 110,
         type: PlutoColumnType.text(),
-        checkReadOnly: (row, cell) {
-          return cell.row.cells[AppConstants.invRecProduct]?.value == '';
-        },
+        width: 110,
+        readOnlyCondition: (row, cell) => cell.row.cells[AppConstants.invRecProduct]?.value == '',
       ): invRecQuantity,
-      PlutoColumn(
+
+      // Individual Price Column
+      buildPlutoColumn(
         title: AppStrings.individual.tr,
         field: AppConstants.invRecSubTotal,
-        width: 110,
         type: PlutoColumnType.text(),
-        checkReadOnly: (row, cell) {
-          return cell.row.cells[AppConstants.invRecProduct]?.value == '';
-        },
+        width: 110,
+        readOnlyCondition: (row, cell) => cell.row.cells[AppConstants.invRecProduct]?.value == '',
       ): subTotalStr,
-      if (billTypeModel.billPatternType!.hasVat)
-        PlutoColumn(
-          title: AppStrings.tax.tr,
-          width: 110,
-          field: AppConstants.invRecVat,
-          enableEditingMode: false,
-          type: PlutoColumnType.text(),
-        ): vat,
-      PlutoColumn(
+
+      // Total Column
+      buildPlutoColumn(
         title: AppStrings.total.tr,
-        width: 150,
         field: AppConstants.invRecTotal,
         type: PlutoColumnType.text(),
-        checkReadOnly: (row, cell) {
-          return cell.row.cells[AppConstants.invRecProduct]?.value == '';
-        },
+        width: 150,
+        readOnlyCondition: (row, cell) => cell.row.cells[AppConstants.invRecProduct]?.value == '',
       ): invRecTotal,
-      if (billTypeModel.billPatternType!.hasGiftsAccount)
-        PlutoColumn(
-          title: AppStrings.gifts.tr,
+
+      // Tax Column (Only if VAT is enabled)
+      if (billTypeModel.billPatternType!.hasVat)
+        buildPlutoColumn(
+          title: AppStrings.tax.tr,
+          field: AppConstants.invRecVat,
+          type: PlutoColumnType.text(),
           width: 110,
+          isEditable: false,
+        ): vat,
+
+      // Gifts Column (Only if Gifts Account is enabled)
+      if (billTypeModel.billPatternType!.hasGiftsAccount)
+        buildPlutoColumn(
+          title: AppStrings.gifts.tr,
           field: AppConstants.invRecGift,
           type: PlutoColumnType.text(),
-          checkReadOnly: (row, cell) {
-            return cell.row.cells[AppConstants.invRecProduct]?.value == '';
-          },
+          width: 110,
+          readOnlyCondition: (row, cell) => cell.row.cells[AppConstants.invRecProduct]?.value == '',
         ): invRecGift,
+
+      // Serial Numbers Column
+      buildPlutoColumn(
+        title: AppStrings.productSerialNumbers.tr,
+        field: AppConstants.invRecProductSerialNumbers,
+        type: PlutoColumnType.text(),
+        width: 110,
+        isEditable: false,
+        isFullyHidden: AppConstants.hideInvRecProductSerialNumbers,
+      ): invRecProductSerialNumbers,
+
+      // Sold Serial Number Column (Hidden but retains value)
+      buildPlutoColumn(
+        title: AppStrings.productSoldSerialNumber.tr,
+        field: AppConstants.invRecProductSoldSerial,
+        type: PlutoColumnType.text(),
+        isUIHidden: true,
+        isFullyHidden: AppConstants.hideInvRecProductSoldSerial,
+      ): invRecProductSoldSerial,
     };
   }
 
@@ -291,20 +325,20 @@ class AdditionsDiscountsRecordModel {
   }
 
   factory AdditionsDiscountsRecordModel.fromJson(Map<dynamic, dynamic> map) => AdditionsDiscountsRecordModel(
-        account: map[AppConstants.id],
-        discount: _parseDouble(map[AppConstants.discount]),
-        discountRatio: _parseDouble(map[AppConstants.discountRatio]),
-        addition: _parseDouble(map[AppConstants.addition]),
-        additionRatio: _parseDouble(map[AppConstants.additionRatio]),
-      );
+    account: map[AppConstants.id],
+    discount: _parseDouble(map[AppConstants.discount]),
+    discountRatio: _parseDouble(map[AppConstants.discountRatio]),
+    addition: _parseDouble(map[AppConstants.addition]),
+    additionRatio: _parseDouble(map[AppConstants.additionRatio]),
+  );
 
   toJson() => {
-        AppConstants.id: account,
-        AppConstants.discount: discount,
-        AppConstants.discountRatio: discountRatio,
-        AppConstants.addition: addition,
-        AppConstants.additionRatio: additionRatio,
-      };
+    AppConstants.id: account,
+    AppConstants.discount: discount,
+    AppConstants.discountRatio: discountRatio,
+    AppConstants.addition: addition,
+    AppConstants.additionRatio: additionRatio,
+  };
 
   factory AdditionsDiscountsRecordModel.fromJsonPluto(Map<dynamic, dynamic> map) {
     final String? account = map[AppConstants.id];
@@ -367,31 +401,11 @@ class AdditionsDiscountsRecordModel {
 
   Map<PlutoColumn, dynamic> toEditedMap() {
     return {
-      PlutoColumn(
-        title: AppStrings.account.tr,
-        field: AppConstants.id,
-        type: PlutoColumnType.text(),
-      ): account,
-      PlutoColumn(
-        title: AppStrings.discount.tr,
-        field: AppConstants.discount,
-        type: PlutoColumnType.text(),
-      ): discount,
-      PlutoColumn(
-        title: AppStrings.discountRatio.tr,
-        field: AppConstants.discountRatio,
-        type: PlutoColumnType.text(),
-      ): discountRatio,
-      PlutoColumn(
-        title: AppStrings.additions.tr,
-        field: AppConstants.addition,
-        type: PlutoColumnType.text(),
-      ): addition,
-      PlutoColumn(
-        title: AppStrings.additionRatio.tr,
-        field: AppConstants.additionRatio,
-        type: PlutoColumnType.text(),
-      ): additionRatio,
+      PlutoColumn(title: AppStrings.account.tr, field: AppConstants.id, type: PlutoColumnType.text()): account,
+      PlutoColumn(title: AppStrings.discount.tr, field: AppConstants.discount, type: PlutoColumnType.text()): discount,
+      PlutoColumn(title: AppStrings.discountRatio.tr, field: AppConstants.discountRatio, type: PlutoColumnType.text()): discountRatio,
+      PlutoColumn(title: AppStrings.additions.tr, field: AppConstants.addition, type: PlutoColumnType.text()): addition,
+      PlutoColumn(title: AppStrings.additionRatio.tr, field: AppConstants.additionRatio, type: PlutoColumnType.text()): additionRatio,
     };
   }
 }
