@@ -15,7 +15,7 @@ if (keystorePropertiesFile.exists()) {
 }
 android {
     namespace = "com.ba3bsmobile.ba3_bs_mobile"
-    compileSdk = 34
+    compileSdk = 35
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
@@ -50,9 +50,8 @@ android {
 
     buildTypes {
         release {
-            signingConfig signingConfigs.release
-            minifyEnabled true // لضغط وتقليل حجم التطبيق
-            shrinkResources true // لإزالة الموارد غير المستخدمة
+            shrinkResources false
+            minifyEnabled false
         }
     }
 }

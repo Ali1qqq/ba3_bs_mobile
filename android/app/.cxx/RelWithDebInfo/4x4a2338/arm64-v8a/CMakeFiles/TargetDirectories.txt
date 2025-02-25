@@ -1,0 +1,2 @@
+/Users/alidabol/StudioProjects/ba3_bs_mobile/android/app/.cxx/RelWithDebInfo/4x4a2338/arm64-v8a/CMakeFiles/edit_cache.dir
+/Users/alidabol/StudioProjects/ba3_bs_mobile/android/app/.cxx/RelWithDebInfo/4x4a2338/arm64-v8a/CMakeFiles/rebuild_cache.dir
