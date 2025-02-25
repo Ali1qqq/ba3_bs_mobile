@@ -1,12 +1,12 @@
-import 'package:ba3_bs_mobile/features/accounts/controllers/account_statement_controller.dart' show AccountStatementController;
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../features/accounts/controllers/account_statement_controller.dart';
 import '../styling/app_colors.dart';
 import '../widgets/app_button.dart';
 import '../widgets/option_text_widget.dart';
 
-Dialog accountOptionDialog(BuildContext context) {
+Dialog showAccountFilterDialog(BuildContext context) {
   return Dialog(
     backgroundColor: AppColors.backGroundColor,
     child: Padding(
