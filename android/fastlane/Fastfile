@@ -19,7 +19,7 @@ default_platform(:android)
 platform :android do
   desc "Distribute the app to Firebase App Distribution"
   lane  :deploy_to_firebase do
-    sh "flutter build apk"
+    sh "flutter build apk --release --verbose"
     firebase_app_distribution(
       app: ENV["FIREBASE_APP_ID"].strip, # Replace with your Firebase Android app ID
       groups: "testers",
@@ -30,6 +30,5 @@ platform :android do
       debug: true
 
     )
-
   end
 end
