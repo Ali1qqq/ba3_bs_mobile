@@ -50,7 +50,6 @@ jobs:
       - name: Run Flutter Build Manually
         run: |
           flutter build apk --release
-
       # Uncomment this section after debugging Gradle build issues
       # - name: Deploy to Firebase via Fastlane
       #   working-directory: android
@@ -59,3 +58,4 @@ jobs:
       #     FIREBASE_CLI_TOKEN: "1//09LXYcrcj4BX2CgYIARAAGAkSNwF-L9IrRXiF-cBTEjSP3HY_rQbYleJ8Mjcs4BWCBEwpfzhkUpv3TvOIhY4fo5wMXOs4L1r10i0"
       #   run: |
       #     bundle exec fastlane deploy_to_firebase
+

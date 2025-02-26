@@ -18,7 +18,7 @@
 #
 # platform :android do
 #   desc "Distribute the app to Firebase App Distribution"
-#   lane  :deploy_to_firebase do
+#   lane :deploy_to_firebase do
 #     sh "flutter build apk"
 #     firebase_app_distribution(
 #       app: ENV["FIREBASE_APP_ID"].strip,
@@ -36,8 +36,8 @@ default_platform(:android)
 
 platform :android do
   desc "Distribute the app to Firebase App Distribution"
-  lane  :deploy_to_firebase do
-    sh "flutter build apk"
+  lane :deploy_to_firebase do
+    sh "flutter build apk --release"
     firebase_app_distribution(
       app: "1:307353344258:android:7c0b16dc5261f883f78a1b",
       groups: "testers",
@@ -49,3 +49,4 @@ platform :android do
     )
   end
 end
+
