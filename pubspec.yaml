@@ -3,7 +3,7 @@ description: "BA3 Business Solutions App"
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
 
-version: 1.0.0+7
+version: 1.0.0+8
 
 environment:
   sdk: ^3.6.0
@@ -34,7 +34,7 @@ dependencies:
   syncfusion_flutter_datepicker: ^28.2.7
   flutter_material_color_picker: ^1.2.0
   tab_container: ^3.5.3
-  math_expressions: ^2.7.0
+  math_expressions: ^2.6.0
   image: ^4.5.3
   print_bluetooth_thermal: ^1.1.6
   esc_pos_utils_plus: ^2.0.4

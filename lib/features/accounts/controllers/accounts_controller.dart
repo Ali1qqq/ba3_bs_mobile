@@ -160,20 +160,20 @@ class AccountsController extends GetxController with AppNavigator {
       return [exactMatch]; // إرجاع الحساب المطابق فقط
     }
 
-    // البحث عن تطابق جزئي متتابع
-    var partialMatch = accounts.firstWhereOrNull(
+    var partialMatch = accounts.where(
       (item) {
         String name = item.accName!.toLowerCase();
         return searchParts.every((part) => name.contains(part)); // التحقق من أن جميع أجزاء النص المدخل موجودة في الاسم
       },
     );
-
-    if (partialMatch != null) {
-      return [partialMatch]; // إرجاع أول تطابق جزئي متتابع
+    log(partialMatch.length.toString());
+    if (partialMatch.length == 1) {
+      return [partialMatch.first]; // إرجاع أول تطابق جزئي متتابع
+    } else if (partialMatch.length > 1) {
+      return partialMatch.toList();
     }
 
-    // البحث العادي عند عدم وجود تطابق متتابع
-    return accounts.where((item) => item.accName!.toLowerCase().contains(text.toLowerCase()) || item.accCode!.contains(text)).toList();
+    return accounts.where((item) => item.accName!.toLowerCase().startsWith(text.toLowerCase()) || item.accCode!.startsWith(text)).toList();
   }
 
   Map<String, AccountModel> mapAccountsByName(String query) {

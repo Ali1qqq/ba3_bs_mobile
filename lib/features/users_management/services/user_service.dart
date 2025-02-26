@@ -48,7 +48,6 @@ class UserService {
     required UserTimeModel? timeModel,
     required bool isLogin,
   }) {
-    // التحقق من وجود البيانات
     final dateList = isLogin ? timeModel?.logInDateList : timeModel?.logOutDateList;
     if (dateList == null) {
       return AppStrings.notLoggedToday.tr;
@@ -63,7 +62,7 @@ class UserService {
       final workingTime = isLogin ? workingHours.values.elementAtOrNull(i)?.enterTime : workingHours.values.elementAtOrNull(i)?.outTime;
 
       if (workingTime == null) {
-        continue; // تخطي إذا كانت القيمة فارغة
+        continue;
       }
 
       // تحويل الوقت المحدد (الدخول أو الخروج) إلى كائن DateTime
@@ -88,11 +87,13 @@ class UserService {
               workingDateTime.minute - 4,
             ).difference(userDateTime);
 
+      // إضافة الفرق إذا لم يكن سالبًا
       if (!delay.isNegative) {
         totalMinutes += delay.inMinutes;
       }
     }
 
+    // إرجاع النتيجة المنسقة إذا كان هناك تأخير
     return totalMinutes > 0 ? formatDelay(totalMinutes) : null;
   }
 

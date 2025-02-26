@@ -1,6 +1,8 @@
+import 'package:ba3_bs_mobile/core/constants/app_strings.dart';
 import 'package:ba3_bs_mobile/core/utils/app_service_utils.dart';
 import 'package:ba3_bs_mobile/features/pluto/data/models/pluto_adaptable.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:pluto_grid/pluto_grid.dart';
 
 import '../../../../core/constants/app_constants.dart';
@@ -145,58 +147,46 @@ class UserModel implements PlutoAdaptable {
     }
 
     bool hasHolidayToday() {
-      return userHolidays?.contains(DateTime.now().toString().split(" ")[0]) ?? false;
+      return userHolidays?.contains(currentDate) ?? false;
     }
 
     return {
       PlutoColumn(
-        title: 'الرقم التعريفي',
+        title: AppStrings.identificationNumber.tr,
         field: AppConstants.userIdFiled,
         type: PlutoColumnType.text(),
         hide: true,
       ): userId,
-      createAutoIdColumn(): '',
+      createAutoIdColumn(): '#',
       PlutoColumn(
-        title: 'الاسم',
-        field: 'الاسم',
-        width: 100,
-        enableContextMenu: false,
-        enableColumnDrag: false,
-        enableDropToResize: false,
+        title: AppStrings.employeeName.tr,
+        field: 'اسم الموظف',
+        width: 200,
         frozen: PlutoColumnFrozen.start,
         type: PlutoColumnType.text(),
       ): userName,
       PlutoColumn(
-        title: 'اخر دخول',
+        title: AppStrings.lastCheckInTime.tr,
         field: 'اخر دخول',
-        enableContextMenu: false,
-        enableColumnDrag: false,
-        enableDropToResize: false,
-        width: 120,
+        width: 200,
         textAlign: PlutoColumnTextAlign.center,
         type: PlutoColumnType.text(),
       ): hasHolidayToday()
-          ? 'اجازة'
+          ? AppStrings.holiday.tr
           : AppServiceUtils.formatDateTimeFromString(
               userTimeModel?.values.toList().lastOrNull?.logInDateList?.lastOrNull?.toIso8601String()),
       PlutoColumn(
-        title: 'اخر خروج',
+        title: AppStrings.lastCheckOutTime.tr,
         field: 'اخر خروج',
-        enableContextMenu: false,
-        enableColumnDrag: false,
-        enableDropToResize: false,
-        width: 120,
+        width: 200,
         textAlign: PlutoColumnTextAlign.center,
         type: PlutoColumnType.text(),
       ): hasHolidayToday()
-          ? 'اجازة'
+          ? AppStrings.holiday.tr
           : AppServiceUtils.formatDateTimeFromString(userTimeModel?.values.lastOrNull?.logOutDateList?.lastOrNull?.toIso8601String()),
       PlutoColumn(
-        title: 'عطل هذا الشهر',
+        title: AppStrings.holidaysForThisMonth.tr,
         field: 'عطل هذا الشهر',
-        enableContextMenu: false,
-        enableColumnDrag: false,
-        enableDropToResize: false,
         width: 400,
         renderer: (context) => Center(
           child: Text(
@@ -208,16 +198,29 @@ class UserModel implements PlutoAdaptable {
         type: PlutoColumnType.text(),
       ): userHolidays?.where((date) => date.split("-")[1] == DateTime.now().month.toString().padLeft(2, '0')).toList().join(" , "),
       PlutoColumn(
-        title: 'الحالة',
+        title: AppStrings.status.tr,
         field: 'الحالة',
-        width: 120,
-        enableContextMenu: false,
-        enableColumnDrag: false,
-        enableDropToResize: false,
+        width: 200,
         textAlign: PlutoColumnTextAlign.center,
         renderer: (context) => buildStatusCell(context.cell.value.toString()),
         type: PlutoColumnType.text(),
-      ): hasHolidayToday() ? 'اجازة' : userWorkStatus?.label,
+      ): hasHolidayToday() ? AppStrings.holiday.tr : userWorkStatus?.label,
+      PlutoColumn(
+        title: AppStrings.delayedEntry.tr,
+        field: 'تأخير الدخول',
+        width: 200,
+        textAlign: PlutoColumnTextAlign.center,
+        // renderer: (context) => buildStatusCell(context.cell.value.toString()),
+        type: PlutoColumnType.text(),
+      ): AppServiceUtils.convertMinutesAndFormat(userTimeModel?[currentDate]?.totalLogInDelay ?? 0),
+      PlutoColumn(
+        title: AppStrings.earlyExit.tr,
+        field: 'الخروج المبكر',
+        width: 200,
+        textAlign: PlutoColumnTextAlign.center,
+        // renderer: (context) => buildStatusCell(context.cell.value.toString()),
+        type: PlutoColumnType.text(),
+      ): AppServiceUtils.convertMinutesAndFormat(userTimeModel?[currentDate]?.totalOutEarlier ?? 0),
     };
   }
 }
@@ -269,11 +272,15 @@ class UserTimeModel {
   final String? dayName;
   final List<DateTime>? logInDateList;
   final List<DateTime>? logOutDateList;
+  final int? totalLogInDelay;
+  final int? totalOutEarlier;
 
   UserTimeModel({
     this.dayName,
     this.logInDateList,
     this.logOutDateList,
+    this.totalLogInDelay,
+    this.totalOutEarlier,
   });
 
   Map<String, dynamic> toJson() {
@@ -281,12 +288,16 @@ class UserTimeModel {
       'dayName': dayName,
       if (logInDateList != null) 'logInDateList': logInDateList!.map((e) => e.toIso8601String()).toList(),
       if (logOutDateList != null) 'logOutDateList': logOutDateList!.map((e) => e.toIso8601String()).toList(),
+      if (totalLogInDelay != null) 'totalLogInDelay': totalLogInDelay,
+      if (totalOutEarlier != null) 'totalOutEarlier': totalOutEarlier,
     };
   }
 
   factory UserTimeModel.fromJson(Map<String, dynamic> json) {
     return UserTimeModel(
       dayName: json['dayName'] as String?,
+      totalLogInDelay: json['totalLogInDelay'] ?? 0,
+      totalOutEarlier: json['totalOutEarlier'] ?? 0,
       logInDateList: (json['logInDateList'] as List<dynamic>?)?.map((e) => DateTime.parse(e as String)).toList(),
       logOutDateList: (json['logOutDateList'] as List<dynamic>?)?.map((e) => DateTime.parse(e as String)).toList(),
     );
@@ -296,11 +307,30 @@ class UserTimeModel {
     String? dayName,
     List<DateTime>? logInDateList,
     List<DateTime>? logOutDateList,
+    int? totalLogInDelay,
+    int? totalOutEarlier,
   }) {
     return UserTimeModel(
       dayName: dayName ?? this.dayName,
       logInDateList: logInDateList ?? this.logInDateList,
       logOutDateList: logOutDateList ?? this.logOutDateList,
+      totalLogInDelay: totalLogInDelay ?? this.totalLogInDelay,
+      totalOutEarlier: totalOutEarlier ?? this.totalOutEarlier,
+    );
+  }
+
+  UserTimeModel copyWithAddTime({
+    int? totalLogInDelay,
+    int? totalOutEarlier,
+  }) {
+    return UserTimeModel(
+      dayName: dayName,
+      logInDateList: logInDateList,
+      logOutDateList: logOutDateList,
+      totalLogInDelay: totalLogInDelay != null ? totalLogInDelay + (this.totalLogInDelay ?? 0) : this.totalLogInDelay,
+      totalOutEarlier: totalOutEarlier != null ? totalOutEarlier + (this.totalOutEarlier ?? 0) : this.totalOutEarlier,
     );
   }
 }
+
+String get currentDate => DateTime.now().toString().split(" ")[0];

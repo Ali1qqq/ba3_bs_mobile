@@ -3,7 +3,6 @@ import 'package:ba3_bs_mobile/features/cheques/service/cheques_export.dart';
 import 'package:ba3_bs_mobile/features/materials/service/materials_groups_import.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dio/dio.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:get/get_instance/src/bindings_interface.dart';
 import 'package:hive/hive.dart';
 
@@ -101,8 +100,8 @@ class AppBindings extends Bindings {
 // Initialize services
     final dioClient = _initializeDioClient();
 
-    // final FirebaseFirestore firestoreInstance = FirebaseFirestore.instance;
-    final FirebaseFirestore firestoreInstance = FirebaseFirestore.instanceFor(app: Firebase.app(), databaseId: 'test');
+    final FirebaseFirestore firestoreInstance = FirebaseFirestore.instance;
+    // final FirebaseFirestore firestoreInstance = FirebaseFirestore.instanceFor(app: Firebase.app(), databaseId: 'test');
 
     final fireStoreService = _initializeFireStoreService(firestoreInstance);
 

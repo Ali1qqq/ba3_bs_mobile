@@ -1,4 +1,5 @@
 import 'package:ba3_bs_mobile/core/helper/extensions/date_time/time_extensions.dart';
+import 'package:ba3_bs_mobile/core/utils/app_service_utils.dart';
 import 'package:ba3_bs_mobile/features/users_management/controllers/user_management_controller.dart';
 import 'package:day_night_time_picker/lib/state/time.dart';
 import 'package:get/get.dart';
@@ -149,5 +150,17 @@ class UserDetailsController extends GetxController {
 
   void initUserFormHandler(UserModel? user) {
     userFormHandler.init(user);
+  }
+
+  String userDelay(String dayName) {
+    UserTimeModel? userTimeModel = selectedUserModel?.userTimeModel?[dayName];
+    if (userTimeModel == null) return "";
+    return AppServiceUtils.convertMinutesAndFormat(userTimeModel.totalLogInDelay ?? 0);
+  }
+
+  String userEarlier(String dayName) {
+    UserTimeModel? userTimeModel = selectedUserModel?.userTimeModel?[dayName];
+    if (userTimeModel == null) return "";
+    return AppServiceUtils.convertMinutesAndFormat(userTimeModel.totalOutEarlier ?? 0);
   }
 }

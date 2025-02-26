@@ -37,7 +37,7 @@ class UserDailyTimeWidget extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   SizedBox(
-                      width: 30.w,
+                      width: 80.w,
                       child: Text(
                         userModel.userWorkingHours?[index.toString()]?.enterTime ?? '',
                         textAlign: TextAlign.center,
@@ -61,7 +61,7 @@ class UserDailyTimeWidget extends StatelessWidget {
                     ),
                   ),
                   SizedBox(
-                      width: 30.w,
+                      width: 80.w,
                       child: Text(
                         userModel.userWorkingHours![index.toString()]?.outTime ?? '',
                         textAlign: TextAlign.center,

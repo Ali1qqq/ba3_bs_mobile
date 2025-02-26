@@ -1,3 +1,4 @@
+import 'package:ba3_bs_mobile/core/constants/app_strings.dart';
 import 'package:ba3_bs_mobile/core/helper/extensions/basic/string_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -213,7 +214,10 @@ class AppServiceUtils {
     return DateTime.now().microsecondsSinceEpoch.toString();
   }
 
-  static String formatDateTime(DateTime dateTime) {
+  static String formatDateTime(DateTime? dateTime) {
+    if (dateTime == null) {
+      return '';
+    }
     // DateTime dateTime = DateTime.parse(isoString);
     // print(dateTime);
     String period = dateTime.hour >= 12 ? "PM" : "AM";
@@ -221,9 +225,22 @@ class AppServiceUtils {
     int hour = dateTime.hour % 12;
     if (hour == 0) hour = 12;
 
-    String formattedDateTime = "${dateTime.year}-${dateTime.month.toString().padLeft(2, '0')}-${dateTime.day.toString().padLeft(2, '0')} \n"
+    return "${dateTime.year}-${dateTime.month.toString().padLeft(2, '0')}-${dateTime.day.toString().padLeft(2, '0')} \n"
         "${hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')} $period";
-    return formattedDateTime;
+  }
+
+  static String extractTimeFromDateTime(DateTime? dateTime) {
+    if (dateTime == null) {
+      return 'null';
+    }
+    // DateTime dateTime = DateTime.parse(isoString);
+    // print(dateTime);
+    String period = dateTime.hour >= 12 ? "PM" : "AM";
+
+    int hour = dateTime.hour % 12;
+    if (hour == 0) hour = 12;
+
+    return "${hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')} $period";
   }
 
   static String getDayNameAndMonthName(String inputDate) {
@@ -254,19 +271,7 @@ class AppServiceUtils {
     return formattedDateTime;
   }
 
-  static String extractTimeFromDateTime(DateTime? dateTime) {
-    if (dateTime == null) {
-      return 'null';
-    }
-    // DateTime dateTime = DateTime.parse(isoString);
-    // print(dateTime);
-    String period = dateTime.hour >= 12 ? "PM" : "AM";
-
-    int hour = dateTime.hour % 12;
-    if (hour == 0) hour = 12;
-
-    return "${hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')} $period";
-  }static String billNameAndNumberFormat(String? billTypeId, int? billNumber) {
+  static String billNameAndNumberFormat(String? billTypeId, int? billNumber) {
     if (billTypeId == null && billNumber == null) {
       return '';
     }
@@ -279,5 +284,20 @@ class AppServiceUtils {
     }
 
     return '$originName: $originNumber';
+  }
+
+  static Map<String, int> convertMinutesToHoursAndMinutes(int totalMinutes) {
+    final hours = totalMinutes ~/ 60;
+    final minutes = totalMinutes % 60;
+    return {
+      'hours': hours,
+      'minutes': minutes,
+    };
+  }
+
+  static String convertMinutesAndFormat(int totalMinutes) {
+    final hours = totalMinutes ~/ 60;
+    final minutes = totalMinutes % 60;
+    return '${AppStrings.hours} $hours  ${AppStrings.minutes} $minutes';
   }
 }

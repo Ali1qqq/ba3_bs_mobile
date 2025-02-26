@@ -53,9 +53,7 @@ abstract class AppConstants {
 
   ////////////--------------------------------------------------
   static const rowInvId = "invId";
-  static const rowInvProduct = "invProduct";  static const String invRecProductSoldSerial = 'invRecProductSoldSerial';
-
-  static const String invRecProductSerialNumbers = 'invRecProductSerialNumbers';
+  static const rowInvProduct = "invProduct";
   static const rowInvGift = "rowInvGift";
   static const rowInvQuantity = "invQuantity";
   static const rowInvSubTotal = "invSubTotal";
@@ -77,7 +75,7 @@ abstract class AppConstants {
   static const rowViewAccountLength = "rowViewAccountLength";
 
   ////////////--------------------------------------------------
-  static const rowProductRecProduct = "rowProductRecProduct";
+  static const rowProductRecProduct = 'rowProductRecProduct';
   static const rowProductType = "rowProductType";
   static const rowProductQuantity = "rowProductQuantity";
   static const rowProductDate = "rowProductDate";
@@ -262,7 +260,11 @@ abstract class AppConstants {
     AppConstants.roleViewCard,
     AppConstants.roleViewHome
   ];
-  static const accountTypeList = [AppConstants.accountTypeDefault, AppConstants.accountTypeFinalAccount, AppConstants.accountTypeAggregateAccount];
+  static const accountTypeList = [
+    AppConstants.accountTypeDefault,
+    AppConstants.accountTypeFinalAccount,
+    AppConstants.accountTypeAggregateAccount
+  ];
 
   static const userName = "ali";
 
@@ -285,6 +287,10 @@ abstract class AppConstants {
   //bill
   static const String invRecId = 'invRecId';
   static const String invRecProduct = 'invRecProduct';
+
+  static const String invRecProductSoldSerial = 'invRecProductSoldSerial';
+
+  static const String invRecProductSerialNumbers = 'invRecProductSerialNumbers';
   static const String invRecTotal = 'invRecTotal';
   static const String invRecSubTotal = 'invRecSubTotal';
   static const String invRecVat = 'invRecVat';
@@ -292,6 +298,7 @@ abstract class AppConstants {
   static const String invRecIsLocal = 'invRecIsLocal';
   static const String invRecGift = 'invRecGift';
   static const String invRecGiftTotal = 'invRecGiftTotal';
+  static const String invRecSubTotalWithVat = 'invRecSubTotalWithVat';
   static const String ratio = 'النسبة';
   static const String value = 'القيمة';
   static const String accountName = 'اسم الحساب';
@@ -369,8 +376,9 @@ abstract class AppConstants {
 
   static const String userIdKey = 'userIdKey';
 
-  //static const String recipientEmail = 'burjalarab000@gmail.com';
-  static const String recipientEmail = 'ahmed.zein1896@gmail.com';
+  static const String recipientEmail = 'burjalarab000@gmail.com';
+
+  // static const String recipientEmail = 'ahmed.zein1896@gmail.com';
 
   // static const String recipientEmail = 'alidabol567@gmail.com';
 
@@ -411,4 +419,19 @@ abstract class AppConstants {
   static const String billIdFiled = 'billIdFiled';
   static const bool hideInvRecProductSoldSerial = false;
   static const bool hideInvRecProductSerialNumbers = true;
+
+  static const Map<String, String> months = {
+    "يناير (1)": "01",
+    "فبراير (2)": "02",
+    "مارس (3)": "03",
+    "أبريل (4)": "04",
+    "مايو (5)": "05",
+    "يونيو (6)": "06",
+    "يوليو (7)": "07",
+    "أغسطس (8)": "08",
+    "سبتمبر (9)": "09",
+    "أكتوبر (10)": "10",
+    "نوفمبر (11)": "11",
+    "ديسمبر (12)": "12",
+  };
 }
