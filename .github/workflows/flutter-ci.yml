@@ -49,7 +49,7 @@ jobs:
 
       - name: Run Flutter Build Manually
         run: |
-          flutter build apk --release --verbose --stacktrace
+          flutter build apk --release
 
       # Uncomment this section after debugging Gradle build issues
       # - name: Deploy to Firebase via Fastlane
