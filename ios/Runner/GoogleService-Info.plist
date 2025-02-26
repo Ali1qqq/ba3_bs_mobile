@@ -9,7 +9,7 @@
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>com.ba3bsmobile.ba3BsMobile</string>
+	<string>com.ba3bsmobile.ba3_bs_mobilele.ba3BsMobile</string>
 	<key>PROJECT_ID</key>
 	<string>ba3-bs</string>
 	<key>NSBluetoothAlwaysUsageDescription</key>

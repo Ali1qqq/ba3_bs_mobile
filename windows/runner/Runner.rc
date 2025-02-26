@@ -89,11 +89,11 @@ BEGIN
     BEGIN
         BLOCK "040904e4"
         BEGIN
-            VALUE "CompanyName", "com.ba3bsmobile" "\0"
+            VALUE "CompanyName", "com.ba3bsmobile.ba3_bs_mobilele" "\0"
             VALUE "FileDescription", "ba3_bs_mobile" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
             VALUE "InternalName", "ba3_bs_mobile" "\0"
-            VALUE "LegalCopyright", "Copyright (C) 2024 com.ba3bsmobile. All rights reserved." "\0"
+            VALUE "LegalCopyright", "Copyright (C) 2024 com.ba3bsmobile.ba3_bs_mobilele. All rights reserved." "\0"
             VALUE "OriginalFilename", "ba3_bs_mobile.exe" "\0"
             VALUE "ProductName", "ba3_bs_mobile" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"

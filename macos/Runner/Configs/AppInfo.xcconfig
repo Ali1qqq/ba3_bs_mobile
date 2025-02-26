@@ -8,7 +8,7 @@
 PRODUCT_NAME = ba3_bs_mobile
 
 // The application's bundle identifier
-PRODUCT_BUNDLE_IDENTIFIER = com.ba3bsmobile.ba3BsMobile
+PRODUCT_BUNDLE_IDENTIFIER = com.ba3bsmobile.ba3_bs_mobilele.ba3BsMobile
 
 // The copyright displayed in application information
-PRODUCT_COPYRIGHT = Copyright © 2024 com.ba3bsmobile. All rights reserved.
+PRODUCT_COPYRIGHT = Copyright © 2024 com.ba3bsmobile.ba3_bs_mobilele. All rights reserved.

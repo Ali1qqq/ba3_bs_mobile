@@ -47,11 +47,11 @@ android {
         }
     }
 
-
     buildTypes {
         release {
-            shrinkResources false
-            minifyEnabled false
+            signingConfig signingConfigs.release
+            minifyEnabled true // لضغط وتقليل حجم التطبيق
+            shrinkResources true // لإزالة الموارد غير المستخدمة
         }
     }
 }
