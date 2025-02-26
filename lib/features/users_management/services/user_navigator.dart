@@ -35,7 +35,10 @@ class UserNavigator with AppNavigator {
 
   void navigateToAllUsersScreen() => to(AppRoutes.showAllUsersScreen);
 
-  void navigateToUserTimeListScreen() => to(AppRoutes.showUserTimeListScreen);
+  void navigateToUserTimeListScreen() async {
+    await _userController.getAllUsers();
+    to(AppRoutes.showUserTimeListScreen);
+  }
 
   void navigateToLAllPermissionsScreen() {
     to(AppRoutes.showAllPermissionsScreen);

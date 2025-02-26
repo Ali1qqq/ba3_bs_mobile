@@ -180,17 +180,20 @@ class MaterialController extends GetxController with AppNavigator, FloatingLaunc
     List<String> searchParts = lowerQuery.split(RegExp(r'\s+'));
 
     // Check for exact match first
-    var exactMatch = materials.firstWhereOrNull(
+    var exactMatch = materials.where(
       (item) =>
           item.matName!.toLowerCase() == lowerQuery ||
           item.matCode!.toString().toLowerCase() == lowerQuery ||
           (item.matBarCode != null && item.matBarCode!.toLowerCase() == lowerQuery) ||
           (item.serialNumbers != null &&
-              item.serialNumbers!.entries.any((entry) => entry.key.toLowerCase() == lowerQuery && entry.value == false)), // Only allow unsold serials
+              item.serialNumbers!.entries
+                  .any((entry) => entry.key.toLowerCase() == lowerQuery && entry.value == false)), // Only allow unsold serials
     );
 
-    if (exactMatch != null) {
-      return [exactMatch];
+    if (exactMatch.length == 1) {
+      return [exactMatch.first];
+    } else if (exactMatch.length > 1) {
+      return exactMatch.toList();
     }
 
     // Check for matches where name, code, barcode, or serial numbers start with the query
@@ -362,7 +365,8 @@ class MaterialController extends GetxController with AppNavigator, FloatingLaunc
   void _onSaveSuccess(MaterialModel materialModel) async {
     // Persist the data in Hive upon successful save
 
-    final hiveResult = materialModel.id != null ? await _materialsHiveRepo.update(materialModel) : await _materialsHiveRepo.save(materialModel);
+    final hiveResult =
+        materialModel.id != null ? await _materialsHiveRepo.update(materialModel) : await _materialsHiveRepo.save(materialModel);
 
     hiveResult.fold(
       (failure) => AppUIUtils.onFailure(failure.message),

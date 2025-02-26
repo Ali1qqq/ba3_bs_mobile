@@ -1,8 +1,10 @@
 import 'dart:developer';
 
+import 'package:ba3_bs_mobile/core/constants/app_constants.dart';
+import 'package:ba3_bs_mobile/core/helper/extensions/basic/list_extensions.dart';
 import 'package:ba3_bs_mobile/features/users_management/controllers/user_details_controller.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get_rx/src/rx_types/rx_types.dart';
+import 'package:get/get.dart';
 
 import '../../../core/helper/enums/enums.dart';
 import '../../../core/helper/extensions/getx_controller_extensions.dart';
@@ -11,7 +13,7 @@ import '../../../core/utils/app_service_utils.dart';
 import '../data/models/user_model.dart';
 
 class UserFormHandler with AppValidator {
-  UserDetailsController get userManagementController => read<UserDetailsController>();
+  UserDetailsController get userDetailsController => read<UserDetailsController>();
 
   final formKey = GlobalKey<FormState>();
   final userNameController = TextEditingController();
@@ -25,7 +27,7 @@ class UserFormHandler with AppValidator {
 
   void init(UserModel? user) {
     if (user != null) {
-      userManagementController.selectedUserModel = user;
+      userDetailsController.selectedUserModel = user;
 
       selectedSellerId.value = user.userSellerId!;
       selectedRoleId.value = user.userRoleId!;
@@ -34,17 +36,17 @@ class UserFormHandler with AppValidator {
       passController.text = user.userPassword ?? '';
       userActiveStatus.value = user.userActiveStatus!;
 
-      userManagementController.workingHours = user.userWorkingHours ?? {};
-      userManagementController.holidays = user.userHolidays?.toSet() ?? {};
+      userDetailsController.workingHours = user.userWorkingHours ?? {};
+      userDetailsController.holidays = user.userHolidays?.toSet() ?? {};
       log(isUserActive.toString());
     } else {
-      userManagementController.selectedUserModel = null;
+      userDetailsController.selectedUserModel = null;
 
       selectedSellerId.value = null;
       selectedRoleId.value = null;
       userActiveStatus.value = UserActiveStatus.active;
-      userManagementController.workingHours = {};
-      userManagementController.holidays = {};
+      userDetailsController.workingHours = {};
+      userDetailsController.holidays = {};
 
       clear();
     }
@@ -76,14 +78,16 @@ class UserFormHandler with AppValidator {
     } else {
       userActiveStatus.value = UserActiveStatus.active;
     }
-    userManagementController.update();
+    userDetailsController.update();
   }
 
   String? passwordValidator(String? value, String fieldName) => isPasswordValid(value, fieldName);
 
   String? defaultValidator(String? value, String fieldName) => isFieldValid(value, fieldName);
 
-  List<String> get userHolidays => userManagementController.selectedUserModel?.userHolidays?.toList() ?? [];
+  String userListSelectedMonth = AppConstants.months.keys.first;
+
+  List<String> get userHolidays => userDetailsController.selectedUserModel?.userHolidays?.toList() ?? [];
 
   List<String>? get userHolidaysWithDay => userHolidays
       .map(
@@ -91,5 +95,56 @@ class UserFormHandler with AppValidator {
       )
       .toList();
 
+  List<String>? get userHolidaysWithDayAtMoth => userHolidays
+      .where(
+        (element) => element.split('-')[1].split("-")[0] == AppConstants.months[userListSelectedMonth],
+      )
+      .map(
+        (date) => AppServiceUtils.getDayNameAndMonthName(date),
+      )
+      .toList();
+
+  List<String> get userHolidaysAtMoth => userHolidays
+      .where(
+        (element) => element.split('-')[1].split("-")[0] == AppConstants.months[userListSelectedMonth],
+      )
+      .toList();
+
   int get userHolidaysLength => userHolidays.length;
+
+  int get userHolidaysLengthAtMonth => userHolidaysAtMoth.length;
+
+  List<UserTimeModel>? get userTimeModelWithTotalDelayAndEarlier {
+    return userDetailsController.selectedUserModel?.userTimeModel?.values
+        .map(
+          (e) => e.copyWith(dayName: e.dayName?.split('-')[1].split('-')[0].toString()),
+        )
+        .toList()
+        .mergeBy(
+          (p0) => p0.dayName,
+          (accumulated, current) => current.copyWithAddTime(
+            totalLogInDelay: accumulated.totalLogInDelay,
+            totalOutEarlier: accumulated.totalOutEarlier,
+          ),
+        );
+  }
+
+  UserTimeModel? get userTimeModelWithTotalDelayAndEarlierAtMonth => userTimeModelWithTotalDelayAndEarlier?.firstWhereOrNull(
+        (element) => element.dayName == AppConstants.months[userListSelectedMonth],
+      );
+
+  int get userTimeModelWithTotalDelayAndEarlierLength => userTimeModelWithTotalDelayAndEarlier?.length ?? 0;
+
+  void updateSelectedMonth(String value) {
+    userListSelectedMonth = value.tr;
+    userDetailsController.update();
+  }
+
+  Map<String, UserTimeModel> get userTimeModelAtMonth =>
+      Map.fromEntries(userDetailsController.selectedUserModel?.userTimeModel?.entries.where(
+            (userWorkingHour) => userWorkingHour.key.split('-')[1].split('-')[0] == AppConstants.months[userListSelectedMonth],
+          ) ??
+          []);
+
+  int get userTimeAtMonthLength => userTimeModelAtMonth.length;
 }
