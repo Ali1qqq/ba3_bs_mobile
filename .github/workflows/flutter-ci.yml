@@ -34,28 +34,11 @@ jobs:
       - name: Run Tests
         run: flutter test
 
-      - name: Setup Ruby (Matching Local Version)
-        uses: ruby/setup-ruby@v1
+      - name: Build APK
+        run: flutter build apk --release
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
         with:
-          ruby-version: "3.2.2"
-          bundler-cache: true
-          working-directory: android
-
-      - name: Restore Hardcoded Keystore File
-        run: echo "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" | base64 --decode > android/app/release-key.jks
-
-      - name: Verify Keystore File
-        run: ls -l android/app/release-key.jks || echo "Keystore file missing!"
-
-      - name: Run Flutter Build Manually
-        run: |
-          flutter build apk --release
-      # Uncomment this section after debugging Gradle build issues
-      # - name: Deploy to Firebase via Fastlane
-      #   working-directory: android
-      #   env:
-      #     FIREBASE_APP_ID: "1:307353344258:android:7c0b16dc5261f883f78a1b"
-      #     FIREBASE_CLI_TOKEN: "1//09LXYcrcj4BX2CgYIARAAGAkSNwF-L9IrRXiF-cBTEjSP3HY_rQbYleJ8Mjcs4BWCBEwpfzhkUpv3TvOIhY4fo5wMXOs4L1r10i0"
-      #   run: |
-      #     bundle exec fastlane deploy_to_firebase
-
+          name: release-apk
+          path: build/app/outputs/flutter-apk/app-release.apk
