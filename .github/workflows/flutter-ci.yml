@@ -47,12 +47,6 @@ jobs:
       - name: Verify Keystore File
         run: ls -l android/app/release-key.jks || echo "Keystore file missing!"
 
-      - name: Disable Gradle Daemon (Fixes Some CI/CD Failures)
-        run: echo "org.gradle.daemon=false" >> ~/.gradle/gradle.properties
-
-      - name: Increase Java Heap Size (Prevents Out of Memory Errors)
-        run: echo "org.gradle.jvmargs=-Xmx4G" >> ~/.gradle/gradle.properties
-
       - name: Run Flutter Build Manually
         run: |
           flutter build apk --release --verbose --stacktrace
