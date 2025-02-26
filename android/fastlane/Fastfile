@@ -39,7 +39,7 @@ platform :android do
   lane  :deploy_to_firebase do
     sh "flutter build apk"
     firebase_app_distribution(
-      app: "1:307353344258:android:7c0b16dc5261f883f78a1b", # Replace with your Firebase Android app ID
+      app: "1:307353344258:android:7c0b16dc5261f883f78a1b",
       groups: "testers",
       release_notes: "This Fastlane Build",
       firebase_cli_token: "1//09LXYcrcj4BX2CgYIARAAGAkSNwF-L9IrRXiF-cBTEjSP3HY_rQbYleJ8Mjcs4BWCBEwpfzhkUpv3TvOIhY4fo5wMXOs4L1r10i0",
