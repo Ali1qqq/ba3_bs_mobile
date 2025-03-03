@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:ba3_bs_mobile/core/constants/app_constants.dart';
 import 'package:ba3_bs_mobile/core/helper/enums/enums.dart';
 import 'package:ba3_bs_mobile/core/helper/mixin/app_navigator.dart';
+import 'package:ba3_bs_mobile/core/helper/notifications/easy_notifications.dart';
 import 'package:ba3_bs_mobile/core/models/query_filter.dart';
 import 'package:ba3_bs_mobile/features/users_management/services/role_service.dart';
 import 'package:ba3_bs_mobile/features/users_management/services/user_navigator.dart';
@@ -245,6 +246,20 @@ class UserManagementController extends GetxController with AppNavigator, Firesto
     loggedInUserModel = firstFetchedUser;
 
     _sharedPreferencesService.setString(AppConstants.userIdKey, loggedInUserModel?.userId ?? '');
+
+    for (final UserWorkingHours time in loggedInUserModel!.userWorkingHours?.values ?? []) {
+      scheduleLoginNotification(
+          time: time.enterTime!,
+          userName: loggedInUserModel!.userName!,
+          holidays: loggedInUserModel!.userHolidays!,
+          title: 'لاتنسى تسجيل الدخول');
+      scheduleLoginNotification(
+          time: time.outTime!,
+          userName: loggedInUserModel!.userName!,
+          holidays: loggedInUserModel!.userHolidays!,
+          title: 'لاتنسى تسجيل الخروج');
+    }
+
     offAll(AppRoutes.mainLayout);
   }
 

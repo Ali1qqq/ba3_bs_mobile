@@ -32,7 +32,7 @@ class BillPlutoUtils {
   double parseExpression(String expression) {
     if (expression.isEmpty) return 0;
     try {
-      return Parser().parse(expression).evaluate(EvaluationType.REAL, ContextModel());
+      return GrammarParser().parse(expression).evaluate(EvaluationType.REAL, ContextModel());
     } catch (e) {
       AppUIUtils.onFailure('من فضلك قم بادخال قيمة صحيحة');
       return 0;

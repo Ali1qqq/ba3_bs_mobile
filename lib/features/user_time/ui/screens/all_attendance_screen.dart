@@ -32,7 +32,7 @@ class AllAttendanceScreen extends StatelessWidget {
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(10),
                     boxShadow: [
-                      BoxShadow(color: Colors.grey.withOpacity(0.3), spreadRadius: 2, blurRadius: 5),
+                      BoxShadow(color: Colors.grey.withAlpha(100), spreadRadius: 2, blurRadius: 5),
                     ],
                   ),
                   height: 130,

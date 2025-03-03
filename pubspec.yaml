@@ -59,6 +59,9 @@ dependencies:
   font_awesome_flutter: ^10.8.0
   dropdown_button2: ^2.3.9
   mocktail: ^1.0.4
+  #  flutter_local_notifications: ^18.0.1
+  #  timezone: ^0.10.0
+  easy_notifications: ^1.2.5
 
 dev_dependencies:
   flutter_test:

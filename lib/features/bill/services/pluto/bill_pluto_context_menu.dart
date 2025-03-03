@@ -1,5 +1,4 @@
 import 'package:ba3_bs_mobile/core/constants/app_constants.dart';
-import 'package:ba3_bs_mobile/core/helper/extensions/basic/string_extension.dart';
 import 'package:ba3_bs_mobile/core/helper/extensions/getx_controller_extensions.dart';
 import 'package:ba3_bs_mobile/core/utils/app_service_utils.dart';
 import 'package:ba3_bs_mobile/core/widgets/app_spacer.dart';

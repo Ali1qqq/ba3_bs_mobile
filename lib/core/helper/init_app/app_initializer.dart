@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:ba3_bs_mobile/core/helper/extensions/hive_extensions.dart';
+import 'package:easy_notifications/easy_notifications.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
@@ -15,6 +16,8 @@ import '../../services/translation/translation_controller.dart';
 
 Future<void> initializeApp() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  await EasyNotifications.init();
 
   if (!kIsWeb && (Platform.isWindows || Platform.isMacOS)) {
     await initializeWindowSettings();

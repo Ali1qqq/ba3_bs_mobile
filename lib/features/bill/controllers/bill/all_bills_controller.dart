@@ -26,7 +26,6 @@ import '../../../../core/router/app_routes.dart';
 import '../../../../core/services/entry_bond_creator/implementations/entry_bonds_generator.dart';
 import '../../../../core/services/firebase/implementations/repos/compound_datasource_repo.dart';
 import '../../../../core/services/firebase/implementations/repos/queryable_savable_repo.dart';
-import '../../../../core/services/firebase/implementations/repos/remote_datasource_repo.dart';
 import '../../../../core/utils/app_ui_utils.dart';
 import '../../../floating_window/controllers/floating_window_controller.dart';
 import '../../../materials/data/models/materials/material_model.dart';
@@ -46,7 +45,7 @@ class AllBillsController extends FloatingBillDetailsLauncher
   final QueryableSavableRepository<SerialNumberModel> _serialNumbersRepo;
   final ImportExportRepository<BillModel> _jsonImportExportRepo;
 
-  AllBillsController( this._billsFirebaseRepo, this._serialNumbersRepo, this._jsonImportExportRepo);
+  AllBillsController(this._billsFirebaseRepo, this._serialNumbersRepo, this._jsonImportExportRepo);
 
   // Services
   late final BillUtils _billUtils;
@@ -183,7 +182,8 @@ class AllBillsController extends FloatingBillDetailsLauncher
   }
 
   Future<void> fetchPendingBills(BillTypeModel billTypeModel) async {
-    final result = await _billsFirebaseRepo.fetchWhere(itemIdentifier: billTypeModel, field: ApiConstants.status, value: Status.pending.value);
+    final result =
+        await _billsFirebaseRepo.fetchWhere(itemIdentifier: billTypeModel, field: ApiConstants.status, value: Status.pending.value);
 
     result.fold(
       (failure) => AppUIUtils.onFailure('لا يوجد فواتير معلقة في ${billTypeModel.fullName}'),
@@ -331,7 +331,8 @@ class AllBillsController extends FloatingBillDetailsLauncher
 
   // Opens the 'Bill Details' floating window.
 
-  Future<void> _openBillDetailsFloatingWindow({required BuildContext context, required int lastBillNumber, required BillModel currentBill}) async {
+  Future<void> _openBillDetailsFloatingWindow(
+      {required BuildContext context, required int lastBillNumber, required BillModel currentBill}) async {
     final String controllerTag = AppServiceUtils.generateUniqueTag('FloatingBillDetails');
 
     final Map<String, GetxController> controllers = setupControllers(
@@ -359,9 +360,7 @@ class AllBillsController extends FloatingBillDetailsLauncher
     launchFloatingWindow(
       context: context,
       tag: controllerTag,
-      minimizedTitle: BillType
-          .byLabel(currentBill.billTypeModel.billTypeLabel!)
-          .value,
+      minimizedTitle: BillType.byLabel(currentBill.billTypeModel.billTypeLabel!).value,
       floatingScreen: BillDetailsScreen(
         billDetailsController: billDetailsController,
         billDetailsPlutoController: billDetailsPlutoController,

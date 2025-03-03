@@ -17,7 +17,6 @@ import 'material_controller.dart';
 class MaterialsStatementController extends GetxController with FloatingLauncher, AppNavigator {
   // Dependencies
   final CompoundDatasourceRepository<MatStatementModel, String> _matStatementsRepo;
-  final MaterialController _materialsController = read<MaterialController>();
 
   MaterialsStatementController(this._matStatementsRepo);
 
@@ -33,12 +32,11 @@ class MaterialsStatementController extends GetxController with FloatingLauncher,
     //    mapOfStatements.values is an Iterable<List<MatStatementModel>>
     //    We expand those lists, then .toList() the result
     result.fold(
-          (failure) => AppUIUtils.onFailure(failure.message),
-          (savedStatements) =>
-      (), /*onSaveAllMatsStatementsModelsSuccess(
+      (failure) => AppUIUtils.onFailure(failure.message),
+      (savedStatements) => /*(),*/ onSaveAllMatsStatementsModelsSuccess(
         mapOfStatements: matsStatements.groupBy((matsStatements) => matsStatements.matId!),
         onProgress: onProgress,
-      ),*/
+      ),
     );
   }
 
@@ -50,7 +48,7 @@ class MaterialsStatementController extends GetxController with FloatingLauncher,
 
     // If we have none, exit early
     if (allSavedStatements.isEmpty) {
-      AppUIUtils.onSuccess('تم الحفظ بنجاح (لا توجد عناصر للحفظ)');
+      // AppUIUtils.onSuccess('تم الحفظ بنجاح (لا توجد عناصر للحفظ)');
       return;
     }
 
@@ -62,7 +60,7 @@ class MaterialsStatementController extends GetxController with FloatingLauncher,
 
     await Future.wait(
       allSavedStatements.map(
-            (statement) async {
+        (statement) async {
           if (statement.defQuantity != null && statement.defQuantity! > 0) {
             await read<MaterialController>().updateMaterialQuantityAndPrice(
               matId: statement.matId!,
@@ -104,8 +102,8 @@ class MaterialsStatementController extends GetxController with FloatingLauncher,
     final result = await _matStatementsRepo.delete(matStatementModel);
 
     result.fold(
-          (failure) => AppUIUtils.onFailure(failure.message),
-          (_) => AppUIUtils.onSuccess('تم الحذف بنجاح'),
+      (failure) => AppUIUtils.onFailure(failure.message),
+      (_) => AppUIUtils.onSuccess('تم الحذف بنجاح'),
     );
 
     final materialStatementList = await fetchMatStatementById(matStatementModel.matId!);
@@ -169,8 +167,8 @@ class MaterialsStatementController extends GetxController with FloatingLauncher,
 
     final result = await _matStatementsRepo.getAll(materialModel.id!);
     result.fold(
-          (failure) => AppUIUtils.onFailure(failure.message),
-          (fetchedItems) {
+      (failure) => AppUIUtils.onFailure(failure.message),
+      (fetchedItems) {
         matStatements.assignAll(fetchedItems.map((item) => item).toList());
 
         launchFloatingWindow(
@@ -188,8 +186,8 @@ class MaterialsStatementController extends GetxController with FloatingLauncher,
   Future<List<MatStatementModel>?> fetchMatStatementById(String matId) async {
     final result = await _matStatementsRepo.getAll(matId);
     return result.fold(
-          (failure) => AppUIUtils.onFailure(failure.message),
-          (fetchedItems) => fetchedItems,
+      (failure) => AppUIUtils.onFailure(failure.message),
+      (fetchedItems) => fetchedItems,
     );
   }
 
@@ -210,10 +208,9 @@ class MaterialsStatementController extends GetxController with FloatingLauncher,
     totalQuantity = _calculateQuantity(items);
   }
 
-  int _calculateQuantity(List<MatStatementModel> items) =>
-      items.fold(
+  int _calculateQuantity(List<MatStatementModel> items) => items.fold(
         0,
-            (sum, item) => sum + (item.quantity ?? 0),
+        (sum, item) => sum + (item.quantity ?? 0),
       );
 
   double _calculateMinPrice(List<MatStatementModel> items) {

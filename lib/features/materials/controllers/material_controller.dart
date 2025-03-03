@@ -278,39 +278,38 @@ class MaterialController extends GetxController with AppNavigator, FloatingLaunc
     // Validate the input before proceeding
 
     if (!materialFromHandler.validate()) return;
-
     // Create a material model based on the user input
-    final updatedMaterialModel = _createMaterialModel();
+    final materialModel = _createMaterialModel();
     // Handle null material model
-    if (updatedMaterialModel == null) {
-      AppUIUtils.onFailure('من فضلك قم بادخال الصلاحيات و البائع!');
+    if (materialModel == null) {
+      AppUIUtils.onFailure('من فضلك قم!');
       return;
     }
-    // Prepare user change queue for saving
-    final userChangeQueue = _prepareUserChangeQueue(updatedMaterialModel, selectedMaterial != null ? ChangeType.update : ChangeType.add);
-    // Save changes and handle results
-    final changesResult = await _listenDataSourceRepository.saveAll(userChangeQueue);
-    changesResult.fold(
-      (failure) => AppUIUtils.onFailure(failure.message),
-      (_) => _onSaveSuccess(updatedMaterialModel),
-    );
 
-    _onSaveSuccess(updatedMaterialModel);
+    final hiveResult =
+        materialModel.id != null ? await _materialsHiveRepo.update(materialModel) : await _materialsHiveRepo.save(materialModel);
+
+    hiveResult.fold(
+      (failure) => AppUIUtils.onFailure(failure.message),
+      (savedMaterial) {
+        _onSaveSuccess(savedMaterial, changeType: selectedMaterial != null ? ChangeType.update : ChangeType.add);
+      },
+    );
   }
 
-  Future<void> updateMaterial(MaterialModel updatedMaterialModel, {ChangeType changeType = ChangeType.update}) async {
+  void _onSaveSuccess(MaterialModel materialModel, {required ChangeType changeType}) async {
+    reloadMaterials();
+
     // Prepare user change queue for saving
-    final userChangeQueue = _prepareUserChangeQueue(updatedMaterialModel, changeType);
+    final userChangeQueue = _prepareUserChangeQueue(materialModel, changeType);
 
     // Save changes and handle results
     final changesResult = await _listenDataSourceRepository.saveAll(userChangeQueue);
 
     changesResult.fold(
       (failure) => AppUIUtils.onFailure(failure.message),
-      (_) => _onSaveSuccess(updatedMaterialModel),
+      (_) {},
     );
-
-    _onSaveSuccess(updatedMaterialModel);
   }
 
   void deleteMaterial() async {
@@ -361,22 +360,6 @@ class MaterialController extends GetxController with AppNavigator, FloatingLaunc
         ),
       )
       .toList();
-
-  void _onSaveSuccess(MaterialModel materialModel) async {
-    // Persist the data in Hive upon successful save
-
-    final hiveResult =
-        materialModel.id != null ? await _materialsHiveRepo.update(materialModel) : await _materialsHiveRepo.save(materialModel);
-
-    hiveResult.fold(
-      (failure) => AppUIUtils.onFailure(failure.message),
-      (savedMaterial) {
-        AppUIUtils.onSuccess('تم الحفظ بنجاح');
-        reloadMaterials();
-        // log('materials length after add item: ${materials.length}');
-      },
-    );
-  }
 
   void _onDeleteSuccess() async {
     final MaterialModel materialModel = selectedMaterial!;
@@ -518,5 +501,14 @@ class MaterialController extends GetxController with AppNavigator, FloatingLaunc
   }) {
     int totalQuantity = oldQuantity + quantityInStatement;
     return totalQuantity > 0 ? ((oldMinPrice * oldQuantity) + (priceInStatement * quantityInStatement)) / totalQuantity : 0.0;
+  }
+
+  Future<void> updateMaterial(MaterialModel updatedMaterialModel) async {
+    final hiveResult = await _materialsHiveRepo.update(updatedMaterialModel);
+
+    hiveResult.fold(
+      (failure) => AppUIUtils.onFailure(failure.message),
+      (savedMaterial) => _onSaveSuccess(updatedMaterialModel, changeType: ChangeType.update),
+    );
   }
 }

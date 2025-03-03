@@ -1,0 +1,55 @@
+import 'dart:async';
+
+import 'package:easy_notifications/easy_notifications.dart';
+import 'package:intl/intl.dart';
+
+bool isHoliday(DateTime date, List<String> holidays) {
+  final dateStr = DateFormat('yyyy-MM-dd').format(date);
+  return holidays.contains(dateStr);
+}
+
+DateTime parseTime(String timeStr) {
+  final now = DateTime.now();
+  final format = DateFormat("hh:mm a");
+  final time = format.parse(timeStr);
+  return DateTime(now.year, now.month, now.day, time.hour, time.minute);
+}
+
+void scheduleLoginNotification({
+  required String time,
+  required String userName,
+  required String title,
+  required List<String> holidays,
+}) {
+  DateTime loginTime = parseTime(time);
+  final now = DateTime.now();
+
+  // إذا كان وقت الدخول المحدد قد مرّ اليوم، نضيف يومًا واحدًا
+  if (loginTime.isBefore(now)) {
+    loginTime = loginTime.add(Duration(days: 1));
+  }
+
+  // إذا كان يوم الدخول عطلة، نتخطاه حتى نحصل على يوم عمل
+  while (isHoliday(loginTime, holidays)) {
+    loginTime = loginTime.add(Duration(days: 1));
+  }
+
+  final durationUntilLogin = loginTime.difference(now);
+
+  // جدولة المؤقت ليعرض الإشعار عند حلول وقت تسجيل الدخول
+  Timer(durationUntilLogin, () {
+    EasyNotifications.showMessage(
+      title: title,
+      message: 'حان وقت تسجيل الدخول، مرحباً $userName',
+      body: '',
+    );
+
+    // إعادة جدولة الإشعار لليوم التالي أو اليوم التالي الغير عطلة
+    scheduleLoginNotification(
+      time: time,
+      userName: userName,
+      holidays: holidays,
+      title: title,
+    );
+  });
+}

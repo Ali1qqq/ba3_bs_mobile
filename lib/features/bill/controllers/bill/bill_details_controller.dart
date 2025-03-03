@@ -1,8 +1,8 @@
 import 'dart:developer';
 
+import 'package:ba3_bs_mobile/core/helper/extensions/basic/date_time_extensions.dart';
 import 'package:ba3_bs_mobile/core/helper/extensions/basic/string_extension.dart';
 import 'package:ba3_bs_mobile/core/helper/extensions/bill/bill_pattern_type_extension.dart';
-import 'package:ba3_bs_mobile/core/helper/extensions/basic/date_time_extensions.dart';
 import 'package:ba3_bs_mobile/core/helper/mixin/app_navigator.dart';
 import 'package:ba3_bs_mobile/core/helper/validators/app_validator.dart';
 import 'package:ba3_bs_mobile/core/i_controllers/i_bill_controller.dart';
@@ -36,7 +36,9 @@ import '../../services/bill/account_handler.dart';
 import '../../services/bill/bill_service.dart';
 import '../pluto/bill_details_pluto_controller.dart';
 
-class BillDetailsController extends IBillController with AppValidator, AppNavigator, FirestoreSequentialNumbers implements IStoreSelectionHandler {
+class BillDetailsController extends IBillController
+    with AppValidator, AppNavigator, FirestoreSequentialNumbers
+    implements IStoreSelectionHandler {
   // Repositories
 
   final CompoundDatasourceRepository<BillModel, BillTypeModel> _billsFirebaseRepo;
@@ -144,7 +146,8 @@ class BillDetailsController extends IBillController with AppValidator, AppNaviga
     }
   }
 
-  Future<void> printBill({required BuildContext context, required BillModel billModel, required List<InvoiceRecordModel> invRecords}) async {
+  Future<void> printBill(
+      {required BuildContext context, required BillModel billModel, required List<InvoiceRecordModel> invRecords}) async {
     if (!_billService.hasModelId(billModel.billId)) return;
 
     await read<PrintingController>().startPrinting(
@@ -187,6 +190,7 @@ class BillDetailsController extends IBillController with AppValidator, AppNaviga
 
   /// Checks if deleting the bill would affect sold serial numbers.
   /// Returns `true` if deletion should be stopped.
+/*
   Future<bool> _hasSoldSerialNumbers(BillModel billModel) async {
     final materialController = read<MaterialController>();
 
@@ -213,9 +217,10 @@ class BillDetailsController extends IBillController with AppValidator, AppNaviga
     }
     return false; // Safe to delete
   }
+*/
 
   /// Fetches the sell bill number for a given serial number.
-  Future<int?> _getSellBillNumber(String serialNumber) async {
+/*  Future<int?> _getSellBillNumber(String serialNumber) async {
     final result = await _serialNumbersRepo.getById(serialNumber);
 
     return result.fold(
@@ -224,7 +229,7 @@ class BillDetailsController extends IBillController with AppValidator, AppNaviga
           ? serialsModel.transactions.where((transaction) => transaction.sold ?? false).last.sellBillNumber
           : null,
     );
-  }
+  }*/
 
   /// Deletes all sales transactions associated with a specific bill.
   Future<void> deleteSellSerialTransactions(BillModel billToDelete) async {
@@ -243,7 +248,8 @@ class BillDetailsController extends IBillController with AppValidator, AppNaviga
         },
         (SerialNumberModel serialsModel) async {
           // Filter out transactions related to the deleted bill
-          final updatedTransactions = serialsModel.transactions.where((transaction) => transaction.sellBillId != billToDelete.billId).toList();
+          final updatedTransactions =
+              serialsModel.transactions.where((transaction) => transaction.sellBillId != billToDelete.billId).toList();
 
           if (updatedTransactions.length == serialsModel.transactions.length) {
             log('🔍 No transactions to delete for serial [$soldSerialNumber].');
@@ -430,7 +436,8 @@ class BillDetailsController extends IBillController with AppValidator, AppNaviga
 
           // If the text is not empty, create a SerialNumberModel.
           if (serialText.isNotEmpty) {
-            final SerialNumberModel serialNumberModel = SerialNumberModelFactory.getModel(serialText, billModel: billModel, material: material);
+            final SerialNumberModel serialNumberModel =
+                SerialNumberModelFactory.getModel(serialText, billModel: billModel, material: material);
             items.add(serialNumberModel);
           }
         }
@@ -476,7 +483,8 @@ class BillDetailsController extends IBillController with AppValidator, AppNaviga
   }
 
   appendNewBill({required BillTypeModel billTypeModel, required int lastBillNumber, int? previousBillNumber}) {
-    BillModel newBill = BillModel.empty(billTypeModel: billTypeModel, lastBillNumber: lastBillNumber, previousBillNumber: previousBillNumber);
+    BillModel newBill =
+        BillModel.empty(billTypeModel: billTypeModel, lastBillNumber: lastBillNumber, previousBillNumber: previousBillNumber);
 
     billSearchController.insertLastAndUpdate(newBill);
   }

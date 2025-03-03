@@ -1,8 +1,6 @@
 import 'package:flutter/cupertino.dart';
-import 'package:get/get.dart';
 
 import '../../../core/helper/extensions/getx_controller_extensions.dart';
-import '../../../core/utils/app_service_utils.dart';
 import '../controllers/floating_window_controller.dart';
 
 /// Service class to initializing and displaying floating windows.
