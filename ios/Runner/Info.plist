@@ -60,7 +60,7 @@
 	<key>UIBackgroundModes</key>
     <array>
         <string>fetch</string>
-        <string>remote-notification</string>
+        <string>يُمكّن هذا الوضع التطبيق من استقبال إشعارات الدفع في الخلفية لتحديث المحتوى تلقائيًا دون تدخل المستخدم، مما يضمن توفير بيانات مُحدّثة باستمرار</string>
     </array>
 </dict>
 </plist>
