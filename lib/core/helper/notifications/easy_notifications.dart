@@ -19,22 +19,29 @@ void scheduleLoginNotification({
   required String time,
   required String userName,
   required String title,
+  required bool isLogin,
   required List<String> holidays,
 }) {
-  DateTime loginTime = parseTime(time);
+  DateTime timeDate = parseTime(time);
   final now = DateTime.now();
 
+  if (isLogin) {
+    timeDate = timeDate.copyWith(minute: timeDate.minute + 10);
+  } else {
+    timeDate = timeDate.copyWith(minute: timeDate.minute - 10);
+  }
+
   // إذا كان وقت الدخول المحدد قد مرّ اليوم، نضيف يومًا واحدًا
-  if (loginTime.isBefore(now)) {
-    loginTime = loginTime.add(Duration(days: 1));
+  if (timeDate.isBefore(now)) {
+    timeDate = timeDate.add(Duration(days: 1));
   }
 
   // إذا كان يوم الدخول عطلة، نتخطاه حتى نحصل على يوم عمل
-  while (isHoliday(loginTime, holidays)) {
-    loginTime = loginTime.add(Duration(days: 1));
+  while (isHoliday(timeDate, holidays)) {
+    timeDate = timeDate.add(Duration(days: 1));
   }
 
-  final durationUntilLogin = loginTime.difference(now);
+  final durationUntilLogin = timeDate.difference(now);
 
   // جدولة المؤقت ليعرض الإشعار عند حلول وقت تسجيل الدخول
   Timer(durationUntilLogin, () {
@@ -50,6 +57,7 @@ void scheduleLoginNotification({
       userName: userName,
       holidays: holidays,
       title: title,
+      isLogin: isLogin,
     );
   });
 }

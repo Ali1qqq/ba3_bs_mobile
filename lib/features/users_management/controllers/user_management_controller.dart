@@ -250,11 +250,13 @@ class UserManagementController extends GetxController with AppNavigator, Firesto
     for (final UserWorkingHours time in loggedInUserModel!.userWorkingHours?.values ?? []) {
       scheduleLoginNotification(
           time: time.enterTime!,
+          isLogin: true,
           userName: loggedInUserModel!.userName!,
           holidays: loggedInUserModel!.userHolidays!,
           title: 'لاتنسى تسجيل الدخول');
       scheduleLoginNotification(
           time: time.outTime!,
+          isLogin: false,
           userName: loggedInUserModel!.userName!,
           holidays: loggedInUserModel!.userHolidays!,
           title: 'لاتنسى تسجيل الخروج');
