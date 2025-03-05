@@ -1,7 +1,7 @@
 import 'dart:developer';
 
-import 'package:ba3_bs_mobile/core/helper/extensions/bill/bill_pattern_type_extension.dart';
 import 'package:ba3_bs_mobile/core/helper/extensions/basic/date_time_extensions.dart';
+import 'package:ba3_bs_mobile/core/helper/extensions/bill/bill_pattern_type_extension.dart';
 import 'package:ba3_bs_mobile/core/widgets/store_dropdown.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -17,6 +17,7 @@ import '../../../../../core/widgets/searchable_account_field.dart';
 import '../../../../accounts/controllers/accounts_controller.dart';
 import '../../../../accounts/data/models/account_model.dart';
 import '../../../../floating_window/services/overlay_service.dart';
+import '../../../../sellers/controllers/sellers_controller.dart';
 import '../../../controllers/bill/bill_details_controller.dart';
 import '../../../data/models/bill_model.dart';
 import '../bill_shared/bill_header_field.dart';
@@ -100,9 +101,15 @@ class BillDetailsHeader extends StatelessWidget {
             FormFieldRow(
               firstItem: SearchableAccountField(
                 label: AppStrings.seller.tr,
-                readOnly: true,
+                readOnly: false,
                 textEditingController: billDetailsController.sellerAccountController,
-                onSubmitted: (text) {},
+                onSubmitted: (text) {
+                  read<SellersController>().openSellerSelectionDialog(
+                    query: text,
+                    textEditingController: billDetailsController.sellerAccountController,
+                    context: context,
+                  );
+                },
               ),
               secondItem: TextAndExpandedChildField(
                 label: AppStrings.illustration.tr,

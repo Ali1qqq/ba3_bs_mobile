@@ -1,5 +1,7 @@
 class SellerModel {
   final String? costGuid;
+
+  // final String? docId;
   final int? costCode;
   final String? costName;
   final String? costLatinName;
@@ -29,6 +31,7 @@ class SellerModel {
     this.costRes2,
     this.costBranchMask,
     this.costIsChangeableRatio,
+    // this.docId,
   });
 
   // copyWith method
@@ -41,6 +44,7 @@ class SellerModel {
     String? costNote,
     String? costDebit,
     String? costCredit,
+    String? docId,
     int? costType,
     int? costSecurity,
     int? costRes1,
@@ -52,6 +56,7 @@ class SellerModel {
       costGuid: costGuid ?? this.costGuid,
       costCode: costCode ?? this.costCode,
       costName: costName ?? this.costName,
+      // docId: docId ?? this.docId,
       costLatinName: costLatinName ?? this.costLatinName,
       costParentGuid: costParentGuid ?? this.costParentGuid,
       costNote: costNote ?? this.costNote,
@@ -67,9 +72,28 @@ class SellerModel {
   }
 
   // Factory method to create a CostModel from JSON
+  factory SellerModel.fromLocalImport(Map<String, dynamic> json) {
+    return SellerModel(
+      costGuid: json['costGuid'],
+      costCode: json['CostCode'],
+      costName: json['CostName'],
+      costLatinName: json['CostLatinName'],
+      costParentGuid: json['CostParentGuid'],
+      costNote: json['CostNote'],
+      costDebit: json['CostDebit'].toString(),
+      costCredit: json['CostCredit'].toString(),
+      costType: json['CostType'],
+      costSecurity: json['CostSecurity'],
+      costRes1: json['CostRes1'],
+      costRes2: json['CostRes2'],
+      costBranchMask: json['CostBranchMask'],
+      costIsChangeableRatio: json['CostIsChangeableRatio'],
+    );
+  }
+
   factory SellerModel.fromJson(Map<String, dynamic> json) {
     return SellerModel(
-      costGuid: json['CostGuid'],
+      costGuid: json['docId'],
       costCode: json['CostCode'],
       costName: json['CostName'],
       costLatinName: json['CostLatinName'],
@@ -89,7 +113,7 @@ class SellerModel {
   // Method to convert a CostModel instance to JSON
   Map<String, dynamic> toJson() {
     return {
-      'CostGuid': costGuid,
+      'costGuid': costGuid,
       'CostCode': costCode,
       'CostName': costName,
       'CostLatinName': costLatinName,

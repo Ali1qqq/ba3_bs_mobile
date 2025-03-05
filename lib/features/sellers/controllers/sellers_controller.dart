@@ -1,8 +1,8 @@
 import 'dart:developer';
 import 'dart:io';
 
+import 'package:ba3_bs_mobile/core/helper/extensions/basic/list_extensions.dart';
 import 'package:ba3_bs_mobile/core/helper/extensions/getx_controller_extensions.dart';
-import 'package:ba3_bs_mobile/core/helper/extensions/role_item_type_extension.dart';
 import 'package:ba3_bs_mobile/core/router/app_routes.dart';
 import 'package:ba3_bs_mobile/features/bill/controllers/bill/bill_details_controller.dart';
 import 'package:ba3_bs_mobile/features/users_management/controllers/user_management_controller.dart';
@@ -18,7 +18,6 @@ import '../../../core/services/firebase/implementations/repos/bulk_savable_datas
 import '../../../core/services/json_file_operations/implementations/import/import_repo.dart';
 import '../../../core/utils/app_ui_utils.dart';
 import '../../floating_window/services/overlay_service.dart';
-import '../../users_management/data/models/role_model.dart';
 import '../data/models/seller_model.dart';
 
 class SellersController extends GetxController with AppNavigator {
@@ -28,8 +27,7 @@ class SellersController extends GetxController with AppNavigator {
 
   SellersController(this._sellersFirebaseRepo, this._sellersImportRepo);
 
-  List<SellerModel> sellers = [];
-  bool isLoading = true;
+  RxList<SellerModel> sellers = <SellerModel>[].obs;
 
   SellerModel? selectedSellerAccount;
   final logger = Logger();
@@ -41,14 +39,6 @@ class SellersController extends GetxController with AppNavigator {
     getAllSellers();
   }
 
-  fetchProbabilitySellers() async {
-    if (RoleItemType.viewSellers.hasAdminPermission) {
-      await getAllSellers();
-    } else {
-      await fetchLoginSellers();
-    }
-  }
-
   // Fetch sellers from the repository
   Future<void> getAllSellers() async {
     final result = await _sellersFirebaseRepo.getAll();
@@ -56,59 +46,53 @@ class SellersController extends GetxController with AppNavigator {
     result.fold(
       (failure) => AppUIUtils.onFailure(failure.message),
       (fetchedSellers) {
-        sellers = fetchedSellers;
-        isLoading = false;
-        update();
+        sellers.assignAll(fetchedSellers);
       },
     );
   }
 
   Future<void> fetchAllSellersFromLocal() async {
-    FilePickerResult? resultFile = await FilePicker.platform.pickFiles();
+    try {
+      log('fetchAllSellersFromLocal');
+      FilePickerResult? resultFile = await FilePicker.platform.pickFiles();
+      log('resultFile ${resultFile?.files.single.path!}');
+      if (resultFile != null) {
+        log('resultFile!= null');
+        File file = File(resultFile.files.single.path!);
+        final result = await _sellersImportRepo.importXmlFile(file);
 
-    if (resultFile != null) {
-      File file = File(resultFile.files.single.path!);
-      final result = await _sellersImportRepo.importXmlFile(file);
-
-      result.fold(
-        (failure) {
-          logger.e("Error log", error: failure.message);
-          AppUIUtils.onFailure(failure.message);
-        },
-        (fetchedSellers) => _handelFetchAllSellersFromLocalSuccess(fetchedSellers),
-      );
+        result.fold(
+          (failure) {
+            logger.e("Error log", error: failure.message);
+            AppUIUtils.onFailure(failure.message);
+          },
+          (fetchedSellers) => _handelFetchAllSellersFromLocalSuccess(fetchedSellers),
+        );
+      }
+    } catch (e) {
+      log('File picker error: $e');
     }
   }
 
   void _handelFetchAllSellersFromLocalSuccess(List<SellerModel> fetchedSellers) async {
-    logger.d("fetchedSellers length ${fetchedSellers.length}");
-    logger.d('sellers length is ${sellers.length}');
-    logger.d('getAllSellersNotExist length is ${getAllSellersNotExist(sellers, fetchedSellers).length}');
-    if (sellers.isNotEmpty && getAllSellersNotExist(sellers, fetchedSellers).isNotEmpty) {
-      await _sellersFirebaseRepo.saveAll(getAllSellersNotExist(sellers, fetchedSellers));
-      AppUIUtils.onSuccess("تم اضافة  ${getAllSellersNotExist(sellers, fetchedSellers).length}");
-      sellers.addAll(getAllSellersNotExist(sellers, fetchedSellers));
+    log("fetchedSellers length ${fetchedSellers.length}");
+    log('current sellers length is ${sellers.length}');
+
+    final newSellers = fetchedSellers.subtract(sellers, (seller) => seller.costName);
+    log('newSellers length is ${newSellers.length}');
+
+    if (newSellers.isNotEmpty) {
+      final result = await _sellersFirebaseRepo.saveAll(newSellers);
+
+      result.fold(
+        (failure) => AppUIUtils.onFailure(failure.message),
+        (fetchedSellers) {
+          AppUIUtils.onSuccess('تم اضافة  ${newSellers.length}');
+
+          sellers.addAll(newSellers);
+        },
+      );
     }
-  }
-
-  List<SellerModel> getAllSellersNotExist(List<SellerModel> currentMaterials, List<SellerModel> fetchedMaterials) {
-    List<SellerModel> sellers = [];
-    final existingMatNames = currentMaterials.map((e) => e.costName).toSet();
-    for (var element in fetchedMaterials) {
-      if (!existingMatNames.contains(element.costName)) {
-        sellers.add(element);
-      }
-    }
-    return sellers;
-  }
-
-  Future<void> addSeller(SellerModel seller) async {
-    final result = await _sellersFirebaseRepo.save(seller);
-
-    result.fold(
-      (failure) => AppUIUtils.onFailure(failure.message),
-      (fetchedSellers) {},
-    );
   }
 
   Future<void> addSellers() async {
@@ -117,6 +101,18 @@ class SellersController extends GetxController with AppNavigator {
     result.fold(
       (failure) => AppUIUtils.onFailure(failure.message),
       (addedSellers) => AppUIUtils.onSuccess('Add ${addedSellers.length} sellers'),
+    );
+  }
+
+  Future<void> deleteSeller(String sellerId) async {
+    final result = await _sellersFirebaseRepo.delete(sellerId);
+
+    result.fold(
+      (failure) => AppUIUtils.onFailure('فشل في حذف البائع: ${failure.message}'),
+      (success) {
+        AppUIUtils.onSuccess('تم الحذف البائع بنجاح!');
+        sellers.removeWhere((seller) => seller.costGuid == sellerId);
+      },
     );
   }
 
@@ -140,7 +136,7 @@ class SellersController extends GetxController with AppNavigator {
   // Get seller name by ID
   String getSellerNameById(String? id) {
     if (id == null || id.isEmpty) return '';
-    return sellers.firstWhere((seller) => seller.costGuid == id).costName ?? '';
+    return sellers.firstWhereOrNull((seller) => seller.costGuid == id)?.costName ?? '';
   }
 
   // Get seller ID by name
@@ -151,7 +147,11 @@ class SellersController extends GetxController with AppNavigator {
 
   // Get seller  by ID
   SellerModel getSellerById(String id) {
-    return sellers.firstWhereOrNull((seller) => seller.costGuid == id) ?? SellerModel(costName: '');
+    return sellers.firstWhereOrNull((seller) {
+          log('seller guid ${seller.costGuid}');
+          return seller.costGuid == id;
+        }) ??
+        SellerModel(costName: '');
   }
 
   // Replace Arabic numerals with English numerals
@@ -187,7 +187,9 @@ class SellersController extends GetxController with AppNavigator {
 
       billDetailsController.sellerAccountController.text = '';
     } else {
+      log(billSellerId);
       final SellerModel sellerAccount = getSellerById(billSellerId);
+      log(sellerAccount.toJson().toString());
 
       updateSellerAccount(sellerAccount);
 
