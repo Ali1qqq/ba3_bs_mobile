@@ -85,16 +85,16 @@ class UserTimeController extends GetxController {
     UserModel? userModel = getUserById();
 
     /// we don't need it in diskTop app
-    /*   /// check if user in regin
+    /// check if user in regin
     if (!await isWithinRegion()) {
       handleError('خطأ في المنطقة الجغرافية', logStatus);
       return;
-    }*/
+    }
 
     /// check if user want to login again before logout
     /// or
     /// check if user want to logout again before login
-    if (userModel!.userWorkStatus != logStatus) {
+    if (userModel!.userWorkStatus != logStatus || userModel.userTimeModel?[_userTimeServices.getCurrentDayName()] == null) {
       final updatedUserModel = onChecked(userModel);
 
       /// check if user want to log in
