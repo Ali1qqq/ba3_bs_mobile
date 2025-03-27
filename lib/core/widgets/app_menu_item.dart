@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class AppMenuItem extends StatelessWidget {
   final String text;
@@ -9,11 +10,11 @@ class AppMenuItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(15.0),
+      padding: const EdgeInsets.all(5.0),
       child: InkWell(
         onTap: onTap,
         child: Container(
-          width: double.infinity,
+          width: 1.sw,
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(20),

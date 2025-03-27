@@ -10,7 +10,10 @@ class BondCompoundDatasource extends CompoundDatasourceBase<BondModel, BondType>
   BondCompoundDatasource({required super.compoundDatabaseService});
 
   // Parent Collection (e.g., "bonds", "bonds")
+
   @override
+  // String get rootCollectionPath => '${read<MigrationController>().currentVersion}${ApiConstants.bonds}'; // Collection name in Firestore
+
   String get rootCollectionPath => ApiConstants.bonds; // Collection name in Firestore
 
   @override
@@ -32,8 +35,7 @@ class BondCompoundDatasource extends CompoundDatasourceBase<BondModel, BondType>
   }
 
   @override
-  Future<List<BondModel>> fetchWhere<V>(
-      {required BondType itemIdentifier, required String field, required V value, DateFilter? dateFilter}) async {
+  Future<List<BondModel>> fetchWhere<V>({required BondType itemIdentifier, String? field, V? value, DateFilter? dateFilter}) async {
     final data = await compoundDatabaseService.fetchWhere(
         rootCollectionPath: rootCollectionPath,
         rootDocumentId: getRootDocumentId(itemIdentifier),
@@ -94,7 +96,7 @@ class BondCompoundDatasource extends CompoundDatasourceBase<BondModel, BondType>
   }
 
   Future<BondModel> _assignBondNumber(BondModel bond) async {
-    final newBondNumber = await getNextNumber(rootCollectionPath, BondType.byTypeGuide(bond.payTypeGuid!).label);
+    final newBondNumber = await fetchAndIncrementEntityNumber(rootCollectionPath, BondType.byTypeGuide(bond.payTypeGuid!).label);
     return bond.copyWith(payNumber: newBondNumber.nextNumber);
   }
 
@@ -180,7 +182,7 @@ class BondCompoundDatasource extends CompoundDatasourceBase<BondModel, BondType>
     final rootDocumentId = getRootDocumentId(itemIdentifier);
     final subCollectionPath = getSubCollectionPath(itemIdentifier);
 
-    final savedData = await compoundDatabaseService.saveAll(
+    final savedData = await compoundDatabaseService.addAll(
       rootCollectionPath: rootCollectionPath,
       rootDocumentId: rootDocumentId,
       subCollectionPath: subCollectionPath,
@@ -196,7 +198,7 @@ class BondCompoundDatasource extends CompoundDatasourceBase<BondModel, BondType>
   }
 
   @override
-  Future<double?> fetchMetaData({required String id, required BondType itemIdentifier}) {
+  Future<double> fetchMetaData({required String id, required BondType itemIdentifier}) {
     // TODO: implement fetchMetaData
     throw UnimplementedError();
   }

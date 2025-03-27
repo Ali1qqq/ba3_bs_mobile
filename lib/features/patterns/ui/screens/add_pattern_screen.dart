@@ -1,3 +1,4 @@
+import 'package:ba3_bs_mobile/core/constants/app_strings.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -19,7 +20,7 @@ class AddPatternScreen extends StatelessWidget {
           Expanded(
             child: Scaffold(
               appBar: AppBar(
-                title: const Text('إنشاء نمط'),
+                title: Text(AppStrings.addPattern.tr),
               ),
               body: GetBuilder<PatternController>(
                 builder: (patternController) {
@@ -27,11 +28,11 @@ class AddPatternScreen extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(horizontal: 15),
                     child: ListView(
                       children: [
-                        const VerticalSpace(10),
+                        const VerticalSpace(20),
                         AddPatternForm(patternController: patternController),
-                        const VerticalSpace(20),
+                        const VerticalSpace(40),
                         ColorsPicker(patternController: patternController),
-                        const VerticalSpace(20),
+                        const VerticalSpace(40),
                         AddPatternBottomButtons(patternController: patternController),
                       ],
                     ),

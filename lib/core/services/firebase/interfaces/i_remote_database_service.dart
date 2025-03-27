@@ -6,7 +6,7 @@ abstract class IRemoteDatabaseService<T> {
   Future<List<T>> fetchAll({required String path});
 
   /// Fetches a list of items of type [T] from the specified [path] where the field [field]
-  /// matches the value [value] of type [V].
+  /// matches the value [_value] of type [V].
   Future<List<T>> fetchWhere({required String path, required List<QueryFilter> queryFilters, DateFilter? dateFilter});
 
   /// Fetches a single item of type [T] from the specified [path] by its [documentId].
@@ -24,7 +24,7 @@ abstract class IRemoteDatabaseService<T> {
   Future<void> update({required String path, String? documentId, required Map<String, dynamic> data});
 
   /// Adds multiple items to the specified [path] using a batch write and returns the added items.
-  Future<List<Map<String, dynamic>>> addAll({
+  Future<List<T>> addAll({
     required String path,
     required List<Map<String, dynamic>> data,
   });
@@ -35,10 +35,21 @@ abstract class IRemoteDatabaseService<T> {
   /// For each item in [items]:
   /// - If the document (identified by [docIdField]) does not exist, it creates it with [nestedFieldPath].
   /// - If the document exists, it updates [nestedFieldPath] using `FieldValue.arrayUnion`.
-  Future<List<Map<String, dynamic>>> batchUpdateWithArrayUnion({
+  Future<List<T>> batchUpdateWithArrayUnionOnMap({
     required String path,
     required List<Map<String, dynamic>> items,
     required String docIdField,
     required String nestedFieldPath,
   });
+
+  Future<List<T>> batchUpdateWithArrayUnionOnList({
+    required String path,
+    required List<Map<String, dynamic>> items,
+    required String docIdField,
+    required String nestedFieldPath,
+  });
+
+  Future<String> uploadImage({required String imagePath, required String path});
+
+  Future<String?> fetchImage(String path, String docId);
 }

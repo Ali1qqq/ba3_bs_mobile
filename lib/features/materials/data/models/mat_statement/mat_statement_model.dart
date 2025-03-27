@@ -1,8 +1,7 @@
-import 'dart:developer';
-
 import 'package:pluto_grid/pluto_grid.dart';
 
 import '../../../../../core/helper/enums/enums.dart';
+import '../../../../../core/utils/app_service_utils.dart';
 import '../../../../../core/widgets/pluto_auto_id_column.dart';
 import '../../../../pluto/data/models/pluto_adaptable.dart';
 
@@ -96,22 +95,17 @@ class MatStatementModel implements PlutoAdaptable {
       PlutoColumn(hide: true, title: 'originId', field: 'originId', type: PlutoColumnType.text()): matOrigin?.originId ?? '',
       createAutoIdColumn(): '#',
       PlutoColumn(title: 'التاريخ', field: 'التاريخ', type: PlutoColumnType.date()): date,
-      PlutoColumn(title: 'فاتورة', field: 'فاتورة', type: PlutoColumnType.text()): originNameAndNumber,
+      PlutoColumn(title: 'نوع الحركة', field: 'فاتورة', type: PlutoColumnType.text()):
+          AppServiceUtils.billNameAndNumberFormat(matOrigin!.originTypeId!, matOrigin!.originNumber!),
       PlutoColumn(title: 'الكمية', field: 'الكمية', type: PlutoColumnType.number()): quantity,
       PlutoColumn(title: 'اسم المادة', field: 'اسم المادة', type: PlutoColumnType.text()): matName,
       PlutoColumn(title: 'السعر', field: 'السعر', type: PlutoColumnType.currency(name: 'AED')): price,
       PlutoColumn(title: 'البيان', field: 'البيان', type: PlutoColumnType.text()): note,
+      PlutoColumn(title: 'billTypeId', field: 'billTypeId', type: PlutoColumnType.text(), hide: true): matOrigin!.originTypeId!,
     };
   }
-
-  String get originNameAndNumber {
-    log('matOrigin!.originTypeId ${matOrigin!.originTypeId}');
-    final originName = BillType.byTypeGuide(matOrigin!.originTypeId!).billPatternType.label;
-    final originNumber = matOrigin!.originNumber!;
-
-    return '$originName: $originNumber';
-  }
 }
+
 
 class MatOrigin {
   /// Unique identifier for the bond entry, which is the same as the origin ID (e.g., billId).

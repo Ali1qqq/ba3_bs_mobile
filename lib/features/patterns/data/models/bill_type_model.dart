@@ -1,12 +1,10 @@
 import 'package:equatable/equatable.dart';
-import 'package:pluto_grid/pluto_grid.dart';
 
 import '../../../../core/helper/enums/enums.dart';
 import '../../../accounts/data/models/account_model.dart';
 import '../../../bill/data/models/discount_addition_account_model.dart';
-import '../../../pluto/data/models/pluto_adaptable.dart';
 
-class BillTypeModel extends PlutoAdaptable with EquatableMixin {
+class BillTypeModel with EquatableMixin {
   final String? id;
   final String? billTypeId;
   final String? shortName;
@@ -56,19 +54,19 @@ class BillTypeModel extends PlutoAdaptable with EquatableMixin {
     );
   }
 
-  static Map<Account, List<DiscountAdditionAccountModel>>? _deserializeDiscountAdditionAccounts(
-      Map<String, dynamic>? discountAdditionAccountsJson) {
+  static Map<Account, List<DiscountAdditionAccountModel>>? _deserializeDiscountAdditionAccounts(Map<String, dynamic>? discountAdditionAccountsJson) {
     if (discountAdditionAccountsJson == null) return null;
 
     return discountAdditionAccountsJson.map((billAccountLabel, discountListJson) {
       Account billAccount = getBillAccountFromLabel(billAccountLabel);
       List<DiscountAdditionAccountModel> discountList =
-          (discountListJson as List).map((discountJson) => DiscountAdditionAccountModel.fromJson(discountJson)).toList();
+      (discountListJson as List).map((discountJson) => DiscountAdditionAccountModel.fromJson(discountJson)).toList();
       return MapEntry(billAccount, discountList);
     });
   }
 
-  Map<String, dynamic> toJson() => {
+  Map<String, dynamic> toJson() =>
+      {
         'docId': id,
         'billTypeId': billTypeId,
         'shortName': shortName,
@@ -118,21 +116,10 @@ class BillTypeModel extends PlutoAdaptable with EquatableMixin {
           discountAdditionAccounts: discountAdditionAccounts ?? this.discountAdditionAccounts,
           billPatternType: billPatternType ?? this.billPatternType);
 
-  @override
-  Map<PlutoColumn, dynamic> toPlutoGridFormat([type]) => {
-        PlutoColumn(title: 'billTypeId', field: 'billTypeId', type: PlutoColumnType.text()): billTypeId,
-        PlutoColumn(title: 'shortName', field: 'shortName', type: PlutoColumnType.text()): shortName,
-        PlutoColumn(title: 'fullName', field: 'fullName', type: PlutoColumnType.text()): fullName,
-        PlutoColumn(title: 'latinShortName', field: 'latinShortName', type: PlutoColumnType.text()): latinShortName,
-        PlutoColumn(title: 'latinFullName', field: 'latinFullName', type: PlutoColumnType.text()): latinFullName,
-        PlutoColumn(title: 'billType', field: 'billType', type: PlutoColumnType.text()): billTypeLabel,
-        PlutoColumn(title: 'color', field: 'color', type: PlutoColumnType.text()): color,
-        PlutoColumn(title: 'accounts', field: 'accounts', type: PlutoColumnType.text()):
-            accounts?.map((account, accountModel) => MapEntry(account.label, accountModel.toPlutoGridFormat())),
-      };
 
   @override
-  List<Object?> get props => [
+  List<Object?> get props =>
+      [
         id,
         billTypeId,
         shortName,
@@ -140,6 +127,7 @@ class BillTypeModel extends PlutoAdaptable with EquatableMixin {
         latinShortName,
         latinFullName,
         billTypeLabel,
+        billPatternType,
         color,
         accounts,
         discountAdditionAccounts,

@@ -9,7 +9,7 @@ class SellerImport extends ImportServiceBase<SellerModel> {
   List<SellerModel> fromImportJson(Map<String, dynamic> jsonContent) {
     final List<dynamic> materialsJson = jsonContent['Materials']['M'] ?? [];
 
-    return materialsJson.map((materialJson) => SellerModel.fromJson(materialJson as Map<String, dynamic>)).toList();
+    return materialsJson.map((materialJson) => SellerModel.fromLocalImport(materialJson as Map<String, dynamic>)).toList();
   }
 
   @override
@@ -19,7 +19,7 @@ class SellerImport extends ImportServiceBase<SellerModel> {
     List<SellerModel> sellers = materialsXml.map((materialElement) {
       String? getText(String tagName) {
         final elements = materialElement.findElements(tagName);
-        return elements.isEmpty ? null : elements.first.value;
+        return elements.isEmpty ? null : elements.first.text;
       }
 
       int? getInt(String tagName) {

@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/cupertino.dart';
 
 import '../interfaces/i_translation_service.dart';
@@ -8,6 +10,7 @@ class TranslationRepository {
   TranslationRepository(this._dataSource);
 
   Future<String> translateText(String text) async {
+    log('text is $text', name: 'TranslationRepository translateText');
     if (_isArabic(text)) {
       try {
         return await _dataSource.getTranslation(text);

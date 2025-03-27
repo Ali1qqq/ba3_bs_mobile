@@ -9,6 +9,7 @@ import '../../../../core/helper/mixin/floating_launcher.dart';
 import '../../../../core/utils/app_ui_utils.dart';
 import '../../../core/constants/app_strings.dart';
 import '../../../core/helper/mixin/pdf_base.dart';
+import '../../bond/controllers/entry_bond/entry_bond_controller.dart';
 import '../../bond/ui/screens/entry_bond_details_screen.dart';
 import '../controllers/cheques/all_cheques_controller.dart';
 import '../controllers/cheques/cheques_details_controller.dart';
@@ -70,6 +71,7 @@ class ChequesDetailsService with PdfBase, EntryBondsGenerator, FloatingLauncher 
   }
 
   Future<void> handleDeleteSuccess(ChequesModel chequesModel, ChequesSearchController chequesSearchController, [fromChequesById]) async {
+    final entryBondController = read<EntryBondController>();
     // Only fetchCheques if open cheques details by cheques id from AllChequesScreen
     if (fromChequesById) {
       await read<AllChequesController>().fetchAllChequesByType(ChequesType.byTypeGuide(chequesModel.chequesTypeGuid!));
@@ -77,12 +79,12 @@ class ChequesDetailsService with PdfBase, EntryBondsGenerator, FloatingLauncher 
     } else {
       chequesSearchController.removeCheques(chequesModel);
     }
-    entryBondController.deleteEntryBondModel(entryId: chequesModel.chequesGuid!);
+    entryBondController.deleteEntryBondModel(entryId: chequesModel.chequesGuid!, sourceNumber: chequesModel.chequesNumber!);
     if (chequesModel.chequesPayGuid != null) {
-      entryBondController.deleteEntryBondModel(entryId: chequesModel.chequesPayGuid!);
+      entryBondController.deleteEntryBondModel(entryId: chequesModel.chequesPayGuid!, sourceNumber: chequesModel.chequesNumber!);
     }
     if (chequesModel.chequesRefundPayGuid != null) {
-      entryBondController.deleteEntryBondModel(entryId: chequesModel.chequesRefundPayGuid!);
+      entryBondController.deleteEntryBondModel(entryId: chequesModel.chequesRefundPayGuid!, sourceNumber: chequesModel.chequesNumber!);
     }
 
     AppUIUtils.onSuccess('تم حذف الشيك بنجاح!');
@@ -101,19 +103,23 @@ class ChequesDetailsService with PdfBase, EntryBondsGenerator, FloatingLauncher 
 
     if (isSave) {
       chequesDetailsController.updateIsChequesSaved(true);
-      generateAndSendPdf(
+      generatePdfAndSendToEmail(
         fileName: AppStrings.newBond.tr,
         itemModel: currentChequesModel,
       );
     } else {
       chequesSearchController.updateCheques(currentChequesModel);
-      generateAndSendPdf(
+      generatePdfAndSendToEmail(
         fileName: AppStrings.newBond.tr,
         itemModel: [prevChequesModel!, currentChequesModel],
       );
     }
 
-    await createAndStoreEntryBond(model: currentChequesModel);
+    await createAndStoreEntryBond(
+      model: currentChequesModel,
+      sourceNumbers: [currentChequesModel.chequesNumber!],
+      isSave: isSave,
+    );
 
     // final creators = EntryBondCreatorFactory.resolveEntryBondCreators(currentChequesModel);
     //

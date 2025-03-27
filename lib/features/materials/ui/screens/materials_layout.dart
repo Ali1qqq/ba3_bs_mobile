@@ -3,6 +3,7 @@ import 'package:ba3_bs_mobile/core/helper/extensions/role_item_type_extension.da
 import 'package:ba3_bs_mobile/core/widgets/app_button.dart';
 import 'package:ba3_bs_mobile/features/materials/controllers/material_controller.dart';
 import 'package:ba3_bs_mobile/features/materials/controllers/material_group_controller.dart';
+import 'package:ba3_bs_mobile/features/materials/controllers/mats_statement_controller.dart';
 import 'package:ba3_bs_mobile/features/users_management/data/models/role_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -52,7 +53,7 @@ class MaterialLayout extends StatelessWidget {
                               width: 100,
                               title: AppStrings.downloadGroups.tr,
                               onPressed: () {
-                                read<MaterialGroupController>().fetchAllMaterialGroupGroupFromLocal();
+                                read<MaterialGroupController>().fetchAllMaterialGroupFromLocal();
                               }),
                         ),
                       ]
@@ -65,12 +66,12 @@ class MaterialLayout extends StatelessWidget {
                       onTap: () {
                         read<MaterialController>()
                           ..reloadMaterials()
-                          ..navigateToAllMaterialScreen();
+                          ..navigateToAllMaterialScreen(context: context);
                       }),
                   AppMenuItem(
                       text: AppStrings.viewMaterialGroups.tr,
                       onTap: () {
-                        read<MaterialGroupController>().navigateToAllMaterialScreen();
+                        read<MaterialGroupController>().navigateToAllMaterialScreen(context: context);
                       }),
                   if (RoleItemType.viewProduct.hasAdminPermission)
                     AppMenuItem(
@@ -81,7 +82,12 @@ class MaterialLayout extends StatelessWidget {
                 ],
               ),
               floatingActionButton: (RoleItemType.administrator.hasAdminPermission)
-                  ? FloatingActionButton(onPressed: read<MaterialController>().resetMaterialQuantityAndPrice, child: Icon(Icons.lock_reset))
+                  ? FloatingActionButton(
+                      onPressed: () {
+                        // read<MaterialController>().resetMaterialQuantityAndPrice();
+                        read<MaterialsStatementController>().setupAllMaterials();
+                      },
+                      child: Icon(Icons.lock_reset))
                   : SizedBox(),
             ),
             LoadingDialog(

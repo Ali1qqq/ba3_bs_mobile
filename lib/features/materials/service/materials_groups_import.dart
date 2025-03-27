@@ -17,7 +17,7 @@ class MaterialGroupImport extends ImportServiceBase<MaterialGroupModel> {
     List<MaterialGroupModel> materials = materialsXml.map((materialElement) {
       String? getText(String tagName) {
         final elements = materialElement.findElements(tagName);
-        return elements.isEmpty ? null : elements.first.value;
+        return elements.isEmpty ? null : elements.first.text;
       }
 
       int getInt(String tagName) {

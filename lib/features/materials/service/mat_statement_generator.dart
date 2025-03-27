@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:ba3_bs_mobile/core/helper/extensions/bill/bill_items_extensions.dart';
 import 'package:ba3_bs_mobile/features/bill/data/models/bill_model.dart';
 import 'package:ba3_bs_mobile/features/materials/controllers/mats_statement_controller.dart';
@@ -12,14 +14,15 @@ import 'mat_statement_creator.dart';
 
 mixin MatsStatementsGenerator {
   final MaterialsStatementController _materialsStatementController = read<MaterialsStatementController>();
+  int j = 0;
 
   Future<void> createAndStoreMatsStatements({
     required List sourceModels,
     void Function(double progress)? onProgress,
   }) async {
     final matsStatementsModels = _generateMatsStatementsModels(sourceModels);
-
     await _materialsStatementController.saveAllMatsStatementsModels(matsStatements: matsStatementsModels, onProgress: onProgress);
+    log("j is  ${j++}");
   }
 
   List<MatStatementModel> _generateMatsStatementsModels(List sourceModels) {

@@ -22,27 +22,27 @@ class ChequesImport extends ImportServiceBase<ChequesModel> {
       String? chequesPayDate;
       if (checkCollectEntries.isNotEmpty) {
         for (var element in checkCollectEntries) {
-          chequesPayGuid = element.firstElementChild!.findElements('CEntryGuid').first.value;
-          chequesPayDate = element.firstElementChild!.findElements('CEntryDate').first.value;
+          chequesPayGuid = element.firstElementChild!.findElements('CEntryGuid').first.text;
+          chequesPayDate = element.firstElementChild!.findElements('CEntryDate').first.text;
         }
       }
 
       return ChequesModel(
-        chequesTypeGuid: element.findElements('CheckTypeGuid').first.value,
-        chequesNumber: int.tryParse(element.findElements('CheckNumber').first.value!),
-        chequesNum: int.tryParse(element.findElements('CheckNum').first.value!),
-        chequesGuid: element.findElements('CheckGuid').first.value,
-        chequesDate: element.findElements('CheckDate').first.value!.toYearMonthDayFormat(),
-        chequesDueDate: element.findElements('CheckDueDate').first.value!.toYearMonthDayFormat(),
-        chequesNote: element.findElements('CheckNote').first.value,
-        chequesVal: double.tryParse(element.findElements('CheckVal').first.value!),
-        chequesAccount2Guid: element.findElements('CheckAccount2Guid').first.value,
-        accPtr: element.findElements('AccPtr').first.value,
+        chequesTypeGuid: element.findElements('CheckTypeGuid').first.text,
+        chequesNumber: int.tryParse(element.findElements('CheckNumber').first.text),
+        chequesNum: int.tryParse(element.findElements('CheckNum').first.text),
+        chequesGuid: element.findElements('CheckGuid').first.text,
+        chequesDate: element.findElements('CheckDate').first.text.toYearMonthDayFormat(),
+        chequesDueDate: element.findElements('CheckDueDate').first.text.toYearMonthDayFormat(),
+        chequesNote: element.findElements('CheckNote').first.text,
+        chequesVal: double.tryParse(element.findElements('CheckVal').first.text),
+        chequesAccount2Guid: element.findElements('CheckAccount2Guid').first.text,
+        accPtr: element.findElements('AccPtr').first.text,
         isPayed: checkCollectEntries.isNotEmpty,
         chequesPayGuid: checkCollectEntries.isNotEmpty ? chequesPayGuid : null,
         chequesPayDate: checkCollectEntries.isNotEmpty ? chequesPayDate!.toYearMonthDayFormat() : null,
-        accPtrName: read<AccountsController>().getAccountNameById(element.findElements('AccPtr').first.value),
-        chequesAccount2Name: read<AccountsController>().getAccountNameById(element.findElements('CheckAccount2Guid').first.value),
+        accPtrName: read<AccountsController>().getAccountNameById(element.findElements('AccPtr').first.text),
+        chequesAccount2Name: read<AccountsController>().getAccountNameById(element.findElements('CheckAccount2Guid').first.text),
       );
     }).toList();
   }

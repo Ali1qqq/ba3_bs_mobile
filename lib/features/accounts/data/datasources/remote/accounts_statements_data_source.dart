@@ -11,6 +11,8 @@ class AccountsStatementsDatasource extends CompoundDatasourceBase<EntryBondItems
 
   // Parent Collection (e.g., "bills", "bonds")
   @override
+  //String get rootCollectionPath => '${read<MigrationController>().currentVersion}${ApiConstants.accountsStatements}'; // Collection name in Firestore
+
   String get rootCollectionPath => ApiConstants.accountsStatements; // Collection name in Firestore
 
   @override
@@ -33,8 +35,8 @@ class AccountsStatementsDatasource extends CompoundDatasourceBase<EntryBondItems
   @override
   Future<List<EntryBondItems>> fetchWhere<V>({
     required AccountEntity itemIdentifier,
-    required String field,
-    required V value,
+    String? field,
+    V? value,
     DateFilter? dateFilter,
   }) async {
     final dataList = await compoundDatabaseService.fetchWhere(
@@ -171,7 +173,7 @@ class AccountsStatementsDatasource extends CompoundDatasourceBase<EntryBondItems
     final rootDocumentId = getRootDocumentId(itemIdentifier);
     final subCollectionPath = getSubCollectionPath(itemIdentifier);
 
-    final savedData = await compoundDatabaseService.saveAll(
+    final savedData = await compoundDatabaseService.addAll(
       rootCollectionPath: rootCollectionPath,
       rootDocumentId: rootDocumentId,
       subCollectionPath: subCollectionPath,
@@ -187,7 +189,7 @@ class AccountsStatementsDatasource extends CompoundDatasourceBase<EntryBondItems
   }
 
   @override
-  Future<double?> fetchMetaData({required String id, required AccountEntity itemIdentifier}) {
+  Future<double> fetchMetaData({required String id, required AccountEntity itemIdentifier}) {
     // TODO: implement fetchMetaData
     throw UnimplementedError();
   }

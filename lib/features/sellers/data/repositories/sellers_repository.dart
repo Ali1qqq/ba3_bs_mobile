@@ -23,7 +23,7 @@ class SellersLocalRepository {
     // String sanitizedJson = sanitizeJsonString(jsonString);
     Map<String, dynamic> jsonMap = jsonDecode(sellersJson);
 
-    List<SellerModel> sellers = (jsonMap['Cost1']['Q'] as List).map((sellerJson) => SellerModel.fromJson(sellerJson)).toList();
+    List<SellerModel> sellers = (jsonMap['Cost1']['Q'] as List).map((sellerJson) => SellerModel.fromLocalImport(sellerJson)).toList();
 
     return sellers;
   }

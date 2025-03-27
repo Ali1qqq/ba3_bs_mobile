@@ -22,13 +22,14 @@ class BondSearchController extends GetxController {
 
   /// Initializes the Bond search with the given bonds and controllers.
   void initialize({
-    required List<BondModel> allBonds,
-    required BondModel newBond,
+    required int lastBondNumber,
+    required BondModel currentBond,
     required BondDetailsController bondDetailsController,
     required BondDetailsPlutoController bondDetailsPlutoController,
   }) {
-    bonds = _prepareBondList(allBonds, newBond);
-    currentBondIndex = _getBondIndexByNumber(newBond.payNumber);
+    bonds = _prepareBondList(lastBondNumber, currentBond);
+    currentBondIndex = _getBondIndexByNumber(currentBond.payNumber);
+
     currentBond = bonds[currentBondIndex];
     this.bondDetailsController = bondDetailsController;
     this.bondDetailsPlutoController = bondDetailsPlutoController;
@@ -37,12 +38,22 @@ class BondSearchController extends GetxController {
   }
 
   /// Prepares a list of bonds with placeholders up to the last Bond number.
-  List<BondModel> _prepareBondList(List<BondModel> allBonds, BondModel currentBond) {
-    final placeholders = List<BondModel>.filled(
-      allBonds.last.payNumber! - 1,
-      _createPlaceholderBond(currentBond),
+  List<BondModel> _prepareBondList(int lastBondNumber, BondModel currentBond) {
+    // Create a growable list of placeholder bills
+    final placeholders = List<BondModel>.generate(
+      lastBondNumber - 1,
+      (index) => _createPlaceholderBond(currentBond),
     );
-    return [...placeholders, currentBond];
+
+    final currentBondNumber = currentBond.payNumber!;
+
+    // If the current bill is the last one, append it to the list
+    if (currentBondNumber == lastBondNumber) {
+      return [...placeholders, currentBond];
+    } else {
+      // Otherwise, insert the current bill at the correct position
+      return placeholders..insert(currentBondNumber - 1, currentBond);
+    }
   }
 
   /// Creates a placeholder Bond for missing entries.bond

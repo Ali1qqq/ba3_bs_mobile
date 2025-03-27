@@ -30,9 +30,7 @@ class ChequesComparisonPdfGenerator extends PdfGeneratorBase<List<ChequesModel>>
         buildTitleText(fileName, 24, font: font, weight: FontWeight.bold),
         buildDetailRow('رقم الشيك التعريفي: ', afterUpdate.chequesGuid.toString(), font: font),
         buildDetailRow('رقم الشيك: ', afterUpdate.chequesNumber.toString().toString(), font: font),
-        buildDetailRow('نوع الشيك: ', ChequesType
-            .byTypeGuide(afterUpdate.chequesTypeGuid!)
-            .value, font: font),
+        buildDetailRow('نوع الشيك: ', ChequesType.byTypeGuide(afterUpdate.chequesTypeGuid!).value, font: font),
       ],
     );
   }
@@ -66,15 +64,13 @@ class ChequesComparisonPdfGenerator extends PdfGeneratorBase<List<ChequesModel>>
     ];
   }
 
-  Map<int, TableColumnWidth> get _columnWidthsSummary =>
-      {
+  Map<int, TableColumnWidth> get _columnWidthsSummary => {
         0: const FixedColumnWidth(80), // Field
         1: const FixedColumnWidth(150), // Before
         2: const FixedColumnWidth(150), // After
       };
 
-  Map<int, Alignment> get _cellAlignmentsSummary =>
-      {
+  Map<int, Alignment> get _cellAlignmentsSummary => {
         0: Alignment.center,
         1: Alignment.center,
         2: Alignment.center,

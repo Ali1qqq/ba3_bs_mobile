@@ -2,17 +2,21 @@ import 'package:flutter/material.dart';
 
 import '../../../../../core/i_controllers/i_pluto_controller.dart';
 import '../../../../materials/data/models/materials/material_model.dart';
+import '../../../data/models/bill_items.dart';
 
 class AddSerialWidget extends StatefulWidget {
   final IPlutoController plutoController;
   final int serialCount;
   final MaterialModel materialModel;
 
+  final BillItem billItem;
+
   const AddSerialWidget({
     super.key,
     required this.plutoController,
     required this.serialCount,
     required this.materialModel,
+    required this.billItem,
   });
 
   @override
@@ -23,7 +27,7 @@ class _AddSerialWidgetState extends State<AddSerialWidget> {
   @override
   void initState() {
     // Initialize controllers for the specific material id
-    widget.plutoController.initSerialControllers(widget.materialModel, widget.serialCount);
+    widget.plutoController.initSerialControllers(widget.materialModel, widget.serialCount, widget.billItem);
     super.initState();
   }
 

@@ -4,9 +4,9 @@ import 'dart:io';
 import 'package:ba3_bs_mobile/core/dialogs/search_material_group_text_dialog.dart';
 import 'package:ba3_bs_mobile/core/helper/extensions/basic/list_extensions.dart';
 import 'package:ba3_bs_mobile/core/helper/extensions/basic/string_extension.dart';
+import 'package:ba3_bs_mobile/core/helper/extensions/encode_decode_text.dart';
 import 'package:ba3_bs_mobile/core/helper/extensions/getx_controller_extensions.dart';
 import 'package:ba3_bs_mobile/core/helper/mixin/app_navigator.dart';
-import 'package:ba3_bs_mobile/core/router/app_routes.dart';
 import 'package:ba3_bs_mobile/core/services/json_file_operations/implementations/import_export_repo.dart';
 import 'package:ba3_bs_mobile/core/services/local_database/implementations/repos/local_datasource_repo.dart';
 import 'package:ba3_bs_mobile/features/changes/data/model/changes_model.dart';
@@ -14,7 +14,7 @@ import 'package:ba3_bs_mobile/features/materials/controllers/material_group_cont
 import 'package:ba3_bs_mobile/features/materials/data/models/materials/material_group.dart';
 import 'package:ba3_bs_mobile/features/materials/service/material_from_handler.dart';
 import 'package:ba3_bs_mobile/features/materials/service/material_service.dart';
-import 'package:ba3_bs_mobile/features/materials/ui/screens/add_material_screen.dart';
+import 'package:ba3_bs_mobile/features/materials/ui/screens/all_materials_screen.dart';
 import 'package:ba3_bs_mobile/features/users_management/controllers/user_management_controller.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
@@ -25,19 +25,28 @@ import '../../../core/helper/enums/enums.dart';
 import '../../../core/helper/mixin/floating_launcher.dart';
 import '../../../core/network/api_constants.dart';
 import '../../../core/services/firebase/implementations/repos/listen_datasource_repo.dart';
+import '../../../core/services/firebase/implementations/repos/queryable_savable_repo.dart';
 import '../../../core/services/firebase/implementations/services/firestore_uploader.dart';
 import '../../../core/utils/app_service_utils.dart';
 import '../../../core/utils/app_ui_utils.dart';
 import '../data/models/materials/material_model.dart';
+import '../ui/screens/add_material_screen.dart';
 
 class MaterialController extends GetxController with AppNavigator, FloatingLauncher {
   final ImportExportRepository<MaterialModel> _jsonImportExportRepo;
   final LocalDatasourceRepository<MaterialModel> _materialsHiveRepo;
+
+  final QueryableSavableRepository<MaterialModel> _materialRemoteRepo;
   final ListenDataSourceRepository<ChangesModel> _listenDataSourceRepository;
 
-  MaterialController(this._jsonImportExportRepo, this._materialsHiveRepo, this._listenDataSourceRepository);
+  MaterialController(this._jsonImportExportRepo, this._materialsHiveRepo, this._listenDataSourceRepository, this._materialRemoteRepo);
 
   List<MaterialModel> materials = [];
+  List<MaterialModel> materialsForShow = [];
+
+  // Map<String, List<MaterialModel>> get productsGrouped => materials.groupBy((product) => product.matGroupGuid!);
+  Map<String, List<MaterialModel>> productsGrouped = {};
+
   MaterialModel? selectedMaterial;
 
   late MaterialFromHandler materialFromHandler;
@@ -57,6 +66,7 @@ class MaterialController extends GetxController with AppNavigator, FloatingLaunc
     _materialService = MaterialService();
 
     read<MaterialGroupController>();
+    reloadMaterials();
   }
 
   bool isLoading = false;
@@ -68,21 +78,34 @@ class MaterialController extends GetxController with AppNavigator, FloatingLaunc
 
     result.fold(
       (failure) => AppUIUtils.onFailure(failure.message),
-      (fetchedMaterial) => materials.assignAll(fetchedMaterial),
+      (fetchedMaterial) {
+        materials.assignAll(fetchedMaterial);
+        productsGrouped = fetchedMaterial.groupBy((product) => product.matGroupGuid!);
+      },
     );
+  }
+
+  Future<void> fetchMaterialsGroup({String? groupGuid}) async {
+    if (groupGuid != null) {
+      materialsForShow.assignAll(productsGrouped[groupGuid]!);
+    } else {
+      materialsForShow.assignAll(materials);
+    }
   }
 
   Future<void> reloadMaterials() async {
     await fetchMaterials();
   }
 
-  Future<void> saveAllMaterial(List<MaterialModel> materialsToSave) async {
+  Future<void> saveAllMaterialOnLocal(List<MaterialModel> materialsToSave) async {
     final result = await _materialsHiveRepo.saveAll(materialsToSave);
 
     result.fold((failure) => AppUIUtils.onFailure(failure.message), (savedMaterials) {
       log('materials length before add item: ${materials.length}');
+
       AppUIUtils.onSuccess('تم الحفظ بنجاح');
       reloadMaterials();
+
       log('materials length after add item: ${materials.length}');
     });
   }
@@ -157,16 +180,26 @@ class MaterialController extends GetxController with AppNavigator, FloatingLaunc
           log('Progress: ${(progress * 100).toStringAsFixed(2)}%');
         },
       );
+      for (final materialModel in newMaterials) {
+        if (materialModel.id == newMaterials.last.id) {
+          _onSaveSuccess(materialModel, changeType: ChangeType.add, withReloadMaterial: true);
+        } else {
+          _onSaveSuccess(materialModel, changeType: ChangeType.add, withReloadMaterial: false);
+        }
+      }
     }
 
     saveAllMaterialsRequestState.value = RequestState.success;
     materials.assignAll(fetchedMaterial);
   }
 
-  void navigateToAllMaterialScreen() {
-    reloadMaterials();
+  void navigateToAllMaterialScreen({String? groupGuid, required BuildContext context}) {
+    // reloadMaterials();
+    fetchMaterialsGroup(groupGuid: groupGuid);
 
-    to(AppRoutes.showAllMaterialsScreen);
+    launchFloatingWindow(context: context, minimizedTitle: ApiConstants.materials.tr, floatingScreen: AllMaterialsScreen());
+
+    // to(AppRoutes.showAllMaterialsScreen);
   }
 
   List<MaterialModel> searchOfProductByText(String query) {
@@ -251,6 +284,12 @@ class MaterialController extends GetxController with AppNavigator, FloatingLaunc
     return materials.firstWhereOrNull((material) => material.id == id);
   }
 
+  double getMaterialMinPriceById(String id) {
+    double price = materials.firstWhereOrNull((material) => material.id == id)?.calcMinPrice ?? 0.0;
+
+    return price.isNaN || price.isInfinite ? 0.0 : price;
+  }
+
   bool doesMaterialExist(String? materialName) {
     if (materialName == null) return false;
     return materials.any((material) => material.matName?.trim() == materialName.trim());
@@ -260,18 +299,37 @@ class MaterialController extends GetxController with AppNavigator, FloatingLaunc
     // log('name $name');
     // log(materials.where((element) => (element.matName!.toLowerCase().contains(name.toLowerCase()))).firstOrNull.toString());
     if (name != null && name != " " && name != "") {
-      return materials.where((element) => (element.matName!.toLowerCase().contains(name.toLowerCase()))).firstOrNull;
+      return materials.where((element) => (element.matName == name)).firstOrNull;
     }
     return null;
   }
 
-  MaterialModel? searchMaterialByName(name) {
-    // log('name $name');
-    // log(materials.where((element) => (element.matName!.toLowerCase().contains(name.toLowerCase()))).firstOrNull.toString());
+  MaterialModel? searchMaterialByName(String? name) {
     if (name != null && name != " " && name != "") {
-      return materials.where((element) => (element.matName!.toLowerCase().contains(name.toLowerCase()))).firstOrNull;
+      // log('name $name');
+      // log(name.encodeProblematic().encodeProblematic());
+      // log(materials.where((element) {
+      //   // log(element.matName!);
+      //   return (element.matName==name.encodeProblematic().encodeProblematic());
+      // }).map((e) => e.matName!).toString());
+
+      return materials
+          .where((element) => (element.matName! == name.encodeProblematic().encodeProblematic() ||
+              element.matName! == name ||
+              element.matName!.decodeProblematic().decodeProblematic() == name ||
+              element.matName!.removeAllWhitespace == name.removeAllWhitespace))
+          .firstOrNull;
     }
     return null;
+  }
+
+  Future<void> saveMaterialsOnRemote(List<MaterialModel> materials) async {
+    final result = await _materialRemoteRepo.saveAll(materials);
+
+    result.fold(
+      (failure) => AppUIUtils.onFailure(failure.message),
+      (savedMaterial) {},
+    );
   }
 
   Future<void> saveOrUpdateMaterial() async {
@@ -294,21 +352,6 @@ class MaterialController extends GetxController with AppNavigator, FloatingLaunc
       (savedMaterial) {
         _onSaveSuccess(savedMaterial, changeType: selectedMaterial != null ? ChangeType.update : ChangeType.add);
       },
-    );
-  }
-
-  void _onSaveSuccess(MaterialModel materialModel, {required ChangeType changeType}) async {
-    reloadMaterials();
-
-    // Prepare user change queue for saving
-    final userChangeQueue = _prepareUserChangeQueue(materialModel, changeType);
-
-    // Save changes and handle results
-    final changesResult = await _listenDataSourceRepository.saveAll(userChangeQueue);
-
-    changesResult.fold(
-      (failure) => AppUIUtils.onFailure(failure.message),
-      (_) {},
     );
   }
 
@@ -337,7 +380,6 @@ class MaterialController extends GetxController with AppNavigator, FloatingLaunc
         matCode: materialFromHandler.codeController.text.toInt,
         matBarCode: materialFromHandler.barcodeController.text,
         endUserPrice: materialFromHandler.customerPriceController.text,
-        matCurrencyVal: materialFromHandler.costPriceController.text.toDouble,
         materialModel: selectedMaterial,
       );
 
@@ -360,6 +402,39 @@ class MaterialController extends GetxController with AppNavigator, FloatingLaunc
         ),
       )
       .toList();
+
+  Future<void> updateMaterialWithChanges(MaterialModel updatedMaterialModel) async {
+    final hiveResult = await _materialsHiveRepo.update(updatedMaterialModel);
+
+    hiveResult.fold(
+      (failure) => AppUIUtils.onFailure(failure.message),
+      (savedMaterial) => _onSaveSuccess(updatedMaterialModel, changeType: ChangeType.update),
+    );
+  }
+
+  Future<void> updateMaterial(MaterialModel updatedMaterialModel) async {
+    final hiveResult = await _materialsHiveRepo.update(updatedMaterialModel);
+
+    hiveResult.fold(
+      (failure) => AppUIUtils.onFailure(failure.message),
+      (savedMaterial) => {},
+    );
+  }
+
+  void _onSaveSuccess(MaterialModel materialModel, {required ChangeType changeType, bool withReloadMaterial = true}) async {
+    if (withReloadMaterial) reloadMaterials();
+
+    // Prepare user change queue for saving
+    final userChangeQueue = _prepareUserChangeQueue(materialModel, changeType);
+
+    // Save changes and handle  results
+    final changesResult = await _listenDataSourceRepository.saveAll(userChangeQueue);
+
+    changesResult.fold(
+      (failure) => AppUIUtils.onFailure(failure.message),
+      (_) {},
+    );
+  }
 
   void _onDeleteSuccess() async {
     final MaterialModel materialModel = selectedMaterial!;
@@ -387,11 +462,11 @@ class MaterialController extends GetxController with AppNavigator, FloatingLaunc
     // to(AppRoutes.addMaterialScreen);
   }
 
-  void openMaterialSelectionDialog({
+  void openMaterialGroupSelectionDialog({
     required String query,
     required BuildContext context,
   }) async {
-    MaterialGroupModel? searchedMaterial = await searchProductGroupTextDialog(query);
+    MaterialGroupModel? searchedMaterial = await searchProductGroupTextDialog(query, context);
 
     if (searchedMaterial != null) {
       materialFromHandler.parentModel = searchedMaterial;
@@ -407,22 +482,16 @@ class MaterialController extends GetxController with AppNavigator, FloatingLaunc
   /// and then saves the updated material.
   Future<void> updateAndSaveMaterial(String matId, MaterialModel Function(MaterialModel) updateFn) async {
     final materialModel = materials.firstWhere((material) => material.id == matId);
-    materialFromHandler.init(updateFn(materialModel));
-    await saveOrUpdateMaterial();
+    // materialFromHandler.init();
+    await updateMaterial(updateFn(materialModel));
+    // await saveOrUpdateMaterial();
   }
 
   Future<void> updateMaterialByModel(MaterialModel materialModel, MaterialModel Function(MaterialModel) updateFn) async {
-    materialFromHandler.init(updateFn(materialModel));
-    await saveOrUpdateMaterial();
+    await updateMaterial(updateFn(materialModel));
   }
 
   resetMaterialQuantityAndPrice() async {
-    log(materials
-        .where(
-          (element) => element.matQuantity != 0 || element.calcMinPrice != 0,
-        )
-        .length
-        .toString());
     for (final material in materials.where(
       (element) => element.matQuantity != 0 || element.calcMinPrice != 0,
     )) {
@@ -479,12 +548,14 @@ class MaterialController extends GetxController with AppNavigator, FloatingLaunc
     required String matId,
     required int quantity,
     required double currentMinPrice,
+    required double lastEnterPrice,
   }) async {
     await updateAndSaveMaterial(
       matId,
       (material) => material.copyWith(
         matQuantity: quantity,
         calcMinPrice: currentMinPrice,
+        matLastPriceCurVal: lastEnterPrice,
       ),
     );
   }
@@ -503,12 +574,13 @@ class MaterialController extends GetxController with AppNavigator, FloatingLaunc
     return totalQuantity > 0 ? ((oldMinPrice * oldQuantity) + (priceInStatement * quantityInStatement)) / totalQuantity : 0.0;
   }
 
-  Future<void> updateMaterial(MaterialModel updatedMaterialModel) async {
-    final hiveResult = await _materialsHiveRepo.update(updatedMaterialModel);
-
-    hiveResult.fold(
-      (failure) => AppUIUtils.onFailure(failure.message),
-      (savedMaterial) => _onSaveSuccess(updatedMaterialModel, changeType: ChangeType.update),
-    );
+  Future<void> updateAllMaterialWithDecodeProblematic() async {
+    int i = 0;
+    log('material length ${materials.length}');
+    for (var mat in materials) {
+      materialFromHandler.init(mat.copyWith(matName: mat.matName!.encodeProblematic()));
+      await saveOrUpdateMaterial();
+      log('mat number ${++i}');
+    }
   }
 }

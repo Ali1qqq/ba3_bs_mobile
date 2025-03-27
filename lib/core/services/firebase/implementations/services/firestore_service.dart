@@ -1,10 +1,17 @@
 // Firebase-Specific Implementation
-import 'dart:developer';
 
+import 'dart:convert';
+import 'dart:developer';
+import 'dart:io';
+
+import 'package:ba3_bs_mobile/core/helper/extensions/basic/list_extensions.dart';
 import 'package:ba3_bs_mobile/core/models/query_filter.dart';
 import 'package:ba3_bs_mobile/core/services/firebase/interfaces/i_remote_database_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:pool/pool.dart';
+import 'package:uuid/uuid.dart';
 
+import '../../../../../features/migration/controllers/migration_controller.dart';
 import '../../../../models/date_filter.dart';
 
 // FirebaseFirestoreService Implementation
@@ -65,6 +72,11 @@ class FireStoreService extends IRemoteDatabaseService<Map<String, dynamic>> {
 
   @override
   Future<void> delete({required String path, String? documentId, String? mapFieldName}) async {
+    if (dateBaseGuard(path)) {
+      log('Migration guard triggered, skipping delete operation for path [$path].', name: 'delete CompoundFirestoreService');
+      return;
+    }
+
     if (mapFieldName != null) {
       // If mapFieldName is provided, delete the specific map field
       await _firestoreInstance.collection(path).doc(documentId).update({
@@ -78,7 +90,14 @@ class FireStoreService extends IRemoteDatabaseService<Map<String, dynamic>> {
 
   @override
   Future<Map<String, dynamic>> add({required Map<String, dynamic> data, required String path, String? documentId}) async {
-    final newDoc = _firestoreInstance.collection(path).doc().id;
+    if (dateBaseGuard(path)) {
+      log('Migration guard triggered, skipping add operation for path [$path].', name: 'add CompoundFirestoreService');
+      return {};
+    }
+    Uuid uuid = Uuid();
+
+    final newDoc = uuid.v4();
+    // final newDoc = _firestoreInstance.collection(path).doc().id;
 
     // Use the provided document ID or generate a new one if not provided
     final docId = documentId ?? (data['docId'] ?? newDoc);
@@ -96,6 +115,7 @@ class FireStoreService extends IRemoteDatabaseService<Map<String, dynamic>> {
       await docRef.set(data);
     }
 
+    log('$data', name: 'Add FireStoreService');
     return data;
   }
 
@@ -110,24 +130,56 @@ class FireStoreService extends IRemoteDatabaseService<Map<String, dynamic>> {
     required String path,
     required List<Map<String, dynamic>> data,
   }) async {
-    final batch = _firestoreInstance.batch();
-    final addedItems = <Map<String, dynamic>>[];
-
-    for (final item in data) {
-      // Generate a document ID if not already set
-      final docId = item['docId'] ?? _firestoreInstance.collection(path).doc().id;
-      item['docId'] = docId;
-
-      // Add the item to the batch
-      final docRef = _firestoreInstance.collection(path).doc(docId);
-      batch.set(docRef, item);
-
-      // Collect the processed item
-      addedItems.add(item);
+    if (dateBaseGuard(path)) {
+      log('Migration guard triggered, skipping addAll operation for path [$path].', name: 'addAll CompoundFirestoreService');
+      return [];
     }
 
-    await batch.commit();
-    return addedItems;
+    // 1. Break the data into chunks of up to 500 items
+    final chunks = data.chunkBy(500);
+
+    final int maxConcurrency = 5;
+
+    // 2. Create a Pool to limit concurrency (e.g., 5 commits at once)
+    final pool = Pool(maxConcurrency);
+    final futures = <Future<List<Map<String, dynamic>>>>[];
+
+    for (final chunk in chunks) {
+      // Wrap each chunk commit in withResource()
+      final future = pool.withResource(
+        () async {
+          final batch = _firestoreInstance.batch();
+
+          final chunkAdded = <Map<String, dynamic>>[];
+
+          for (final item in chunk) {
+            final docId = item['docId'] ?? _firestoreInstance.collection(path).doc().id;
+
+            item['docId'] = docId;
+
+            final docRef = _firestoreInstance.collection(path).doc(docId);
+
+            batch.set(docRef, item, SetOptions(merge: true));
+
+            chunkAdded.add(item);
+          }
+
+          await batch.commit();
+
+          return chunkAdded;
+        },
+      );
+
+      futures.add(future);
+    }
+
+    // 3. Wait for all futures to complete, then close the pool
+    final results = await Future.wait(futures);
+
+    await pool.close();
+
+    // 4. Flatten and return
+    return results.flatten();
   }
 
   @override
@@ -151,7 +203,7 @@ class FireStoreService extends IRemoteDatabaseService<Map<String, dynamic>> {
   }
 
   @override
-  Future<List<Map<String, dynamic>>> batchUpdateWithArrayUnion({
+  Future<List<Map<String, dynamic>>> batchUpdateWithArrayUnionOnMap({
     required String path,
     required List<Map<String, dynamic>> items,
     required String docIdField,
@@ -165,6 +217,7 @@ class FireStoreService extends IRemoteDatabaseService<Map<String, dynamic>> {
     for (final item in items) {
       // Extract the document ID
       final docId = item[docIdField];
+
       if (docId == null) {
         throw ArgumentError('Document ID is missing in one of the items');
       }
@@ -203,5 +256,96 @@ class FireStoreService extends IRemoteDatabaseService<Map<String, dynamic>> {
     await batch.commit();
 
     return processedItems;
+  }
+
+  @override
+  Future<List<Map<String, dynamic>>> batchUpdateWithArrayUnionOnList({
+    required String path,
+    required List<Map<String, dynamic>> items,
+    required String docIdField,
+    required String nestedFieldPath,
+  }) async {
+    final batch = _firestoreInstance.batch();
+    final processedItems = <Map<String, dynamic>>[];
+
+    for (final item in items) {
+      // Extract the document ID dynamically
+      final docId = item[docIdField];
+      if (docId == null) {
+        throw ArgumentError('Document ID is missing in one of the items');
+      }
+
+      // Reference to the document
+      final docRef = _firestoreInstance.collection(path).doc(docId);
+
+      // Check if the document exists
+      final docSnapshot = await docRef.get();
+
+      // Extract transactions safely
+      final transactions = (item[nestedFieldPath] as List<dynamic>?)?.map((e) => e as Map<String, dynamic>).toList() ?? [];
+
+      if (!docSnapshot.exists) {
+        // Remove the `docIdField` key to avoid duplication in Firestore
+        final itemWithoutTransactions = Map<String, dynamic>.from(item)..remove(nestedFieldPath);
+
+        // Create the document with all fields + transactions
+        batch.set(
+          docRef,
+          {
+            ...itemWithoutTransactions, // Store all dynamic fields
+            nestedFieldPath: transactions, // Save transactions as an array
+          },
+        );
+
+        processedItems.add(item);
+      } else {
+        // Prepare update data dynamically without overwriting non-nested fields
+        final updateData = <String, dynamic>{};
+
+        item.forEach((key, value) {
+          if (key == nestedFieldPath) {
+            // Apply arrayUnion only for the nested transactions list
+            updateData[key] = FieldValue.arrayUnion(transactions);
+          } else if (key != docIdField) {
+            // Keep all other fields updated normally (without arrayUnion)
+            updateData[key] = value;
+          }
+        });
+
+        // Perform batch update
+        batch.update(docRef, updateData);
+        processedItems.add(item);
+      }
+    }
+
+    // Commit the batch operation
+    await batch.commit();
+    return processedItems;
+  }
+
+  @override
+  Future<String> uploadImage({required String imagePath, required String path}) async {
+    File imageFile = File(imagePath);
+    List<int> imageBytes = await imageFile.readAsBytes();
+    String base64String = base64Encode(imageBytes);
+
+    String docId = DateTime.now().millisecondsSinceEpoch.toString();
+
+    await _firestoreInstance
+        .collection(path)
+        .doc(docId)
+        .set({"image_base64": base64String, "uploaded_at": DateTime.now().toIso8601String()});
+
+    return docId; // Return document ID as a reference
+  }
+
+  @override
+  Future<String?> fetchImage(String path, String docId) async {
+    DocumentSnapshot snapshot = await _firestoreInstance.collection(path).doc(docId).get();
+
+    if (snapshot.exists && snapshot.data() != null) {
+      return (snapshot.data() as Map<String, dynamic>)['image_base64'] as String?;
+    }
+    return null;
   }
 }

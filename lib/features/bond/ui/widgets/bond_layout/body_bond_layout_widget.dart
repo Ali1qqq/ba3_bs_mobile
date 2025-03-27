@@ -14,7 +14,7 @@ class BodyBondLayoutWidget extends StatelessWidget {
         SizedBox(
           child: Text(
             firstText,
-            style: AppTextStyles.headLineStyle4,
+            style: AppTextStyles.headLineStyle3,
           ),
         ),
         SizedBox(

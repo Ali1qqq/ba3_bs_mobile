@@ -8,7 +8,9 @@ import 'package:file_picker/file_picker.dart';
 import 'package:get/get.dart';
 
 import '../../../core/helper/mixin/app_navigator.dart';
+import '../../../core/network/api_constants.dart';
 import '../../../core/network/error/failure.dart';
+import '../../../core/services/firebase/implementations/services/firestore_uploader.dart';
 import '../../../core/utils/app_ui_utils.dart';
 import '../data/models/customer_model.dart';
 
@@ -69,15 +71,15 @@ class CustomersController extends GetxController with AppNavigator {
         (customersFromLocal) {
           customers.assignAll(customersFromLocal);
           log('customersFromLocal length: ${customersFromLocal.length}');
-          // FirestoreUploader firestoreUploader = FirestoreUploader();
-          // firestoreUploader.concurrently(
-          //   data: customersFromLocal.map((item) => item.toJson()).toList(),
-          //   collectionPath: ApiConstants.customers,
-          //   onProgress: (progress) {
-          //     uploadProgress.value = progress; // Update progress
-          //     log('Progress: ${(progress * 100).toStringAsFixed(2)}%');
-          //   },
-          // );
+          FirestoreUploader firestoreUploader = FirestoreUploader();
+          firestoreUploader.concurrently(
+            data: customersFromLocal.map((item) => item.toJson()).toList(),
+            collectionPath: ApiConstants.customers,
+            onProgress: (progress) {
+              uploadProgress.value = progress; // Update progress
+              log('Progress: ${(progress * 100).toStringAsFixed(2)}%');
+            },
+          );
 
           //  addAccounts(accounts);
         },
@@ -94,6 +96,12 @@ class CustomersController extends GetxController with AppNavigator {
       (error) => AppUIUtils.onFailure(error.message),
       (fetchedCustomers) => customers = fetchedCustomers,
     );
+  }
+
+  CustomerModel? getCustomerById(String? billCustomerId) {
+    if (billCustomerId == null || billCustomerId.isEmpty) return null;
+
+    return customers.where((customer) => customer.id == billCustomerId).firstOrNull;
   }
 
 //

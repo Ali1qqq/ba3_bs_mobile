@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../constants/app_constants.dart';
 import 'custom_text_field_with_icon.dart';
 
 class SearchableAccountField extends StatelessWidget {
@@ -11,6 +10,7 @@ class SearchableAccountField extends StatelessWidget {
   final FormFieldValidator<String>? validator;
   final double? height;
   final double? width;
+
   final bool readOnly;
 
   const SearchableAccountField({
@@ -18,23 +18,27 @@ class SearchableAccountField extends StatelessWidget {
     required this.label,
     required this.textEditingController,
     required this.onSubmitted,
-    this.validator,
     this.height,
     this.width,
     this.readOnly = false,
+    this.validator,
   });
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: width ?? Get.width * 0.45,
-      height: AppConstants.constHeightTextField,
+      width: width ?? Get.width * 0.65,
+      height: height,
       child: Row(
         children: [
           SizedBox(width: 150, child: Text(label)),
           Expanded(
             child: CustomTextFieldWithIcon(
-                readOnly: readOnly, textEditingController: textEditingController, validator: validator, onSubmitted: onSubmitted),
+              readOnly: readOnly,
+              textEditingController: textEditingController,
+              validator: validator,
+              onSubmitted: onSubmitted,
+            ),
           ),
         ],
       ),

@@ -6,6 +6,7 @@ import 'package:get/get_state_manager/src/rx_flutter/rx_obx_widget.dart';
 import '../../../../../core/helper/enums/enums.dart';
 import '../../../../../core/helper/extensions/getx_controller_extensions.dart';
 import '../../../../../core/services/translation/translation_controller.dart';
+import '../../../../patterns/controllers/pattern_controller.dart';
 import '../../../../users_management/data/models/role_model.dart';
 import 'bill_type_item_widget.dart';
 import 'bill_type_shimmer_widget.dart';
@@ -17,6 +18,8 @@ class AllBillsTypesList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final patternController = read<PatternController>();
+
     return Obx(
       () {
         return Wrap(
@@ -27,7 +30,7 @@ class AllBillsTypesList extends StatelessWidget {
           children: allBillsController.getBillsTypesRequestState.value == RequestState.loading
               ? List.generate(10, (index) => const BillTypeShimmerWidget()) // Show shimmer placeholders
               : RoleItemType.viewBill.hasAdminPermission
-                  ? allBillsController.billsTypes
+                  ? patternController.billsTypes
                       .map(
                         (billTypeModel) => BillTypeItemWidget(
                           text: billTypeModel.fullName!,
@@ -47,18 +50,14 @@ class AllBillsTypesList extends StatelessWidget {
                   : [
                       BillTypeItemWidget(
                         text: read<TranslationController>().currentLocaleIsRtl
-                            ? allBillsController.billsTypeSales.fullName!
-                            : allBillsController.billsTypeSales.latinFullName!,
-                        color: Color(allBillsController.billsTypeSales.color!),
-                        onTap: () {
-                          allBillsController.openFloatingBillDetails(context, allBillsController.billsTypeSales);
-                          // allBillsController.fetchAllBillsByType( billTypeModel);
-                        },
-                        pendingBillsCounts: allBillsController.pendingBillsCounts(allBillsController.billsTypeSales),
-                        allBillsCounts: allBillsController.allBillsCounts(allBillsController.billsTypeSales),
-                        onPendingBillsPressed: () {
-                          allBillsController.fetchPendingBills(allBillsController.billsTypeSales);
-                        },
+                            ? patternController.billsTypeSales.fullName!
+                            : patternController.billsTypeSales.latinFullName!,
+                        color: Color(patternController.billsTypeSales.color!),
+                        onTap: () => allBillsController.openFloatingBillDetails(context, patternController.billsTypeSales),
+                        // onAllBillsPressed: () => allBillsController.fetchNunPendingBills( patternController.billsTypeSales,context),
+                        pendingBillsCounts: allBillsController.pendingBillsCounts(patternController.billsTypeSales),
+                        allBillsCounts: allBillsController.allBillsCounts(patternController.billsTypeSales),
+                        onPendingBillsPressed: () => allBillsController.fetchPendingBills(patternController.billsTypeSales),
                       )
                     ],
         );

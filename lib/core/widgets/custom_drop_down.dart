@@ -1,8 +1,6 @@
 import 'package:ba3_bs_mobile/core/styling/app_colors.dart';
 import 'package:ba3_bs_mobile/core/styling/app_text_style.dart';
-import 'package:ba3_bs_mobile/core/widgets/app_spacer.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class CustomDropDown extends StatelessWidget {
   const CustomDropDown(
@@ -21,47 +19,40 @@ class CustomDropDown extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: size ?? 0.4.sw,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            label,
-            style: AppTextStyles.headLineStyle3,
-          ),
-          VerticalSpace(),
-          Container(
-            color: Colors.white,
-            child: DropdownButtonFormField<String>(
-              decoration: InputDecoration(
-                hintStyle: AppTextStyles.headLineStyle3.copyWith(overflow: TextOverflow.ellipsis),
-                hintText: label,
-                // labelText: label,
-                enabled: enable ?? true,
-                labelStyle: AppTextStyles.headLineStyle3.copyWith(overflow: TextOverflow.ellipsis),
-                enabledBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: AppColors.blueColor, width: 2),
-                ),
-                disabledBorder: UnderlineInputBorder(
-                  borderSide: BorderSide(color: AppColors.blueColor, width: 2),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: AppColors.blueColor, width: 4),
-                ),
-              ),
-              value: value == '' ? null : value,
-              iconEnabledColor: Colors.blue,
-              hint: Text(label, style: AppTextStyles.headLineStyle4, overflow: TextOverflow.ellipsis),
-              onChanged: onChange,
-              items: listValue.map((e) {
-                return DropdownMenuItem(
-                  value: e,
-                  child: Text(e, overflow: TextOverflow.ellipsis),
-                );
-              }).toList(),
+      width: 250,
+      child: Container(
+        color: Colors.white,
+        child: DropdownButtonFormField<String>(
+          decoration: InputDecoration(
+            hintStyle: AppTextStyles.headLineStyle3.copyWith(overflow: TextOverflow.ellipsis),
+            hintText: label,
+            // labelText: label,
+            enabled: enable ?? true,
+            labelStyle: AppTextStyles.headLineStyle3.copyWith(overflow: TextOverflow.ellipsis),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: BorderSide(color: AppColors.grayColor, width: 1),
+            ),
+            disabledBorder: UnderlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: BorderSide(color: AppColors.grayColor, width: 1),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: BorderSide(color: AppColors.blueColor, width: 1),
             ),
           ),
-        ],
+          value: value == '' ? null : value,
+          iconEnabledColor: Colors.blue,
+          hint: Text(label, style: AppTextStyles.headLineStyle4, overflow: TextOverflow.ellipsis),
+          onChanged: onChange,
+          items: listValue.map((e) {
+            return DropdownMenuItem(
+              value: e,
+              child: Text(e, overflow: TextOverflow.ellipsis),
+            );
+          }).toList(),
+        ),
       ),
     );
   }

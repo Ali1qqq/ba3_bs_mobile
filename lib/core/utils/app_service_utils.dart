@@ -1,11 +1,13 @@
 import 'package:ba3_bs_mobile/core/constants/app_strings.dart';
 import 'package:ba3_bs_mobile/core/helper/extensions/basic/string_extension.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:pluto_grid/pluto_grid.dart';
 
 import '../../features/accounts/controllers/accounts_controller.dart';
 import '../../features/accounts/data/models/account_model.dart';
+import '../../features/users_management/data/models/user_model.dart';
 import '../constants/app_constants.dart';
 import '../helper/enums/enums.dart';
 import '../helper/extensions/getx_controller_extensions.dart';
@@ -70,6 +72,68 @@ class AppServiceUtils {
   }
 
   static String extractNumbersAndCalculate(String input) {
+    // استبدال الفاصلة العربية بالنقطة
+
+    input = replaceArabicNumbersWithEnglish(input);
+    String cleanedInput = input.replaceAll('٫', '.');
+
+    // تحقق مما إذا كانت السلسلة تحتوي على معاملات حسابية
+    bool hasOperators = cleanedInput.contains(RegExp(r'[+\-*/]'));
+
+    // معالجة الفواصل الزائدة بحيث تبقى فقط الفاصلة الأولى
+    cleanedInput = cleanedInput.replaceAllMapped(RegExp(r'(\d+)\.(\d+)\.(\d+)'), (match) {
+      return '${match.group(1)}.${match.group(2)}';
+    });
+    if (hasOperators) {
+      // إذا كان هناك معاملات، قم باستخراج الأرقام والعمليات وإجراء الحسابات
+      RegExp regex = RegExp(r'[0-9.]+|[+\-*/]');
+      Iterable<Match> matches = regex.allMatches(cleanedInput);
+      List<String> elements = matches.map((match) => match.group(0)!).toList();
+
+      List<double> numbers = [];
+      String? operation;
+
+      for (var element in elements) {
+        if (double.tryParse(element) != null) {
+          double number = double.parse(element);
+          if (operation == null) {
+            numbers.add(number);
+          } else {
+            double lastNumber = numbers.removeLast();
+            switch (operation) {
+              case '+':
+                numbers.add(lastNumber + number);
+                break;
+              case '-':
+                numbers.add(lastNumber - number);
+                break;
+              case '*':
+                numbers.add(lastNumber * number);
+                break;
+              case '/':
+                numbers.add(lastNumber / number);
+                break;
+            }
+            operation = null;
+          }
+        } else {
+          operation = element;
+        }
+      }
+
+      return numbers.isNotEmpty ? numbers.first.toString() : "0.0";
+    } else {
+      //! إذا لم يكن هناك معاملات، فقط استخرج الأرقام /
+      RegExp regex = RegExp(r'[0-9.]+');
+      Iterable<Match> matches = regex.allMatches(cleanedInput);
+      List<double> numbers = matches.map((match) => double.parse(match.group(0)!)).toList();
+
+      // إذا لم توجد أرقام، قم بإرجاع 0
+      return numbers.isNotEmpty ? numbers.first.toString() : "0.0";
+    }
+  }
+
+  static String extractNumbersAndCalculateToInt(String input) {
     // استبدال الفاصلة العربية بالنقطة
 
     input = replaceArabicNumbersWithEnglish(input);
@@ -299,5 +363,52 @@ class AppServiceUtils {
     final hours = totalMinutes ~/ 60;
     final minutes = totalMinutes % 60;
     return '${AppStrings.hours} $hours  ${AppStrings.minutes} $minutes';
+  }
+
+  static DateTime? getLastLogin(Map<String, UserTimeModel>? userTimeModel) {
+    DateTime? latestLogin;
+
+    if (userTimeModel == null) return null;
+
+    userTimeModel.forEach((date, record) {
+      if (record.logInDateList != null) {
+        for (var login in record.logInDateList!) {
+          if (latestLogin == null || login.isAfter(latestLogin ?? DateTime.now())) {
+            latestLogin = login;
+          }
+        }
+      }
+    });
+
+    return latestLogin;
+  }
+
+  static DateTime? getLastLogout(Map<String, UserTimeModel>? userTimeModel) {
+    DateTime? latestLogout;
+
+    if (userTimeModel == null) return null;
+
+    userTimeModel.forEach((date, record) {
+      if (record.logOutDateList != null) {
+        for (var logout in record.logOutDateList!) {
+          if (latestLogout == null || logout.isAfter(latestLogout ?? DateTime.now())) {
+            latestLogout = logout;
+          }
+        }
+      }
+    });
+
+    return latestLogout;
+  }
+
+  /// Handles conversion of both Timestamp and DateTime dynamically
+  static DateTime? convertToDateTime(dynamic value) {
+    if (value is Timestamp) {
+      return value.toDate(); // Convert Firestore Timestamp to DateTime
+    } else if (value is DateTime) {
+      return value; // Already a DateTime, return as is
+    } else {
+      return null; // Handle unexpected cases
+    }
   }
 }

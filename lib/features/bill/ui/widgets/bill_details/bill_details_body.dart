@@ -43,7 +43,7 @@ class BillDetailsBody extends StatelessWidget {
                   columns: billDetailsPlutoController.recordsTableColumns,
                   rows: billDetailsPlutoController.recordsTableRows,
                   onRowSecondaryTap: (PlutoGridOnRowSecondaryTapEvent event) {
-                    billDetailsPlutoController.onMainTableRowSecondaryTap(event, context);
+                    // billDetailsPlutoController.onMainTableRowSecondaryTap(event, context);
                   },
                   onRowDoubleTap: (PlutoGridOnRowDoubleTapEvent event) {
                     billDetailsPlutoController.onMainTableRowDoubleTap(event, context);

@@ -1,14 +1,15 @@
+import 'dart:developer';
+
+import 'package:ba3_bs_mobile/core/helper/extensions/getx_controller_extensions.dart';
 import 'package:ba3_bs_mobile/core/network/api_constants.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-
-import '../../../../helper/extensions/getx_controller_extensions.dart';
 
 mixin FirestoreSequentialNumbers {
   final FirebaseFirestore _firestoreInstance = read<FirebaseFirestore>();
 
   final String _parentCollection = ApiConstants.sequentialNumbers;
 
-  Future<EntitySequence> getNextNumber(String category, String entityType) async {
+  Future<EntitySequence> fetchAndIncrementEntityNumber(String category, String entityType) async {
     final docRef = _firestoreInstance
         .collection(_parentCollection) // Parent collection
         .doc(category); // Document for category (e.g., "bills", "bonds")
@@ -92,6 +93,8 @@ mixin FirestoreSequentialNumbers {
     final docRef = _firestoreInstance
         .collection(_parentCollection) // Parent collection
         .doc(category); // Document for category (e.g., "bills", "bonds")
+
+    log('docRef ${docRef.path}', name: 'docRef');
 
     // Fetch the current document
     final snapshot = await docRef.get();

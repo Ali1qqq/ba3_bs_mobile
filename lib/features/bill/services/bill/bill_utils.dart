@@ -1,3 +1,5 @@
+import 'package:ba3_bs_mobile/features/customer/data/models/customer_model.dart';
+
 import '../../../../core/utils/app_ui_utils.dart';
 import '../../../accounts/data/models/account_model.dart';
 import '../../../patterns/data/models/bill_type_model.dart';
@@ -16,13 +18,24 @@ class BillUtils {
 
   List<BillModel> appendEmptyBillModelNew(BillTypeModel billTypeModel, int lastBillNumber) {
     final List<BillModel> bills = [];
-    final emptyBillModel = BillModel.empty(billTypeModel: billTypeModel, lastBillNumber: lastBillNumber);
+    final emptyBillModel = BillModel.empty(
+      billTypeModel: billTypeModel,
+      lastBillNumber: lastBillNumber,
+    );
 
     bills.add(emptyBillModel);
     return bills;
   }
 
-  bool validateCustomerAccount(AccountModel? customerAccount) {
+  bool validateCustomerAccount(CustomerModel? customerAccount) {
+    if (customerAccount == null) {
+      AppUIUtils.onFailure('من فضلك أدخل اسم العميل!');
+      return false;
+    }
+    return true;
+  }
+
+  bool validateBillAccount(AccountModel? customerAccount) {
     if (customerAccount == null) {
       AppUIUtils.onFailure('من فضلك أدخل اسم العميل!');
       return false;

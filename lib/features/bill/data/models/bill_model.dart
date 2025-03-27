@@ -1,7 +1,7 @@
 import 'package:ba3_bs_mobile/core/helper/enums/enums.dart';
+import 'package:ba3_bs_mobile/core/helper/extensions/basic/date_format_extension.dart';
 import 'package:ba3_bs_mobile/core/helper/extensions/bill/bill_pattern_type_extension.dart';
-import 'package:ba3_bs_mobile/core/helper/extensions/basic/date_fromat_extension.dart';
-import 'package:ba3_bs_mobile/core/helper/extensions/basic/date_time_extensions.dart';
+import 'package:ba3_bs_mobile/core/helper/extensions/date_time/date_time_extensions.dart';
 import 'package:ba3_bs_mobile/core/utils/app_service_utils.dart';
 import 'package:ba3_bs_mobile/features/accounts/controllers/accounts_controller.dart';
 import 'package:ba3_bs_mobile/features/accounts/data/models/account_model.dart';
@@ -63,7 +63,10 @@ class BillModel extends PlutoAdaptable with EquatableMixin {
   factory BillModel.fromBillData({
     BillModel? billModel,
     String? note,
-    required String billCustomerId,
+    String? orderNumber,
+    String? customerPhone,
+    String? billCustomerId,
+    required String billAccountId,
     required Status status,
     required String billSellerId,
     required int billPayType,
@@ -76,13 +79,16 @@ class BillModel extends PlutoAdaptable with EquatableMixin {
     required double billFirstPay,
     required double billWithoutVatTotal,
     required BillTypeModel billTypeModel,
-    required List<InvoiceRecordModel> billRecordsItems,
+    required List<InvoiceRecordModel> billRecords,
   }) {
     final billDetails = BillDetails.fromBillData(
       existingDetails: billModel?.billDetails,
       billFirstPay: billFirstPay,
       billNote: note,
+      orderNumber: orderNumber,
+      customerPhone: customerPhone,
       billCustomerId: billCustomerId,
+      billAccountId: billAccountId,
       billSellerId: billSellerId,
       billPayType: billPayType,
       billDate: billDate,
@@ -94,7 +100,7 @@ class BillModel extends PlutoAdaptable with EquatableMixin {
       billAdditionsTotal: billAdditionsTotal,
     );
 
-    final items = BillItems.fromBillRecords(billRecordsItems);
+    final items = BillItems.fromBillRecords(billRecords);
 
     return billModel == null
         ? BillModel(
@@ -216,7 +222,8 @@ class BillModel extends PlutoAdaptable with EquatableMixin {
         billPayType: int.parse(billData['B']['BillPayType']),
         billNumber: (billData['B']['BillNumber']),
         billDate: dateFormat.parse(billData['B']['BillDate'].toString().toYearMonthDayFormat()),
-        billCustomerId: billData['B']['BillCustAcc'],
+        billCustomerId: billData['B']['BillCustPtr'],
+        billAccountId: billData['B']['BillCustAcc'],
         billSellerId: billData['B']['BillCostGuid'],
         billGiftsTotal: billGiftsTotal,
         billTotal: billTotal,
@@ -224,7 +231,9 @@ class BillModel extends PlutoAdaptable with EquatableMixin {
         billDiscountsTotal: 0,
         billAdditionsTotal: 0,
         billBeforeVatTotal: billTotal - billVatTotal,
-        billNote: billData['B']['Note'].toString(),
+        billNote: billData['B']['Note'],
+        customerPhone: billData['B']['CustomerPhone'],
+        orderNumber: billData['B']['OrderNumber'],
       ),
       billTypeModel: BillTypeModel(
           billTypeLabel: _billTypeByGuid(billData['B']['BillTypeGuid']).label,
@@ -302,24 +311,23 @@ class BillModel extends PlutoAdaptable with EquatableMixin {
 
   @override
   Map<PlutoColumn, dynamic> toPlutoGridFormat([void type]) => {
-        PlutoColumn(title: 'billId', field: 'billId', type: PlutoColumnType.text(), hide: true): billId ?? '',
+        PlutoColumn(title: 'billId', field: AppConstants.billIdFiled, type: PlutoColumnType.text(), hide: true): billId ?? '',
         createAutoIdColumn(): '#',
         PlutoColumn(title: AppStrings.billStatus.tr, field: 'حالة الفاتورة', type: PlutoColumnType.text()): status.value,
         PlutoColumn(title: AppStrings.billNumber.tr, field: 'رقم الفاتورة', type: PlutoColumnType.number()): billDetails.billNumber ?? 0,
-        PlutoColumn(title: AppStrings.billType.tr, field: 'نوع الفاتورة', type: PlutoColumnType.text()):
-            BillType.byLabel(billTypeModel.billTypeLabel ?? '').value,
         PlutoColumn(title: AppStrings.date.tr, field: 'التاريخ', type: PlutoColumnType.date()): billDetails.billDate?.dayMonthYear ?? '',
-        PlutoColumn(title: AppStrings.taxTotal.tr, field: 'مجموع الضريبة', type: PlutoColumnType.text()):
+        PlutoColumn(title: AppStrings.taxTotal.tr, field: 'مجموع الضريبة', type: PlutoColumnType.number()):
             AppServiceUtils.toFixedDouble(billDetails.billVatTotal),
-        PlutoColumn(title: AppStrings.totalBeforeTax.tr, field: 'المجموع قبل الضريبة', type: PlutoColumnType.text()):
+        PlutoColumn(title: AppStrings.totalBeforeTax.tr, field: 'المجموع قبل الضريبة', type: PlutoColumnType.number()):
             AppServiceUtils.toFixedDouble(billDetails.billBeforeVatTotal),
-        PlutoColumn(title: AppStrings.total.tr, field: 'المجموع الكلي', type: PlutoColumnType.text()):
+        PlutoColumn(title: AppStrings.total.tr, field: 'المجموع الكلي', type: PlutoColumnType.number()):
             AppServiceUtils.toFixedDouble(billDetails.billTotal),
-        PlutoColumn(title: AppStrings.discountTotal.tr, field: 'مجموع الحسم', type: PlutoColumnType.text()):
+        PlutoColumn(title: AppStrings.discountTotal.tr, field: 'مجموع الحسم', type: PlutoColumnType.number()):
             AppServiceUtils.toFixedDouble(billDetails.billDiscountsTotal),
-        PlutoColumn(title: AppStrings.additionsTotal.tr, field: 'مجموع الاضافات', type: PlutoColumnType.text()):
+        PlutoColumn(title: AppStrings.additionsTotal.tr, field: 'مجموع الاضافات', type: PlutoColumnType.number()):
             AppServiceUtils.toFixedDouble(billDetails.billAdditionsTotal),
-        PlutoColumn(title: AppStrings.giftsTotal.tr, field: 'مجموع الهدايا', type: PlutoColumnType.text()): billDetails.billGiftsTotal ?? 0,
+        PlutoColumn(title: AppStrings.giftsTotal.tr, field: 'مجموع الهدايا', type: PlutoColumnType.number()):
+            billDetails.billGiftsTotal ?? 0,
         PlutoColumn(title: AppStrings.payType.tr, field: 'نوع الدفع', type: PlutoColumnType.text()):
             InvPayType.fromIndex(billDetails.billPayType ?? 0).label,
         PlutoColumn(title: AppStrings.customerAccount.tr, field: 'حساب العميل', type: PlutoColumnType.text()):

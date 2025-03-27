@@ -6,7 +6,9 @@ abstract class AppConstants {
 
   static const EnvType env = EnvType.debug; //"debug" or "release"
   static const vatGCC = 0.05;
-  static const constHeightTextField = 25.0;
+  static const constHeightTextField = 50.0;
+  static const constHeightDropDown = 30.0;
+
   static const vat0_01 = 0.01;
   static const rowCustomBondAmount = 'rowCustomBondAmount';
   static const rowBondId = 'id';
@@ -104,36 +106,10 @@ abstract class AppConstants {
   static const stripSales = "م Strip";
   static const cardSales = "م Card";
 
-  ////////////--------------------------------------------------
-  static const stCode = "stCode";
-  static const stId = "stId";
-  static const stName = "stName";
 
-  ////////////--------------------------------------------------
-  static const rowViewCheqId = 'rowViewCheqId';
-  static const rowViewChequeStatus = 'rowViewChequeStatus';
-  static const rowViewChequePrimeryAccount = 'rowViewChequePrimeryAccount';
-  static const rowViewChequeSecoundryAccount = 'rowViewChequeSecoundryAccount';
-  static const rowViewChequeAllAmount = 'rowViewChequeAllAmount';
-  static const chequeStatusPaid = 'chequeStatusPaid';
-  static const chequeStatusNotPaid = 'chequeStatusNotPaid';
-  static const chequeStatusNotAllPaid = 'chequeStatusNotAllPaid';
-  static const chequeTypePay = 'chequeTypePay';
-  static const chequeTypeCatch = 'chequeTypeCatch';
-  static const chequeTypeList = [chequeTypePay, chequeTypeCatch];
-  static const chequeRecTypeInit = 'chequeRecTypeInit';
-  static const chequeRecTypeAllPayment = 'chequeRecTypeAllPayment';
-  static const chequeRecTypePartPayment = 'chequeRecTypePartPayment';
 
-  ////////////--------------------------------------------------
-  static const accountTypeDefault = "accountTypeDefault";
-  static const accountTypeFinalAccount = "accountTypeFinalAccount";
-  static const accountTypeAggregateAccount = "accountTypeAggregateAccount";
 
-  ////////////--------------------------------------------------
-  static const rowSellerAllInvoiceInvId = "rowSellerAllInvoiceInvId";
-  static const rowSellerAllInvoiceAmount = "rowSellerAllInvoiceAmount";
-  static const rowSellerAllInvoiceDate = "rowSellerAllInvoiceDate";
+
 
   ////////////--------------------------------------------------
   static const rowImportName = "rowImportName";
@@ -260,15 +236,8 @@ abstract class AppConstants {
     AppConstants.roleViewCard,
     AppConstants.roleViewHome
   ];
-  static const accountTypeList = [
-    AppConstants.accountTypeDefault,
-    AppConstants.accountTypeFinalAccount,
-    AppConstants.accountTypeAggregateAccount
-  ];
 
-  static const userName = "ali";
 
-  static const prodViewTypeSearch = "prodViewTypeSearch"; // REMOTE API ERROR CONSTANTS
   static const String success = 'success';
   static const String badRequestError = 'bad_request_error';
   static const String noContent = 'no_content';
@@ -401,8 +370,28 @@ abstract class AppConstants {
   static const String chequeToAccountName = 'اوراق الدفع';
   static const String bankAccountId = 'a3fe9771-c9cf-4790-b782-c1c3977bcd99';
   static const String bankToAccountName = 'المصرف';
+
+  ///------------------------------------------
+  static const String taxLocalAccountId = '3044a58b-8a76-461b-9385-cb87df3e0afd';
+  static const String taxLocalAccountName = 'ضريبة القيمة المضافة رأس الخيمة';
   static const String returnTaxAccountId = '81e6d822-e3ee-4f42-92bf-f96eed4a0045';
   static const String returnTaxAccountName = 'استرداد ضريبة القيمة المضافة رأس الخيمة';
+
+
+
+
+  ///------------------------------------------
+  static const String taxFreeAccountId = '19dccbca-b32e-4604-b37c-980cbbd2f15a';
+  static const String taxFreeAccountName = 'ضريبة القيمة المضافة فري زون';
+  static const String returnFreeTaxAccountId = '2181459c-3293-42f5-b80e-7232e824786f';
+  static const String returnFreeTaxAccountName = 'استرداد ضريبة القيمة المضافة فري زون';
+
+
+
+
+  ///------------------------------------------
+  static const String primaryCashAccountId = '5b36c82d-9105-4177-a5c3-0f90e5857e3c';
+  static const String primaryCashAccountName = 'الصندوق';
 
   static const double targetLatitude = 25.793679566610773; // Latitude المنطقة المستهدفة
   static const double targetLongitude = 55.948330278435; // Longitude المنطقة المستهدفة
@@ -410,15 +399,24 @@ abstract class AppConstants {
   static const double secondTargetLatitude = 25.765046214850365; // Latitude المنطقة المستهدفة
   static const double secondTargetLongitude = 55.970645196084746; // Longitude المنطقة المستهدفة
   static const double secondRadiusInMeters = 50;
+  ////// pluto Filed Names
   static const String materialIdFiled = 'materialIdFiled';
   static const String materialGroupIdFiled = 'materialGroupIdFiled';
   static const String userIdFiled = 'userIdFiled';
   static const String accountIdFiled = 'accountIdFiled';
   static const String entryBonIdFiled = 'entryBonIdFiled';
-
   static const String billIdFiled = 'billIdFiled';
+  static var bondIdFiled='bondIdFiled';
+
+
+  /////
   static const bool hideInvRecProductSoldSerial = false;
-  static const bool hideInvRecProductSerialNumbers = true;
+  static const bool hideInvRecProductSerialNumbers = false;
+  static const String serialNumbersStatement = 'serialNumbersStatement';
+  static const String searchByPhone = 'searchByPhone';
+  static const String searchByOrderNumber = 'searchByOrderNumber';
+  static const String userTaskIdField = 'userTaskIdField';
+  static const String defaultVersion = 'الأساسي';
 
   static const Map<String, String> months = {
     "يناير (1)": "01",
@@ -434,4 +432,6 @@ abstract class AppConstants {
     "نوفمبر (11)": "11",
     "ديسمبر (12)": "12",
   };
+
+
 }

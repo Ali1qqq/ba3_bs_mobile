@@ -1,5 +1,6 @@
+import 'package:ba3_bs_mobile/core/services/firebase/interfaces/remote_datasource_base.dart';
+
 import '../../../../core/network/api_constants.dart';
-import '../../../../core/services/firebase/interfaces/remote_datasource_base.dart';
 import '../models/bill_type_model.dart';
 
 class PatternsDatasource extends RemoteDatasourceBase<BillTypeModel> {

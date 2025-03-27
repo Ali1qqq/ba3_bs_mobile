@@ -1,5 +1,4 @@
 import 'dart:ui';
-
 import 'package:ba3_bs_mobile/core/constants/app_constants.dart';
 import 'package:ba3_bs_mobile/core/helper/extensions/basic/locale_extensions.dart';
 import 'package:get/get.dart';

@@ -44,7 +44,7 @@ class BondsDataSource extends RemoteDatasourceBase<BondModel> with FirestoreSequ
   }
 
   Future<BondModel> _assignBondNumber(BondModel bond) async {
-    final newBondNumber = await getNextNumber(path, BondType.byTypeGuide(bond.payTypeGuid!).value);
+    final newBondNumber = await fetchAndIncrementEntityNumber(path, BondType.byTypeGuide(bond.payTypeGuid!).value);
     return bond.copyWith(payNumber: newBondNumber.nextNumber);
   }
 

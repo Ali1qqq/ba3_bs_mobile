@@ -1,4 +1,3 @@
-
 import 'package:ba3_bs_mobile/core/helper/extensions/bill/bill_model_extensions.dart';
 
 import '../../bill/data/models/bill_model.dart';

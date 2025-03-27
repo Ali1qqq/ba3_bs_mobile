@@ -38,12 +38,14 @@
 	<string>We require location access both when the app is in use and in the background to ensure secure login and location-based functionality.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>يحتاج التطبيق إلى الوصول إلى مكتبة الصور لتمكينك من اختيار الصور لاستخدامها داخل التطبيق.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>يحتاج التطبيق إلى الوصول إلى الميكروفون لتسجيل الفيديوهات أو الصوت، وذلك لأغراض التحقق والمصادقة.</string>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>fetch</string>
-        <string>remote-notification</string>
+		<string>remote-notification</string>
 	</array>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>

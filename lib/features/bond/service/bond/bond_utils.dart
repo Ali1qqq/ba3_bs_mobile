@@ -18,7 +18,7 @@ class BondUtils {
     return emptyBondModel;
   }
 
-  List<BondModel> appendEmptyBillModelNew(BondType bondType, int lastBondNumber) {
+  List<BondModel> appendEmptyBondModelNew(BondType bondType, int lastBondNumber) {
     final List<BondModel> bonds = [];
     final emptyBillModel = BondModel.empty(bondType: bondType, lastBondNumber: lastBondNumber);
 

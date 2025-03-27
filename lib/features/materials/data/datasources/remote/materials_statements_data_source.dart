@@ -31,8 +31,8 @@ class MaterialsStatementsDatasource extends CompoundDatasourceBase<MatStatementM
   @override
   Future<List<MatStatementModel>> fetchWhere<V>({
     required String itemIdentifier,
-    required String field,
-    required V value,
+    String? field,
+    V? value,
     DateFilter? dateFilter,
   }) async {
     final dataList = await compoundDatabaseService.fetchWhere(
@@ -165,7 +165,7 @@ class MaterialsStatementsDatasource extends CompoundDatasourceBase<MatStatementM
     final rootDocumentId = getRootDocumentId(itemIdentifier);
     final subCollectionPath = getSubCollectionPath(itemIdentifier);
 
-    final savedData = await compoundDatabaseService.saveAll(
+    final savedData = await compoundDatabaseService.addAll(
       rootCollectionPath: rootCollectionPath,
       rootDocumentId: rootDocumentId,
       subCollectionPath: subCollectionPath,

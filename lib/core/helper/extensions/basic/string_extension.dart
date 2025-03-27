@@ -1,3 +1,5 @@
+import 'package:intl/intl.dart';
+
 extension StringExtension on String {
   String sanitize() {
     return replaceAll(RegExp(r'[^\x20-\x7E]'), '');
@@ -43,4 +45,34 @@ extension NullableStringExtension on String? {
   }
 
   String get orEmpty => this ?? "";
+
+}
+extension TimeParsing on String {
+  DateTime toWorkingTime() {
+    final now = DateTime.now();
+    final parsed = DateFormat("hh:mm a").tryParse(this) ?? DateFormat("a hh:mm").parse(this);
+    return DateTime(
+      now.year,
+      now.month,
+      now.day,
+      parsed.hour,
+      parsed.minute,
+      parsed.second,
+      parsed.millisecond,
+      parsed.microsecond,
+    );
+  }
+}
+
+extension NumberFormatting on String {
+  String formatNumber({int decimalPlaces = 2}) {
+    double? number = double.tryParse(this);
+
+    if (number == null || number.isNaN || number.isInfinite) {
+      return "0"; // ضمان عدم إرجاع NaN أو قيم غير صحيحة
+    }
+
+    final formatter = NumberFormat("#,##0.${'0' * decimalPlaces}", "en_US");
+    return formatter.format(number);
+  }
 }

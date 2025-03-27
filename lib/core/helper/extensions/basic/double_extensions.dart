@@ -1,16 +1,9 @@
-extension ArabicNumberParsing on String {
-  /// تحويل الأرقام العربية إلى أرقام إنجليزية
-  String replaceArabicNumbersWithEnglish() {
-    return replaceAllMapped(RegExp(r'[٠-٩]'), (Match match) {
-      return String.fromCharCode(match.group(0)!.codeUnitAt(0) - 0x0660 + 0x0030);
-    });
-  }
+import 'package:ba3_bs_mobile/core/utils/app_service_utils.dart';
 
+extension ArabicNumberParsing on String {
   /// محاولة تحويل النص إلى قيمة Double
   double? parseToDouble() {
-    String englishNumbers = replaceArabicNumbersWithEnglish();
+    String englishNumbers = AppServiceUtils.replaceArabicNumbersWithEnglish(this);
     return double.tryParse(englishNumbers);
   }
 }
-
-

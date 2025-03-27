@@ -3,16 +3,20 @@ import 'dart:developer';
 import 'package:ba3_bs_mobile/core/network/api_constants.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+import '../../../../helper/extensions/getx_controller_extensions.dart';
+
 mixin FirestoreGuestUser {
   /// Reference to the guest user collection in Firestore.
-  final guestCollection = FirebaseFirestore.instance.collection(ApiConstants.guestUser);
+
+  final FirebaseFirestore _firestoreInstance = read<FirebaseFirestore>();
+  final guestCollection = ApiConstants.guestUser;
 
   /// Creates a guest user document in Firestore.
   ///
   /// [guestData]: A map containing the guest user details to store.
   Future<void> createGuestUser(String documentId) async {
     try {
-      await guestCollection.doc(documentId).set({
+      await _firestoreInstance.collection(guestCollection).doc(documentId).set({
         'docId': documentId,
         'show': true,
       });
@@ -25,7 +29,7 @@ mixin FirestoreGuestUser {
 
   Future<void> updateGuestUser(String documentId, {required bool visible}) async {
     try {
-      await guestCollection.doc(documentId).set({
+      await _firestoreInstance.collection(guestCollection).doc(documentId).set({
         'docId': documentId,
         'show': visible,
       });
@@ -41,7 +45,7 @@ mixin FirestoreGuestUser {
   /// Returns a map containing the guest user data, or `null` if the document doesn't exist.
   Future<Map<String, dynamic>?> fetchGuestUser(String documentId) async {
     try {
-      final docSnapshot = await guestCollection.doc(documentId).get();
+      final docSnapshot = await _firestoreInstance.collection(guestCollection).doc(documentId).get();
       if (docSnapshot.exists) {
         log('Guest user fetched successfully.');
         return docSnapshot.data();
@@ -73,7 +77,7 @@ mixin FirestoreGuestUser {
   /// Deletes the guest user document from Firestore.
   Future<void> deleteGuestUser(String documentId) async {
     try {
-      await guestCollection.doc(documentId).delete();
+      await _firestoreInstance.collection(guestCollection).doc(documentId).delete();
       log('Guest user document deleted successfully from $documentId collection.');
     } catch (e, stacktrace) {
       log('Error deleting guest user: $e', error: e, stackTrace: stacktrace);

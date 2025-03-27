@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:ba3_bs_mobile/core/services/entry_bond_creator/implementations/entry_bonds_generator.dart';
 import 'package:ba3_bs_mobile/features/accounts/controllers/accounts_controller.dart';
 import 'package:ba3_bs_mobile/features/accounts/data/models/account_model.dart';
 import 'package:ba3_bs_mobile/features/bond/controllers/bonds/bond_details_controller.dart';
@@ -13,10 +14,10 @@ import '../../../../core/helper/extensions/getx_controller_extensions.dart';
 import '../../../../core/helper/mixin/floating_launcher.dart';
 import '../../../../core/helper/mixin/pdf_base.dart';
 import '../../../../core/i_controllers/i_recodes_pluto_controller.dart';
-import '../../../../core/services/entry_bond_creator/implementations/entry_bonds_generator.dart';
 import '../../../../core/utils/app_ui_utils.dart';
 import '../../controllers/bonds/all_bond_controller.dart';
 import '../../controllers/bonds/bond_search_controller.dart';
+import '../../controllers/entry_bond/entry_bond_controller.dart';
 import '../../data/models/bond_model.dart';
 import '../../ui/screens/entry_bond_details_screen.dart';
 
@@ -49,15 +50,18 @@ class BondDetailsService with PdfBase, EntryBondsGenerator, FloatingLauncher {
     required String payAccountGuid,
     required String payDate,
     String? note,
-  }) =>
-      BondModel.fromBondData(
-        bondModel: bondModel,
-        bondType: bondType,
-        note: note,
-        payAccountGuid: payAccountGuid,
-        payDate: payDate,
-        bondRecordsItems: plutoController.generateRecords,
-      );
+  }) {
+    log("generateRecords ${plutoController.generateRecords.length}", name: "createBondModel");
+
+    return BondModel.fromBondData(
+      bondModel: bondModel,
+      bondType: bondType,
+      note: note,
+      payAccountGuid: payAccountGuid,
+      payDate: payDate,
+      bondRecordsItems: plutoController.generateRecords,
+    );
+  }
 
   Future<void> handleDeleteSuccess(BondModel bondModel, BondSearchController bondSearchController, [fromBondById]) async {
     // Only fetchBonds if open bond details by bond id from AllBondsScreen
@@ -71,7 +75,7 @@ class BondDetailsService with PdfBase, EntryBondsGenerator, FloatingLauncher {
 
     AppUIUtils.onSuccess('تم حذف السند بنجاح!');
 
-    entryBondController.deleteEntryBondModel(entryId: bondModel.payGuid!);
+    read<EntryBondController>().deleteEntryBondModel(entryId: bondModel.payGuid!, sourceNumber: bondModel.payNumber!);
   }
 
   Future<void> handleSaveOrUpdateSuccess({
@@ -91,8 +95,8 @@ class BondDetailsService with PdfBase, EntryBondsGenerator, FloatingLauncher {
       bondDetailsController.updateIsBondSaved(true);
 
       if (hasModelId(currentBond.payGuid) && hasModelItems(currentBond.payItems.itemList)) {
-        generateAndSendPdf(
-          fileName: AppStrings.newBond,
+        generatePdfAndSendToEmail(
+          fileName: AppStrings.newBond.tr,
           itemModel: currentBond,
         );
       }
@@ -105,8 +109,8 @@ class BondDetailsService with PdfBase, EntryBondsGenerator, FloatingLauncher {
           hasModelItems(currentBond.payItems.itemList) &&
           hasModelId(previousBond.payGuid) &&
           hasModelItems(previousBond.payItems.itemList)) {
-        generateAndSendPdf(
-          fileName: AppStrings.updatedBond,
+        generatePdfAndSendToEmail(
+          fileName: AppStrings.updatedBond.tr,
           itemModel: [previousBond, currentBond],
         );
       }
@@ -115,7 +119,9 @@ class BondDetailsService with PdfBase, EntryBondsGenerator, FloatingLauncher {
 
     createAndStoreEntryBond(
       model: currentBond,
+      sourceNumbers: [currentBond.payNumber!],
       modifiedAccounts: modifiedBondTypeAccounts,
+      isSave: isSave,
     );
 
     // final creator = EntryBondCreatorFactory.resolveEntryBondCreator(currentBond);
@@ -145,10 +151,12 @@ class BondDetailsService with PdfBase, EntryBondsGenerator, FloatingLauncher {
       for (var item in previousBond.payItems.itemList)
         item.entryAccountGuid!: AccountModel(id: item.entryAccountGuid!, accName: item.entryAccountName!)
     };
+
     final currentAccounts = {
       for (var item in currentBond.payItems.itemList)
         item.entryAccountGuid!: AccountModel(id: item.entryAccountGuid!, accName: item.entryAccountName!)
     };
+
     if (previousBond.payAccountGuid != null && currentBond.payAccountGuid != null) {
       previousAccounts[previousBond.payAccountGuid!] = AccountModel(
           id: previousBond.payAccountGuid!, accName: read<AccountsController>().getAccountNameById(previousBond.payAccountGuid!));
@@ -158,15 +166,17 @@ class BondDetailsService with PdfBase, EntryBondsGenerator, FloatingLauncher {
 
     final Map<String, AccountModel> modifiedAccounts = {};
 
-    previousAccounts.forEach((accountKey, previousAccountModel) {
-      // Find the corresponding account in the current bill
-      final currentAccountModel = currentAccounts[accountKey];
+    previousAccounts.forEach(
+      (accountKey, previousAccountModel) {
+        // Find the corresponding account in the current bill
+        final currentAccountModel = currentAccounts[accountKey];
 
-      // Check if the account exists in the current bill and has been modified
-      if (currentAccountModel?.id != previousAccountModel.id) {
-        modifiedAccounts[accountKey] = previousAccountModel;
-      }
-    });
+        // Check if the account exists in the current bill and has been modified
+        if (currentAccountModel?.id != previousAccountModel.id) {
+          modifiedAccounts[accountKey] = previousAccountModel;
+        }
+      },
+    );
 
     // log('modifiedAccounts length: ${modifiedAccounts.length}');
     //

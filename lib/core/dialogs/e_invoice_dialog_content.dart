@@ -1,30 +1,38 @@
+import 'package:ba3_bs_mobile/features/bill/controllers/bill/bill_details_controller.dart';
+import 'package:ba3_bs_mobile/features/bill/data/models/bill_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
 import '../../features/floating_window/services/overlay_service.dart';
-import '../i_controllers/i_bill_controller.dart';
 
 class EInvoiceDialogContent extends StatelessWidget {
   const EInvoiceDialogContent({
     super.key,
-    required this.billController,
+    required this.billDetailsController,
     required this.billId,
+    required this.billModel,
   });
 
-  final IBillController billController;
+  final BillDetailsController billDetailsController;
+  final BillModel billModel;
   final String billId;
 
   @override
   Widget build(BuildContext context) {
-    final url = 'https://ba3-bs.firebaseapp.com/?id=$billId&year=${DateTime.now().year}';
+    final url = 'https://ba3-bs.firebaseapp.com/?id=$billId&year=${DateTime
+        .now()
+        .year}';
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
         QrImageView(
           data: url,
           version: QrVersions.auto,
-          size: MediaQuery.of(context).size.height * 0.25,
+          size: MediaQuery
+              .of(context)
+              .size
+              .height * 0.25,
         ),
         const SizedBox(height: 20),
         const Text(
@@ -43,10 +51,12 @@ class EInvoiceDialogContent extends StatelessWidget {
                   hintText: "Enter email",
                 ),
                 onSubmitted: (recipientEmail) {
-                  billController.sendToEmail(
-                    recipientEmail: recipientEmail,
-                    url: url,
-                  );
+                  // billController.sendToEmail(
+                  //   recipientEmail: recipientEmail,
+                  //   url: url,
+                  // );
+
+                  billDetailsController.generateAndSendBillPdfToEmail(billModel, recipientEmail: recipientEmail);
                 },
               ),
             ),

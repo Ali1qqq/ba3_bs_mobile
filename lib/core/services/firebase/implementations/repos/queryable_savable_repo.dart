@@ -19,7 +19,7 @@ class QueryableSavableRepository<T> extends RemoteDataSourceRepository<T> {
       final savedItems = await _queryableSavableDatasource.saveAll(items);
       return Right(savedItems); // Return the list of saved items
     } catch (e, stackTrace) {
-      log('Error in saveAll: $e', stackTrace: stackTrace);
+      log('Error in saveAll: $e', stackTrace: stackTrace, name: 'QueryableSavableRepository saveAll');
       return Left(ErrorHandler(e).failure); // Return error
     }
   }
@@ -29,7 +29,7 @@ class QueryableSavableRepository<T> extends RemoteDataSourceRepository<T> {
       final filteredItems = await _queryableSavableDatasource.fetchWhere(queryFilters: queryFilters);
       return Right(filteredItems); // Return the list of filtered items
     } catch (e, stackTrace) {
-      log('Error in fetchWhere: $e', stackTrace: stackTrace);
+      log('Error in fetchWhere: $e', stackTrace: stackTrace, name: 'QueryableSavableRepository fetchWhere');
       return Left(ErrorHandler(e).failure); // Return error
     }
   }

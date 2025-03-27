@@ -1,3 +1,4 @@
+import 'package:ba3_bs_mobile/core/styling/app_text_style.dart';
 import 'package:flutter/material.dart';
 
 import '../utils/app_ui_utils.dart';
@@ -41,7 +42,7 @@ class AppButton extends StatelessWidget {
         ),
         onPressed: onPressed,
         child: SizedBox(
-          width: width ?? 110,
+          width: width ?? 120,
           height: height ?? 35,
           child: Center(
             child: Row(
@@ -53,9 +54,9 @@ class AppButton extends StatelessWidget {
                         child: Text(
                           title,
                           maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(fontSize: fontSize ?? 15),
                           textAlign: TextAlign.center,
+                          overflow: TextOverflow.ellipsis,
+                          style: AppTextStyles.headLineStyle3.copyWith(fontSize: fontSize ?? 12, color: Colors.white),
                         ),
                       ),
                 if (iconData != null) Icon(iconData, size: iconSize ?? 18, color: Colors.white),

@@ -1,3 +1,5 @@
+import 'package:ba3_bs_mobile/features/bill/data/models/bill_model.dart';
+
 class SellerModel {
   final String? costGuid;
 
@@ -129,4 +131,26 @@ class SellerModel {
       'CostIsChangeableRatio': costIsChangeableRatio,
     };
   }
+}
+
+class SellerSalesData {
+  final String sellerName;
+  final double totalMobileSales;
+  final double totalAccessorySales;
+  final double totalFess;
+  final List<BillModel> bills;
+  final int? totalDayAttendance;
+  final int? totalDayLate;
+  final int? totalFiledTasks;
+
+  SellerSalesData({
+    required this.sellerName,
+    required this.totalMobileSales,
+    required this.totalAccessorySales,
+    required this.totalFess,
+    required this.bills,
+    this.totalDayAttendance,
+    this.totalDayLate,
+    this.totalFiledTasks,
+  });
 }

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../../../core/widgets/account_type_dropdown.dart';
+import '../../../../core/widgets/custom_text_field_without_icon.dart';
 import '../widgets/add_account/add_account_buttons_widget.dart';
 import '../widgets/add_account/add_account_form_widget.dart';
 import '../widgets/add_account/add_customers_widget.dart';
@@ -16,8 +17,21 @@ class AddAccountScreen extends StatelessWidget {
     return GetBuilder<AccountsController>(builder: (controller) {
       return Scaffold(
         appBar: AppBar(
-          title: Text(
-            controller.isEditAccount ? controller.selectedAccount!.accName! : AppStrings.accountCard.tr,
+          title: Row(
+            children: [
+              Spacer(),
+              Text(
+                controller.isEditAccount ? controller.selectedAccount!.accName! : AppStrings.accountCard.tr,
+              ),
+              Spacer(),
+              SizedBox(
+                  width: 400,
+                  child: CustomTextFieldWithoutIcon(
+                      enabled: true,
+                      textEditingController: TextEditingController()
+                        ..text = controller.isEditAccount ? controller.selectedAccount!.id! : '')),
+              Spacer(),
+            ],
           ),
         ),
         body: Padding(
@@ -25,15 +39,12 @@ class AddAccountScreen extends StatelessWidget {
           child: Column(
             spacing: 20,
             children: [
-              AddAccountFormWidget(
-                controller: controller,
-              ),
+              AddAccountFormWidget(controller: controller),
+              AccountTypeDropdown(accountSelectionHandler: controller.accountFromHandler),
+
               // Button to add a new customer
               AddCustomersWidget(),
-              AccountTypeDropdown(accountSelectionHandler: controller.accountFromHandler),
-              AddAccountButtonsWidget(
-                controller: controller,
-              )
+              AddAccountButtonsWidget(controller: controller),
             ],
           ),
         ),

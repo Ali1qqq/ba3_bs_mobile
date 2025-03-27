@@ -5,6 +5,24 @@ class AppThemes {
   static ThemeData defaultTheme = ThemeData(
     scaffoldBackgroundColor: AppColors.backGroundColor,
     fontFamily: 'Almarai',
+    textTheme: const TextTheme(
+      bodySmall: TextStyle(fontSize: 12),
+      bodyLarge: TextStyle(fontSize: 12),
+      bodyMedium: TextStyle(fontSize: 12),
+      displayLarge: TextStyle(fontSize: 12),
+      displayMedium: TextStyle(fontSize: 12),
+      displaySmall: TextStyle(fontSize: 12),
+      headlineLarge: TextStyle(fontSize: 12),
+      headlineMedium: TextStyle(fontSize: 12),
+      headlineSmall: TextStyle(fontSize: 12),
+      labelLarge: TextStyle(fontSize: 12),
+      labelMedium: TextStyle(fontSize: 12),
+      labelSmall: TextStyle(fontSize: 12),
+      titleLarge: TextStyle(fontSize: 12),
+      titleMedium: TextStyle(fontSize: 12),
+      titleSmall: TextStyle(fontSize: 12),
+      // يمكنك تعديل أو إضافة المزيد من الأنماط حسب الحاجة
+    ),
     appBarTheme: const AppBarTheme(
         backgroundColor: AppColors.backGroundColor,
         foregroundColor: Colors.black,

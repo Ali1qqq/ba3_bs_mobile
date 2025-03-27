@@ -19,7 +19,7 @@ class FilterableDataSourceRepository<T> extends RemoteDataSourceRepository<T> {
       final savedItems = await _filterableDatasource.fetchWhere(queryFilters: queryFilters);
       return Right(savedItems); // Return the list of saved items
     } catch (e, stackTrace) {
-      log('Error in fetchWhere: $e', stackTrace: stackTrace);
+      log('Error in fetchWhere: $e', stackTrace: stackTrace, name: 'FilterableDataSourceRepository fetchWhere');
       return Left(ErrorHandler(e).failure); // Return error
     }
   }

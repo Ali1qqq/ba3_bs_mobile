@@ -1,4 +1,5 @@
 import 'package:ba3_bs_mobile/core/constants/app_strings.dart';
+import 'package:ba3_bs_mobile/core/helper/extensions/task_status_extension.dart';
 import 'package:ba3_bs_mobile/core/utils/app_service_utils.dart';
 import 'package:ba3_bs_mobile/features/pluto/data/models/pluto_adaptable.dart';
 import 'package:flutter/material.dart';
@@ -8,6 +9,7 @@ import 'package:pluto_grid/pluto_grid.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/helper/enums/enums.dart';
 import '../../../../core/widgets/pluto_auto_id_column.dart';
+import '../../../user_task/data/model/user_task_model.dart';
 
 class UserModel implements PlutoAdaptable {
   final String? userId;
@@ -23,6 +25,7 @@ class UserModel implements PlutoAdaptable {
   final UserActiveStatus? userActiveStatus;
 
   final List<String>? userHolidays;
+  final List<UserTaskModel>? userTaskList;
   final Map<String, UserWorkingHours>? userWorkingHours;
 
   final Map<String, UserTimeModel>? userTimeModel;
@@ -41,6 +44,7 @@ class UserModel implements PlutoAdaptable {
     this.haveHoliday,
     this.loginDelay,
     this.logoutDelay,
+    this.userTaskList,
   });
 
   Map<String, dynamic> toJson() {
@@ -50,6 +54,11 @@ class UserModel implements PlutoAdaptable {
       'userName': userName,
       'userPassword': userPassword,
       'userRoleId': userRoleId,
+      'userTaskList': userTaskList
+          ?.map(
+            (e) => e.toJson(),
+          )
+          .toList(),
       if (userActiveStatus != null) 'userActiveStatus': userActiveStatus?.label,
       if (userWorkStatus != null) 'userWorkStatus': userWorkStatus?.label,
       if (userHolidays != null) 'userHolidays': userHolidays?.toList(),
@@ -89,6 +98,7 @@ class UserModel implements PlutoAdaptable {
       userWorkStatus: UserWorkStatus.byLabel(json['userWorkStatus'] ?? UserWorkStatus.away.label),
       userActiveStatus: json['userActiveStatus'] != null ? UserActiveStatus.byLabel(json['userActiveStatus']) : UserActiveStatus.inactive,
       userTimeModel: userTimeModel,
+      userTaskList: (json['userTaskList'] as List<dynamic>?)?.map((e) => UserTaskModel.fromJson(e as Map<String, dynamic>)).toList(),
     );
   }
 
@@ -102,6 +112,7 @@ class UserModel implements PlutoAdaptable {
     final UserWorkStatus? userWorkStatus,
     final UserActiveStatus? userActiveStatus,
     final List<String>? userHolidays,
+    final List<UserTaskModel>? userTaskList,
     final Map<String, UserTimeModel>? userTimeModel,
     final Map<String, UserWorkingHours>? userWorkingHours,
     final String? loginDelay,
@@ -122,6 +133,7 @@ class UserModel implements PlutoAdaptable {
         loginDelay: loginDelay ?? this.loginDelay,
         logoutDelay: logoutDelay ?? this.logoutDelay,
         haveHoliday: haveHoliday ?? this.haveHoliday,
+        userTaskList: userTaskList ?? this.userTaskList,
       );
 
   @override
@@ -173,8 +185,7 @@ class UserModel implements PlutoAdaptable {
         type: PlutoColumnType.text(),
       ): hasHolidayToday()
           ? AppStrings.holiday.tr
-          : AppServiceUtils.formatDateTimeFromString(
-              userTimeModel?.values.toList().lastOrNull?.logInDateList?.lastOrNull?.toIso8601String()),
+          : AppServiceUtils.formatDateTimeFromString(AppServiceUtils.getLastLogin(userTimeModel)?.toIso8601String()),
       PlutoColumn(
         title: AppStrings.lastCheckOutTime.tr,
         field: 'اخر خروج',
@@ -183,7 +194,7 @@ class UserModel implements PlutoAdaptable {
         type: PlutoColumnType.text(),
       ): hasHolidayToday()
           ? AppStrings.holiday.tr
-          : AppServiceUtils.formatDateTimeFromString(userTimeModel?.values.lastOrNull?.logOutDateList?.lastOrNull?.toIso8601String()),
+          : AppServiceUtils.formatDateTimeFromString(AppServiceUtils.getLastLogout(userTimeModel)?.toIso8601String()),
       PlutoColumn(
         title: AppStrings.holidaysForThisMonth.tr,
         field: 'عطل هذا الشهر',
@@ -210,17 +221,30 @@ class UserModel implements PlutoAdaptable {
         field: 'تأخير الدخول',
         width: 200,
         textAlign: PlutoColumnTextAlign.center,
-        // renderer: (context) => buildStatusCell(context.cell.value.toString()),
         type: PlutoColumnType.text(),
-      ): AppServiceUtils.convertMinutesAndFormat(userTimeModel?[currentDate]?.totalLogInDelay ?? 0),
+      ): AppServiceUtils.convertMinutesAndFormat((userTimeModel?.values.fold(
+            0,
+            (previousValue, element) => previousValue! + (element.totalLogInDelay ?? 0),
+          ) ??
+          0)),
       PlutoColumn(
         title: AppStrings.earlyExit.tr,
         field: 'الخروج المبكر',
         width: 200,
         textAlign: PlutoColumnTextAlign.center,
-        // renderer: (context) => buildStatusCell(context.cell.value.toString()),
         type: PlutoColumnType.text(),
-      ): AppServiceUtils.convertMinutesAndFormat(userTimeModel?[currentDate]?.totalOutEarlier ?? 0),
+      ): AppServiceUtils.convertMinutesAndFormat((userTimeModel?.values.fold(
+            0,
+            (previousValue, element) => previousValue! + (element.totalOutEarlier ?? 0),
+          ) ??
+          0)),
+      PlutoColumn(
+        title: "${AppStrings.tasksEnded.tr} / ${AppStrings.tasksFailed}",
+        field: AppStrings.tasks,
+        width: 200,
+        textAlign: PlutoColumnTextAlign.center,
+        type: PlutoColumnType.text(),
+      ): "${userTaskList?.where((element) => element.status.isDone).length} /  ${userTaskList?.where((element) => element.status.isFailed).length}",
     };
   }
 }
@@ -272,8 +296,8 @@ class UserTimeModel {
   final String? dayName;
   final List<DateTime>? logInDateList;
   final List<DateTime>? logOutDateList;
-  final int? totalLogInDelay;
-  final int? totalOutEarlier;
+  int? totalLogInDelay;
+  int? totalOutEarlier;
 
   UserTimeModel({
     this.dayName,

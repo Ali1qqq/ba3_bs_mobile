@@ -3,8 +3,9 @@ import 'dart:io';
 
 import 'package:ba3_bs_mobile/core/helper/extensions/basic/list_extensions.dart';
 import 'package:ba3_bs_mobile/core/helper/extensions/getx_controller_extensions.dart';
-import 'package:ba3_bs_mobile/core/router/app_routes.dart';
+import 'package:ba3_bs_mobile/core/helper/mixin/floating_launcher.dart';
 import 'package:ba3_bs_mobile/features/bill/controllers/bill/bill_details_controller.dart';
+import 'package:ba3_bs_mobile/features/sellers/ui/screens/all_sellers_screen.dart';
 import 'package:ba3_bs_mobile/features/users_management/controllers/user_management_controller.dart';
 import 'package:ba3_bs_mobile/features/users_management/data/models/user_model.dart';
 import 'package:file_picker/file_picker.dart';
@@ -20,7 +21,7 @@ import '../../../core/utils/app_ui_utils.dart';
 import '../../floating_window/services/overlay_service.dart';
 import '../data/models/seller_model.dart';
 
-class SellersController extends GetxController with AppNavigator {
+class SellersController extends GetxController with AppNavigator, FloatingLauncher {
   final BulkSavableDatasourceRepository<SellerModel> _sellersFirebaseRepo;
 
   final ImportRepository<SellerModel> _sellersImportRepo;
@@ -52,25 +53,19 @@ class SellersController extends GetxController with AppNavigator {
   }
 
   Future<void> fetchAllSellersFromLocal() async {
-    try {
-      log('fetchAllSellersFromLocal');
-      FilePickerResult? resultFile = await FilePicker.platform.pickFiles();
-      log('resultFile ${resultFile?.files.single.path!}');
-      if (resultFile != null) {
-        log('resultFile!= null');
-        File file = File(resultFile.files.single.path!);
-        final result = await _sellersImportRepo.importXmlFile(file);
+    FilePickerResult? resultFile = await FilePicker.platform.pickFiles();
 
-        result.fold(
-          (failure) {
-            logger.e("Error log", error: failure.message);
-            AppUIUtils.onFailure(failure.message);
-          },
-          (fetchedSellers) => _handelFetchAllSellersFromLocalSuccess(fetchedSellers),
-        );
-      }
-    } catch (e) {
-      log('File picker error: $e');
+    if (resultFile != null) {
+      File file = File(resultFile.files.single.path!);
+      final result = await _sellersImportRepo.importXmlFile(file);
+
+      result.fold(
+        (failure) {
+          logger.e("Error log", error: failure.message);
+          AppUIUtils.onFailure(failure.message);
+        },
+        (fetchedSellers) => _handelFetchAllSellersFromLocalSuccess(fetchedSellers),
+      );
     }
   }
 
@@ -117,8 +112,9 @@ class SellersController extends GetxController with AppNavigator {
   }
 
   // Navigation to the screen displaying all sellers
-  void navigateToAllSellersScreen() {
-    to(AppRoutes.showAllSellersScreen);
+  void navigateToAllSellersScreen(BuildContext context) {
+    launchFloatingWindow(context: context, floatingScreen: AllSellersScreen());
+    // to(AppRoutes.showAllSellersScreen);
   }
 
   // Search for sellers by text query
@@ -147,11 +143,7 @@ class SellersController extends GetxController with AppNavigator {
 
   // Get seller  by ID
   SellerModel getSellerById(String id) {
-    return sellers.firstWhereOrNull((seller) {
-          log('seller guid ${seller.costGuid}');
-          return seller.costGuid == id;
-        }) ??
-        SellerModel(costName: '');
+    return sellers.firstWhereOrNull((seller) => seller.costGuid == id) ?? SellerModel(costName: '');
   }
 
   // Replace Arabic numerals with English numerals
@@ -187,9 +179,7 @@ class SellersController extends GetxController with AppNavigator {
 
       billDetailsController.sellerAccountController.text = '';
     } else {
-      log(billSellerId);
       final SellerModel sellerAccount = getSellerById(billSellerId);
-      log(sellerAccount.toJson().toString());
 
       updateSellerAccount(sellerAccount);
 

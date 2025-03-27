@@ -29,7 +29,8 @@ class OptionTextWidget extends StatelessWidget {
 }
 
 class OptionTextWithoutIconWidget extends StatelessWidget {
-  const OptionTextWithoutIconWidget({required this.title, super.key, required this.controller, required this.onSubmitted});
+  const OptionTextWithoutIconWidget(
+      {required this.title, super.key, required this.controller, required this.onSubmitted});
 
   final String title;
   final TextEditingController controller;

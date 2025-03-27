@@ -16,7 +16,7 @@ class LanguageDropdown extends StatelessWidget {
 
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 15.h),
-      height: AppConstants.constHeightTextField * 2,
+      height: AppConstants.constHeightTextField,
       width: 1.sw,
       decoration: BoxDecoration(
         color: Colors.white,

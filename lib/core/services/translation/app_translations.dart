@@ -1,7 +1,6 @@
 import 'package:ba3_bs_mobile/core/services/translation/ur_translations.dart';
 import 'package:ba3_bs_mobile/core/services/translation/zh_translations.dart';
 import 'package:get/get.dart';
-
 import 'ar_translations.dart';
 import 'de_translations.dart';
 import 'en_translations.dart';

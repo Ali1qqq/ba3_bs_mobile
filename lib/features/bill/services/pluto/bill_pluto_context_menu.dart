@@ -2,9 +2,11 @@ import 'package:ba3_bs_mobile/core/constants/app_constants.dart';
 import 'package:ba3_bs_mobile/core/helper/extensions/getx_controller_extensions.dart';
 import 'package:ba3_bs_mobile/core/utils/app_service_utils.dart';
 import 'package:ba3_bs_mobile/core/widgets/app_spacer.dart';
+import 'package:ba3_bs_mobile/features/bill/data/models/bill_items.dart';
 import 'package:ba3_bs_mobile/features/bill/ui/widgets/bill_details/add_serial_widget.dart';
 import 'package:ba3_bs_mobile/features/floating_window/services/overlay_service.dart';
 import 'package:ba3_bs_mobile/features/materials/controllers/mats_statement_controller.dart';
+import 'package:ba3_bs_mobile/features/patterns/data/models/bill_type_model.dart';
 import 'package:flutter/material.dart';
 import 'package:pluto_grid/pluto_grid.dart';
 
@@ -12,38 +14,40 @@ import '../../../../core/helper/enums/enums.dart';
 import '../../../../core/i_controllers/i_pluto_controller.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../materials/data/models/materials/material_model.dart';
-import '../../../patterns/data/models/bill_type_model.dart';
 import 'bill_pluto_grid_service.dart';
 import 'bill_pluto_utils.dart';
 
 class BillPlutoContextMenu {
-  final IPlutoController controller;
+  final IPlutoController plutoController;
 
-  BillPlutoContextMenu(this.controller);
+  BillPlutoContextMenu(this.plutoController);
 
-  void showPriceTypeMenu(
-      {required BuildContext context,
-      required Offset tapPosition,
-      required MaterialModel materialModel,
-      required BillPlutoUtils invoiceUtils,
-      required BillPlutoGridService gridService,
-      required int index,
-      required BillTypeModel billTypeModel}) {
+  void showPriceTypeMenu({
+    required BuildContext context,
+    required Offset tapPosition,
+    required MaterialModel materialModel,
+    required BillPlutoUtils invoiceUtils,
+    required BillPlutoGridService gridService,
+    required int index,
+    required BillTypeModel billTypeModel,
+    required PlutoRow row,
+  }) {
     OverlayService.showPopupMenu(
       context: context,
       tapPosition: tapPosition,
       items: PriceType.values,
       itemLabelBuilder: (type) => '${type.label}: ${invoiceUtils.getPrice(type: type, materialModel: materialModel).toStringAsFixed(2)}',
       onSelected: (PriceType type) {
-        final PlutoRow selectedRow = controller.recordsTableStateManager.rows[index];
+        final PlutoRow selectedRow = row;
         final int quantity = AppServiceUtils.getItemQuantity(selectedRow);
 
         gridService.updateInvoiceValuesBySubTotal(
           selectedRow: selectedRow,
           subTotal: invoiceUtils.getPrice(type: type, materialModel: materialModel),
           quantity: quantity,
+          billTypeModel: billTypeModel,
         );
-        controller.update();
+        plutoController.update();
       },
       onCloseCallback: () {
         debugPrint('PriceType menu closed.');
@@ -58,6 +62,7 @@ class BillPlutoContextMenu {
     required MaterialModel materialModel,
     required BillPlutoUtils invoiceUtils,
     required BillPlutoGridService gridService,
+    required BillItem billItem,
     required int index,
   }) {
     OverlayService.showPopupMenu(
@@ -72,19 +77,19 @@ class BillPlutoContextMenu {
         }
 
         if (selectedMenuItem == 'إضافة serial') {
-          final PlutoRow selectedRow = controller.recordsTableStateManager.rows[index];
+          final PlutoRow selectedRow = plutoController.recordsTableStateManager.rows[index];
           final String matQuantity = AppServiceUtils.getCellValue(selectedRow, AppConstants.invRecQuantity);
           debugPrint('matQuantity $matQuantity');
-
           OverlayService.showDialog(
             context: context,
             content: AddSerialWidget(
-              plutoController: controller,
+              plutoController: plutoController,
+              billItem: billItem,
               materialModel: materialModel,
               serialCount: int.tryParse(matQuantity) ?? 0,
             ),
             onCloseCallback: () {
-              final List<TextEditingController> serialsControllers = controller.buyMaterialsSerialsControllers[materialModel] ?? [];
+              final List<TextEditingController> serialsControllers = plutoController.buyMaterialsSerialsControllers[materialModel] ?? [];
 
               if (serialsControllers.isNotEmpty && !AppConstants.hideInvRecProductSerialNumbers) {
                 // Extract serial numbers from controllers
@@ -93,7 +98,7 @@ class BillPlutoContextMenu {
 
                 // Update the cell value with the extracted serial numbers
                 gridService.updateSelectedRowCellValue(
-                  controller.recordsTableStateManager,
+                  plutoController.recordsTableStateManager,
                   selectedRow,
                   AppConstants.invRecProductSerialNumbers,
                   serialNumbers,
@@ -149,9 +154,9 @@ class BillPlutoContextMenu {
   }
 
   void _deleteRow(int rowIdx) {
-    final rowToRemove = controller.recordsTableStateManager.rows[rowIdx];
-    controller.recordsTableStateManager.removeRows([rowToRemove]);
+    final rowToRemove = plutoController.recordsTableStateManager.rows[rowIdx];
+    plutoController.recordsTableStateManager.removeRows([rowToRemove]);
     OverlayService.back();
-    controller.update();
+    plutoController.update();
   }
 }

@@ -1,10 +1,10 @@
 import 'package:ba3_bs_mobile/core/widgets/app_spacer.dart';
 import 'package:ba3_bs_mobile/features/materials/controllers/material_controller.dart';
+import 'package:ba3_bs_mobile/features/materials/data/models/materials/material_model.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pluto_grid/pluto_grid.dart';
 
-import '../../features/materials/data/models/materials/material_model.dart';
 import '../widgets/custom_text_field_with_icon.dart';
 import '../widgets/pluto_grid_with_app_bar_.dart';
 

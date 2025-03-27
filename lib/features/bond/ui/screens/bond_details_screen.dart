@@ -47,32 +47,30 @@ class BondDetailsScreen extends StatelessWidget {
                     textDirection: TextDirection.rtl,
                     child: Padding(
                       padding: const EdgeInsets.all(8.0),
-                      child: SingleChildScrollView(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            BondDetailsHeader(
-                              bondDetailsController: bondDetailsController,
-                            ),
-                            BondDetailsBody(
-                              bondTypeModel: BondType.byTypeGuide(currentBond.payTypeGuid!),
-                              bondDetailsController: bondDetailsController,
-                              bondDetailsPlutoController: bondDetailsPlutoController,
-                              tag: tag,
-                            ),
-                            BondDetailsCalculations(
-                              tag: tag,
-                              bondDetailsPlutoController: bondDetailsPlutoController,
-                            ),
-                            BondDetailsButtons(
-                              bondDetailsController: bondDetailsController,
-                              bondDetailsPlutoController: bondDetailsPlutoController,
-                              bondModel: currentBond,
-                              fromBondById: fromBondById,
-                              bondSearchController: bondSearchController,
-                            )
-                          ],
-                        ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          BondDetailsHeader(
+                            bondDetailsController: bondDetailsController,
+                          ),
+                          BondDetailsBody(
+                            bondTypeModel: BondType.byTypeGuide(currentBond.payTypeGuid!),
+                            bondDetailsController: bondDetailsController,
+                            bondDetailsPlutoController: bondDetailsPlutoController,
+                            tag: tag,
+                          ),
+                          BondDetailsCalculations(
+                            tag: tag,
+                            bondDetailsPlutoController: bondDetailsPlutoController,
+                          ),
+                          BondDetailsButtons(
+                            bondDetailsController: bondDetailsController,
+                            bondDetailsPlutoController: bondDetailsPlutoController,
+                            bondModel: currentBond,
+                            fromBondById: fromBondById,
+                            bondSearchController: bondSearchController,
+                          )
+                        ],
                       ),
                     ),
                   ),

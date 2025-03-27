@@ -147,9 +147,11 @@ class _CustomDropdownOverlyState<T> extends State<CustomDropdownOverly<T>> {
                   ),
                 ),
               ),
-              const Icon(
-                Icons.arrow_drop_down,
-                color: Colors.black54, // Dropdown arrow color
+              Expanded(
+                child: const Icon(
+                  Icons.arrow_drop_down,
+                  color: Colors.black54, // Dropdown arrow color
+                ),
               ),
             ],
           ),

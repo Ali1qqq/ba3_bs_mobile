@@ -18,14 +18,14 @@ class BodyPatternWidget extends StatelessWidget {
           Row(
             children: [
               SizedBox(
-                width: 150,
+                width: 200,
                 child: Text(
                   firstText,
                   style: AppTextStyles.headLineStyle3,
                 ),
               ),
               SizedBox(
-                width: 150,
+                width: 200,
                 child: Text(
                   secondText,
                   style: AppTextStyles.headLineStyle3,

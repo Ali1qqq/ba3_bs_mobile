@@ -26,11 +26,11 @@ class ChequesDetailsHeader extends StatelessWidget {
             borderRadius: BorderRadius.circular(4)),
         child: Center(
             child: Text(
-          chequesDetailsController.isPayed! ? ChequesStatus.paid.label : ChequesStatus.notPaid.label,
-          style: const TextStyle(
-            color: Colors.white,
-          ),
-        )),
+              chequesDetailsController.isPayed! ? ChequesStatus.paid.label : ChequesStatus.notPaid.label,
+              style: const TextStyle(
+                color: Colors.white,
+              ),
+            )),
       ),
     );
   }

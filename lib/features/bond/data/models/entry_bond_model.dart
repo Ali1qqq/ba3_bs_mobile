@@ -1,9 +1,9 @@
+import 'package:ba3_bs_mobile/core/constants/app_constants.dart';
+import 'package:ba3_bs_mobile/core/constants/app_strings.dart';
 import 'package:ba3_bs_mobile/features/accounts/data/models/account_model.dart';
 import 'package:get/get.dart';
 import 'package:pluto_grid/pluto_grid.dart';
 
-import '../../../../core/constants/app_constants.dart';
-import '../../../../core/constants/app_strings.dart';
 import '../../../../core/helper/enums/enums.dart';
 import '../../../../core/widgets/pluto_auto_id_column.dart';
 import '../../../pluto/data/models/pluto_adaptable.dart';
@@ -164,6 +164,12 @@ class EntryBondItemModel implements PlutoAdaptable {
       docId: docId ?? this.docId,
       account: account ?? this.account,
     );
+  }
+
+  @override
+  String toString() {
+    return 'EntryBondItemModel(amount: $amount, bondItemType: $bondItemType, Account id: ${account.id}, Account name:'
+        ' ${account.name})';
   }
 
   @override

@@ -1,6 +1,8 @@
 import 'dart:developer';
 
 import 'package:ba3_bs_mobile/core/constants/app_constants.dart';
+import 'package:ba3_bs_mobile/core/utils/app_ui_utils.dart';
+import 'package:ba3_bs_mobile/features/materials/data/models/materials/material_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -9,11 +11,9 @@ import 'package:pluto_grid/pluto_grid.dart';
 
 import '../../features/floating_window/services/overlay_service.dart';
 import '../../features/materials/controllers/material_controller.dart';
-import '../../features/materials/data/models/materials/material_model.dart';
 import '../dialogs/product_selection_dialog_content.dart';
 import '../helper/extensions/getx_controller_extensions.dart';
 import '../i_controllers/i_pluto_controller.dart';
-import '../utils/app_ui_utils.dart';
 
 class GetProductByEnterAction extends PlutoGridShortcutAction {
   const GetProductByEnterAction(this.plutoController, this.context);
@@ -69,6 +69,7 @@ class GetProductByEnterAction extends PlutoGridShortcutAction {
   }
 
   Future<void> getProduct(PlutoGridStateManager stateManager, IPlutoController plutoController) async {
+    log("-" * 90);
     if (stateManager.currentColumn?.field != AppConstants.invRecProduct) return;
 
     // Initialize variables
@@ -97,7 +98,8 @@ class GetProductByEnterAction extends PlutoGridShortcutAction {
       // No matches
       AppUIUtils.onFailure('هذه المادة غير موجودة');
 
-      updateWithSelectedMaterial(inputSearch: productText, materialModel: null, stateManager: stateManager, plutoController: plutoController);
+      updateWithSelectedMaterial(
+          inputSearch: productText, materialModel: null, stateManager: stateManager, plutoController: plutoController);
     } else {
       // Multiple matches, show search dialog
       _showSearchDialog(
@@ -163,7 +165,8 @@ class GetProductByEnterAction extends PlutoGridShortcutAction {
     plutoController.update();
   }
 
-  void _updateRowWithMaterial({required String inputSearch, required MaterialModel materialModel, required PlutoGridStateManager stateManager}) {
+  void _updateRowWithMaterial(
+      {required String inputSearch, required MaterialModel materialModel, required PlutoGridStateManager stateManager}) {
     // Check if the input search matches any serial number
     final String? searchedSerial = materialModel.serialNumbers?.keys.toList().firstWhereOrNull(
           (serial) => serial.toLowerCase().startsWith(inputSearch.toLowerCase().trim()),
@@ -202,11 +205,13 @@ class GetProductByEnterAction extends PlutoGridShortcutAction {
     }
 
     // تحقق مما إذا كان في الخلية الأخيرة
-    bool isLastCellInRow = stateManager.currentColumn?.field == stateManager.columns.last.field;
+    bool isLastCellInRow = stateManager.currentColumn?.field == stateManager.columns.elementAt(6).field;
+    bool isFirstCellInRow = stateManager.currentColumn?.field == stateManager.columns.elementAt(1).field;
     bool isLastRow = stateManager.currentRowIdx == stateManager.rows.length - 1;
 
     if (enterKeyAction.isEditingAndMoveDown || enterKeyAction.isEditingAndMoveRight) {
       if (HardwareKeyboard.instance.isShiftPressed) {
+        log('i am here 1');
         // الانتقال للأعلى إذا كان Shift مضغوط
         stateManager.moveCurrentCell(
           PlutoMoveDirection.up,
@@ -214,13 +219,17 @@ class GetProductByEnterAction extends PlutoGridShortcutAction {
           notify: true,
         );
       } else if (isLastCellInRow && !isLastRow) {
+        log('i am here 2');
+
         // إذا كانت الخلية الأخيرة في السطر الحالي، انتقل إلى بداية السطر التالي
         stateManager.setCurrentCell(
-          stateManager.rows[stateManager.currentRowIdx! + 1].cells[stateManager.columns.first.field],
+          stateManager.rows[stateManager.currentRowIdx! + 1].cells[stateManager.columns.elementAt(1).field],
           stateManager.currentRowIdx! + 1,
           notify: true,
         );
-      } else {
+      } else if (keyEvent.event.physicalKey.usbHidUsage == 0x00070058) {
+        log('i am here 3');
+
         // إذا لم تكن في آخر خلية، انتقل إلى الخلية التالية
         stateManager.moveCurrentCell(
           PlutoMoveDirection.right,
@@ -228,8 +237,12 @@ class GetProductByEnterAction extends PlutoGridShortcutAction {
           notify: true,
         );
       }
-    } else if (enterKeyAction.isEditingAndMoveRight) {
+    } else if (enterKeyAction.isEditingAndMoveRight || isFirstCellInRow) {
+      log('i am here 4');
+
       if (HardwareKeyboard.instance.isShiftPressed) {
+        log('i am here 5');
+
         // الانتقال لليمين إذا كان Shift مضغوط
         stateManager.moveCurrentCell(
           PlutoMoveDirection.right,
@@ -237,6 +250,8 @@ class GetProductByEnterAction extends PlutoGridShortcutAction {
           notify: false,
         );
       } else if (isLastCellInRow && !isLastRow) {
+        log('i am here 6');
+
         // إذا كانت الخلية الأخيرة في السطر، انتقل إلى بداية السطر التالي
         stateManager.setCurrentCell(
           stateManager.rows[stateManager.currentRowIdx! + 1].cells[stateManager.columns.first.field],
@@ -244,12 +259,19 @@ class GetProductByEnterAction extends PlutoGridShortcutAction {
           notify: true,
         );
       } else {
-        // الانتقال لليمين إذا لم تكن في آخر خلية
+        log('i am here 7');
+
+        stateManager.setCurrentCell(
+          stateManager.rows[stateManager.currentRowIdx! + 1].cells[stateManager.columns.first.field],
+          stateManager.currentRowIdx! + 1,
+          notify: true,
+        );
+        /*   // الانتقال لليمين إذا لم تكن في آخر خلية
         stateManager.moveCurrentCell(
           PlutoMoveDirection.right,
           force: true,
           notify: false,
-        );
+        );*/
       }
     }
   }

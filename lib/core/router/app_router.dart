@@ -1,7 +1,8 @@
+import 'package:ba3_bs_mobile/core/helper/enums/enums.dart';
 import 'package:ba3_bs_mobile/features/accounts/ui/screens/account_statement_screen.dart';
 import 'package:ba3_bs_mobile/features/accounts/ui/screens/all_accounts_screen.dart';
-import 'package:ba3_bs_mobile/features/bill/ui/screens/all_bills_screen.dart';
 import 'package:ba3_bs_mobile/features/bill/ui/screens/pending_bills_screen.dart';
+import 'package:ba3_bs_mobile/features/bond/ui/screens/all_bond_screen.dart';
 import 'package:ba3_bs_mobile/features/login/ui/screens/splash_screen.dart';
 import 'package:ba3_bs_mobile/features/main_layout/ui/screens/main_layout.dart';
 import 'package:ba3_bs_mobile/features/materials/ui/screens/add_material_screen.dart';
@@ -17,10 +18,10 @@ import 'package:ba3_bs_mobile/features/users_management/ui/screens/user_manageme
 import 'package:get/get.dart';
 
 import '../../features/accounts/ui/screens/add_account_screen.dart';
+import '../../features/accounts/ui/screens/final_accounts_screen.dart';
 import '../../features/bond/ui/screens/bond_details_screen.dart';
 import '../../features/cheques/ui/screens/all_cheques_view.dart';
 import '../../features/login/ui/screens/login_screen.dart';
-import '../../features/patterns/ui/screens/all_pattern_screen.dart';
 import '../../features/sellers/ui/screens/add_seller_screen.dart';
 import '../../features/sellers/ui/screens/all_sellers_screen.dart';
 import '../../features/user_time/ui/screens/user_details.dart';
@@ -34,20 +35,19 @@ List<GetPage<dynamic>>? appRouter = [
   GetPage(name: AppRoutes.loginScreen, page: () => const LoginScreen()),
   GetPage(name: AppRoutes.patternsScreen, page: () => const PatternLayout()),
   GetPage(name: AppRoutes.addPatternsScreen, page: () => const AddPatternScreen()),
-  GetPage(name: AppRoutes.showAllPatternsScreen, page: () => const AllPatternScreen()),
   GetPage(name: AppRoutes.showAllMaterialsScreen, page: () => const AllMaterialsScreen()),
   GetPage(name: AppRoutes.showAllAccountsScreen, page: () => const AllAccountScreen()),
+  GetPage(name: AppRoutes.finalAccountsScreen, page: () => const FinalAccountScreen()),
   GetPage(
-    name: AppRoutes.showAllBillsScreen,
-    page: () => const AllBillsScreen(),
-  ),
+      name: AppRoutes.finalAccountDetailsScreen,
+      page: () {
+        final FinalAccounts finalAccount = Get.arguments as FinalAccounts;
+        return FinalAccountDetailsScreen(account: finalAccount);
+      }),
   GetPage(
     name: AppRoutes.showPendingBillsScreen,
     page: () => const PendingBillsScreen(),
   ),
-
-  // GetPage(name: AppRoutes.entryBondDetailsScreen, page: () => const EntryBondDetailsScreen()),
-
   GetPage(
     name: AppRoutes.bondDetailsScreen,
     page: () {
@@ -61,7 +61,6 @@ List<GetPage<dynamic>>? appRouter = [
       );
     },
   ),
-
   GetPage(
     name: AppRoutes.bondDetailsScreen,
     page: () {
@@ -82,7 +81,6 @@ List<GetPage<dynamic>>? appRouter = [
         final bool arguments = Get.arguments as bool;
         return AllCheques(onlyDues: arguments);
       }),
-
   GetPage(
     name: AppRoutes.showAllUsersScreen,
     page: () => const AllUserScreen(),
@@ -111,7 +109,6 @@ List<GetPage<dynamic>>? appRouter = [
     name: AppRoutes.sellerSalesScreen,
     page: () => const SellerSalesScreen(),
   ),
-
   GetPage(
     name: AppRoutes.sellerTargetScreen,
     page: () => const SellerTargetScreen(),
@@ -120,7 +117,6 @@ List<GetPage<dynamic>>? appRouter = [
     name: AppRoutes.addMaterialScreen,
     page: () => const AddMaterialScreen(),
   ),
-
   GetPage(
     name: AppRoutes.addAccountScreen,
     page: () => const AddAccountScreen(),
@@ -136,5 +132,9 @@ List<GetPage<dynamic>>? appRouter = [
   GetPage(
     name: AppRoutes.showUserDetails,
     page: () => const UserDetails(),
+  ),
+  GetPage(
+    name: AppRoutes.allBondsScreen,
+    page: () => const AllBondScreen(),
   ),
 ];

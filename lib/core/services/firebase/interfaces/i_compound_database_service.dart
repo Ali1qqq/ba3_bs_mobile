@@ -21,8 +21,8 @@ abstract class ICompoundDatabaseService<T> {
     required String rootCollectionPath,
     required String rootDocumentId,
     required String subCollectionPath,
-    required String field,
-    required V value,
+    required String? field,
+    required V? value,
     DateFilter? dateFilter,
   });
 
@@ -56,7 +56,7 @@ abstract class ICompoundDatabaseService<T> {
     QueryFilter? countQueryFilter,
   });
 
-  Future<List<T>> saveAll({
+  Future<List<T>> addAll({
     required List<T> items,
     required String rootCollectionPath,
     required String rootDocumentId,

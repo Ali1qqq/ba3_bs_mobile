@@ -39,17 +39,34 @@ class MaterialsSerialsDataSource extends QueryableSavableDatasource<SerialNumber
 
   @override
   Future<List<SerialNumberModel>> saveAll(List<SerialNumberModel> items) async {
-    final savedData = await databaseService.addAll(
+    final itemsToUpdate = items.map((item) {
+      final docId = item.serialNumber; // Assuming `serialNumber` is the document ID
+
+      // Convert all properties dynamically
+      final itemData = item.toJson(); // Ensure toJson() includes all relevant fields
+
+      return {
+        'docId': docId,
+        ...itemData, // Spread all dynamic fields
+        'transactions': item.transactions.map((transaction) => transaction.toJson()).toList(),
+      };
+    }).toList();
+
+    // Call batchUpdateWithArrayUnionOnList to merge transactions instead of overriding them
+    final updatedItems = await databaseService.batchUpdateWithArrayUnionOnList(
       path: path,
-      data: items.map((item) => item.toJson()).toList(),
+      items: itemsToUpdate,
+      docIdField: 'docId', // The field that identifies the document
+      nestedFieldPath: 'transactions', // The nested field to apply arrayUnion on
     );
 
-    return savedData.map(SerialNumberModel.fromJson).toList();
+    // Convert the updated items back into SerialNumberModel objects
+    return updatedItems.map(SerialNumberModel.fromJson).toList();
   }
 
   @override
   Future<List<SerialNumberModel>> fetchWhere({required List<QueryFilter> queryFilters, DateFilter? dateFilter}) async {
-    final data = await databaseService.fetchWhere(path: path, queryFilters: queryFilters);
+    final data = await databaseService.fetchWhere(path: path, queryFilters: queryFilters, dateFilter: dateFilter);
 
     final serialNumbers = data.map((item) => SerialNumberModel.fromJson(item)).toList();
 

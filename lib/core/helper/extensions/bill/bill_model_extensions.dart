@@ -1,5 +1,5 @@
-import '../../../../../features/bill/data/models/bill_model.dart';
-import '../../../../../features/patterns/data/models/bill_type_model.dart';
+import '../../../../features/bill/data/models/bill_model.dart';
+import '../../../../features/patterns/data/models/bill_type_model.dart';
 import '../../enums/enums.dart';
 
 extension BillModelExtensions on BillModel {

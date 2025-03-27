@@ -9,7 +9,6 @@ import '../../../../core/services/pdf_generator/implementations/pdf_generator_ba
 import '../../../accounts/controllers/accounts_controller.dart';
 import '../../data/models/bond_model.dart';
 
-
 class BondPdfGenerator extends PdfGeneratorBase<BondModel> with PdfHelperMixin {
   final _accountsController = read<AccountsController>();
 
@@ -89,20 +88,20 @@ class BondPdfGenerator extends PdfGeneratorBase<BondModel> with PdfHelperMixin {
   }
 
   Map<int, TableColumnWidth> get _columnWidths => {
-    0: const FixedColumnWidth(50), // id
-    1: const FixedColumnWidth(150), // account
-    2: const FixedColumnWidth(60), // debt
-    3: const FixedColumnWidth(60), // credit
-    4: const FixedColumnWidth(50), // nots
-  };
+        0: const FixedColumnWidth(50), // id
+        1: const FixedColumnWidth(150), // account
+        2: const FixedColumnWidth(60), // debt
+        3: const FixedColumnWidth(60), // credit
+        4: const FixedColumnWidth(50), // nots
+      };
 
   Map<int, Alignment> get _cellAlignments => {
-    0: Alignment.centerLeft, // id
-    1: Alignment.center, // account
-    2: Alignment.center, // debt
-    3: Alignment.center, // credit
-    4: Alignment.center, // nots
-  };
+        0: Alignment.centerLeft, // id
+        1: Alignment.center, // account
+        2: Alignment.center, // debt
+        3: Alignment.center, // credit
+        4: Alignment.center, // nots
+      };
 
   String bondName(BondModel bondModel) => BondType.byTypeGuide(bondModel.payTypeGuid!).value;
 }

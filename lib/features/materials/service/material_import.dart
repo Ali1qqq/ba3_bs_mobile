@@ -1,3 +1,4 @@
+import 'package:ba3_bs_mobile/core/helper/extensions/encode_decode_text.dart';
 import 'package:ba3_bs_mobile/features/materials/data/models/materials/material_model.dart';
 import 'package:xml/xml.dart';
 
@@ -21,7 +22,7 @@ class MaterialImport extends ImportServiceBase<MaterialModel> {
       (gccMat) {
         String getText(String tagName) {
           final elements = gccMat.findElements(tagName);
-          return elements.isEmpty ? '' : elements.first.value!;
+          return elements.isEmpty ? '' : elements.first.text;
         }
 
         return GccMatTax(vat: getText('GCCMaterialTaxRatio'), guid: getText('GCCMaterialTaxMatGUID'));
@@ -31,7 +32,7 @@ class MaterialImport extends ImportServiceBase<MaterialModel> {
     List<MaterialModel> materials = materialsXml.map((materialElement) {
       String? getText(String tagName) {
         final elements = materialElement.findElements(tagName);
-        return elements.isEmpty ? null : elements.first.value;
+        return elements.isEmpty ? null : elements.first.text;
       }
 
       int? getInt(String tagName) {
@@ -52,7 +53,7 @@ class MaterialImport extends ImportServiceBase<MaterialModel> {
       return MaterialModel(
         id: getText('mptr') ?? '',
         matCode: getInt('MatCode'),
-        matName: getText('MatName') ?? '',
+        matName: (getText('MatName') ?? '').encodeProblematic(),
         matBarCode: getText('MatBarCode') ?? '',
         matGroupGuid: getText('MatGroupGuid') ?? '',
         matUnity: getText('MatUnity'),

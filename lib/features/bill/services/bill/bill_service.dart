@@ -10,6 +10,7 @@ import 'package:ba3_bs_mobile/core/i_controllers/i_pluto_controller.dart';
 import 'package:ba3_bs_mobile/core/services/entry_bond_creator/implementations/entry_bonds_generator.dart';
 import 'package:ba3_bs_mobile/features/bill/controllers/bill/bill_details_controller.dart';
 import 'package:ba3_bs_mobile/features/bill/controllers/bill/bill_search_controller.dart';
+import 'package:ba3_bs_mobile/features/materials/controllers/material_controller.dart';
 import 'package:ba3_bs_mobile/features/materials/data/models/materials/material_model.dart';
 import 'package:ba3_bs_mobile/features/users_management/data/models/role_model.dart';
 import 'package:flutter/cupertino.dart';
@@ -28,9 +29,9 @@ import '../../../../core/utils/app_ui_utils.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/custom_text_field_without_icon.dart';
 import '../../../accounts/data/models/account_model.dart';
+import '../../../bond/controllers/entry_bond/entry_bond_controller.dart';
 import '../../../bond/ui/screens/entry_bond_details_screen.dart';
 import '../../../floating_window/services/overlay_service.dart';
-import '../../../materials/controllers/material_controller.dart';
 import '../../../materials/service/mat_statement_generator.dart';
 import '../../../patterns/data/models/bill_type_model.dart';
 import '../../controllers/bill/all_bills_controller.dart';
@@ -53,8 +54,11 @@ class BillDetailsService with PdfBase, EntryBondsGenerator, MatsStatementsGenera
     BillModel? billModel,
     required BillTypeModel billTypeModel,
     required String billCustomerId,
+    required String billAccountId,
     required String billSellerId,
     required String? billNote,
+    required String? orderNumber,
+    required String? customerPhone,
     required int billPayType,
     required DateTime billDate,
     required double billFirstPay,
@@ -64,7 +68,10 @@ class BillDetailsService with PdfBase, EntryBondsGenerator, MatsStatementsGenera
         billTypeModel: billTypeModel,
         status: RoleItemType.viewBill.status,
         note: billNote,
+        orderNumber: orderNumber,
+        customerPhone: customerPhone,
         billCustomerId: billCustomerId,
+        billAccountId: billAccountId,
         billSellerId: billSellerId,
         billPayType: billPayType,
         billDate: billDate,
@@ -75,7 +82,7 @@ class BillDetailsService with PdfBase, EntryBondsGenerator, MatsStatementsGenera
         billGiftsTotal: plutoController.computeGifts,
         billDiscountsTotal: plutoController.computeDiscounts,
         billAdditionsTotal: plutoController.computeAdditions,
-        billRecordsItems: plutoController.generateRecords,
+        billRecords: plutoController.generateRecords,
       );
 
   void launchFloatingEntryBondDetailsScreen({required BuildContext context, required BillModel billModel}) {
@@ -98,6 +105,13 @@ class BillDetailsService with PdfBase, EntryBondsGenerator, MatsStatementsGenera
     log('currentBillIndex: ${billSearchController.currentBillIndex}');
     log('billSearchController.bills.length: ${billSearchController.bills.length}');
     log('isLastValidBill(billToDelete): ${billSearchController.isLastValidBill(billToDelete)}');
+
+    if (billToDelete.isSellRelated) {
+      await _updateSoldSerialNumbers(billToDelete);
+      await billDetailsController.deleteSellSerialTransactions(billToDelete);
+    } else if (billToDelete.isPurchaseRelated) {
+      await billDetailsController.deleteBuySerialTransactions(billToDelete);
+    }
 
     if (billSearchController.isLastValidBill(billToDelete)) {
       final decrementedBillNumber = (billToDelete.billDetails.previous ?? 0) - billToDelete.billDetails.billNumber!;
@@ -124,6 +138,33 @@ class BillDetailsService with PdfBase, EntryBondsGenerator, MatsStatementsGenera
     // 4. Clean up bonds/mats statements if this is an approved bill with materials
     if (billToDelete.status == Status.approved) {
       _handleApprovedBillDeletions(billToDelete);
+    }
+  }
+
+  /// Updates the sold serial numbers by setting their `sold` status to false.
+  Future<void> _updateSoldSerialNumbers(BillModel billToDelete) async {
+    final materialController = read<MaterialController>();
+
+    for (final billItem in billToDelete.items.itemList) {
+      final materialModel = materialController.getMaterialById(billItem.itemGuid);
+      final soldSerialNumber = billItem.soldSerialNumber;
+
+      if (materialModel?.serialNumbers == null) {
+        continue; // Skip if the material is not found or has no serial numbers
+      }
+
+      final updatedSerialNumbers = Map<String, bool>.from(materialModel!.serialNumbers!);
+
+      if (soldSerialNumber != null && updatedSerialNumbers.containsKey(soldSerialNumber)) {
+        updatedSerialNumbers[soldSerialNumber] = false; // Mark as unsold
+
+        // Apply the update to the material model
+        materialController.updateMaterialWithChanges(
+          materialModel.copyWith(serialNumbers: updatedSerialNumbers),
+        );
+
+        log('✅ Serial number [$soldSerialNumber] of material (${materialModel.matName}) marked as unsold.');
+      }
     }
   }
 
@@ -245,7 +286,7 @@ class BillDetailsService with PdfBase, EntryBondsGenerator, MatsStatementsGenera
   /// and the pattern type requires a material account.
   void _handleApprovedBillDeletions(BillModel billModel) {
     if (billModel.billTypeModel.billPatternType!.hasMaterialAccount) {
-      entryBondController.deleteEntryBondModel(entryId: billModel.billId!);
+      read<EntryBondController>().deleteEntryBondModel(entryId: billModel.billId!, sourceNumber: billModel.billDetails.billNumber!);
     }
     deleteMatsStatementsModels(billModel);
   }
@@ -258,7 +299,7 @@ class BillDetailsService with PdfBase, EntryBondsGenerator, MatsStatementsGenera
     billSearchController.updateBill(updatedBillModel, 'handleUpdateBillStatusSuccess');
 
     if (updatedBillModel.status == Status.approved && updatedBillModel.billTypeModel.billPatternType!.hasMaterialAccount) {
-      createAndStoreEntryBond(model: updatedBillModel);
+      createAndStoreEntryBond(model: updatedBillModel, sourceNumbers: [updatedBillModel.billDetails.billNumber!], isSave: false);
     }
 
     if (updatedBillModel.status == Status.approved) {
@@ -272,29 +313,31 @@ class BillDetailsService with PdfBase, EntryBondsGenerator, MatsStatementsGenera
   }
 
   Map<String, AccountModel> findModifiedBillTypeAccounts({required BillModel previousBill, required BillModel currentBill}) {
+    log('currentBill ${currentBill.billId}', name: 'findModifiedBillTypeAccounts');
+
     // Extract accounts from the bill type models or default to empty maps
     final previousAccounts = previousBill.billTypeModel.accounts ?? {};
     final currentAccounts = currentBill.billTypeModel.accounts ?? {};
 
     // Identify accounts that are present in both bills but have changed
-    final Map<String, AccountModel> modifiedAccounts = Map.fromEntries(
+    final modifiedBillTypeAccounts = Map.fromEntries(
       previousAccounts.entries.where(
         (MapEntry<Account, AccountModel> previousAccount) {
           final currentAccountModel = currentAccounts[previousAccount.key];
           return currentAccountModel != null && currentAccountModel != previousAccount.value;
-        },
+        }, // Use the account key's label for the map
       ).map(
-          // Use the account key's label for the map
-          (entry) => MapEntry(entry.key.label, entry.value)),
+        (entry) => MapEntry(entry.key.label, entry.value),
+      ),
     );
 
     // Log modified accounts
-    log('Modified accounts count: ${modifiedAccounts.length}');
-    modifiedAccounts.forEach(
+    log('Modified accounts count: ${modifiedBillTypeAccounts.length}');
+    modifiedBillTypeAccounts.forEach(
       (key, account) => log('Account Key: $key, Account Model: ${account.toJson()}'),
     );
 
-    return modifiedAccounts;
+    return modifiedBillTypeAccounts;
   }
 
   Map<String, List<BillItem>> findDeletedMaterials({required BillModel previousBill, required BillModel currentBill}) {
@@ -330,13 +373,29 @@ class BillDetailsService with PdfBase, EntryBondsGenerator, MatsStatementsGenera
     return (newItems: newItems, deletedItems: deletedItems, updatedItems: updatedItems);
   }
 
+  Map<String, AccountModel> _handelModifiedAccountsUpdate({required BillModel previousBill, required BillModel currentBill}) {
+    final Map<String, AccountModel> modifiedAccounts = findModifiedBillTypeAccounts(previousBill: previousBill, currentBill: currentBill);
 
-// Updated handleSaveOrUpdateSuccess method.
+    if (hasModelId(currentBill.billId) &&
+        hasModelItems(currentBill.items.itemList) &&
+        hasModelId(previousBill.billId) &&
+        hasModelItems(previousBill.items.itemList)) {
+      generatePdfAndSendToEmail(
+        fileName: AppStrings.updatedBill.tr,
+        itemModel: [previousBill, currentBill],
+      );
+    }
+    return modifiedAccounts;
+  }
+
+  // Updated handleSaveOrUpdateSuccess method.
   Future<void> handleSaveOrUpdateSuccess({
     BillModel? previousBill,
     required BillModel currentBill,
     required BillSearchController billSearchController,
     required bool isSave,
+    required bool withPrint,
+    required BuildContext context,
   }) async {
     // 1. Display the success message.
     _showSuccessMessage(isSave);
@@ -375,12 +434,23 @@ class BillDetailsService with PdfBase, EntryBondsGenerator, MatsStatementsGenera
         'handleSaveOrUpdateSuccess isSave $isSave',
       );
     }
+    if (withPrint) {
+      billDetailsController.printBill(
+        context: context,
+        billModel: currentBill,
+        invRecords: plutoController.generateRecords,
+      );
+    }
 
+    //  log('if Modified accounts count: ${modifiedBillTypeAccounts.length}');
     // 5. Create an entry bond if the bill is approved and its pattern requires a material account.
     if (_shouldCreateEntryBond(currentBill)) {
+      log('createAndStoreEntryBond', name: '_shouldCreateEntryBond');
       createAndStoreEntryBond(
         modifiedAccounts: modifiedBillTypeAccounts,
         model: currentBill,
+        isSave: isSave,
+        sourceNumbers: [currentBill.billDetails.billNumber!],
       );
     }
 
@@ -456,24 +526,6 @@ class BillDetailsService with PdfBase, EntryBondsGenerator, MatsStatementsGenera
     }
   }
 
-  Map<String, AccountModel> _handelModifiedAccountsUpdate({
-    required BillModel previousBill,
-    required BillModel currentBill,
-  }) {
-    final Map<String, AccountModel> modifiedAccounts = findModifiedBillTypeAccounts(previousBill: previousBill, currentBill: currentBill);
-
-    if (hasModelId(currentBill.billId) &&
-        hasModelItems(currentBill.items.itemList) &&
-        hasModelId(previousBill.billId) &&
-        hasModelItems(previousBill.items.itemList)) {
-      generateAndSendPdf(
-        fileName: AppStrings.updatedBill.tr,
-        itemModel: [previousBill, currentBill],
-      );
-    }
-    return modifiedAccounts;
-  }
-
   /// Adds a new bill by marking it as saved and generating its PDF.
   Future<void> _handleAdd({
     required BillModel savedBill,
@@ -484,7 +536,7 @@ class BillDetailsService with PdfBase, EntryBondsGenerator, MatsStatementsGenera
 
     // 2. If the bill has an ID and items, we generate & send a PDF
     if (_isValidBillForPdf(savedBill)) {
-      generateAndSendPdf(
+      generatePdfAndSendToEmail(
         fileName: AppStrings.newBill.tr,
         itemModel: savedBill,
       );
@@ -519,6 +571,14 @@ class BillDetailsService with PdfBase, EntryBondsGenerator, MatsStatementsGenera
     return hasModelId(bill.billId) && hasModelItems(bill.items.itemList);
   }
 
+  bool hasClientPhoneNumber() {
+    if (billDetailsController.customerPhoneController.text.isEmpty) {
+      AppUIUtils.onFailure('يرجى إضافة رقم هاتف العميل!');
+      return false;
+    }
+    return true;
+  }
+
   /// Updates the 'next' field of the previously fetched bill if necessary.
   Future<void> _updatePreviousBill({
     required List<BillModel> fetchedBills,
@@ -550,8 +610,9 @@ class BillDetailsService with PdfBase, EntryBondsGenerator, MatsStatementsGenera
       context: context,
       title: 'Invoice QR Code',
       content: EInvoiceDialogContent(
-        billController: billDetailsController,
+        billDetailsController: billDetailsController,
         billId: billModel.billId!,
+        billModel: billModel,
       ),
       onCloseCallback: () {
         log('E-Invoice dialog closed.');

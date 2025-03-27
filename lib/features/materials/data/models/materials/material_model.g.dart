@@ -18,6 +18,8 @@ class MaterialModelAdapter extends TypeAdapter<MaterialModel> {
     };
     return MaterialModel(
       id: fields[0] as String?,
+      matLocalQuantity: fields[55] as int?,
+      matFreeQuantity: fields[56] as int?,
       matCode: fields[1] as int?,
       matName: fields[2] as String?,
       matBarCode: fields[3] as String?,
@@ -78,7 +80,7 @@ class MaterialModelAdapter extends TypeAdapter<MaterialModel> {
   @override
   void write(BinaryWriter writer, MaterialModel obj) {
     writer
-      ..writeByte(55)
+      ..writeByte(57)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -188,7 +190,11 @@ class MaterialModelAdapter extends TypeAdapter<MaterialModel> {
       ..writeByte(53)
       ..write(obj.calcMinPrice)
       ..writeByte(54)
-      ..write(obj.serialNumbers);
+      ..write(obj.serialNumbers)
+      ..writeByte(55)
+      ..write(obj.matLocalQuantity)
+      ..writeByte(56)
+      ..write(obj.matFreeQuantity);
   }
 
   @override

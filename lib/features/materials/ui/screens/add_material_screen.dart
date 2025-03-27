@@ -34,7 +34,7 @@ class AddMaterialScreen extends StatelessWidget {
                   label: AppStrings.group.tr,
                   textController: controller.materialFromHandler.parentController,
                   onSubmitted: (text) {
-                    controller.openMaterialSelectionDialog(
+                    controller.openMaterialGroupSelectionDialog(
                       query: text,
                       context: context,
                     );

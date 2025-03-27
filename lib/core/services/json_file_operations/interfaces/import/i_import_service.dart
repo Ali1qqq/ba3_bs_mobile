@@ -10,4 +10,5 @@ abstract class IImportService<T> {
   List<T> importFromJsonFile(File filePath);
 
   Future<List<T>> importFromXmlFile(File filePath);
+
 }

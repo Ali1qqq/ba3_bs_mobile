@@ -2,15 +2,20 @@ import 'dart:developer';
 
 import 'package:ba3_bs_mobile/core/constants/app_constants.dart';
 import 'package:ba3_bs_mobile/core/helper/enums/enums.dart';
+import 'package:ba3_bs_mobile/core/helper/extensions/getx_controller_extensions.dart';
+import 'package:ba3_bs_mobile/core/helper/extensions/task_status_extension.dart';
 import 'package:ba3_bs_mobile/core/helper/mixin/app_navigator.dart';
-import 'package:ba3_bs_mobile/core/helper/notifications/easy_notifications.dart';
 import 'package:ba3_bs_mobile/core/models/query_filter.dart';
+import 'package:ba3_bs_mobile/features/sellers/controllers/seller_sales_controller.dart';
+import 'package:ba3_bs_mobile/features/user_task/controller/all_task_controller.dart';
+import 'package:ba3_bs_mobile/features/user_task/data/model/user_task_model.dart';
 import 'package:ba3_bs_mobile/features/users_management/services/role_service.dart';
 import 'package:ba3_bs_mobile/features/users_management/services/user_navigator.dart';
 import 'package:ba3_bs_mobile/features/users_management/services/user_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../../../core/network/api_constants.dart';
 import '../../../core/network/error/failure.dart';
@@ -20,6 +25,7 @@ import '../../../core/services/firebase/implementations/repos/remote_datasource_
 import '../../../core/services/firebase/implementations/services/firestore_guest_user.dart';
 import '../../../core/services/get_x/shared_preferences_service.dart';
 import '../../../core/utils/app_ui_utils.dart';
+import '../../floating_window/services/overlay_service.dart';
 import '../data/models/role_model.dart';
 import '../data/models/user_model.dart';
 import '../services/role_form_handler.dart';
@@ -37,6 +43,8 @@ class UserManagementController extends GetxController with AppNavigator, Firesto
   late final RoleService _roleService;
   late final UserService _userService;
   late final UserNavigator userNavigator;
+
+  UserTaskModel? selectedTask;
 
   // Form Handlers
   late final RoleFormHandler roleFormHandler;
@@ -77,9 +85,27 @@ class UserManagementController extends GetxController with AppNavigator, Firesto
     userNavigator = UserNavigator(roleFormHandler, _sharedPreferencesService);
   }
 
-  List<UserModel> get nonLoggedInUsers => allUsers
+  List<UserModel> get nonLoggedInUsers => allUsers.where((user) => user.userId != loggedInUserModel?.userId).toList();
+
+  List<UserTaskModel> get allTaskList => loggedInUserModel?.userTaskList?.where((element) => !element.status.isFinished).toList() ?? [];
+
+  List<UserTaskModel> get allTaskListDone => loggedInUserModel?.userTaskList?.where((element) => element.status.isFinished).toList() ?? [];
+
+  List<UserTaskModel> get saleTask => allTaskList
       .where(
-        (user) => user.userId != loggedInUserModel?.userId,
+        (element) => element.taskType == TaskType.saleTask,
+      )
+      .toList();
+
+  List<UserTaskModel> get normalTask => allTaskList
+      .where(
+        (element) => element.taskType == TaskType.generalTask,
+      )
+      .toList();
+
+  List<UserTaskModel> get inventoryTask => allTaskList
+      .where(
+        (element) => element.taskType == TaskType.inventoryTask,
       )
       .toList();
 
@@ -142,16 +168,21 @@ class UserManagementController extends GetxController with AppNavigator, Firesto
   Future<void> getAllUsers() async {
     log('getAllUsers');
     final result = await _usersFirebaseRepo.getAll();
+
     result.fold(
       (failure) => AppUIUtils.onFailure(failure.message),
-      (fetchedUsers) async {
-        allUsers.assignAll(fetchedUsers);
-
-        checkGuestLoginButtonVisibility(
-          fetchedUsers.firstWhereOrNull((user) => user.userName == ApiConstants.guest) ?? UserModel(),
-        );
-      },
+      (fetchedUsers) => _onGetAllUsersSuccess(fetchedUsers),
     );
+  }
+
+  void _onGetAllUsersSuccess(List<UserModel> fetchedUsers) {
+    allUsers.assignAll(fetchedUsers);
+
+    if (fetchedUsers.isNotEmpty) {
+      final guestUser = fetchedUsers.firstWhereOrNull((user) => user.userName == ApiConstants.guest);
+
+      checkGuestLoginButtonVisibility(guestUser);
+    }
   }
 
   // Fetch user by ID using the repository
@@ -246,29 +277,11 @@ class UserManagementController extends GetxController with AppNavigator, Firesto
     loggedInUserModel = firstFetchedUser;
 
     _sharedPreferencesService.setString(AppConstants.userIdKey, loggedInUserModel?.userId ?? '');
-
-    for (final UserWorkingHours time in loggedInUserModel!.userWorkingHours?.values ?? []) {
-      log(time.enterTime!);
-      scheduleLoginNotification(
-          time: time.enterTime!,
-          isLogin: true,
-          userName: loggedInUserModel!.userName!,
-          holidays: loggedInUserModel!.userHolidays!,
-          title: 'لاتنسى تسجيل الدخول');
-      log(time.outTime!);
-      scheduleLoginNotification(
-          time: time.outTime!,
-          isLogin: false,
-          userName: loggedInUserModel!.userName!,
-          holidays: loggedInUserModel!.userHolidays!,
-          title: 'لاتنسى تسجيل الخروج');
-    }
-
     offAll(AppRoutes.mainLayout);
   }
 
-  Future<void> checkGuestLoginButtonVisibility(UserModel guestUser) async {
-    if (guestUser.userId != null) {
+  Future<void> checkGuestLoginButtonVisibility(UserModel? guestUser) async {
+    if (guestUser != null && guestUser.userId != null) {
       isGuestLoginButtonVisible.value = await isGuestUserEnabled(guestUser.userId!);
     }
   }
@@ -287,7 +300,7 @@ class UserManagementController extends GetxController with AppNavigator, Firesto
   }
 
   Future<void> _handleNoMatch() async {
-    if (Get.currentRoute != AppRoutes.loginScreen) {
+    if (!isCurrentRoute(AppRoutes.loginScreen)) {
       userNavigator.navigateToLogin();
     } else {
       AppUIUtils.onFailure('لا يوجد تطابق!');
@@ -364,4 +377,96 @@ class UserManagementController extends GetxController with AppNavigator, Firesto
       .toList();
 
   List<UserModel> get filteredAllUsersWithNunTime => allUsers.where((user) => user.userWorkingHours!.isNotEmpty).toList();
+
+  String getUserNameById(String id) {
+    return allUsers.firstWhereOrNull((user) => user.userId == id)?.userName ?? 'invalid id $id';
+  }
+
+  addTaskToUser(UserTaskModel userTask, List<String> userToEdit) {
+    List<UserModel> userToAddList = userToEdit.map((userId) => allUsers.firstWhere((user) => user.userId == userId)).toList();
+    for (var user in userToAddList) {
+      final List<UserTaskModel> updatedTaskList = List.from(user.userTaskList ?? []);
+
+      int index = updatedTaskList.indexWhere((taskId) => taskId.docId == userTask.docId);
+
+      if (index != -1) {
+        updatedTaskList.removeAt(index);
+        log("🗑️ تم حذف المهمة ذات ID: $userTask للمستخدم ${user.userName}");
+      } else {
+        updatedTaskList.add(userTask);
+        log("✅ تم إضافة مهمة جديدة ذات ID: $userTask للمستخدم ${user.userName}");
+      }
+
+      final editedUser = user.copyWith(userTaskList: updatedTaskList);
+      int allUsersIndex = allUsers.indexWhere((element) => element.userId == user.userId);
+
+      if (allUsersIndex != -1) {
+        allUsers[allUsersIndex] = editedUser; // Update the user in the list
+      }
+      _usersFirebaseRepo.save(editedUser);
+    }
+  }
+
+  XFile? image;
+  final ImagePicker _picker = ImagePicker();
+
+  Future<void> pickImage() async {
+    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      image = pickedFile;
+      update();
+    }
+  }
+
+  Future<int> getCurrentUserMaterialsSales({required String materialId, required DateTime startDay, required DateTime endDay}) async {
+    return await read<SellerSalesController>().getSellerMaterialsSales(
+        sellerId: loggedInUserModel!.userSellerId!, dateTimeRange: DateTimeRange(start: startDay, end: endDay), materialId: materialId);
+  }
+
+/*'5eae14a3-aaa5-4309-bc44-f541def66fe1'*/
+  void updateInventoryTask({required UserTaskModel task}) async {
+    late UserTaskModel updatedTask;
+    if (task.status.isInProgress) {
+      OverlayService.back();
+      updatedTask = task.copyWith(
+        status: TaskStatus.done,
+        endedAt: DateTime.now(),
+      );
+      // read<AllTaskController>().uploadDateTask(task: task, date: DateTime.now(), status: TaskStatus.done);
+    } else {
+      updatedTask = task.copyWith(
+        status: TaskStatus.inProgress,
+        updatedAt: DateTime.now(),
+      );
+
+      // read<AllTaskController>().uploadDateTask(task: task, date: DateTime.now(), status: TaskStatus.inProgress);
+    }
+    final updatedTaskList = [...loggedInUserModel!.userTaskList!.where((element) => element.docId != updatedTask.docId), updatedTask];
+
+    _usersFirebaseRepo.save(
+      loggedInUserModel!.copyWith(userTaskList: updatedTaskList),
+    );
+    // await fetchAllUserTask();
+    update();
+  }
+
+  void updateGeneralTask({required UserTaskModel task}) async {
+    if (image != null) {
+      final imageUrl = await read<AllTaskController>().uploadImageTask(image!.path);
+
+      final updatedTask = task.copyWith(status: TaskStatus.done, endedAt: DateTime.now(), taskImage: imageUrl);
+      final updatedTaskList = [...loggedInUserModel!.userTaskList!.where((element) => element.docId != updatedTask.docId), updatedTask];
+
+      _usersFirebaseRepo.save(
+        loggedInUserModel!.copyWith(userTaskList: updatedTaskList),
+      );
+      image = null;
+      OverlayService.back();
+      update();
+    }
+  }
+
+  UserModel? getUserBySellerId(String sellerId) {
+    return allUsers.firstWhereOrNull((user) => user.userSellerId == sellerId);
+  }
 }

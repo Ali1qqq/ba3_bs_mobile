@@ -64,7 +64,7 @@ class AppStrings {
   static const String download = 'تحميل';
   static const String cheques = 'الشيكات';
   static const String dues = 'المستحقة';
-  static const String all = 'جميع';
+  static const String all = 'الكل';
   static const String cheque = 'شيك';
   static const String editing = 'التحرير';
   static const String pay = 'دفع';
@@ -241,7 +241,7 @@ class AppStrings {
   static const allMaterials = 'جميع المواد';
   static const allSellers = 'جميع البائعين';
   static const allUsers = 'جميع المستخدمين';
-  static const chequesDues = 'الشكات المستحقة';
+  static const chequesDues = 'الشيكات المستحقة';
   static const registrationAsAGust = 'تسجيل ك ضيف';
   static const materialInformation = 'معلومات المادة';
   static const userInformation = 'معلومات المستخدم';
@@ -268,7 +268,9 @@ class AppStrings {
   static const viewSellers = 'عرض البائعين';
   static const addPattern = 'اضافة نمط';
   static const mobileTarget = 'تارغت الموبايلات';
+
   static const accessoriesTarget = 'تارغت الأكسسوارات';
+
   static const achievementsPanel = 'لوحة الأنجازات';
   static const profile = 'الملف الشخصي';
   static const totalSales = 'اجمالي المبيعات';
@@ -289,4 +291,102 @@ class AppStrings {
   static const String delayRecord = "سجل التاخير";
 
   static const String totalDelay = 'اجمالي التأخير هذا الشهر';
+
+  static const String finalAccounts = 'الحسابات الختامية';
+
+  static const String tradingAccount = 'حساب المتاجرة';
+  static const String profitAndLoss = 'حساب الأرباح والخسائر';
+  static const String balanceSheet = 'الميزانية';
+  static const String areYouSureContinue = 'هل أنت متأكد';
+
+  static const String onlineUsers = 'المستخدمين الموجودين';
+
+  static const String allBillsDues = 'الفواتير المستحقة';
+
+  static const String allUsersMustOnline = ' ضمن الدوام';
+
+  static const String available = 'المتاحين';
+  static const String thisMonth = 'هذا الشهر';
+
+  static const String lastTenDays = 'اخر 10 يوم';
+
+  static const String today = 'اليوم';
+
+  static const String mainUsers = 'الحسابات الرئيسية';
+
+  // New Strings for Search Bill Feature
+  static const String searchBill = 'بحث عن فاتورة';
+  static const String searchByPhone = 'البحث برقم الهاتف';
+  static const String searchByOrderNumber = 'البحث برقم الطلب';
+  static const String enterPhoneNumber = 'أدخل رقم الهاتف';
+  static const String enterOrderNumber = 'أدخل رقم الطلب';
+  static const String phoneNumber = 'رقم الهاتف';
+  static const String orderNumber = 'رقم الطلب';
+
+  static const String aed = 'درهم';
+
+  static const String totalFees = 'اجمالي الربح';
+  static const totalMobileTarget = 'اجمالي مبيع الموبايلات';
+  static const totalAccessoriesTarget = 'اجمالي مبيع الأكسسوارات';
+
+  static const swap = 'تبديل';
+
+  static const selleAndProfitStatement = 'حركة المبيع و الربح';
+
+  static var clearDelay = 'مسح التاخير';
+
+  static var tasks = 'المهام';
+
+  static var taskTitle = "عنوان المهمة";
+
+  static var taskDescription = 'وصف المهمة';
+
+  static var taskType = 'نوع المهمة';
+
+  static var lastDateTodo = 'اخر تاريخ للتنفيذ';
+
+  static var createdDate = 'تاريخ الانشاء';
+
+  static var addNewTask = 'اضافة مهمة جديدة';
+
+  static var pleaseAddUsers = 'يرجى اضافة المستخدمين';
+
+  static var assignedBy = 'اضيفت من قبل';
+
+  static var assignedTo = 'اضيفت الى';
+
+  static var materialInTask = 'المواد في الجرد';
+
+  static var updatedAt = 'تاريخ التعديل';
+
+  static var taskDeadline = 'تاريخ التسليم';
+
+  static var allTask = 'جميع المهام';
+
+  static var start = 'ابدأ';
+
+  static var tasksTodo = 'مهام يجب تنفيذها';
+  static var tasksEnded = 'مهام انتهت';
+  static var tasksFailed = 'مهام فشلت';
+
+  static var uploadImage = 'تحميل صورة';
+
+  static var close = 'اغلاق';
+
+  static var taskEndIn = 'تم تنفيذ المهمة في :';
+
+  static var done = 'تم';
+
+  static var quantityInTask = 'الكمية المجرودة';
+
+  static var endedDate = 'تاريخ الانتهاء';
+
+  static var employeeCommitment = 'التزام الموظف';
+
+  static var allBonds = 'جميع السندات';
+
+  static String success = 'نجاح';
+
+
+  static const String whatsApp = 'WhatsApp';
 }

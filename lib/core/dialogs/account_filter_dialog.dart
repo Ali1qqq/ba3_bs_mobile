@@ -1,7 +1,7 @@
+import 'package:ba3_bs_mobile/features/accounts/controllers/account_statement_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../../features/accounts/controllers/account_statement_controller.dart';
 import '../styling/app_colors.dart';
 import '../widgets/app_button.dart';
 import '../widgets/option_text_widget.dart';

@@ -1,8 +1,8 @@
+import 'package:ba3_bs_mobile/core/constants/app_strings.dart';
 import 'package:ba3_bs_mobile/features/accounts/data/models/account_model.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../../../../../core/constants/app_strings.dart';
 import '../../../../../core/widgets/custom_text_field_without_icon.dart';
 import '../../../../../core/widgets/searchable_account_field.dart';
 import '../../../../bill/ui/widgets/bill_shared/bill_header_field.dart';
@@ -19,13 +19,12 @@ class AddAccountFormWidget extends StatelessWidget {
     return Form(
       key: controller.accountFromHandler.formKey,
       child: Column(
-        spacing: 15,
+        spacing: 20,
         children: [
           FormFieldRow(
             firstItem: TextAndExpandedChildField(
               label: AppStrings.accountName.tr,
               child: CustomTextFieldWithoutIcon(
-                suffixIcon: SizedBox(),
                 validator: (value) => controller.accountFromHandler.defaultValidator(value, "اسم الحساب"),
                 textEditingController: controller.accountFromHandler.nameController,
               ),
@@ -33,7 +32,7 @@ class AddAccountFormWidget extends StatelessWidget {
             secondItem: TextAndExpandedChildField(
               label: AppStrings.latinAccountName.tr,
               child: CustomTextFieldWithoutIcon(
-                suffixIcon: SizedBox(),
+                suffixIcon: const SizedBox(),
                 textEditingController: controller.accountFromHandler.latinNameController,
               ),
             ),
@@ -55,7 +54,7 @@ class AddAccountFormWidget extends StatelessWidget {
             secondItem: TextAndExpandedChildField(
               label: AppStrings.accountCode.tr,
               child: CustomTextFieldWithoutIcon(
-                suffixIcon: SizedBox(),
+                suffixIcon: const SizedBox(),
                 validator: (value) => controller.accountFromHandler.defaultValidator(value, "رمز الحساب"),
                 textEditingController: controller.accountFromHandler.codeController,
               ),

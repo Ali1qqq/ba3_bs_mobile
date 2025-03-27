@@ -29,13 +29,13 @@ class ImportExportRepository<T> implements IImportRepository<T>, IExportReposito
 
   @override
   Future<Either<Failure, List<T>>> importXmlFile(File filePath) async {
-    try {
+    // try {
       List<T> itemsModels = await _jsonImport.importFromXmlFile(filePath);
       return Right(itemsModels);
-    } catch (e) {
-      log('[$e] فشل في استيراد الملف');
-      return Left(ErrorHandler(e).failure);
-    }
+    // } catch (e) {
+    //   log('[$e] فشل في استيراد الملف');
+    //   return Left(ErrorHandler(e).failure);
+    // }
   }
 
   @override

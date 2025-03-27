@@ -90,18 +90,11 @@ class _CustomTextFieldWithoutIconState extends State<CustomTextFieldWithoutIcon>
         onTap: () =>
             widget.textEditingController.selection = TextSelection(baseOffset: 0, extentOffset: widget.textEditingController.text.length),
         inputFormatters: widget.inputFormatters,
-        style: const TextStyle(fontSize: 12),
+        style: widget.textStyle ?? const TextStyle(fontSize: 12),
         decoration: InputDecoration(
             fillColor: widget.filedColor ?? Colors.white,
             filled: true,
             isDense: true,
-            // border: UnderlineInputBorder(
-            //   borderSide: const BorderSide(
-            //     color: Colors.black, // Change the border color
-            //     width: 2.0, // Change the border width
-            //   ),
-            //   borderRadius: BorderRadius.circular(5.0), // Adjust border radius
-            // ),
             focusedBorder: OutlineInputBorder(
               borderSide: const BorderSide(
                 color: Colors.blue, // Change the border color when focused

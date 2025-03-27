@@ -155,7 +155,7 @@ class ChangesController extends GetxController {
   void saveMaterials(List<MaterialModel> materialsToSave) {
     if (materialsToSave.isNotEmpty) {
       final materialController = read<MaterialController>();
-      materialController.saveAllMaterial(materialsToSave); // Save all materials at once
+      materialController.saveAllMaterialOnLocal(materialsToSave); // Save all materials at once
     }
   }
 

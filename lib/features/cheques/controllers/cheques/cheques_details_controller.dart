@@ -1,7 +1,6 @@
 import 'package:ba3_bs_mobile/core/helper/enums/enums.dart';
 import 'package:ba3_bs_mobile/core/helper/extensions/basic/string_extension.dart';
 import 'package:ba3_bs_mobile/core/helper/extensions/date_time/date_time_extensions.dart';
-
 import 'package:ba3_bs_mobile/features/accounts/controllers/accounts_controller.dart';
 import 'package:ba3_bs_mobile/features/cheques/data/models/cheques_model.dart';
 import 'package:flutter/cupertino.dart';
@@ -141,11 +140,12 @@ class ChequesDetailsController extends GetxController with AppValidator, EntryBo
       (failure) => AppUIUtils.onFailure(failure.message),
       (currentChequesModel) {
         _chequesService.handleSaveOrUpdateSuccess(
-            prevChequesModel: existingChequesModel,
-            currentChequesModel: currentChequesModel,
-            chequesSearchController: chequesSearchController,
-            isSave: existingChequesModel == null,
-            chequesDetailsController: this);
+          prevChequesModel: existingChequesModel,
+          currentChequesModel: currentChequesModel,
+          chequesSearchController: chequesSearchController,
+          isSave: existingChequesModel == null,
+          chequesDetailsController: this,
+        );
       },
     );
   }
@@ -175,10 +175,7 @@ class ChequesDetailsController extends GetxController with AppValidator, EntryBo
     isChequesSaved.value = newValue;
   }
 
-  ChequesModel? _createChequesModelFromChequesData(
-    ChequesType chequesType, [
-    ChequesModel? chequesModel,
-  ]) {
+  ChequesModel? _createChequesModelFromChequesData(ChequesType chequesType, [ChequesModel? chequesModel]) {
     // Validate customer accounts
 
     if (!_chequesService.validateAccount(chequesAccPtr) || !_chequesService.validateAccount(chequesToAccountModel)) {
@@ -248,6 +245,8 @@ class ChequesDetailsController extends GetxController with AppValidator, EntryBo
     createAndStoreChequeEntryBondByStrategy(
       updatedModel,
       chequesStrategyType: ChequesStrategyType.payStrategy,
+      sourceNumber: updatedModel.chequesNumber!,
+      isSave: false,
     );
   }
 
@@ -255,7 +254,7 @@ class ChequesDetailsController extends GetxController with AppValidator, EntryBo
     setIsPayed(false);
     final updatedModel = chequesModel.copyWithNullPayGuid();
     await _saveOrUpdateCheques(chequesType: chequesType, existingChequesModel: updatedModel);
-    read<EntryBondController>().deleteEntryBondModel(entryId: chequesModel.chequesPayGuid!);
+    read<EntryBondController>().deleteEntryBondModel(entryId: chequesModel.chequesPayGuid!, sourceNumber: chequesModel.chequesNumber!);
   }
 
   void refundPayCheques(ChequesModel chequesModel) async {
@@ -277,6 +276,8 @@ class ChequesDetailsController extends GetxController with AppValidator, EntryBo
     createAndStoreChequeEntryBondByStrategy(
       updatedModel,
       chequesStrategyType: ChequesStrategyType.refundStrategy,
+      sourceNumber: updatedModel.chequesNumber!,
+      isSave: false,
     );
   }
 
@@ -284,6 +285,7 @@ class ChequesDetailsController extends GetxController with AppValidator, EntryBo
     setIsRefundPay(false);
     final updatedModel = chequesModel.copyWithNullRefundPayGuid();
     await _saveOrUpdateCheques(chequesType: chequesType, existingChequesModel: updatedModel);
-    read<EntryBondController>().deleteEntryBondModel(entryId: chequesModel.chequesRefundPayGuid!);
+    read<EntryBondController>()
+        .deleteEntryBondModel(entryId: chequesModel.chequesRefundPayGuid!, sourceNumber: chequesModel.chequesNumber!);
   }
 }

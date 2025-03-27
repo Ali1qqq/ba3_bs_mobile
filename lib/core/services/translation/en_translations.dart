@@ -134,7 +134,6 @@ final Map<String, String> enUS = {
   AppStrings.individual: 'Individual',
   AppStrings.tax: 'Tax',
   AppStrings.notRegisteredYet: 'Not Registered Yet',
-  AppStrings.notLoggedToday: 'Not Logged Today',
   AppStrings.nothing: 'Nothing',
   AppStrings.currentlyUnavailable: 'Currently Unavailable',
   AppStrings.minutes: 'Minutes',
@@ -261,4 +260,8 @@ final Map<String, String> enUS = {
   AppStrings.achievementsPanel: 'Achievements Panel',
   AppStrings.profile: 'Profile',
   AppStrings.totalSales: 'Total Sales',
+  AppStrings.finalAccounts: 'Final Accounts',
+  AppStrings.tradingAccount: 'Trading Account',
+  AppStrings.profitAndLoss: 'Profit and Loss Account',
+  AppStrings.balanceSheet: 'Balance Sheet',
 };

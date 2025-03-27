@@ -16,8 +16,8 @@ class BulkSavableDatasourceRepository<T> extends RemoteDataSourceRepository<T> {
     try {
       final savedItems = await _bulkSavableDatasource.saveAll(items);
       return Right(savedItems); // Return the list of saved items
-    } catch (e) {
-      log('Error in fetchWhere: $e');
+    } catch (e, stackTrace) {
+      log('Error in saveAll: $e', stackTrace: stackTrace, name: 'BulkSavableDatasourceRepository saveAll');
       return Left(ErrorHandler(e).failure); // Return error
     }
   }

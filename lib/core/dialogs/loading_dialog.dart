@@ -18,41 +18,39 @@ class LoadingDialog extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
-    return Visibility(
-      visible: isLoading,
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          const Opacity(
-            opacity: 0.4,
-            child: ModalBarrier(dismissible: false, color: Colors.black),
-          ),
-          SizedBox(
-            width: max(.2.sw, 280),
-            child: Dialog(
-              backgroundColor: AppColors.whiteColor,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      ' جاري تحميل $message',
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.w600,
-                            fontSize: fontSize,
-                          ),
-                    ),
-                    HorizontalSpace(6.w),
-                    SizedBox(width: 20, height: 20, child: const CircularProgressIndicator()),
-                  ],
+  Widget build(BuildContext context) => Visibility(
+        visible: isLoading,
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            const Opacity(
+              opacity: 0.4,
+              child: ModalBarrier(dismissible: false, color: Colors.black),
+            ),
+            SizedBox(
+              width: max(.22.sw, 330),
+              child: Dialog(
+                backgroundColor: AppColors.whiteColor,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        ' جاري تحميل $message',
+                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.w600,
+                              fontSize: fontSize,
+                            ),
+                      ),
+                      HorizontalSpace(6.w),
+                      SizedBox(width: 20, height: 20, child: const CircularProgressIndicator()),
+                    ],
+                  ),
                 ),
               ),
             ),
-          ),
-        ],
-      ),
-    );
-  }
+          ],
+        ),
+      );
 }

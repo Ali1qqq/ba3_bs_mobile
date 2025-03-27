@@ -30,11 +30,11 @@ class ChequesDetailsAppBar extends StatelessWidget implements PreferredSizeWidge
       leadingWidth: 100,
       title: Text(chequesTypeModel.value),
       actions: [
-        LanguageSwitchFaIcon(
+        IconButton(
             onPressed: () {
               chequesSearchController.previous();
             },
-            iconData: Icons.keyboard_double_arrow_right),
+            icon: const LanguageSwitchFaIcon(iconData: Icons.keyboard_double_arrow_right)),
         SizedBox(
           width: Get.width * 0.10,
           child: CustomTextFieldWithoutIcon(
@@ -46,11 +46,11 @@ class ChequesDetailsAppBar extends StatelessWidget implements PreferredSizeWidge
             },
           ),
         ),
-        LanguageSwitchFaIcon(
+        IconButton(
             onPressed: () {
               chequesSearchController.next();
             },
-            iconData: Icons.keyboard_double_arrow_left),
+            icon: const LanguageSwitchFaIcon(iconData: Icons.keyboard_double_arrow_left)),
       ],
     );
   }

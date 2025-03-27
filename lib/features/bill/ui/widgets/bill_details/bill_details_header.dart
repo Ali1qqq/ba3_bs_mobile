@@ -1,20 +1,19 @@
-import 'dart:developer';
-
-import 'package:ba3_bs_mobile/core/helper/extensions/basic/date_time_extensions.dart';
+import 'package:ba3_bs_mobile/core/constants/app_strings.dart';
 import 'package:ba3_bs_mobile/core/helper/extensions/bill/bill_pattern_type_extension.dart';
+import 'package:ba3_bs_mobile/core/helper/extensions/date_time/date_time_extensions.dart';
+import 'package:ba3_bs_mobile/core/helper/extensions/getx_controller_extensions.dart';
+import 'package:ba3_bs_mobile/core/widgets/app_spacer.dart';
 import 'package:ba3_bs_mobile/core/widgets/store_dropdown.dart';
+import 'package:ba3_bs_mobile/features/accounts/controllers/accounts_controller.dart';
+import 'package:ba3_bs_mobile/features/customer/data/models/customer_model.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../../../../core/constants/app_constants.dart';
-import '../../../../../core/constants/app_strings.dart';
 import '../../../../../core/helper/enums/enums.dart';
-import '../../../../../core/helper/extensions/getx_controller_extensions.dart';
-import '../../../../../core/widgets/app_spacer.dart';
 import '../../../../../core/widgets/custom_text_field_without_icon.dart';
 import '../../../../../core/widgets/date_picker.dart';
 import '../../../../../core/widgets/searchable_account_field.dart';
-import '../../../../accounts/controllers/accounts_controller.dart';
 import '../../../../accounts/data/models/account_model.dart';
 import '../../../../floating_window/services/overlay_service.dart';
 import '../../../../sellers/controllers/sellers_controller.dart';
@@ -36,11 +35,25 @@ class BillDetailsHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 18.0),
+      padding: const EdgeInsets.symmetric(horizontal: 8.0),
       child: Form(
         key: billDetailsController.formKey,
         child: Column(
           children: [
+            SearchableAccountField(
+              label: AppStrings.account.tr,
+              textEditingController: billDetailsController.billAccountController,
+              validator: (value) => billDetailsController.validator(value, AppStrings.account.tr),
+              onSubmitted: (text) async {
+                AccountModel? accountModel = await read<AccountsController>().openAccountSelectionDialog(
+                  query: text,
+                  context: context,
+                );
+                if (accountModel != null) {
+                  billDetailsController.updateBillAccount(accountModel);
+                }
+              },
+            ),
             FormFieldRow(
               firstItem: TextAndExpandedChildField(
                 label: AppStrings.billType.tr,
@@ -55,21 +68,19 @@ class BillDetailsHeader extends StatelessWidget {
                       }
                     },
                     textStyle: const TextStyle(fontSize: 14),
-                    height: AppConstants.constHeightTextField,
+                    height: AppConstants.constHeightDropDown,
                     decoration: BoxDecoration(
                       color: Colors.white,
                       border: Border.all(color: Colors.black38),
                       borderRadius: BorderRadius.circular(5),
                     ),
-                    onCloseCallback: () {
-                      log('InvPayType Dropdown Overly Closed.');
-                    },
+                    onCloseCallback: () {},
                   );
                 }),
               ),
               secondItem: StoreDropdown(storeSelectionHandler: billDetailsController),
             ),
-            const VerticalSpace(8),
+            VerticalSpace(),
             FormFieldRow(
               firstItem: TextAndExpandedChildField(
                 label: AppStrings.billDate.tr,
@@ -85,9 +96,10 @@ class BillDetailsHeader extends StatelessWidget {
               secondItem: SearchableAccountField(
                 label: AppStrings.customerAccount.tr,
                 textEditingController: billDetailsController.customerAccountController,
-                validator: (value) => billDetailsController.validator(value, AppStrings.customerAccount.tr),
+                // validator: (value) => billDetailsController.validator(value, AppStrings.customerAccount.tr),
                 onSubmitted: (text) async {
-                  AccountModel? accountModel = await read<AccountsController>().openAccountSelectionDialog(
+                  CustomerModel? accountModel = await read<AccountsController>().openCustomerSelectionDialog(
+                    accountId: billDetailsController.selectedBillAccount?.id!,
                     query: text,
                     context: context,
                   );
@@ -97,7 +109,6 @@ class BillDetailsHeader extends StatelessWidget {
                 },
               ),
             ),
-            const VerticalSpace(8),
             FormFieldRow(
               firstItem: SearchableAccountField(
                 label: AppStrings.seller.tr,
@@ -115,6 +126,22 @@ class BillDetailsHeader extends StatelessWidget {
                 label: AppStrings.illustration.tr,
                 child: CustomTextFieldWithoutIcon(
                   textEditingController: billDetailsController.noteController,
+                  suffixIcon: const SizedBox.shrink(),
+                ),
+              ),
+            ),
+            FormFieldRow(
+              firstItem: TextAndExpandedChildField(
+                label: AppStrings.phoneNumber.tr,
+                child: CustomTextFieldWithoutIcon(
+                  textEditingController: billDetailsController.customerPhoneController,
+                  suffixIcon: const SizedBox.shrink(),
+                ),
+              ),
+              secondItem: TextAndExpandedChildField(
+                label: AppStrings.orderNumber.tr,
+                child: CustomTextFieldWithoutIcon(
+                  textEditingController: billDetailsController.orderNumberController,
                   suffixIcon: const SizedBox.shrink(),
                 ),
               ),

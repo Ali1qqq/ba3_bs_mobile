@@ -1,33 +1,37 @@
 import 'dart:math';
 
+import 'package:ba3_bs_mobile/core/constants/app_strings.dart';
+import 'package:ba3_bs_mobile/core/widgets/app_spacer.dart';
+import 'package:ba3_bs_mobile/core/widgets/organized_widget.dart';
+import 'package:ba3_bs_mobile/features/patterns/controllers/pattern_controller.dart';
+import 'package:ba3_bs_mobile/features/patterns/ui/widgets/pattern_layout/pattern_type_item_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
 import '../../../../core/styling/app_colors.dart';
+import '../../../../core/styling/app_text_style.dart';
 import '../../../../core/widgets/app_button.dart';
-import '../../../../core/widgets/app_spacer.dart';
-import '../../../../core/widgets/organized_widget.dart';
-import '../../controllers/pattern_controller.dart';
-import '../widgets/pattern_layout/pattern_type_item_widget.dart';
 
 class PatternLayout extends StatelessWidget {
   const PatternLayout({super.key});
 
   @override
-  Widget build(BuildContext context) => Directionality(
-        textDirection: TextDirection.rtl,
-        child: Padding(
+  Widget build(BuildContext context) =>
+      Scaffold(
+        appBar: AppBar(),
+        body: Padding(
           padding: const EdgeInsets.all(8.0),
           child: OrganizedWidget(
-            // titleWidget: Align(
-            //   child: Text(
-            //     'انماط الفواتير',
-            //     style: AppTextStyles.headLineStyle2.copyWith(color: AppColors.blueColor),
-            //   ),
-            // ),
+            titleWidget: Align(
+              child: Text(
+                AppStrings.billsPatterns.tr,
+                style: AppTextStyles.headLineStyle2.copyWith(color: AppColors.blueColor),
+              ),
+            ),
             bodyWidget: GetBuilder<PatternController>(
-                builder: (patternController) => SizedBox(
+                builder: (patternController) =>
+                    SizedBox(
                       width: 1.sw,
                       child: Column(
                         spacing: 10,
@@ -39,11 +43,12 @@ class PatternLayout extends StatelessWidget {
                             alignment: WrapAlignment.center,
                             crossAxisAlignment: WrapCrossAlignment.center,
                             children: [
-                              ...patternController.billsTypes.map((billTypeModel) => PatternTypeItemWidget(
+                              ...patternController.billsTypes.map((billTypeModel) =>
+                                  PatternTypeItemWidget(
                                     billTypeModel: billTypeModel,
                                     color: Color(billTypeModel.color!),
                                     onTap: () {
-                                      patternController.navigateToAddPatternScreen(billTypeModel);
+                                      patternController.navigateToAddPatternScreen(billType: billTypeModel, context: context);
                                     },
                                   )),
                             ],
@@ -51,11 +56,11 @@ class PatternLayout extends StatelessWidget {
                           VerticalSpace(),
                           Center(
                             child: AppButton(
-                              title: 'إضافة نمط',
+                              title: AppStrings.addPattern.tr,
                               fontSize: 13.sp,
                               color: AppColors.grayColor,
                               onPressed: () {
-                                patternController.navigateToAddPatternScreen();
+                                patternController.navigateToAddPatternScreen(context: context);
                               },
                               iconData: Icons.view_list_outlined,
                               width: max(45.w, 140),

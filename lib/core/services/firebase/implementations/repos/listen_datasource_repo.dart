@@ -17,7 +17,7 @@ class ListenDataSourceRepository<T> extends RemoteDataSourceRepository<T> {
       final documentStream = _listenableDatasource.subscribeToDoc(documentId: userId);
       return Right(documentStream);
     } catch (e, stackTrace) {
-      log('Error in listenDoc: $e', stackTrace: stackTrace);
+      log('Error in listenDoc: $e', stackTrace: stackTrace, name: 'ListenDataSourceRepository listenDoc');
       return Left(ErrorHandler(e).failure);
     }
   }
@@ -27,7 +27,7 @@ class ListenDataSourceRepository<T> extends RemoteDataSourceRepository<T> {
       final savedItems = await _listenableDatasource.saveAll(items);
       return Right(savedItems); // Return the list of saved items
     } catch (e, stackTrace) {
-      log('Error in saveAll: $e', stackTrace: stackTrace);
+      log('Error in saveAll: $e', stackTrace: stackTrace, name: 'ListenDataSourceRepository saveAll');
       return Left(ErrorHandler(e).failure); // Return error
     }
   }

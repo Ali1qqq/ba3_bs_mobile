@@ -1,5 +1,5 @@
 import 'package:ba3_bs_mobile/core/helper/enums/enums.dart';
-import 'package:ba3_bs_mobile/core/helper/extensions/basic/date_fromat_extension.dart';
+import 'package:ba3_bs_mobile/core/helper/extensions/basic/date_format_extension.dart';
 import 'package:ba3_bs_mobile/core/helper/extensions/getx_controller_extensions.dart';
 import 'package:ba3_bs_mobile/core/services/firebase/implementations/services/firestore_sequential_numbers.dart';
 import 'package:ba3_bs_mobile/features/accounts/controllers/accounts_controller.dart';
@@ -59,8 +59,8 @@ class BondImport extends ImportServiceBase<BondModel> with FirestoreSequentialNu
     Map<String, String> accNameWithId = {};
 
     for (var acc in accountWithName) {
-      String accId = acc.findElements('AccPtr').first.value ?? '';
-      String accName = acc.findElements('AccName').first.value ?? '';
+      String accId = acc.findElements('AccPtr').first.text;
+      String accName = acc.findElements('AccName').first.text;
       accNameWithId[accId] = accName;
     }
 
@@ -69,22 +69,21 @@ class BondImport extends ImportServiceBase<BondModel> with FirestoreSequentialNu
 
       final payItemList = payItemsNode?.findAllElements('N').map((itemNode) {
             return PayItem(
-              entryAccountName: accNameWithId[itemNode.getElement('EntryAccountGuid')?.value ?? ''],
-              // read<AccountsController>().getAccountNameById(itemNode.getElement('EntryAccountGuid')?.value??''),
-              // entryAccountGuid: itemNode.getElement('EntryAccountGuid')?.value??'',
-              entryAccountGuid:
-                  read<AccountsController>().getAccountIdByName(accNameWithId[itemNode.getElement('EntryAccountGuid')?.value ?? '']),
-              entryDate: (itemNode.getElement('EntryDate')!.value ?? ''.toYearMonthDayFormat()),
-              entryDebit: double.tryParse(itemNode.getElement('EntryDebit')?.value ?? '0'),
-              entryCredit: double.tryParse(itemNode.getElement('EntryCredit')?.value ?? '0'),
-              entryNote: itemNode.getElement('EntryNote')?.value ?? '',
-              entryCurrencyGuid: itemNode.getElement('EntryCurrencyGuid')?.value ?? '',
-              entryCurrencyVal: double.tryParse(itemNode.getElement('EntryCurrencyVal')?.value ?? '0'),
-              entryCostGuid: itemNode.getElement('EntryCostGuid')?.value ?? '',
-              entryClass: itemNode.getElement('EntryClass')?.value ?? '',
-              entryNumber: int.tryParse(itemNode.getElement('EntryNumber')?.value ?? '0'),
-              entryCustomerGuid: itemNode.getElement('EntryCustomerGuid')?.value ?? '',
-              entryType: int.tryParse(itemNode.getElement('EntryType')?.value ?? '0'),
+              entryAccountName: accNameWithId[itemNode.getElement('EntryAccountGuid')?.text],
+              // read<AccountsController>().getAccountNameById(itemNode.getElement('EntryAccountGuid')?.text),
+              // entryAccountGuid: itemNode.getElement('EntryAccountGuid')?.text,
+              entryAccountGuid: read<AccountsController>().getAccountIdByName(accNameWithId[itemNode.getElement('EntryAccountGuid')?.text]),
+              entryDate: (itemNode.getElement('EntryDate')!.text.toYearMonthDayFormat()),
+              entryDebit: double.tryParse(itemNode.getElement('EntryDebit')?.text ?? '0'),
+              entryCredit: double.tryParse(itemNode.getElement('EntryCredit')?.text ?? '0'),
+              entryNote: itemNode.getElement('EntryNote')?.text,
+              entryCurrencyGuid: itemNode.getElement('EntryCurrencyGuid')?.text,
+              entryCurrencyVal: double.tryParse(itemNode.getElement('EntryCurrencyVal')?.text ?? '0'),
+              entryCostGuid: itemNode.getElement('EntryCostGuid')?.text,
+              entryClass: itemNode.getElement('EntryClass')?.text,
+              entryNumber: int.tryParse(itemNode.getElement('EntryNumber')?.text ?? '0'),
+              entryCustomerGuid: itemNode.getElement('EntryCustomerGuid')?.text,
+              entryType: int.tryParse(itemNode.getElement('EntryType')?.text ?? '0'),
             );
           }).toList() ??
           [];
@@ -92,34 +91,34 @@ class BondImport extends ImportServiceBase<BondModel> with FirestoreSequentialNu
       // إنشاء كائن BondModel
       return BondModel(
         payTypeGuid: '2a550cb5-4e91-4e68-bacc-a0e7dcbbf1de',
-        // payTypeGuid: node.getElement('PayTypeGuid')?.value??'',
+        // payTypeGuid: node.getElement('PayTypeGuid')?.text,
         payNumber: getLastBondNumber('2a550cb5-4e91-4e68-bacc-a0e7dcbbf1de'),
-        // payNumber: getLastBondNumber(node.getElement('PayTypeGuid')!.value??''),
-        payGuid: node.getElement('CEntryGuid')?.value ?? '',
-        // payGuid: node.getElement('PayGuid')?.value??'',
-        payBranchGuid: node.getElement('CEntryBranch')?.value ?? '',
-        // payBranchGuid: node.getElement('PayBranchGuid')?.value??'',
-        payDate: node.getElement('CEntryDate')?.value ?? ''.toYearMonthDayFormat(),
-        // payDate: node.getElement('PayDate')?.value??''.toYearMonthDayFormat(),
-        entryPostDate: node.getElement('CEntryPostDate')?.value ?? '',
-        // entryPostDate: node.getElement('EntryPostDate')?.value??'',
-        payNote: node.getElement('CEntryNote')?.value ?? '',
-        // payNote: node.getElement('PayNote')?.value??'',
-        payCurrencyGuid: node.getElement('CEntryCurrencyGuid')?.value ?? '',
-        // payCurrencyGuid: node.getElement('PayCurrencyGuid')?.value??'',
-        payCurVal: double.tryParse((node.getElement('CEntryDebit')?.value ?? '').replaceAll(',', '')),
-        // payCurVal: double.tryParse(node.getElement('PayCurVal')?.value??'' ?? '0'),
-        // payAccountGuid: node.getElement('PayAccountGuid')?.value??'',
+        // payNumber: getLastBondNumber(node.getElement('PayTypeGuid')!.text),
+        payGuid: node.getElement('CEntryGuid')?.text,
+        // payGuid: node.getElement('PayGuid')?.text,
+        payBranchGuid: node.getElement('CEntryBranch')?.text,
+        // payBranchGuid: node.getElement('PayBranchGuid')?.text,
+        payDate: node.getElement('CEntryDate')?.text.toYearMonthDayFormat(),
+        // payDate: node.getElement('PayDate')?.text.toYearMonthDayFormat(),
+        entryPostDate: node.getElement('CEntryPostDate')?.text,
+        // entryPostDate: node.getElement('EntryPostDate')?.text,
+        payNote: node.getElement('CEntryNote')?.text,
+        // payNote: node.getElement('PayNote')?.text,
+        payCurrencyGuid: node.getElement('CEntryCurrencyGuid')?.text,
+        // payCurrencyGuid: node.getElement('PayCurrencyGuid')?.text,
+        payCurVal: double.tryParse((node.getElement('CEntryDebit')?.text)!.replaceAll(',', '')),
+        // payCurVal: double.tryParse(node.getElement('PayCurVal')?.text ?? '0'),
+        // payAccountGuid: node.getElement('PayAccountGuid')?.text,
         payAccountGuid: '00000000-0000-0000-0000-000000000000',
-        paySecurity: int.tryParse(node.getElement('CEntrySecurity')?.value ?? '0'),
-        // paySecurity: int.tryParse(node.getElement('PaySecurity')?.value??'' ?? '0'),
+        paySecurity: int.tryParse(node.getElement('CEntrySecurity')?.text ?? '0'),
+        // paySecurity: int.tryParse(node.getElement('PaySecurity')?.text ?? '0'),
         paySkip: 0,
-        // paySkip: int.tryParse(node.getElement('PaySkip')?.value??'' ?? '0'),
+        // paySkip: int.tryParse(node.getElement('PaySkip')?.text ?? '0'),
 
         erParentType: 0,
-        // erParentType: int.tryParse(node.getElement('ErParentType')?.value??'' ?? '0'),
+        // erParentType: int.tryParse(node.getElement('ErParentType')?.text ?? '0'),
         payItems: PayItems(itemList: payItemList),
-        e: node.getElement('E')?.value ?? '',
+        e: node.getElement('E')?.text,
       );
     }).toList();
     await _setLastNumber();

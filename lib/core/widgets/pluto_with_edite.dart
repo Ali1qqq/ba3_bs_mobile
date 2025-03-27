@@ -33,7 +33,7 @@ class PlutoWithEdite extends StatelessWidget {
         columns: columns,
         rows: rows,
         onRowSecondaryTap: onRowSecondaryTap,
-        onRowDoubleTap: onRowDoubleTap ,
+        onRowDoubleTap: onRowDoubleTap,
         onChanged: onChanged,
         configuration: PlutoGridConfiguration(
           shortcut: shortCut ?? const PlutoGridShortcut(),

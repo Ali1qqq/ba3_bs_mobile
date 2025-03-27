@@ -1,4 +1,4 @@
-import 'package:ba3_bs_mobile/core/helper/extensions/basic/date_time_extensions.dart';
+import 'package:ba3_bs_mobile/core/helper/extensions/date_time/date_time_extensions.dart';
 import 'package:ba3_bs_mobile/features/accounts/data/models/account_model.dart';
 import 'package:ba3_bs_mobile/features/bond/data/models/bond_model.dart';
 

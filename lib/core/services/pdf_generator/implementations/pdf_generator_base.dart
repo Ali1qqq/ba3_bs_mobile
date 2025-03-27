@@ -10,8 +10,6 @@ import 'package:pdf/widgets.dart';
 import '../interfaces/i_pdf_generator.dart';
 
 abstract class PdfGeneratorBase<T> implements IPdfGenerator<T> {
-  final Document _pdfDocument = Document();
-
   @override
   Widget buildHeader(T itemModel, String fileName, {Uint8List? logoUint8List, Font? font});
 
@@ -51,7 +49,7 @@ abstract class PdfGeneratorBase<T> implements IPdfGenerator<T> {
   @override
   Future<String> generatePdf(T itemModel, String fileName, {String? logoSrc, String? fontSrc}) async {
     final Uint8List? logoUint8List;
-    final Font? font;
+    final Font? arabicFont;
 
     // Load the logo if provided
     if (logoSrc == null) {
@@ -63,23 +61,33 @@ abstract class PdfGeneratorBase<T> implements IPdfGenerator<T> {
 
     // Load the font if provided
     if (fontSrc == null) {
-      font = null;
+      arabicFont = null;
     } else {
       log('fontSrc $fontSrc');
       ByteData fontByteData = await rootBundle.load(fontSrc);
-      font = Font.ttf(fontByteData.buffer.asByteData());
+      // arabicFont = Font.ttf(fontByteData.buffer.asByteData());
+      arabicFont = Font.ttf(fontByteData);
     }
 
-    _pdfDocument.addPage(
+    final pdfTheme = ThemeData.withFont(
+      base: arabicFont,
+      bold: arabicFont,
+      italic: arabicFont,
+      boldItalic: arabicFont,
+    );
+
+    final Document pdfDocument = Document(theme: pdfTheme);
+
+    pdfDocument.addPage(
       MultiPage(
         header: (context) {
           // Display the header only on the first page
           if (context.pageNumber == 1) {
-            return buildHeader(itemModel, fileName, logoUint8List: logoUint8List, font: font);
+            return buildHeader(itemModel, fileName, logoUint8List: logoUint8List, font: arabicFont);
           }
           return SizedBox.shrink(); // Return an empty container instead of null
         },
-        build: (context) => buildBody(itemModel, font: font),
+        build: (context) => buildBody(itemModel, font: arabicFont),
         footer: (context) {
           // Display the footer only on the last page
           if (context.pageNumber == context.pagesCount) {
@@ -97,7 +105,7 @@ abstract class PdfGeneratorBase<T> implements IPdfGenerator<T> {
     final filePath = '${directory.path}/$updatedFileName';
 
     final file = File(filePath);
-    await file.writeAsBytes(await _pdfDocument.save());
+    await file.writeAsBytes(await pdfDocument.save());
     return filePath;
   }
 }

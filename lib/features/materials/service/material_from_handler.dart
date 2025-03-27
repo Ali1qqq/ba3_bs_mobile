@@ -23,7 +23,6 @@ class MaterialFromHandler with AppValidator implements ITexSelectionHandler {
   TextEditingController customerPriceController = TextEditingController();
   TextEditingController wholePriceController = TextEditingController();
   TextEditingController retailPriceController = TextEditingController();
-  TextEditingController costPriceController = TextEditingController();
   TextEditingController minPriceController = TextEditingController();
   TextEditingController barcodeController = TextEditingController();
 
@@ -38,12 +37,11 @@ class MaterialFromHandler with AppValidator implements ITexSelectionHandler {
       customerPriceController.text = materialController.selectedMaterial!.endUserPrice!;
       wholePriceController.text = materialController.selectedMaterial!.wholesalePrice!;
       retailPriceController.text = materialController.selectedMaterial!.retailPrice!;
-      costPriceController.text = materialController.selectedMaterial!.matCurrencyVal!.toFixedString();
       minPriceController.text = materialController.selectedMaterial!.matLastPriceCurVal!.toFixedString();
       barcodeController.text = materialController.selectedMaterial!.matBarCode!;
       latinNameController.text = materialController.selectedMaterial!.matCompositionLatinName ?? '';
       parentModel = read<MaterialGroupController>().getMaterialGroupById(materialController.selectedMaterial!.matGroupGuid);
-      parentController.text = parentModel!.groupName;
+      parentController.text = parentModel?.groupName ?? materialController.selectedMaterial!.matGroupGuid!;
     } else {
       materialController.selectedMaterial = null;
       parentModel = null;
@@ -58,7 +56,6 @@ class MaterialFromHandler with AppValidator implements ITexSelectionHandler {
     customerPriceController.clear();
     wholePriceController.clear();
     retailPriceController.clear();
-    costPriceController.clear();
     minPriceController.clear();
     barcodeController.clear();
     latinNameController.clear();
@@ -73,7 +70,6 @@ class MaterialFromHandler with AppValidator implements ITexSelectionHandler {
     customerPriceController.dispose();
     wholePriceController.dispose();
     retailPriceController.dispose();
-    costPriceController.dispose();
     minPriceController.dispose();
     barcodeController.dispose();
     latinNameController.dispose();

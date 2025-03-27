@@ -2,7 +2,7 @@ import 'dart:developer';
 
 import 'package:ba3_bs_mobile/core/helper/enums/enums.dart';
 import 'package:ba3_bs_mobile/core/helper/extensions/basic/string_extension.dart';
-import 'package:ba3_bs_mobile/core/helper/extensions/basic/date_time_extensions.dart';
+import 'package:ba3_bs_mobile/core/helper/extensions/date_time/date_time_extensions.dart';
 import 'package:ba3_bs_mobile/core/utils/app_service_utils.dart';
 import 'package:ba3_bs_mobile/features/bond/controllers/pluto/bond_details_pluto_controller.dart';
 import 'package:ba3_bs_mobile/features/bond/data/models/bond_model.dart';
@@ -56,6 +56,7 @@ class BondDetailsController extends GetxController with AppValidator {
     selectedAccount = setAccount;
     bondDetailsPlutoController.setAccountGuid = setAccount.id;
     accountController.text = setAccount.accName!;
+    log(accountController.text, name: 'setAccount');
   }
 
   @override
@@ -127,23 +128,23 @@ class BondDetailsController extends GetxController with AppValidator {
       AppUIUtils.onFailure('من فضلك يرجى اضافة حقول للسند');
       return;
     }
-    log("save");
+
     // Save the bond to Firestore
     final result = await _bondsFirebaseRepo.save(updatedBondModel);
 
     // Handle the result (success or failure)
     result.fold(
       (failure) {
-        log("save failure");
         return AppUIUtils.onFailure(failure.message);
       },
       (bondModel) {
         _bondService.handleSaveOrUpdateSuccess(
-            previousBond: existingBondModel,
-            currentBond: bondModel,
-            bondSearchController: bondSearchController,
-            isSave: existingBondModel == null,
-            bondDetailsController: this);
+          previousBond: existingBondModel,
+          currentBond: bondModel,
+          bondSearchController: bondSearchController,
+          isSave: existingBondModel == null,
+          bondDetailsController: this,
+        );
       },
     );
   }
@@ -171,7 +172,12 @@ class BondDetailsController extends GetxController with AppValidator {
     // Create and return the bond model
 
     return _bondService.createBondModel(
-        bondModel: bondModel, bondType: bondType, payDate: bondDate.value, payAccountGuid: selectedAccount!.id!, note: noteController.text);
+      bondModel: bondModel,
+      bondType: bondType,
+      payDate: bondDate.value,
+      payAccountGuid: selectedAccount?.id! ?? "00000000-0000-0000-0000-000000000000",
+      note: noteController.text,
+    );
   }
 
   prepareBondRecords(PayItems bondItems, BondDetailsPlutoController bondDetailsPlutoController) =>
@@ -186,10 +192,8 @@ class BondDetailsController extends GetxController with AppValidator {
   }
 
   void updateBondDetailsOnScreen(BondModel bond, BondDetailsPlutoController bondPlutoController) {
-    log("bond.payDate! ${bond.payDate!}");
-    log("bond.payDate!.toDate ${bond.payDate.toDate}");
     setBondDate(bond.payDate!.toDate);
-
+    isBondSaved.value = bond.payGuid != null;
     initBondNumberController(bond.payNumber);
 
     if (AppServiceUtils.getAccountModelFromLabel(bond.payAccountGuid) != null) {
@@ -207,8 +211,8 @@ class BondDetailsController extends GetxController with AppValidator {
 
     if (!_bondService.hasModelItems(bondModel.payItems.itemList)) return;
 
-    _bondService.generateAndSendPdf(
-      fileName: AppStrings.bond,
+    _bondService.generatePdfAndSendToEmail(
+      fileName: AppStrings.bond.tr,
       itemModel: bondModel,
     );
   }

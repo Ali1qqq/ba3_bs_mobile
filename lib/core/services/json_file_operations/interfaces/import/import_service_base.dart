@@ -20,7 +20,7 @@ abstract class ImportServiceBase<T> implements IImportService<T> {
   }
 
   @override
-  Future<List<T>> importFromXmlFile(File file) async {
+  Future<List<T>> importFromXmlFile(File file)async {
     final xmlContent = file.readAsStringSync();
     final XmlDocument document = XmlDocument.parse(xmlContent);
 

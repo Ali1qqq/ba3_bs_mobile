@@ -32,8 +32,7 @@ class ChequesCompoundDatasource extends CompoundDatasourceBase<ChequesModel, Che
   }
 
   @override
-  Future<List<ChequesModel>> fetchWhere<V>(
-      {required ChequesType itemIdentifier, required String field, required V value, DateFilter? dateFilter}) async {
+  Future<List<ChequesModel>> fetchWhere<V>({required ChequesType itemIdentifier, String? field, V? value, DateFilter? dateFilter}) async {
     final data = await compoundDatabaseService.fetchWhere(
         rootCollectionPath: rootCollectionPath,
         rootDocumentId: getRootDocumentId(itemIdentifier),
@@ -95,7 +94,7 @@ class ChequesCompoundDatasource extends CompoundDatasourceBase<ChequesModel, Che
   }
 
   Future<ChequesModel> _assignChequesNumber(ChequesModel cheques) async {
-    final newChequesNumber = await getNextNumber(rootCollectionPath, cheques.chequesTypeGuid!);
+    final newChequesNumber = await fetchAndIncrementEntityNumber(rootCollectionPath, cheques.chequesTypeGuid!);
     return cheques.copyWith(chequesNumber: newChequesNumber.nextNumber);
   }
 
@@ -149,7 +148,7 @@ class ChequesCompoundDatasource extends CompoundDatasourceBase<ChequesModel, Che
     final rootDocumentId = getRootDocumentId(itemIdentifier);
     final subCollectionPath = getSubCollectionPath(itemIdentifier);
 
-    final savedData = await compoundDatabaseService.saveAll(
+    final savedData = await compoundDatabaseService.addAll(
       rootCollectionPath: rootCollectionPath,
       rootDocumentId: rootDocumentId,
       subCollectionPath: subCollectionPath,

@@ -51,7 +51,7 @@ class MaterialsRemoteDatasource extends QueryableSavableDatasource<MaterialModel
 
   @override
   Future<List<MaterialModel>> fetchWhere({required List<QueryFilter> queryFilters, DateFilter? dateFilter}) async {
-    final data = await databaseService.fetchWhere(path: path, queryFilters: queryFilters);
+    final data = await databaseService.fetchWhere(path: path, queryFilters: queryFilters, dateFilter: dateFilter);
 
     final materials = data.map((item) => MaterialModel.fromJson(item)).toList();
 

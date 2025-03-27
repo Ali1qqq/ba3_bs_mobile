@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 import 'package:pluto_grid/pluto_grid.dart';
 
@@ -8,7 +9,6 @@ PlutoColumn createAutoIdColumn({String title = '', double width = 50}) => PlutoC
       field: title,
       frozen: PlutoColumnFrozen.start,
       enableContextMenu: false,
-      enableColumnDrag: false,
       enableDropToResize: false,
       // Assuming field name matches the title.
       type: PlutoColumnType.number(),
@@ -16,6 +16,8 @@ PlutoColumn createAutoIdColumn({String title = '', double width = 50}) => PlutoC
         final currentPage = rendererContext.stateManager.page;
         final rowIndex = rendererContext.rowIdx;
         final autoId = calculateAutoId(currentPage, rowIndex);
+
+
 
         return Text(
           autoId.toString(),

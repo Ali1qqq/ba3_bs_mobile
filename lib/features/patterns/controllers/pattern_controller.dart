@@ -1,30 +1,34 @@
+import 'dart:developer';
+
 import 'package:ba3_bs_mobile/core/utils/app_ui_utils.dart';
+import 'package:ba3_bs_mobile/features/patterns/ui/screens/add_pattern_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../../core/helper/enums/enums.dart';
 import '../../../core/helper/mixin/app_navigator.dart';
-import '../../../core/router/app_routes.dart';
+import '../../../core/helper/mixin/floating_launcher.dart';
+import '../../../core/network/api_constants.dart';
 import '../../../core/services/firebase/implementations/repos/remote_datasource_repo.dart';
 import '../../accounts/data/models/account_model.dart';
 import '../data/models/bill_type_model.dart';
 import '../services/pattern_form_handler.dart';
 
-class PatternController extends GetxController with AppNavigator {
+class PatternController extends GetxController with AppNavigator, FloatingLauncher {
   final RemoteDataSourceRepository<BillTypeModel> _repository;
 
   PatternController(this._repository);
 
-  List<BillTypeModel> billsTypes = [];
-
-  bool isLoading = true;
+  final List<BillTypeModel> billsTypes = [];
 
   final Map<TextEditingController, BillAccounts> controllerToBillAccountsMap = {};
 
   // Form Handlers
   late final PatternFormHandler patternFormHandler;
 
-  BillPatternType? get selectedBillPatternType => patternFormHandler.selectedBillPatternType;
+  BillPatternType? get selectedBillPatternType => patternFormHandler.selectedBillPatternType.value;
+
+  BillTypeModel get billsTypeSales => billsTypes.firstWhere((billTypeModel) => billTypeModel.billTypeId == BillType.sales.typeGuide);
 
   @override
   void onInit() {
@@ -57,22 +61,33 @@ class PatternController extends GetxController with AppNavigator {
 
       case BillPatternType.buyReturn:
         fillControllers(
-            shortName: 'مرتجع شراء', fullName: 'فاتورة مرتجع مشتريات', latinShortName: 'Return Buy', latinFullName: 'Purchase Return Invoice');
+            shortName: 'مرتجع شراء',
+            fullName: 'فاتورة مرتجع مشتريات',
+            latinShortName: 'Return Buy',
+            latinFullName: 'Purchase Return Invoice');
         break;
 
       case BillPatternType.salesReturn:
         fillControllers(
-            shortName: 'مرتجع مبيعات', fullName: 'فاتورة مرتجع مبيعات', latinShortName: 'Return Sales', latinFullName: 'Sales Return Invoice');
+            shortName: 'مرتجع مبيعات',
+            fullName: 'فاتورة مرتجع مبيعات',
+            latinShortName: 'Return Sales',
+            latinFullName: 'Sales Return Invoice');
         break;
       case BillPatternType.firstPeriodInventory:
-        fillControllers(shortName: 'القيد الافتتاحي', fullName: 'بضاعة اول مدة', latinShortName: 'Add', latinFullName: 'first Period Inventory');
+        fillControllers(
+            shortName: 'القيد الافتتاحي', fullName: 'بضاعة اول مدة', latinShortName: 'Add', latinFullName: 'first Period Inventory');
+
       case BillPatternType.transferOut:
-        fillControllers(shortName: 'القيد الافتتاحي', fullName: 'بضاعة اول مدة', latinShortName: 'Add', latinFullName: 'first Period Inventory');
+        fillControllers(shortName: 'النقص', fullName: 'تسوية النقص', latinShortName: 'remove', latinFullName: 'Settlement of the dicrease');
+
       case BillPatternType.transferIn:
-        fillControllers(shortName: 'القيد الافتتاحي', fullName: 'بضاعة اول مدة', latinShortName: 'Add', latinFullName: 'first Period Inventory');
+        fillControllers(
+            shortName: 'الزيادة', fullName: 'تسوية الزيادة', latinShortName: 'Add', latinFullName: 'Settlement of the increase');
+
       case BillPatternType.salesService:
-        // TODO: Handle this case.
-        throw UnimplementedError();
+        fillControllers(shortName: 'مبيعات', fullName: 'فاتورة مبيعات', latinShortName: 'Sales', latinFullName: 'Sales Invoice');
+        break;
     }
   }
 
@@ -90,9 +105,12 @@ class PatternController extends GetxController with AppNavigator {
     update();
   }
 
-  void navigateToAddPatternScreen([BillTypeModel? billType]) {
+  void navigateToAddPatternScreen({BillTypeModel? billType, required BuildContext context}) {
     patternFormHandler.init(billType);
-    to(AppRoutes.addPatternsScreen);
+
+    launchFloatingWindow(context: context, minimizedTitle: ApiConstants.patterns.tr, floatingScreen: AddPatternScreen());
+
+    // to(AppRoutes.addPatternsScreen);
   }
 
   Future<List<BillTypeModel>> getAllBillTypes() async {
@@ -109,7 +127,7 @@ class PatternController extends GetxController with AppNavigator {
   Future<void> addNewPattern() async {
     if (!patternFormHandler.validate()) return;
 
-    if (patternFormHandler.selectedBillPatternType == null) {
+    if (patternFormHandler.selectedBillPatternType.value == null) {
       AppUIUtils.onFailure('من فضلك قم بادخال نوع النمط!');
       return;
     }
@@ -131,14 +149,16 @@ class PatternController extends GetxController with AppNavigator {
 
     final selectedBillTypeModel = patternFormHandler.selectedBillTypeModel;
 
+    log(accounts.toString());
+
     if (selectedBillTypeModel != null) {
       return selectedBillTypeModel.copyWith(
         shortName: patternFormHandler.shortNameController.text,
         latinShortName: patternFormHandler.latinShortNameController.text,
         fullName: patternFormHandler.fullNameController.text,
         latinFullName: patternFormHandler.latinFullNameController.text,
-        billTypeLabel: patternFormHandler.selectedBillPatternType!.value,
-        billTypeId: BillType.byLabel(patternFormHandler.selectedBillPatternType!.value).typeGuide,
+        billTypeLabel: patternFormHandler.selectedBillPatternType.value!.value,
+        billTypeId: BillType.byLabel(patternFormHandler.selectedBillPatternType.value!.value).typeGuide,
         accounts: accounts,
         color: patternFormHandler.selectedColorValue,
       );
@@ -148,8 +168,8 @@ class PatternController extends GetxController with AppNavigator {
         latinShortName: patternFormHandler.latinShortNameController.text,
         fullName: patternFormHandler.fullNameController.text,
         latinFullName: patternFormHandler.latinFullNameController.text,
-        billTypeLabel: patternFormHandler.selectedBillPatternType!.value,
-        billTypeId: BillType.byLabel(patternFormHandler.selectedBillPatternType!.value).typeGuide,
+        billTypeLabel: patternFormHandler.selectedBillPatternType.value!.value,
+        billTypeId: BillType.byLabel(patternFormHandler.selectedBillPatternType.value!.value).typeGuide,
         accounts: accounts,
         color: patternFormHandler.selectedColorValue,
       );

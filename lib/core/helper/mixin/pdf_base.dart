@@ -1,6 +1,7 @@
 import 'dart:developer';
 import 'dart:io';
 
+import 'package:ba3_bs_mobile/features/bill/data/models/bill_model.dart';
 import 'package:get/get.dart';
 
 import '../../constants/app_assets.dart';
@@ -10,12 +11,15 @@ import '../../services/mailer_messaging/implementations/mailer_messaging_repo.da
 import '../../services/pdf_generator/implementations/pdf_generator_factory.dart';
 import '../../services/pdf_generator/implementations/pdf_generator_repo.dart';
 import '../../services/pdf_generator/interfaces/i_pdf_generator.dart';
+import '../../services/whatsapp/whatsapp_service.dart';
 import '../../utils/app_ui_utils.dart';
 
 mixin PdfBase {
   /// Sends the bill email with optional attachments
   Future<void> sendToEmail({
     required String recipientEmail,
+    String? documentId,
+    String? type,
     String? url,
     String? subject,
     String? body,
@@ -62,28 +66,28 @@ mixin PdfBase {
     }
   }
 
-  /// Generates a PDF and sends it via email
-  Future<void> generateAndSendPdf<T>({
+  /// Generates a PDF and sends it via Email
+  Future<void> generatePdfAndSendToEmail<T>({
     required T itemModel,
     required String fileName,
-    String recipientEmail = AppConstants.recipientEmail,
+    String? recipientEmail,
     String logoSrc = AppAssets.ba3Logo,
     String fontSrc = AppAssets.notoSansArabicRegular,
     String? url,
     String? subject,
     String? body,
   }) async {
-    final pdfFilePath = await _generatePdf(
-      pdfGenerator: PdfGeneratorFactory.resolveGenerator(itemModel),
-      itemModel: itemModel,
-      fileName: fileName,
-      logoSrc: logoSrc,
-      fontSrc: fontSrc,
-    );
+    final pdfFilePath = await _generatePdf(itemModel: itemModel, fileName: fileName, logoSrc: logoSrc, fontSrc: fontSrc);
+
+    String? invoiceUrl = url;
+
+    if (itemModel is BillModel && invoiceUrl == null) {
+      invoiceUrl = WhatsappService.instance.generateInvoiceUrl(documentId: itemModel.billId!, type: itemModel.billTypeModel.billTypeLabel!);
+    }
 
     await sendToEmail(
-      recipientEmail: recipientEmail,
-      url: url,
+      recipientEmail: recipientEmail ?? AppConstants.recipientEmail,
+      url: invoiceUrl,
       subject: subject,
       body: body,
       attachments: [pdfFilePath],
@@ -92,13 +96,14 @@ mixin PdfBase {
 
   /// Generates the bill PDF and returns the file path
   Future<String> _generatePdf<T>({
-    required IPdfGenerator<T> pdfGenerator,
     required T itemModel,
     required String fileName,
     String? logoSrc,
     String? fontSrc,
   }) async {
-    final pdfGeneratorRepo = PdfGeneratorRepository<T>(pdfGenerator: pdfGenerator);
+    final IPdfGenerator pdfGenerator = PdfGeneratorFactory.resolveGenerator(itemModel);
+
+    final pdfGeneratorRepo = PdfGeneratorRepository(pdfGenerator: pdfGenerator);
 
     return await pdfGeneratorRepo.savePdf(itemModel, fileName, logoSrc: logoSrc, fontSrc: fontSrc);
   }

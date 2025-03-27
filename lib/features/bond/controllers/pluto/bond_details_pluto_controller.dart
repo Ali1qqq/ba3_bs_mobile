@@ -115,9 +115,7 @@ class BondDetailsPlutoController extends IRecodesPlutoController<PayItem> {
 
     final payItems = recordsTableStateManager.rows
         .where((row) {
-          accountId = read<AccountsController>().getAccountIdByName(
-            row.cells[AppConstants.entryAccountGuid]?.value ?? '',
-          );
+          accountId = read<AccountsController>().getAccountIdByName(row.cells[AppConstants.entryAccountGuid]?.value ?? '');
 
           return accountId.isNotEmpty;
         })
@@ -208,6 +206,7 @@ class BondDetailsPlutoController extends IRecodesPlutoController<PayItem> {
 
   onMainTableLoaded(PlutoGridOnLoadedEvent event) {
     recordsTableStateManager = event.stateManager;
+    recordsTableStateManager.setAutoEditing(true);
 
     final newRows = recordsTableStateManager.getNewRows(count: 30);
     recordsTableStateManager.appendRows(newRows);

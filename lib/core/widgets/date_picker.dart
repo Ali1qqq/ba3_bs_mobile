@@ -11,18 +11,15 @@ import '../constants/app_constants.dart';
 class DatePicker extends StatelessWidget {
   final Function(DateTime) onDateSelected;
   final String? initDate;
+  final Color? color;
 
-  const DatePicker({super.key, required this.onDateSelected, this.initDate});
+  const DatePicker({super.key, required this.onDateSelected, this.initDate, this.color});
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
       height: AppConstants.constHeightTextField,
-      // decoration: BoxDecoration(
-      //     color: Colors.white,
-      //     borderRadius: BorderRadius.circular(5),
-      //     border: const Border.symmetric(vertical: BorderSide(width: 1))),
-      child: InkWell(
+      child: GestureDetector(
         onTap: () {
           OverlayService.showDialog(
             context: context,
@@ -61,55 +58,11 @@ class DatePicker extends StatelessWidget {
               log('DatePicker Dialog Closed.');
             },
           );
-          // Get.defaultDialog(
-          //   title: "اختر يوم",
-          //   content: SizedBox(
-          //     height: MediaQuery.sizeOf(context).height / 1.6,
-          //     width: MediaQuery.sizeOf(context).height / 1,
-          //     child: SfDateRangePicker(
-          //       initialDisplayDate: DateTime.tryParse(initDate ?? ""),
-          //       enableMultiView: true,
-          //       backgroundColor: Colors.transparent,
-          //       headerStyle: const DateRangePickerHeaderStyle(backgroundColor: Colors.transparent),
-          //       navigationDirection: DateRangePickerNavigationDirection.vertical,
-          //       selectionMode: DateRangePickerSelectionMode.single,
-          //       monthViewSettings: const DateRangePickerMonthViewSettings(enableSwipeSelection: false),
-          //       showNavigationArrow: true,
-          //       navigationMode: DateRangePickerNavigationMode.scroll,
-          //       onSelectionChanged: (dateRangePickerSelectionChangedArgs) {
-          //         DateTime selectedDate = dateRangePickerSelectionChangedArgs.value as DateTime;
-          //         onDateSelected(selectedDate);
-          //         Get.back();
-          //       },
-          //     ),
-          //   ),
-          //   actions: [
-          //     ElevatedButton(
-          //       onPressed: () {
-          //         Get.back();
-          //       },
-          //       child: const Text("إلغاء"),
-          //     ),
-          //   ],
-          // );
         },
         child: CustomTextFieldWithoutIcon(
           enabled: false,
+          filedColor: color,
           textEditingController: TextEditingController()..text = initDate ?? '',
-          // padding: const EdgeInsets.all(8.0),
-          // child: Row(
-          //   mainAxisAlignment: MainAxisAlignment.center,
-          //   children: [
-          //     Expanded(
-          //       child: Text(
-          //         initDate ?? '',
-          //         textAlign: TextAlign.center,
-          //         style: const TextStyle(fontSize: 14),
-          //       ),
-          //     ),
-          //     const Icon(Icons.date_range,color: Colors.blue,size: 18,),
-          //   ],
-          // ),
         ),
       ),
     );

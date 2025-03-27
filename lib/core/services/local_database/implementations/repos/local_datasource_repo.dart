@@ -33,7 +33,7 @@ class LocalDatasourceRepository<T> {
 
       return Right(remoteData);
     } catch (e, stackTrace) {
-      log('Error in getAll: $e', stackTrace: stackTrace);
+      log('Error in getAll: $e', stackTrace: stackTrace, name: 'LocalDatasourceRepository getAll');
       return Left(ErrorHandler(e).failure);
     }
   }
@@ -55,7 +55,7 @@ class LocalDatasourceRepository<T> {
 
       return Right(remoteData);
     } catch (e, stackTrace) {
-      log('Error in getById: $e', stackTrace: stackTrace);
+      log('Error in getById: $e', stackTrace: stackTrace, name: 'LocalDatasourceRepository getById');
       return Left(ErrorHandler(e).failure);
     }
   }
@@ -68,7 +68,7 @@ class LocalDatasourceRepository<T> {
 
       return Right(savedItem);
     } catch (e, stackTrace) {
-      log('Error in save: $e', stackTrace: stackTrace);
+      log('Error in save: $e', stackTrace: stackTrace, name: 'LocalDatasourceRepository save');
       return Left(ErrorHandler(e).failure);
     }
   }
@@ -79,7 +79,7 @@ class LocalDatasourceRepository<T> {
 
       return Right(data);
     } catch (e, stackTrace) {
-      log('Error in saveAll: $e', stackTrace: stackTrace);
+      log('Error in saveAll: $e', stackTrace: stackTrace, name: 'LocalDatasourceRepository saveAll');
       return Left(ErrorHandler(e).failure);
     }
   }
@@ -92,7 +92,7 @@ class LocalDatasourceRepository<T> {
 
       return Right(updatedItem);
     } catch (e, stackTrace) {
-      log('Error in update: $e', stackTrace: stackTrace);
+      log('Error in update: $e', stackTrace: stackTrace, name: 'LocalDatasourceRepository update');
       return Left(ErrorHandler(e).failure);
     }
   }
@@ -103,7 +103,7 @@ class LocalDatasourceRepository<T> {
 
       return Right(unit);
     } catch (e, stackTrace) {
-      log('Error in updateAll: $e', stackTrace: stackTrace);
+      log('Error in updateAll: $e', stackTrace: stackTrace, name: 'LocalDatasourceRepository updateAll');
       return Left(ErrorHandler(e).failure);
     }
   }
@@ -116,7 +116,7 @@ class LocalDatasourceRepository<T> {
 
       return Right(unit);
     } catch (e, stackTrace) {
-      log('Error in delete: $e', stackTrace: stackTrace);
+      log('Error in delete: $e', stackTrace: stackTrace, name: 'LocalDatasourceRepository delete');
       return Left(ErrorHandler(e).failure);
     }
   }
@@ -127,7 +127,7 @@ class LocalDatasourceRepository<T> {
 
       return Right(unit);
     } catch (e, stackTrace) {
-      log('Error in deleteAll: $e', stackTrace: stackTrace);
+      log('Error in deleteAll: $e', stackTrace: stackTrace, name: 'LocalDatasourceRepository deleteAll');
       return Left(ErrorHandler(e).failure);
     }
   }
@@ -138,7 +138,7 @@ class LocalDatasourceRepository<T> {
 
       return Right(unit);
     } catch (e, stackTrace) {
-      log('Error in clear: $e', stackTrace: stackTrace);
+      log('Error in clear: $e', stackTrace: stackTrace, name: 'LocalDatasourceRepository clear');
       return Left(ErrorHandler(e).failure);
     }
   }

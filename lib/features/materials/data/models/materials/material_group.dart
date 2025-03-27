@@ -1,4 +1,6 @@
 import 'package:ba3_bs_mobile/core/constants/app_strings.dart';
+import 'package:ba3_bs_mobile/core/helper/extensions/getx_controller_extensions.dart';
+import 'package:ba3_bs_mobile/features/materials/controllers/material_controller.dart';
 import 'package:get/get.dart';
 import 'package:pluto_grid/pluto_grid.dart';
 
@@ -109,6 +111,8 @@ class MaterialGroupModel implements PlutoAdaptable {
       PlutoColumn(title: AppStrings.groupNumber.tr, field: 'رقم المجموعة', type: PlutoColumnType.text()): groupNumber,
       PlutoColumn(title: AppStrings.latinName.tr, field: 'الاسم اللاتيني', type: PlutoColumnType.text()): groupLatinName,
       PlutoColumn(title: AppStrings.notes.tr, field: 'المُلاحظات', type: PlutoColumnType.text()): groupNotes,
+      PlutoColumn(title: AppStrings.children.tr, field: AppStrings.children, type: PlutoColumnType.text()):
+          read<MaterialController>().productsGrouped[matGroupGuid]?.length ?? 0,
     };
   }
 }

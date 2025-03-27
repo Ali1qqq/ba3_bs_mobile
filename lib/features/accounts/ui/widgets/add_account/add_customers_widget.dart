@@ -26,7 +26,7 @@ class AddCustomersWidget extends StatelessWidget {
     return SizedBox(
       height: 300,
       child: Obx(
-            () {
+        () {
           return Padding(
             padding: const EdgeInsets.all(8.0),
             child: OrganizedWidget(
@@ -96,7 +96,6 @@ class AddCustomersWidget extends StatelessWidget {
                               child: DropdownButtonFormField<VatEnums>(
                                 value: controller.selectedVat.value,
                                 alignment: Alignment.center,
-
                                 isExpanded: true,
                                 items: VatEnums.values.map((vat) {
                                   return DropdownMenuItem<VatEnums>(
@@ -110,9 +109,7 @@ class AddCustomersWidget extends StatelessWidget {
                                   );
                                 }).toList(),
                                 onChanged: controller.onSelectedVatChanged,
-                              )
-
-                          ),
+                              )),
                         ),
                         VerticalSpace(20),
                         OutlinedButton(
@@ -132,11 +129,10 @@ class AddCustomersWidget extends StatelessWidget {
                   if (controller.addedCustomers.isNotEmpty && !controller.showAddCustomerForm.value)
                     ListView.separated(
                       shrinkWrap: true,
-                      itemBuilder: (context, index) =>
-                          CustomerItemWidget(
-                            customerModel: controller.addedCustomers[index],
-                            onDelete: () => controller.deleteCustomer(customer: controller.addedCustomers[index]),
-                          ),
+                      itemBuilder: (context, index) => CustomerItemWidget(
+                        customerModel: controller.addedCustomers[index],
+                        onDelete: () => controller.deleteCustomer(customer: controller.addedCustomers[index]),
+                      ),
                       separatorBuilder: (context, index) => VerticalSpace(),
                       itemCount: controller.addedCustomers.length,
                     ),

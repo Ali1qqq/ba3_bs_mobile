@@ -1,12 +1,19 @@
-import 'package:ba3_bs_mobile/core/helper/extensions/basic/date_time_extensions.dart';
+import 'dart:io';
+
+import 'package:ba3_bs_mobile/core/constants/app_strings.dart';
+import 'package:ba3_bs_mobile/core/helper/extensions/date_time/date_time_extensions.dart';
+import 'package:ba3_bs_mobile/core/styling/app_colors.dart';
+import 'package:ba3_bs_mobile/core/styling/app_text_style.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 
+import '../../features/floating_window/services/overlay_service.dart';
 import '../constants/app_constants.dart';
 import '../helper/enums/enums.dart';
+import '../widgets/app_button.dart';
 import '../widgets/app_spacer.dart';
 
 class AppUIUtils {
@@ -199,6 +206,8 @@ class AppUIUtils {
   }
 
   static String formatDecimalNumberWithCommas(double number) {
+    if (number == 0) return '0.00';
+
     // ضبط الرقم العشري إلى رقمين بعد الفاصلة
     String formattedNumber = number.toStringAsFixed(2);
 
@@ -213,7 +222,8 @@ class AppUIUtils {
       (Match match) => '${match[1]},',
     );
 
-    return '$formattedIntegerPart.$decimalPart';
+    final formattedValue = '$formattedIntegerPart.$decimalPart';
+    return formattedValue == '-0.00' ? '0.00' : formattedValue;
   }
 
   static Widget showLoadingIndicator({
@@ -227,37 +237,71 @@ class AppUIUtils {
 
   static showErrorSnackBar({String? title, required String message, NotificationStatus status = NotificationStatus.error}) {
     // Close any existing SnackBar
-    Get.closeCurrentSnackbar();
+    if (Get.isSnackbarOpen) {
+      Get.closeCurrentSnackbar();
+    }
+
     // Show the new SnackBar
     Get.snackbar(
       title ?? _getTitle(status),
       message,
-      backgroundColor: const Color.fromARGB(50, 255, 0, 0),
-      icon: const Icon(
-        Icons.error_outline_outlined,
+      backgroundColor: _getBackgroundColor(status),
+      icon: Icon(
+        _getIcon(status),
         color: Colors.white,
       ),
-      barBlur: 50,
+      barBlur: 10,
       colorText: Colors.white,
-      // overlayBlur: 2,
-      // overlayColor: const Color.fromARGB(10, 255, 0, 0),
+      duration: const Duration(seconds: 3),
+      snackPosition: SnackPosition.TOP,
+      margin: const EdgeInsets.all(10),
     );
   }
 
   static showSuccessSnackBar({String? title, required String message, NotificationStatus status = NotificationStatus.success}) {
     // Close any existing SnackBar
-    Get.closeCurrentSnackbar();
+    if (Get.isSnackbarOpen) {
+      Get.closeCurrentSnackbar();
+    }
+
     // Show the new SnackBar
     Get.snackbar(
       title ?? _getTitle(status),
       message,
-      backgroundColor: const Color.fromARGB(50, 0, 255, 0),
-      icon: const Icon(
-        Icons.check,
+      backgroundColor: _getBackgroundColor(status),
+      icon: Icon(
+        _getIcon(status),
         color: Colors.white,
       ),
-      barBlur: 50,
+      barBlur: 10,
       colorText: Colors.white,
+      duration: const Duration(seconds: 2),
+      snackPosition: SnackPosition.TOP,
+      margin: const EdgeInsets.all(10),
+    );
+  }
+
+  static void showInfoSnackBar({
+    String? title,
+    required String message,
+    NotificationStatus status = NotificationStatus.info,
+  }) {
+    Get.closeAllSnackbars();
+
+    // Show the new SnackBar
+    Get.snackbar(
+      title ?? _getTitle(status),
+      message,
+      backgroundColor: _getBackgroundColor(status),
+      icon: Icon(
+        _getIcon(status),
+        color: Colors.white,
+      ),
+      barBlur: 10,
+      colorText: Colors.white,
+      duration: const Duration(seconds: 3),
+      snackPosition: SnackPosition.TOP,
+      margin: const EdgeInsets.all(10),
     );
   }
 
@@ -272,9 +316,120 @@ class AppUIUtils {
     }
   }
 
+  /// 🔹 Get Dynamic Background Color Based on Status
+  static Color _getBackgroundColor(NotificationStatus status) {
+    switch (status) {
+      case NotificationStatus.success:
+        return Colors.green.withOpacity(0.8);
+      case NotificationStatus.error:
+        return Colors.red.withOpacity(0.8);
+      case NotificationStatus.info:
+        return Colors.blue.withOpacity(0.8);
+    }
+  }
+
+  /// 🔹 Get Dynamic Icon Based on Status
+  static IconData _getIcon(NotificationStatus status) {
+    switch (status) {
+      case NotificationStatus.success:
+        return Icons.check_circle;
+      case NotificationStatus.error:
+        return Icons.error;
+      case NotificationStatus.info:
+        return Icons.info;
+    }
+  }
+
   static onFailure(String message) => showErrorSnackBar(
         message: message,
       );
 
   static onSuccess(String message) => showSuccessSnackBar(message: message);
+
+  static onInfo(String message) => showInfoSnackBar(message: message);
+
+  /// The `title` argument is used to title of alert dialog.
+  /// The `content` argument is used to content of alert dialog.
+  /// The `textOK` argument is used to text for 'OK' Button of alert dialog.
+  /// The `textCancel` argument is used to text for 'Cancel' Button of alert dialog.
+  /// The `canPop` argument is `canPop` of PopScope.
+  /// The `onPopInvokedWithResult` argument is `onPopInvokedWithResult` of PopScope.
+  ///
+  /// Returns a [Future<bool>].
+  static Future<bool> confirm(
+    BuildContext context, {
+    String? title,
+    Widget? content,
+    Widget? textOK,
+    Widget? textCancel,
+    bool canPop = false,
+    void Function(bool, dynamic)? onPopInvokedWithResult,
+  }) async {
+    final bool? isConfirm = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) => PopScope(
+        canPop: true,
+        onPopInvokedWithResult: onPopInvokedWithResult,
+        child: AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15), side: BorderSide(color: Colors.red)),
+          alignment: Alignment.center,
+          backgroundColor: AppColors.backGroundColor,
+          title: title == null
+              ? null
+              : Center(
+                  child: Text(
+                    title,
+                    style: AppTextStyles.headLineStyle2,
+                  ),
+                ),
+          content: title != null
+              ? null
+              : Text(
+                  AppStrings.areYouSureContinue.tr,
+                  style: AppTextStyles.headLineStyle2,
+                  textAlign: TextAlign.center,
+                ),
+          actions: <Widget>[
+            AppButton(
+              title: AppConstants.no,
+              onPressed: () => Navigator.pop(context, false),
+              iconData: Icons.clear,
+              width: 80,
+            ),
+            const HorizontalSpace(20),
+            AppButton(
+              title: AppConstants.yes,
+              onPressed: () => Navigator.pop(context, true),
+              color: Colors.red,
+              iconData: Icons.check,
+              width: 80,
+            ),
+          ],
+        ),
+      ),
+    );
+    return isConfirm ?? false;
+  }
+
+  static void showFullScreenFileImage(BuildContext context, String imagePath) {
+    OverlayService.showDialog(
+      context: context,
+      width: 1.sw,
+      height: 1.sh,
+      content: InteractiveViewer(
+        child: Image.file(File(imagePath), fit: BoxFit.contain),
+      ),
+    );
+  }
+
+  static void showFullScreenNetworkImage(BuildContext context, String imagePath) {
+    OverlayService.showDialog(
+      context: context,
+      width: 1.sw,
+      height: 1.sh,
+      content: InteractiveViewer(
+        child: Image.network(imagePath, fit: BoxFit.contain),
+      ),
+    );
+  }
 }

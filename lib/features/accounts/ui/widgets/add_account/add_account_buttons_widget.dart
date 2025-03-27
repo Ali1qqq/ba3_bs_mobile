@@ -1,7 +1,7 @@
+import 'package:ba3_bs_mobile/core/constants/app_strings.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 
-import '../../../../../core/constants/app_strings.dart';
 import '../../../../../core/widgets/app_button.dart';
 import '../../../controllers/accounts_controller.dart';
 

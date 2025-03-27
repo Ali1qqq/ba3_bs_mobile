@@ -18,13 +18,12 @@ abstract class CompoundDatasourceBase<T, I> with FirestorePathHelper<I>, Firesto
 
   Future<List<T>> fetchWhere<V>({
     required I itemIdentifier,
-    required String field,
-    required V value,
+    String? field,
+    V? value,
     DateFilter? dateFilter,
   });
 
   Future<T> fetchById({required String id, required I itemIdentifier});
-
 
   Future<double?> fetchMetaData({required String id, required I itemIdentifier});
 

@@ -26,13 +26,15 @@ class BillPlutoUtils {
         return double.tryParse(materialModel.retailPrice ?? '') ?? 0;
       case PriceType.mainPrice:
         return double.tryParse(materialModel.calcMinPrice.toString()) ?? 0;
+      case PriceType.lastEnterPrice:
+        return double.tryParse(materialModel.matLastPriceCurVal.toString()) ?? 0;
     }
   }
 
   double parseExpression(String expression) {
     if (expression.isEmpty) return 0;
     try {
-      return GrammarParser().parse(expression).evaluate(EvaluationType.REAL, ContextModel());
+      return Parser().parse(expression).evaluate(EvaluationType.REAL, ContextModel());
     } catch (e) {
       AppUIUtils.onFailure('من فضلك قم بادخال قيمة صحيحة');
       return 0;

@@ -4,7 +4,6 @@ import 'package:ba3_bs_mobile/core/services/firebase/implementations/repos/compo
 import 'package:get/get.dart';
 
 import '../../../../core/helper/mixin/controller_initializer.dart';
-
 import '../controllers/cheques/cheques_details_controller.dart';
 import '../controllers/cheques/cheques_search_controller.dart';
 import '../data/models/cheques_model.dart';

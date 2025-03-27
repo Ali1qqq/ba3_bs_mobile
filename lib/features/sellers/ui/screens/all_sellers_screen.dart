@@ -1,7 +1,11 @@
+import 'package:ba3_bs_mobile/core/constants/app_strings.dart';
 import 'package:ba3_bs_mobile/core/helper/extensions/getx_controller_extensions.dart';
+import 'package:ba3_bs_mobile/core/styling/app_colors.dart';
+import 'package:ba3_bs_mobile/core/utils/app_ui_utils.dart';
 import 'package:ba3_bs_mobile/features/sellers/controllers/seller_sales_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 
 import '../../controllers/sellers_controller.dart';
@@ -11,44 +15,72 @@ class AllSellersScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final controller = read<SellersController>();
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
-        appBar: AppBar(title: const Text('جميع البائعون')),
-        body: GetBuilder<SellersController>(builder: (controller) {
+        appBar: AppBar(title: Text(AppStrings.allSellers.tr)),
+        body: Obx(() {
           if (controller.sellers.isEmpty) {
-            return const Center(child: Text('لا يوجد بائعون بعد'));
+            return Center(child: Text(AppStrings.thereAreNoSellersYet.tr));
           } else {
             return SingleChildScrollView(
+              padding: const EdgeInsets.all(8.0),
               child: SizedBox(
-                width: 0.9.sw,
+                width: 1.sw,
                 child: Wrap(
-                  spacing: 5,
-                  runSpacing: 5,
+                  alignment: WrapAlignment.center,
                   children: List.generate(
                       controller.sellers.length,
                       (index) => Padding(
                             padding: const EdgeInsets.all(8.0),
                             child: InkWell(
-                              onTap: () => read<SellerSalesController>().onSelectSeller(
-                                sellerModel: controller.sellers[index],
-                              ),
+                              onTap: () => read<SellerSalesController>().navigateToSellerSalesScreen(controller.sellers[index], context),
                               child: Container(
                                 padding: const EdgeInsets.all(4),
-                                decoration: BoxDecoration(color: Colors.grey.withAlpha(127), borderRadius: BorderRadius.circular(10)),
-                                height: 140,
-                                width: 140,
+                                decoration: BoxDecoration(color: Colors.grey.withOpacity(0.5), borderRadius: BorderRadius.circular(10)),
+                                height: 100.h,
+                                width: 40.w,
                                 child: Column(
                                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                                   children: [
-                                    Text(
-                                      controller.sellers[index].costCode?.toString() ?? '',
-                                      style: const TextStyle(fontSize: 24),
+                                    Expanded(
+                                      child: Text(
+                                        controller.sellers[index].costCode?.toString() ?? '',
+                                        style: const TextStyle(fontSize: 24),
+                                      ),
                                     ),
-                                    Text(
-                                      controller.sellers[index].costName ?? '',
-                                      style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                                    Expanded(
+                                      child: Text(
+                                        controller.sellers[index].costName ?? '',
+                                        style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                                      ),
                                     ),
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        IconButton(
+                                          icon: Icon(Icons.delete),
+                                          color: Colors.red,
+                                          onPressed: () async {
+                                            if (await AppUIUtils.confirm(context)) {
+                                              controller.deleteSeller(controller.sellers[index].costGuid!);
+                                            }
+                                          },
+                                        ),
+                                        IconButton(
+                                          icon: Icon(
+                                            FontAwesomeIcons.solidPenToSquare,
+                                            size: 18,
+                                          ),
+                                          color: AppColors.lightBlueColor,
+                                          onPressed: () {
+                                            read<SellerSalesController>()
+                                                .navigateToAddSellerScreen(seller: controller.sellers[index], context: context);
+                                          },
+                                        ),
+                                      ],
+                                    )
                                   ],
                                 ),
                               ),

@@ -22,10 +22,10 @@ PlutoGridShortcut customPlutoShortcut(PlutoGridShortcutAction plutoGridEnterActi
 // Move cell focus actions
 Map<LogicalKeySet, PlutoGridShortcutAction> _buildMoveCellFocusActions() {
   return {
-    LogicalKeySet(LogicalKeyboardKey.arrowLeft): const PlutoGridActionMoveCellFocus(PlutoMoveDirection.right),
-    LogicalKeySet(LogicalKeyboardKey.arrowRight): const PlutoGridActionMoveCellFocus(PlutoMoveDirection.left),
-    LogicalKeySet(LogicalKeyboardKey.arrowUp): const PlutoGridActionMoveCellFocus(PlutoMoveDirection.up),
-    LogicalKeySet(LogicalKeyboardKey.arrowDown): const PlutoGridActionMoveCellFocus(PlutoMoveDirection.down),
+    LogicalKeySet(LogicalKeyboardKey.arrowLeft): const PlutoGridActionMoveCellFocusForce(PlutoMoveDirection.right),
+    LogicalKeySet(LogicalKeyboardKey.arrowRight): const PlutoGridActionMoveCellFocusForce(PlutoMoveDirection.left),
+    LogicalKeySet(LogicalKeyboardKey.arrowUp): const PlutoGridActionMoveCellFocusForce(PlutoMoveDirection.up),
+    LogicalKeySet(LogicalKeyboardKey.arrowDown): const PlutoGridActionMoveCellFocusForce(PlutoMoveDirection.down),
   };
 }
 
@@ -127,4 +127,23 @@ Map<LogicalKeySet, PlutoGridShortcutAction> _buildMiscellaneousActions() {
   return {
     LogicalKeySet(LogicalKeyboardKey.control, LogicalKeyboardKey.keyA): const PlutoGridActionSelectAll(),
   };
+}
+class PlutoGridActionMoveCellFocusForce extends PlutoGridShortcutAction {
+  const PlutoGridActionMoveCellFocusForce(this.direction);
+
+  final PlutoMoveDirection direction;
+
+  @override
+  void execute({
+    required PlutoKeyManagerEvent keyEvent,
+    required PlutoGridStateManager stateManager,
+  }) {
+
+    if (stateManager.currentCell == null) {
+      stateManager.setCurrentCell(stateManager.firstCell, 0);
+      return;
+    }
+
+    stateManager.moveCurrentCell(direction, force: true,notify: true);
+  }
 }

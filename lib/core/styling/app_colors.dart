@@ -14,7 +14,11 @@ class AppColors {
   static const Color tooltipTextColor = Colors.black;
   static const Color whiteColor = Color(0xffFDFDFD);
   static const Color blueColor = Color(0xff243698);
+  static final Color lightBlueColor = Colors.blue.shade700;
   static const Color backGroundColor = Color(0xffF0F0F0);
   static const Color grayColor = Color(0xff6B7586);
-  static final Color lightBlueColor = Colors.blue.shade700;
+  static const Color mobileSaleColor = Color(0xff008080);
+  static const Color accessorySaleColor = Color(0xffD3D3D3);
+  static const Color feesSaleColor = Color(0xff87CEEB);
+  static const Color totalSaleColor = Color(0xff004B63);
 }

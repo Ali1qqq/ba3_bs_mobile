@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:pluto_grid/pluto_grid.dart';
 
+import '../../features/bill/data/models/bill_items.dart';
 import '../../features/materials/data/models/materials/material_model.dart';
 import '../../features/patterns/data/models/bill_type_model.dart';
 import 'i_recodes_pluto_controller.dart';
@@ -43,7 +44,11 @@ abstract class IPlutoController<T> extends IRecodesPlutoController<T> {
 
   void restoreCurrentCell(PlutoGridStateManager stateManager);
 
-  Map<MaterialModel, List<TextEditingController>> get serialControllers => {};
+  Map<MaterialModel, List<TextEditingController>> get buyMaterialsSerialsControllers => {};
+
+  Map<MaterialModel, List<TextEditingController>> get sellMaterialsSerialsControllers => {};
+
+  void initSerialControllers(MaterialModel materialModel, int serialCount, BillItem billItem);
 
   /// this for mobile
   void updateWithSelectedMaterial({
@@ -52,9 +57,4 @@ abstract class IPlutoController<T> extends IRecodesPlutoController<T> {
     required MaterialModel? materialModel,
     required BillTypeModel billTypeModel,
   });
-  Map<MaterialModel, List<TextEditingController>> get buyMaterialsSerialsControllers => {};
-
-  Map<MaterialModel, List<TextEditingController>> get sellMaterialsSerialsControllers => {};
-
-  void initSerialControllers(MaterialModel materialModel, int serialCount);
 }

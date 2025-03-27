@@ -1,4 +1,4 @@
-import 'i_local_database_service.dart';
+import 'package:ba3_bs_mobile/core/services/local_database/interfaces/i_local_database_service.dart';
 
 abstract class LocalDatasourceBase<T> {
   final ILocalDatabaseService<T> database;

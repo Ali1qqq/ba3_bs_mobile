@@ -134,7 +134,6 @@ final Map<String, String> urPK = {
   AppStrings.individual: 'انفرادی',
   AppStrings.tax: 'ٹیکس',
   AppStrings.notRegisteredYet: 'ابھی تک رجسٹر نہیں ہوا',
-  AppStrings.notLoggedToday: 'ابھی تک رجسٹر نہیں ہوا',
   AppStrings.nothing: 'کچھ نہیں',
   AppStrings.currentlyUnavailable: 'فی الحال دستیاب نہیں',
   AppStrings.minutes: 'منٹ',
@@ -261,4 +260,8 @@ final Map<String, String> urPK = {
   AppStrings.achievementsPanel: 'کامیابیوں کا پینل',
   AppStrings.profile: 'پروفائل',
   AppStrings.totalSales: 'کل فروخت',
+  AppStrings.finalAccounts: 'حتمی حسابات',
+  AppStrings.tradingAccount: 'تجارتی حساب',
+  AppStrings.profitAndLoss: 'منافع اور نقصانات کا حساب',
+  AppStrings.balanceSheet: 'بیلنس شیٹ',
 };

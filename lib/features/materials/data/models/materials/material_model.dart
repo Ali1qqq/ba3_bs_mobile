@@ -1,14 +1,14 @@
+import 'package:ba3_bs_mobile/core/constants/app_strings.dart';
+import 'package:ba3_bs_mobile/core/utils/app_service_utils.dart';
+import 'package:ba3_bs_mobile/features/materials/controllers/material_group_controller.dart';
+import 'package:ba3_bs_mobile/features/pluto/data/models/pluto_adaptable.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 import 'package:pluto_grid/pluto_grid.dart';
 
 import '../../../../../core/constants/app_constants.dart';
-import '../../../../../core/constants/app_strings.dart';
 import '../../../../../core/helper/extensions/getx_controller_extensions.dart';
-import '../../../../../core/utils/app_service_utils.dart';
 import '../../../../../core/widgets/pluto_auto_id_column.dart';
-import '../../../../pluto/data/models/pluto_adaptable.dart';
-import '../../../controllers/material_group_controller.dart';
 
 part 'material_model.g.dart'; // This will be generated automatically by the build_runner
 
@@ -178,9 +178,15 @@ class MaterialModel extends HiveObject implements PlutoAdaptable {
 
   @HiveField(54)
   final Map<String, bool>? serialNumbers;
+  @HiveField(55)
+  final int? matLocalQuantity;
+  @HiveField(56)
+  final int? matFreeQuantity;
 
   MaterialModel({
     this.id,
+    this.matLocalQuantity,
+    this.matFreeQuantity,
     this.matCode,
     this.matName,
     this.matBarCode,
@@ -253,6 +259,8 @@ class MaterialModel extends HiveObject implements PlutoAdaptable {
       matCurrencyVal: json['MatCurrencyVal']?.toDouble(),
       matPictureGuid: json['MatPictureGuid']?.toString(),
       matType: json['MatType'],
+      matFreeQuantity: json['matFreeQuantity'],
+      matLocalQuantity: json['matLocalQuantity'],
       matSecurity: json['MatSecurity'],
       matFlag: json['MatFlag'],
       matExpireFlag: json['MatExpireFlag'],
@@ -300,68 +308,69 @@ class MaterialModel extends HiveObject implements PlutoAdaptable {
 
   // toJson method
   Map<String, dynamic> toJson() => {
-    'docId': id,
-    'MatCode': matCode,
-    'MatName': matName,
-    'MatBarCode': matBarCode,
-    'MatGroupGuid': matGroupGuid,
-    'MatCreateDate': matCreateDate?.toIso8601String(),
-    'MatCurrencyVal': matCurrencyVal,
-    'MatPictureGuid': matPictureGuid,
-    'MatLastPriceCurVal': matLastPriceCurVal,
-    'MatPrevQty': matPrevQty,
-    'MatCompositionLatinName': matCompositionLatinName,
-    'Whole2': wholesalePrice,
-    'retail2': retailPrice,
-    'EndUser2': endUserPrice,
-    'matVatGuid': matVatGuid,
-    'matExtraBarcode': matExtraBarcode,
-    'MatQuantity': matQuantity,
-    'calcMinPrice': calcMinPrice,
-    'serialNumbers': serialNumbers,
-    // 'MatUnity': matUnity,
-    // 'MatPriceType': matPriceType,
-    // 'MatBonus': matBonus,
-    // 'MatBonusOne': matBonusOne,
-    // 'MatCurrencyGuid': matCurrencyGuid,
-    // 'MatType': matType,
-    // 'MatSecurity': matSecurity,
-    // 'MatFlag': matFlag,
-    // 'MatExpireFlag': matExpireFlag,
-    // 'MatProdFlag': matProdFlag,
-    // 'MatUnit2FactFlag': matUnit2FactFlag,
-    // 'MatUnit3FactFlag': matUnit3FactFlag,
-    // 'MatSNFlag': matSNFlag,
-    // 'MatForceInSN': matForceInSN,
-    // 'MatForceOutSN': matForceOutSN,
-    // 'MatVAT': matVAT,
-    // 'MatDefUnit': matDefUnit,
-    // 'MatBranchMask': matBranchMask,
-    // 'MatAss': matAss,
-    // 'MatOldGUID': matOldGUID,
-    // 'MatNewGUID': matNewGUID,
-    // 'MatCalPriceFromDetail': matCalPriceFromDetail,
-    // 'MatForceInExpire': matForceInExpire,
-    // 'MatForceOutExpire': matForceOutExpire,
-    // 'MatIsIntegerQuantity': matIsIntegerQuantity,
-    // 'MatClassFlag': matClassFlag,
-    // 'MatForceInClass': matForceInClass,
-    // 'MatForceOutClass': matForceOutClass,
-    // 'MatDisableLastPrice': matDisableLastPrice,
-    // 'MovedComposite': movedComposite,
-    // 'MatFirstCostDate': matFirstCostDate?.toIso8601String(),
-    // 'MatHasSegments': matHasSegments,
-    // 'MatParent': matParent,
-    // 'MatIsCompositionUpdated': matIsCompositionUpdated,
-    // 'MatInheritsParentSpecs': matInheritsParentSpecs,
-    // 'MatCompositionName': matCompositionName,
-  };
+        'docId': id,
+        'MatCode': matCode,
+        'MatName': matName,
+        'MatBarCode': matBarCode,
+        'MatGroupGuid': matGroupGuid,
+        'MatCreateDate': matCreateDate?.toIso8601String(),
+        'MatCurrencyVal': matCurrencyVal,
+        'MatPictureGuid': matPictureGuid,
+        'MatLastPriceCurVal': matLastPriceCurVal,
+        'MatPrevQty': matPrevQty,
+        'MatCompositionLatinName': matCompositionLatinName,
+        'Whole2': wholesalePrice,
+        'retail2': retailPrice,
+        'EndUser2': endUserPrice,
+        'matVatGuid': matVatGuid,
+        'matExtraBarcode': matExtraBarcode,
+        'MatQuantity': matQuantity,
+        'calcMinPrice': calcMinPrice,
+        'matLocalQuantity': matLocalQuantity,
+        'serialNumbers': serialNumbers,
+        // 'MatUnity': matUnity,
+        // 'MatPriceType': matPriceType,
+        // 'MatBonus': matBonus,
+        // 'MatBonusOne': matBonusOne,
+        // 'MatCurrencyGuid': matCurrencyGuid,
+        // 'MatType': matType,
+        // 'MatSecurity': matSecurity,
+        // 'MatFlag': matFlag,
+        // 'MatExpireFlag': matExpireFlag,
+        // 'MatProdFlag': matProdFlag,
+        // 'MatUnit2FactFlag': matUnit2FactFlag,
+        // 'MatUnit3FactFlag': matUnit3FactFlag,
+        // 'MatSNFlag': matSNFlag,
+        // 'MatForceInSN': matForceInSN,
+        // 'MatForceOutSN': matForceOutSN,
+        // 'MatVAT': matVAT,
+        // 'MatDefUnit': matDefUnit,
+        // 'MatBranchMask': matBranchMask,
+        // 'MatAss': matAss,
+        // 'MatOldGUID': matOldGUID,
+        // 'MatNewGUID': matNewGUID,
+        // 'MatCalPriceFromDetail': matCalPriceFromDetail,
+        // 'MatForceInExpire': matForceInExpire,
+        // 'MatForceOutExpire': matForceOutExpire,
+        // 'MatIsIntegerQuantity': matIsIntegerQuantity,
+        // 'MatClassFlag': matClassFlag,
+        // 'MatForceInClass': matForceInClass,
+        // 'MatForceOutClass': matForceOutClass,
+        // 'MatDisableLastPrice': matDisableLastPrice,
+        // 'MovedComposite': movedComposite,
+        // 'MatFirstCostDate': matFirstCostDate?.toIso8601String(),
+        // 'MatHasSegments': matHasSegments,
+        // 'MatParent': matParent,
+        // 'MatIsCompositionUpdated': matIsCompositionUpdated,
+        // 'MatInheritsParentSpecs': matInheritsParentSpecs,
+        // 'MatCompositionName': matCompositionName,
+      };
 
   @override
   Map<PlutoColumn, dynamic> toPlutoGridFormat([type]) {
     return {
       PlutoColumn(title: AppStrings.identificationNumber.tr, field: AppConstants.materialIdFiled, type: PlutoColumnType.text(), hide: true):
-      id,
+          id,
       createAutoIdColumn(): '#',
       PlutoColumn(title: AppStrings.materialName, field: 'اسم المادة', type: PlutoColumnType.text(), width: 400): matName,
       PlutoColumn(
@@ -379,6 +388,15 @@ class MaterialModel extends HiveObject implements PlutoAdaptable {
           ),
           width: 120,
           textAlign: PlutoColumnTextAlign.center): calcMinPrice,
+      PlutoColumn(
+          title: AppStrings.lastPayPrice.tr,
+          field: 'اخر شراء',
+          type: PlutoColumnType.currency(
+            decimalDigits: 2,
+            symbol: '',
+          ),
+          width: 120,
+          textAlign: PlutoColumnTextAlign.center): matLastPriceCurVal,
       PlutoColumn(
           title: AppStrings.retailPrice.tr,
           field: 'المفرق',
@@ -410,7 +428,7 @@ class MaterialModel extends HiveObject implements PlutoAdaptable {
           width: 120,
           textAlign: PlutoColumnTextAlign.center): matBarCode,
       PlutoColumn(title: AppStrings.group.tr, field: 'المجموعة', type: PlutoColumnType.text()):
-      read<MaterialGroupController>().getMaterialGroupById(matGroupGuid!)?.groupName ?? '',
+          read<MaterialGroupController>().getMaterialGroupById(matGroupGuid!)?.groupName ?? '',
     };
   }
 
@@ -468,6 +486,8 @@ class MaterialModel extends HiveObject implements PlutoAdaptable {
     final String? endUserPrice,
     final String? matVatGuid,
     final int? matQuantity,
+    final int? matLocalQuantity,
+    final int? matFreeQuantity,
     final double? calcMinPrice,
     final Map<String, bool>? serialNumbers,
   }) {
@@ -526,6 +546,8 @@ class MaterialModel extends HiveObject implements PlutoAdaptable {
       matQuantity: matQuantity ?? this.matQuantity,
       calcMinPrice: calcMinPrice ?? this.calcMinPrice,
       serialNumbers: serialNumbers ?? this.serialNumbers,
+      matLocalQuantity: matLocalQuantity ?? this.matLocalQuantity,
+      matFreeQuantity: matFreeQuantity ?? this.matFreeQuantity,
     );
   }
 
@@ -694,7 +716,7 @@ class SerialTransactionModel implements PlutoAdaptable {
     return {
       // Visible column for the serial number.
       PlutoColumn(title: AppStrings.serialNumber.tr, field: 'serialNumber', type: PlutoColumnType.text()):
-      transactionOrigin?.serialNumber ?? '',
+          transactionOrigin?.serialNumber ?? '',
 
       // Hidden column for the material ID.
       PlutoColumn(hide: true, title: 'معرف المادة', field: 'matId', type: PlutoColumnType.text()): transactionOrigin?.matId ?? '',
@@ -709,7 +731,7 @@ class SerialTransactionModel implements PlutoAdaptable {
       PlutoColumn(hide: true, title: 'buyBillTypeId', field: 'buyBillTypeId', type: PlutoColumnType.text()): buyBillTypeId ?? '',
 
       PlutoColumn(title: AppStrings.purchaseBill.tr, field: AppStrings.purchaseBill.tr, type: PlutoColumnType.text()):
-      AppServiceUtils.billNameAndNumberFormat(buyBillTypeId, buyBillNumber),
+          AppServiceUtils.billNameAndNumberFormat(buyBillTypeId, buyBillNumber),
 
       // Column for the sell bill ID.
       PlutoColumn(hide: true, title: 'sellBillId', field: 'sellBillId', type: PlutoColumnType.text()): sellBillId ?? '',
@@ -718,14 +740,14 @@ class SerialTransactionModel implements PlutoAdaptable {
       PlutoColumn(hide: true, title: 'sellBillTypeId', field: 'sellBillTypeId', type: PlutoColumnType.text()): sellBillTypeId ?? '',
 
       PlutoColumn(title: AppStrings.salesBill.tr, field: AppStrings.salesBill.tr, type: PlutoColumnType.text()):
-      AppServiceUtils.billNameAndNumberFormat(sellBillTypeId, sellBillNumber),
+          AppServiceUtils.billNameAndNumberFormat(sellBillTypeId, sellBillNumber),
 
       // Column for the entry date.
       PlutoColumn(title: AppStrings.entryDate.tr, field: 'entryDate', type: PlutoColumnType.date()): entryDate,
 
       // Column for the sold status (displaying a simple "Yes/No").
       PlutoColumn(title: AppStrings.sold.tr, field: 'sold', type: PlutoColumnType.text()):
-      sold == true ? AppStrings.yes.tr : AppStrings.no.tr,
+          sold == true ? AppStrings.yes.tr : AppStrings.no.tr,
     };
   }
 }

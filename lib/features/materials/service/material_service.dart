@@ -16,7 +16,7 @@ class MaterialService {
     required int matCode,
     required String matGroupGuid,
     required String matVatGuid,
-    required double matCurrencyVal,
+    double? matCurrencyVal,
   }) {
     if (materialModel == null) {
       return MaterialModel(

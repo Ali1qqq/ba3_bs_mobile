@@ -1,7 +1,3 @@
-import 'dart:developer';
-
-import 'package:flutter/foundation.dart';
-
 import '../../../features/users_management/controllers/user_management_controller.dart';
 import '../../../features/users_management/data/models/role_model.dart';
 import '../../../features/users_management/data/models/user_model.dart';
@@ -12,10 +8,6 @@ extension RoleItemTypeExtension on RoleItemType {
   /// Returns the [Status] based on the current [RoleItemType].
   Status get status {
     final hasPermission = hasAdminPermission;
-
-    if (kDebugMode) {
-      log('RoleItemType: $this, hasPermission: $hasPermission');
-    }
 
     return hasPermission ? Status.approved : Status.pending;
   }

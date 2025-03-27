@@ -17,6 +17,7 @@ import 'material_controller.dart';
 class MaterialsStatementController extends GetxController with FloatingLauncher, AppNavigator {
   // Dependencies
   final CompoundDatasourceRepository<MatStatementModel, String> _matStatementsRepo;
+  final MaterialController _materialsController = read<MaterialController>();
 
   MaterialsStatementController(this._matStatementsRepo);
 
@@ -24,19 +25,30 @@ class MaterialsStatementController extends GetxController with FloatingLauncher,
     required List<MatStatementModel> matsStatements,
     void Function(double progress)? onProgress,
   }) async {
-    // 1. We call `saveAllNested`, which returns a Map<String, List<MatStatementModel>>
-    final result = await _matStatementsRepo.saveAllNested(
-        items: matsStatements, itemIdentifiers: matsStatements.select((matsStatements) => matsStatements.matId), onProgress: onProgress);
+    /// 1. We call `saveAllNested`, which returns a Map<String, List<MatStatementModel>>
+    int i = 0;
+    for (var element in matsStatements) {
+      await _matStatementsRepo.save(element);
+      log("i is  ${i++}");
+    }
 
-    // 2. Flatten the map into a single list of MatStatementModel
-    //    mapOfStatements.values is an Iterable<List<MatStatementModel>>
-    //    We expand those lists, then .toList() the result
+    final result = await _matStatementsRepo.saveAllNested(
+      items: matsStatements,
+      itemIdentifiers: matsStatements.select((matsStatements) => matsStatements.matId),
+      onProgress: onProgress,
+    );
+
+    /// 2. Flatten the map into a single list of MatStatementModel
+    ///    mapOfStatements.values is an Iterable<List<MatStatementModel>>
+    ///    We expand those lists, then .toList() the result
     result.fold(
       (failure) => AppUIUtils.onFailure(failure.message),
-      (savedStatements) => /*(),*/ onSaveAllMatsStatementsModelsSuccess(
-        mapOfStatements: matsStatements.groupBy((matsStatements) => matsStatements.matId!),
-        onProgress: onProgress,
-      ),
+      (savedStatements) {
+        onSaveAllMatsStatementsModelsSuccess(
+          mapOfStatements: matsStatements.groupBy((matsStatements) => matsStatements.matId!),
+          onProgress: onProgress,
+        );
+      },
     );
   }
 
@@ -48,7 +60,7 @@ class MaterialsStatementController extends GetxController with FloatingLauncher,
 
     // If we have none, exit early
     if (allSavedStatements.isEmpty) {
-      // AppUIUtils.onSuccess('تم الحفظ بنجاح (لا توجد عناصر للحفظ)');
+      AppUIUtils.onSuccess('تم الحفظ بنجاح (لا توجد عناصر للحفظ)');
       return;
     }
 
@@ -62,14 +74,14 @@ class MaterialsStatementController extends GetxController with FloatingLauncher,
       allSavedStatements.map(
         (statement) async {
           if (statement.defQuantity != null && statement.defQuantity! > 0) {
-            await read<MaterialController>().updateMaterialQuantityAndPrice(
+            await _materialsController.updateMaterialQuantityAndPrice(
               matId: statement.matId!,
               quantity: statement.defQuantity!,
               quantityInStatement: statement.quantity!,
               priceInStatement: statement.price!,
             );
           } else {
-            await read<MaterialController>().updateMaterialQuantity(
+            await _materialsController.updateMaterialQuantity(
               statement.matId!,
               statement.defQuantity!,
             );
@@ -82,19 +94,31 @@ class MaterialsStatementController extends GetxController with FloatingLauncher,
     );
   }
 
+  /// to recalculate main price and quantity from mat statement list after we add all statement to materials
   setupAllMaterials() async {
     int i = 0;
-    for (final material in read<MaterialController>().materials) {
-      i++;
-
+    for (final material in _materialsController.materials) {
       final materialStatementList = await fetchMatStatementById(material.id!);
       if (materialStatementList != null) {
-        log(i.toString());
-        await read<MaterialController>().updateMaterialQuantityAndPriceWhenDeleteBill(
+        log("mat num  ${++i}");
+        await _materialsController.updateMaterialQuantityAndPriceWhenDeleteBill(
             matId: material.id!,
             quantity: _calculateQuantity(materialStatementList),
-            currentMinPrice: _calculateMinPrice(materialStatementList));
+            currentMinPrice: _calculateMinPrice(materialStatementList),
+            lastEnterPrice: _calculateLastEnterPrice(materialStatementList));
       }
+    }
+  }
+
+  setupOneMaterials(String matId) async {
+    MaterialModel material = _materialsController.getMaterialById(matId)!;
+    final materialStatementList = await fetchMatStatementById(material.id!);
+    if (materialStatementList != null) {
+      await _materialsController.updateMaterialQuantityAndPriceWhenDeleteBill(
+          matId: material.id!,
+          quantity: _calculateQuantity(materialStatementList),
+          currentMinPrice: _calculateMinPrice(materialStatementList),
+          lastEnterPrice: _calculateLastEnterPrice(materialStatementList));
     }
   }
 
@@ -109,12 +133,13 @@ class MaterialsStatementController extends GetxController with FloatingLauncher,
     final materialStatementList = await fetchMatStatementById(matStatementModel.matId!);
     if (materialStatementList != null) {
       if (matStatementModel.quantity! < 0) {
-        await read<MaterialController>().updateMaterialQuantityAndPriceWhenDeleteBill(
+        await _materialsController.updateMaterialQuantityAndPriceWhenDeleteBill(
             matId: matStatementModel.matId!,
             quantity: _calculateQuantity(materialStatementList),
-            currentMinPrice: _calculateMinPrice(materialStatementList));
+            currentMinPrice: _calculateMinPrice(materialStatementList),
+            lastEnterPrice: _calculateLastEnterPrice(materialStatementList));
       } else {
-        await read<MaterialController>().setMaterialQuantity(
+        await _materialsController.setMaterialQuantity(
           matStatementModel.matId!,
           _calculateQuantity(materialStatementList),
         );
@@ -218,17 +243,41 @@ class MaterialsStatementController extends GetxController with FloatingLauncher,
     items.sortBy((item) => item.date!);
     double currentPrice = 0.0;
     int currentQuantity = 0;
+
+    /// user helper Quantity to if you have list of bill in same date
+    /// We need to add the input bills first and then add the output bills.
+    int helperQuantity = 0;
     for (final matStatementModel in items) {
       if (matStatementModel.quantity! > 0) {
         currentPrice = ((currentPrice * currentQuantity) + (matStatementModel.price! * matStatementModel.quantity!)) /
             (currentQuantity + matStatementModel.quantity!);
-        currentQuantity += matStatementModel.quantity!;
+        currentQuantity += matStatementModel.quantity! + helperQuantity;
+        helperQuantity = 0;
       } else {
-        currentQuantity += matStatementModel.quantity!;
+        if (currentQuantity == 0) {
+          helperQuantity += matStatementModel.quantity!;
+        } else {
+          currentQuantity += matStatementModel.quantity!;
+        }
       }
     }
     log('final price is $currentPrice');
-    return currentPrice;
+
+    return currentPrice.isNaN ? 0 : currentPrice;
+  }
+
+  double _calculateLastEnterPrice(List<MatStatementModel> items) {
+    if (items.isEmpty) return 0.0;
+    final sellItem = items
+        .where(
+          (item) => item.matOrigin!.originTypeId == "eb10653a-a43f-44e5-889d-41ce68c43ec4",
+        )
+        .toList();
+    sellItem.sortBy(
+      (item) => item.date!,
+    );
+    log('last pay price is ${sellItem.lastOrNull?.price}');
+    return (sellItem.lastOrNull?.price ?? 0.0).isNaN ? 0 : sellItem.lastOrNull?.price ?? 0.0;
   }
 
   String get screenTitle => 'حركات ${selectedMat?.matName}';

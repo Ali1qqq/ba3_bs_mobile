@@ -7,11 +7,12 @@ class OrganizedWidget extends StatelessWidget {
     super.key,
     this.titleWidget,
     required this.bodyWidget,
+    this.titleHeight,
   });
 
   final Widget? titleWidget;
-
   final Widget bodyWidget;
+  final double? titleHeight;
 
   @override
   Widget build(BuildContext context) {
@@ -20,7 +21,7 @@ class OrganizedWidget extends StatelessWidget {
         children: [
           if (titleWidget != null)
             Container(
-              height: 35,
+              height: titleHeight ?? 35,
               decoration: BoxDecoration(
                 // boxShadow: [BoxShadow(color: AppColors.blueColor, blurRadius: 10, spreadRadius: 0.2)],
                 color: AppColors.whiteColor,
@@ -29,28 +30,20 @@ class OrganizedWidget extends StatelessWidget {
                 ),
               ),
               child: Row(
-                children: [Expanded(child: titleWidget!)],
+                children: [Expanded(child: titleWidget ?? SizedBox())],
               ),
             ),
+          Container(width: 1.sw, height: 1, color: Colors.white10),
           Container(
+            padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8),
             width: 1.sw,
-            height: 1,
-            color: Colors.white10,
-          ),
-          Container(
-            padding: EdgeInsets.all(16.0),
-            width: 1.sw,
-            alignment: Alignment.center,
+            alignment: Alignment.centerRight,
             decoration: BoxDecoration(
               // boxShadow: [BoxShadow(color: AppColors.grayColor, blurRadius: 5, spreadRadius: 0.2)],
               color: Colors.white,
-              borderRadius: titleWidget != null
-                  ? BorderRadius.vertical(
-                      bottom: Radius.circular(15),
-                    )
-                  : BorderRadius.all(
-                      Radius.circular(15),
-                    ),
+              borderRadius: BorderRadius.vertical(
+                bottom: Radius.circular(15),
+              ),
             ),
             child: bodyWidget,
           ),

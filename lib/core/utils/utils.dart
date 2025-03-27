@@ -4,10 +4,7 @@ import 'package:pluto_grid/pluto_grid.dart';
 import '../helper/enums/enums.dart';
 
 String generateId(RecordType recordType) {
-  var epoch = DateTime
-      .now()
-      .microsecondsSinceEpoch
-      .toString();
+  var epoch = DateTime.now().microsecondsSinceEpoch.toString();
   switch (recordType) {
     case RecordType.bond:
       return "bon$epoch";
