@@ -26,9 +26,9 @@ void scheduleLoginNotification({
   final now = DateTime.now();
 
   if (isLogin) {
-    timeDate = timeDate.copyWith(minute: timeDate.minute + 10);
+    timeDate = timeDate.copyWith(minute: timeDate.minute + 0);
   } else {
-    timeDate = timeDate.copyWith(minute: timeDate.minute - 10);
+    timeDate = timeDate.copyWith(minute: timeDate.minute - 0);
   }
 
   // إذا كان وقت الدخول المحدد قد مرّ اليوم، نضيف يومًا واحدًا

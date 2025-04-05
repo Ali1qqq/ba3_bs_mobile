@@ -133,9 +133,6 @@ class BillEntryBondCreator extends BaseEntryBondCreator<BillModel> {
     ];
   }
 
-  /// Helper function for calculating simulated VAT.
-  double _calculateSimulatedVat(BillItem item) => ((double.parse(item.itemTotalPrice) / 1.05) * 0.05);
-
   /// Helper function for calculating the actual VAT value.
   double _calculateActualVat(BillItem item) => item.itemVatPrice! * item.itemQuantity;
 

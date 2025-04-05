@@ -46,8 +46,9 @@ class CopyEndPeriodUseCase {
     double billTotal = billRecords.fold(0, (sum, record) => sum + (record.invRecTotal ?? 0));
 
     List<BillModel> linkedBills = [];
-
+//TODO: edite free bill
     final billModel = BillModel.fromBillData(
+      freeBill: false,
       status: Status.approved,
       billPayType: InvPayType.cash.index,
       billDate: DateTime.now(),

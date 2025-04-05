@@ -1,4 +1,3 @@
-import 'package:ba3_bs_mobile/features/accounts/data/models/account_model.dart';
 import 'package:flutter/material.dart';
 
 import '../../features/customer/data/models/customer_model.dart';

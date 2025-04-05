@@ -1,10 +1,12 @@
 import 'dart:developer';
 
 import 'package:ba3_bs_mobile/core/constants/app_constants.dart';
+import 'package:ba3_bs_mobile/core/constants/app_strings.dart';
 import 'package:ba3_bs_mobile/core/helper/enums/enums.dart';
 import 'package:ba3_bs_mobile/core/helper/extensions/getx_controller_extensions.dart';
 import 'package:ba3_bs_mobile/core/helper/extensions/task_status_extension.dart';
 import 'package:ba3_bs_mobile/core/helper/mixin/app_navigator.dart';
+import 'package:ba3_bs_mobile/core/helper/notifications/easy_notifications.dart';
 import 'package:ba3_bs_mobile/core/models/query_filter.dart';
 import 'package:ba3_bs_mobile/features/sellers/controllers/seller_sales_controller.dart';
 import 'package:ba3_bs_mobile/features/user_task/controller/all_task_controller.dart';
@@ -277,6 +279,7 @@ class UserManagementController extends GetxController with AppNavigator, Firesto
     loggedInUserModel = firstFetchedUser;
 
     _sharedPreferencesService.setString(AppConstants.userIdKey, loggedInUserModel?.userId ?? '');
+    initNotifications(firstFetchedUser);
     offAll(AppRoutes.mainLayout);
   }
 
@@ -423,7 +426,6 @@ class UserManagementController extends GetxController with AppNavigator, Firesto
         sellerId: loggedInUserModel!.userSellerId!, dateTimeRange: DateTimeRange(start: startDay, end: endDay), materialId: materialId);
   }
 
-/*'5eae14a3-aaa5-4309-bc44-f541def66fe1'*/
   void updateInventoryTask({required UserTaskModel task}) async {
     late UserTaskModel updatedTask;
     if (task.status.isInProgress) {
@@ -468,5 +470,27 @@ class UserManagementController extends GetxController with AppNavigator, Firesto
 
   UserModel? getUserBySellerId(String sellerId) {
     return allUsers.firstWhereOrNull((user) => user.userSellerId == sellerId);
+  }
+
+  void initNotifications(UserModel firstFetchedUser) {
+    log("initNotifications");
+
+    log("${firstFetchedUser.userWorkingHours?.length}", name: 'initNotifications');
+    firstFetchedUser.userWorkingHours?.forEach(
+      (key, value) {
+        scheduleLoginNotification(
+            time: value.enterTime!,
+            userName: firstFetchedUser.userName!,
+            title: AppStrings.timeToLogIn,
+            isLogin: true,
+            holidays: firstFetchedUser.userHolidays ?? []);
+        scheduleLoginNotification(
+            time: value.outTime!,
+            userName: firstFetchedUser.userName!,
+            title: AppStrings.timeToLogOut,
+            isLogin: false,
+            holidays: firstFetchedUser.userHolidays ?? []);
+      },
+    );
   }
 }

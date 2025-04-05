@@ -106,11 +106,6 @@ abstract class AppConstants {
   static const stripSales = "م Strip";
   static const cardSales = "م Card";
 
-
-
-
-
-
   ////////////--------------------------------------------------
   static const rowImportName = "rowImportName";
   static const rowImportPrice = "rowImportPrice";
@@ -236,7 +231,6 @@ abstract class AppConstants {
     AppConstants.roleViewCard,
     AppConstants.roleViewHome
   ];
-
 
   static const String success = 'success';
   static const String badRequestError = 'bad_request_error';
@@ -377,28 +371,26 @@ abstract class AppConstants {
   static const String returnTaxAccountId = '81e6d822-e3ee-4f42-92bf-f96eed4a0045';
   static const String returnTaxAccountName = 'استرداد ضريبة القيمة المضافة رأس الخيمة';
 
-
-
-
   ///------------------------------------------
   static const String taxFreeAccountId = '19dccbca-b32e-4604-b37c-980cbbd2f15a';
   static const String taxFreeAccountName = 'ضريبة القيمة المضافة فري زون';
   static const String returnFreeTaxAccountId = '2181459c-3293-42f5-b80e-7232e824786f';
   static const String returnFreeTaxAccountName = 'استرداد ضريبة القيمة المضافة فري زون';
 
-
-
-
   ///------------------------------------------
   static const String primaryCashAccountId = '5b36c82d-9105-4177-a5c3-0f90e5857e3c';
   static const String primaryCashAccountName = 'الصندوق';
 
+  /// Location Of Burj Al Arab Store
   static const double targetLatitude = 25.793679566610773; // Latitude المنطقة المستهدفة
   static const double targetLongitude = 55.948330278435; // Longitude المنطقة المستهدفة
-  static const double radiusInMeters = 25;
-  static const double secondTargetLatitude = 25.765046214850365; // Latitude المنطقة المستهدفة
-  static const double secondTargetLongitude = 55.970645196084746; // Longitude المنطقة المستهدفة
+  static const double radiusInMeters = 50;
+
+  /// Location Of Ba3 Company
+  static const double secondTargetLatitude = 25.765356913421826; // Latitude المنطقة المستهدفة
+  static const double secondTargetLongitude = 55.97059530304945; // Longitude المنطقة المستهدفة
   static const double secondRadiusInMeters = 50;
+
   ////// pluto Filed Names
   static const String materialIdFiled = 'materialIdFiled';
   static const String materialGroupIdFiled = 'materialGroupIdFiled';
@@ -406,8 +398,7 @@ abstract class AppConstants {
   static const String accountIdFiled = 'accountIdFiled';
   static const String entryBonIdFiled = 'entryBonIdFiled';
   static const String billIdFiled = 'billIdFiled';
-  static var bondIdFiled='bondIdFiled';
-
+  static var bondIdFiled = 'bondIdFiled';
 
   /////
   static const bool hideInvRecProductSoldSerial = false;
@@ -432,6 +423,4 @@ abstract class AppConstants {
     "نوفمبر (11)": "11",
     "ديسمبر (12)": "12",
   };
-
-
 }

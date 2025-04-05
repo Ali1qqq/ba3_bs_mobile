@@ -26,6 +26,7 @@ class CustomerModel {
   final String? certificate;
   final String? defaultAddressGuid;
   final String? cusVatGuid;
+  final bool? customerHasVat;
 
   CustomerModel({
     this.id,
@@ -55,6 +56,7 @@ class CustomerModel {
     this.certificate,
     this.defaultAddressGuid,
     this.cusVatGuid,
+    this.customerHasVat,
   });
 
   factory CustomerModel.fromJson(Map<String, dynamic> json) {
@@ -86,6 +88,7 @@ class CustomerModel {
       certificate: json['certificate'] as String?,
       defaultAddressGuid: json['defaultAddressGuid'] as String?,
       cusVatGuid: json['cusVatGuid'] as String?,
+      customerHasVat: json['cusVatGuid'] == 'kCfkUHwNyRbxTlD71uXV' ? false : true,
     );
   }
 

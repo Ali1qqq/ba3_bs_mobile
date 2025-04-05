@@ -3,7 +3,6 @@ import 'dart:developer';
 import 'package:ba3_bs_mobile/core/helper/extensions/basic/string_extension.dart';
 import 'package:ba3_bs_mobile/core/helper/extensions/bill/bill_model_extensions.dart';
 import 'package:ba3_bs_mobile/core/helper/extensions/bill/bill_pattern_type_extension.dart';
-import 'package:ba3_bs_mobile/core/helper/extensions/date_time/date_time_extensions.dart';
 import 'package:ba3_bs_mobile/core/helper/mixin/app_navigator.dart';
 import 'package:ba3_bs_mobile/core/helper/validators/app_validator.dart';
 import 'package:ba3_bs_mobile/core/i_controllers/i_bill_controller.dart';
@@ -19,6 +18,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../../../core/constants/app_strings.dart';
+import '../../../../core/dialogs/custom_alert_dialog/helper_alert.dart';
 import '../../../../core/helper/enums/enums.dart';
 import '../../../../core/helper/extensions/getx_controller_extensions.dart';
 import '../../../../core/network/api_constants.dart';
@@ -33,7 +33,8 @@ import '../../../materials/controllers/material_controller.dart';
 import '../../../materials/data/models/materials/material_model.dart';
 import '../../../materials/service/serial_number_model_factory.dart';
 import '../../../patterns/data/models/bill_type_model.dart';
-import '../../../print/controller/print_controller.dart';
+import '../../../sellers/data/models/seller_model.dart';
+import '../../../users_management/controllers/user_management_controller.dart';
 import '../../data/models/bill_items.dart';
 import '../../data/models/invoice_record_model.dart';
 import '../../services/bill/account_handler.dart';
@@ -82,6 +83,7 @@ class BillDetailsController extends IBillController
 
   CustomerModel? selectedCustomerAccount;
   AccountModel? selectedBillAccount;
+  SellerModel? selectedSellerAccount;
 
   Rx<DateTime> billDate = DateTime.now().obs;
 
@@ -97,6 +99,8 @@ class BillDetailsController extends IBillController
 
   bool get isCash => selectedPayType.value == InvPayType.cash;
 
+  Rx<RequestState> saveBillRequestState = RequestState.initial.obs;
+
   @override
   void onSelectedStoreChanged(StoreAccount? newStore) {
     if (newStore != null) {
@@ -105,10 +109,15 @@ class BillDetailsController extends IBillController
   }
 
   // @override
-  void updateCustomerAccount(CustomerModel? newAccount) {
+  void updateCustomerAccount(CustomerModel? newAccount, BillTypeModel billTypeModel) {
     if (newAccount != null) {
       selectedCustomerAccount = newAccount;
       customerAccountController.text = newAccount.name!;
+      if (billTypeModel.isPurchaseRelated && newAccount.customerHasVat != true) {
+        billDetailsPlutoController.clearVat();
+      } else {
+        billDetailsPlutoController.returnVat();
+      }
     }
   }
 
@@ -145,7 +154,16 @@ class BillDetailsController extends IBillController
     _accountHandler = AccountHandler();
   }
 
-  bool validateForm() => formKey.currentState?.validate() ?? false;
+  Future<bool> validateForm(BuildContext context) async {
+    bool validate = true;
+    if (selectedSellerAccount == null) {
+      return await HelperAlert.showConfirm(
+        context: context,
+        text: AppStrings.areYouSureContinueWithoutSeller.tr,
+      );
+    }
+    return validate;
+  }
 
   String? validator(String? value, String fieldName) => isFieldValid(value, fieldName);
 
@@ -165,19 +183,12 @@ class BillDetailsController extends IBillController
 
   Future<void> printBill(
       {required BuildContext context, required BillModel billModel, required List<InvoiceRecordModel> invRecords}) async {
-    if (!_billService.hasModelId(billModel.billId)) return;
-
-    await read<PrintingController>().startPrinting(
-      context: context,
-      invRecords: invRecords,
-      billNumber: billModel.billDetails.billNumber!,
-      invDate: billDate.value.dayMonthYear,
-    );
+    return;
   }
 
-  void createEntryBond(BillModel billModel, BuildContext context) {
-    if (!validateForm()) return;
-
+  void createEntryBond(BillModel billModel, BuildContext context) async {
+    if (!await validateForm(context)) return;
+    if (!context.mounted) return;
     _billService.launchFloatingEntryBondDetailsScreen(
       context: context,
       billModel: billModel,
@@ -411,7 +422,8 @@ class BillDetailsController extends IBillController
   Future<void> _saveOrUpdateBill(
       {required BuildContext context, required BillTypeModel billTypeModel, BillModel? existingBill, required bool withPrint}) async {
     // Validate the form first
-    if (!validateForm()) return;
+
+    if (!await validateForm(context)) return;
 
     // 2. Create the bill model or handle failure and exit
     final updatedBillModel = _buildBillModelOrNotifyFailure(billTypeModel, existingBill);
@@ -423,7 +435,7 @@ class BillDetailsController extends IBillController
     if (!_billService.hasModelItems(updatedBillModel.items.itemList)) return;
 
     if (_isNoUpdate(existingBill, updatedBillModel)) return;
-
+    if (!context.mounted) return;
     await _saveBillAndHandleResult(context, updatedBillModel, existingBill, withPrint);
   }
 
@@ -437,18 +449,23 @@ class BillDetailsController extends IBillController
 
   /// Saves the [updatedBill] and handles success/failure UI feedback.
   Future<void> _saveBillAndHandleResult(BuildContext context, BillModel updatedBill, BillModel? existingBill, bool withPrint) async {
+    saveBillRequestState.value = RequestState.loading;
+
     final result = await _billsFirebaseRepo.save(updatedBill);
 
-    result.fold(
+    await result.fold(
       (failure) => AppUIUtils.onFailure(failure.message),
-      (savedBill) {
-        _billService.handleSaveOrUpdateSuccess(
-            context: context,
-            previousBill: existingBill,
-            currentBill: savedBill,
-            billSearchController: billSearchController,
-            isSave: existingBill == null,
-            withPrint: withPrint);
+      (savedBill) async {
+        await _billService.handleSaveOrUpdateSuccess(
+          context: context,
+          previousBill: existingBill,
+          currentBill: savedBill,
+          billSearchController: billSearchController,
+          isSave: existingBill == null,
+          withPrint: withPrint,
+        );
+
+        saveBillRequestState.value = RequestState.success;
       },
     );
   }
@@ -494,17 +511,15 @@ class BillDetailsController extends IBillController
         log('onSaveSerialsSuccess serial: ${serial.toJson()}');
       }
 
-      if (materialModel != null) {
-        // Ensure non-null keys and values
-        final Map<String, bool> updatedSerialNumbers = {
-          ...?materialModel.serialNumbers, // Preserve existing serials
-          for (final serial in savedSerialsModels.where((s) => s.matId == material.id))
-            if (serial.serialNumber != null && serial.transactions.last.sold != null) serial.serialNumber!: serial.transactions.last.sold!,
-        };
+      // Ensure non-null keys and values
+      final Map<String, bool> updatedSerialNumbers = {
+        ...?materialModel?.serialNumbers, // Preserve existing serials
+        for (final serial in savedSerialsModels.where((s) => s.matId == material.id))
+          if (serial.serialNumber != null && serial.transactions.last.sold != null) serial.serialNumber!: serial.transactions.last.sold!,
+      };
 
-        // Update the material model with new serial numbers
-        read<MaterialController>().updateMaterialWithChanges(materialModel.copyWith(serialNumbers: updatedSerialNumbers));
-      }
+      // Update the material model with new serial numbers
+      read<MaterialController>().updateMaterialWithChanges(materialModel!.copyWith(serialNumbers: updatedSerialNumbers));
     });
   }
 
@@ -537,8 +552,6 @@ class BillDetailsController extends IBillController
   }
 
   BillModel? _createBillModelFromBillData(BillTypeModel billTypeModel, [BillModel? billModel]) {
-    final sellerController = read<SellersController>();
-
     // Validate customer and seller accounts
     if (billTypeModel.billPatternType!.hasCashesAccount || billTypeModel.billPatternType!.hasMaterialAccount) {
       if (/*!_billUtils.validateCustomerAccount(selectedCustomerAccount)&&*/ !_billUtils.validateBillAccount(selectedBillAccount)) {
@@ -546,7 +559,7 @@ class BillDetailsController extends IBillController
       }
     }
 
-    if (!_billUtils.validateSellerAccount(sellerController.selectedSellerAccount)) {
+    if (!_billUtils.validateSellerAccount(selectedSellerAccount)) {
       return null;
     }
 
@@ -561,6 +574,7 @@ class BillDetailsController extends IBillController
     // Create and return the bill model
     return _billService.createBillModel(
       billModel: billModel,
+      freeBill: advancedSwitchController.value,
       billNote: noteController.text,
       orderNumber: orderNumberController.text,
       customerPhone: customerPhoneController.text,
@@ -569,7 +583,7 @@ class BillDetailsController extends IBillController
       billFirstPay: firstPayController.text.toDouble,
       billCustomerId: selectedCustomerAccount?.id! ?? "00000000-0000-0000-0000-000000000000",
       billAccountId: selectedBillAccount?.id! ?? "00000000-0000-0000-0000-000000000000",
-      billSellerId: sellerController.selectedSellerAccount!.costGuid ?? '',
+      billSellerId: selectedSellerAccount?.costGuid ?? '',
       billPayType: selectedPayType.value.index,
     );
   }
@@ -626,13 +640,39 @@ class BillDetailsController extends IBillController
     initBillNumberController(bill.billDetails.billNumber);
     initCustomerAccount(read<CustomersController>().getCustomerById(bill.billDetails.billCustomerId));
     initBillAccount(bill.billTypeModel.accounts?[BillAccounts.caches]);
+    initFreeLocalSwitcher(bill.freeBill);
 
-    read<SellersController>().initSellerAccount(sellerId: bill.billDetails.billSellerId, billDetailsController: this);
+    initSellerAccount(sellerId: bill.billDetails.billSellerId);
 
     prepareBillRecords(bill.items, billPlutoController);
     prepareAdditionsDiscountsRecords(bill, billPlutoController);
 
     billPlutoController.update();
+  }
+
+  void initSellerAccount({
+    required String? sellerId,
+  }) {
+    final String? billSellerId = sellerId ?? read<UserManagementController>().loggedInUserModel?.userSellerId;
+
+    if (billSellerId == null) {
+      selectedSellerAccount = null;
+
+      sellerAccountController.text = '';
+    } else {
+      final SellerModel sellerAccount = read<SellersController>().getSellerById(billSellerId);
+
+      updateSellerAccount(sellerAccount);
+
+      sellerAccountController.text = sellerAccount.costName!;
+    }
+  }
+
+  updateSellerAccount(SellerModel? newAccount) {
+    if (newAccount != null) {
+      selectedSellerAccount = newAccount;
+      sellerAccountController.text = newAccount.costName!;
+    }
   }
 
   void generateAndSendBillPdfToEmail(BillModel billModel, {String? recipientEmail}) {
@@ -656,6 +696,20 @@ class BillDetailsController extends IBillController
   showEInvoiceDialog(BillModel billModel, BuildContext context) => _billService.showEInvoiceDialog(billModel, context);
 
   void openFirstPayDialog(BuildContext context) => _billService.showFirstPayDialog(context, firstPayController);
+
+  // Initialize the AdvancedSwitchController with a default value.
+  final advancedSwitchController = ValueNotifier(false);
+
+  // Optional: helper method to update the switch value.
+  void updateSwitch(bool newValue) {
+    advancedSwitchController.value = newValue;
+    // You can call update() if you are using GetBuilder or other reactive methods.
+    update();
+  }
+
+  void initFreeLocalSwitcher(bool? freeBill) {
+    advancedSwitchController.value = freeBill ?? false;
+  }
 
   /// this for mobile
   showBarCodeScanner(BuildContext context, BillTypeModel billTypeModel) => _billService.showBarCodeScanner(

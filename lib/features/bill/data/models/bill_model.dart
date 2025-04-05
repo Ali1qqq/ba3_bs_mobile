@@ -3,7 +3,6 @@ import 'package:ba3_bs_mobile/core/helper/extensions/basic/date_format_extension
 import 'package:ba3_bs_mobile/core/helper/extensions/bill/bill_pattern_type_extension.dart';
 import 'package:ba3_bs_mobile/core/helper/extensions/date_time/date_time_extensions.dart';
 import 'package:ba3_bs_mobile/core/utils/app_service_utils.dart';
-import 'package:ba3_bs_mobile/features/accounts/controllers/accounts_controller.dart';
 import 'package:ba3_bs_mobile/features/accounts/data/models/account_model.dart';
 import 'package:ba3_bs_mobile/features/bill/data/models/discount_addition_account_model.dart';
 import 'package:ba3_bs_mobile/features/materials/controllers/material_controller.dart';
@@ -29,6 +28,7 @@ class BillModel extends PlutoAdaptable with EquatableMixin {
 
   final BillItems items;
   final BillDetails billDetails;
+  final bool? freeBill;
 
   final Status status;
 
@@ -38,10 +38,12 @@ class BillModel extends PlutoAdaptable with EquatableMixin {
     required this.items,
     required this.billDetails,
     required this.status,
+    required this.freeBill,
   });
 
   factory BillModel.fromJson(Map<String, dynamic> json) => BillModel(
         billId: json['docId'],
+        freeBill: json['freeBill'],
         billTypeModel: BillTypeModel.fromJson(json['billTypeModel']),
         billDetails: BillDetails.fromJson(json['billDetails']),
         items: BillItems.fromJson(json['items']),
@@ -51,6 +53,7 @@ class BillModel extends PlutoAdaptable with EquatableMixin {
   factory BillModel.empty({required BillTypeModel billTypeModel, int lastBillNumber = 0, int? previousBillNumber}) => BillModel(
         billTypeModel: billTypeModel,
         status: Status.pending,
+        freeBill: false,
         items: const BillItems(itemList: []),
         billDetails: BillDetails(
           billPayType: InvPayType.cash.index,
@@ -79,6 +82,7 @@ class BillModel extends PlutoAdaptable with EquatableMixin {
     required double billFirstPay,
     required double billWithoutVatTotal,
     required BillTypeModel billTypeModel,
+    required bool freeBill,
     required List<InvoiceRecordModel> billRecords,
   }) {
     final billDetails = BillDetails.fromBillData(
@@ -108,109 +112,129 @@ class BillModel extends PlutoAdaptable with EquatableMixin {
             billDetails: billDetails,
             items: items,
             status: status,
+            freeBill: freeBill,
           )
         : billModel.copyWith(
             billTypeModel: billTypeModel,
             billDetails: billDetails,
             items: items,
             status: status,
+            freeBill: freeBill,
           );
   }
 
-  factory BillModel.fromImportedJsonFile(Map<String, dynamic> billData) {
+  factory BillModel.fromImportedJsonFile(Map<String, dynamic> billData, bool freeBill) {
     DateFormat dateFormat = DateFormat('yyyy-M-d');
     double billTotal = 0;
     double billVatTotal = 0;
     double billGiftsTotal = 0;
+
     return BillModel(
       status: Status.approved,
+      freeBill: freeBill,
       billId: billData['B']['BillGuid'],
       items: BillItems(
         itemList: (billData['Items']['I'] is List<dynamic>)
             ? (billData['Items']['I'] as List<dynamic>).map((item) {
+                /*       int vatRatio =  5;
+                double itemSubTotal = double.parse(item['PriceDescExtra'].split(',').first)/ 1.05;*/
+                int vatRatio = int.parse(item['VatRatio']);
+                double itemSubTotal = double.parse(item['PriceDescExtra'].split(',').first);
+
+                int itemQuantity = int.parse(item['QtyBonus'].split(',').first);
+                int itemGiftsNumber = int.parse(item['QtyBonus'].split(',')[1]);
+
                 // حساب المجموعات للعناصر داخل القائمة
                 billTotal += AppServiceUtils.calcTotal(
-                  int.parse(item['QtyBonus'].split(',').first),
-                  double.parse(item['PriceDescExtra'].split(',').first),
+                  itemQuantity,
+                  itemSubTotal,
                   AppServiceUtils.calcVat(
-                    int.parse(item['VatRatio']),
-                    double.parse(item['PriceDescExtra'].split(',').first),
+                    vatRatio,
+                    itemSubTotal,
                   ).toDouble(),
                 );
                 billGiftsTotal += AppServiceUtils.calcGiftPrice(
-                  int.parse(item['QtyBonus'].split(',')[1]),
-                  double.parse(item['PriceDescExtra'].split(',').first),
+                  itemGiftsNumber,
+                  itemSubTotal,
                 );
                 billVatTotal += AppServiceUtils.calcVat(
-                  int.parse(item['VatRatio']),
-                  double.parse(item['PriceDescExtra'].split(',').first),
+                  vatRatio,
+                  itemSubTotal,
                 ).toDouble();
 
                 return BillItem(
                   itemGuid: item['MatPtr'],
-                  itemQuantity: int.parse(item['QtyBonus'].split(',').first),
-                  itemSubTotalPrice: double.parse(item['PriceDescExtra'].split(',').first),
+                  itemQuantity: itemQuantity,
+                  itemSubTotalPrice: itemSubTotal,
                   itemTotalPrice: AppServiceUtils.calcTotal(
-                    int.parse(item['QtyBonus'].split(',').first),
-                    double.parse(item['PriceDescExtra'].split(',').first),
+                    itemQuantity,
+                    itemSubTotal,
                     AppServiceUtils.calcVat(
-                      int.parse(item['VatRatio']),
-                      double.parse(item['PriceDescExtra'].split(',').first),
+                      vatRatio,
+                      itemSubTotal,
                     ).toDouble(),
                   ).toString(),
                   itemGiftsPrice: AppServiceUtils.calcGiftPrice(
-                    int.parse(item['QtyBonus'].split(',')[1]),
-                    double.parse(item['PriceDescExtra'].split(',').first),
+                    itemGiftsNumber,
+                    itemSubTotal,
                   ),
-                  itemGiftsNumber: int.parse(item['QtyBonus'].split(',')[1]),
+                  itemGiftsNumber: itemGiftsNumber,
                   itemName: item['MatName'],
                   itemVatPrice: AppServiceUtils.calcVat(
-                    int.parse(item['VatRatio']),
-                    double.parse(item['PriceDescExtra'].split(',').first),
+                    vatRatio,
+                    itemSubTotal,
                   ),
                 );
               }).toList()
             : [
                 () {
                   final item = billData['Items']['I'];
+
+                  /*            int vatRatio =  5;
+                  double itemSubTotal = double.parse(item['PriceDescExtra'].split(',').first)/ 1.05;*/
+                  int vatRatio = int.parse(item['VatRatio']);
+                  double itemSubTotal = double.parse(item['PriceDescExtra'].split(',').first);
+
+                  int itemQuantity = int.parse(item['QtyBonus'].split(',').first);
+                  int itemGiftsNumber = int.parse(item['QtyBonus'].split(',')[1]);
                   billTotal += AppServiceUtils.calcTotal(
-                    int.parse(item['QtyBonus'].split(',').first),
-                    double.parse(item['PriceDescExtra'].split(',').first),
+                    itemQuantity,
+                    itemSubTotal,
                     AppServiceUtils.calcVat(
-                      int.parse(item['VatRatio']),
-                      double.parse(item['PriceDescExtra'].split(',').first),
+                      vatRatio,
+                      itemSubTotal,
                     ).toDouble(),
                   );
                   billGiftsTotal += AppServiceUtils.calcGiftPrice(
-                    int.parse(item['QtyBonus'].split(',')[1]),
-                    double.parse(item['PriceDescExtra'].split(',').first),
+                    itemGiftsNumber,
+                    itemSubTotal,
                   );
                   billVatTotal += AppServiceUtils.calcVat(
-                    int.parse(item['VatRatio']),
-                    double.parse(item['PriceDescExtra'].split(',').first),
+                    vatRatio,
+                    itemSubTotal,
                   ).toDouble();
 
                   return BillItem(
                     itemGuid: item['MatPtr'],
-                    itemQuantity: int.parse(item['QtyBonus'].split(',').first),
-                    itemSubTotalPrice: double.parse(item['PriceDescExtra'].split(',').first),
+                    itemQuantity: itemQuantity,
+                    itemSubTotalPrice: itemSubTotal,
                     itemTotalPrice: AppServiceUtils.calcTotal(
-                      int.parse(item['QtyBonus'].split(',').first),
-                      double.parse(item['PriceDescExtra'].split(',').first),
+                      itemQuantity,
+                      itemSubTotal,
                       AppServiceUtils.calcVat(
-                        int.parse(item['VatRatio']),
-                        double.parse(item['PriceDescExtra'].split(',').first),
+                        vatRatio,
+                        itemSubTotal,
                       ),
                     ).toString(),
                     itemGiftsPrice: AppServiceUtils.calcGiftPrice(
-                      int.parse(item['QtyBonus'].split(',')[1]),
-                      double.parse(item['PriceDescExtra'].split(',').first),
+                      itemGiftsNumber,
+                      itemSubTotal,
                     ),
-                    itemGiftsNumber: int.parse(item['QtyBonus'].split(',')[1]),
+                    itemGiftsNumber: itemGiftsNumber,
                     itemName: read<MaterialController>().getMaterialNameById(item['MatPtr'].toString()),
                     itemVatPrice: AppServiceUtils.calcVat(
-                      int.parse(item['VatRatio']),
-                      double.parse(item['PriceDescExtra'].split(',').first),
+                      vatRatio,
+                      itemSubTotal,
                     ),
                   );
                 }(),
@@ -259,8 +283,8 @@ class BillModel extends PlutoAdaptable with EquatableMixin {
           },
           accounts: {
             BillAccounts.caches: AccountModel(
-              id: billData['B']['BillCustPtr'],
-              accName: billData['B']['BillCustName'],
+              id: billData['B']['BillCustAccId'],
+              accName: billData['B']['BillCustAccName'],
             ),
             if (_billTypeByGuid(billData['B']['BillTypeGuid']).billPatternType.hasMaterialAccount)
               BillAccounts.materials: _billTypeByGuid(billData['B']['BillTypeGuid']).accounts[BillAccounts.materials]!,
@@ -272,8 +296,9 @@ class BillModel extends PlutoAdaptable with EquatableMixin {
               BillAccounts.discounts: _billTypeByGuid(billData['B']['BillTypeGuid']).accounts[BillAccounts.discounts]!,
             if (_billTypeByGuid(billData['B']['BillTypeGuid']).billPatternType.hasAdditionsAccount)
               BillAccounts.additions: _billTypeByGuid(billData['B']['BillTypeGuid']).accounts[BillAccounts.additions]!,
-            BillAccounts.store: AccountModel(
-                id: billData['B']['BillStoreGuid'], accName: read<AccountsController>().getAccountNameById(billData['B']['BillStoreGuid'])),
+            BillAccounts.store: AccountModel(accName: "المستودع الرئيسي", id: '6d9836d1-fccd-4006-804f-81709eecde57')
+            /*AccountModel(
+                id: billData['B']['BillStoreGuid'], accName: read<AccountsController>().getAccountNameById(billData['B']['BillStoreGuid'])),*/
           },
           id: billData['B']['BillTypeGuid'],
           fullName: _billTypeByGuid(billData['B']['BillTypeGuid']).value,
@@ -292,6 +317,7 @@ class BillModel extends PlutoAdaptable with EquatableMixin {
         'billDetails': billDetails.toJson(),
         'items': items.toJson(),
         'status': status.value,
+        'freeBill': freeBill,
       };
 
   BillModel copyWith({
@@ -300,6 +326,7 @@ class BillModel extends PlutoAdaptable with EquatableMixin {
     final BillItems? items,
     final BillDetails? billDetails,
     final Status? status,
+    final bool? freeBill,
   }) =>
       BillModel(
         billId: billId ?? this.billId,
@@ -307,6 +334,7 @@ class BillModel extends PlutoAdaptable with EquatableMixin {
         items: items ?? this.items,
         billDetails: billDetails ?? this.billDetails,
         status: status ?? this.status,
+        freeBill: freeBill ?? this.freeBill,
       );
 
   @override

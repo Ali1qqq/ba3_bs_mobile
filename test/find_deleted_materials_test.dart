@@ -8,10 +8,12 @@ import 'package:ba3_bs_mobile/features/patterns/data/models/bill_type_model.dart
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  //TODO: edite free bill for all file
   /// Find deleted materials
   group('findDeletedMaterials', () {
     test('returns empty map when no items are deleted (identical bills)', () {
       final previousBill = BillModel(
+        freeBill: false,
         billTypeModel: BillTypeModel(),
         billDetails: BillDetails(),
         status: Status.approved,
@@ -22,6 +24,7 @@ void main() {
       );
 
       final currentBill = BillModel(
+        freeBill: false,
         billTypeModel: BillTypeModel(),
         billDetails: BillDetails(),
         status: Status.approved,
@@ -38,6 +41,7 @@ void main() {
 
     test('returns deleted items when some items are removed', () {
       final previousBill = BillModel(
+        freeBill: false,
         billTypeModel: BillTypeModel(),
         billDetails: BillDetails(),
         status: Status.approved,
@@ -48,6 +52,7 @@ void main() {
       );
 
       final currentBill = BillModel(
+        freeBill: false,
         billTypeModel: BillTypeModel(),
         billDetails: BillDetails(),
         status: Status.approved,
@@ -64,6 +69,7 @@ void main() {
 
     test('returns all items when all items are deleted (current bill is empty)', () {
       final previousBill = BillModel(
+        freeBill: false,
         billTypeModel: BillTypeModel(),
         billDetails: BillDetails(),
         status: Status.approved,
@@ -74,6 +80,7 @@ void main() {
       );
 
       final currentBill = BillModel(
+        freeBill: false,
         billTypeModel: BillTypeModel(),
         billDetails: BillDetails(),
         status: Status.approved,
@@ -89,6 +96,7 @@ void main() {
 
     test('returns empty map when previous bill is empty (no items to delete)', () {
       final previousBill = BillModel(
+        freeBill: false,
         billTypeModel: BillTypeModel(),
         billDetails: BillDetails(),
         status: Status.approved,
@@ -96,6 +104,7 @@ void main() {
       );
 
       final currentBill = BillModel(
+        freeBill: false,
         billTypeModel: BillTypeModel(),
         billDetails: BillDetails(),
         status: Status.approved,
@@ -111,6 +120,7 @@ void main() {
 
     test('returns empty map when previous bill has duplicates and one instance is removed', () {
       final previousBill = BillModel(
+        freeBill: false,
         billTypeModel: BillTypeModel(),
         billDetails: BillDetails(),
         status: Status.approved,
@@ -122,6 +132,7 @@ void main() {
       );
 
       final currentBill = BillModel(
+        freeBill: false,
         billTypeModel: BillTypeModel(),
         billDetails: BillDetails(),
         status: Status.approved,
@@ -139,6 +150,7 @@ void main() {
 
     test('returns only one deleted item when previous bill has duplicates and all instances are removed', () {
       final previousBill = BillModel(
+        freeBill: false,
         billTypeModel: BillTypeModel(),
         billDetails: BillDetails(),
         status: Status.approved,
@@ -150,6 +162,7 @@ void main() {
       );
 
       final currentBill = BillModel(
+        freeBill: false,
         billTypeModel: BillTypeModel(),
         billDetails: BillDetails(),
         status: Status.approved,
@@ -167,6 +180,7 @@ void main() {
 
     test('returns empty map when previous bill has duplicates and one instance of each item is removed', () {
       final previousBill = BillModel(
+        freeBill: false,
         billTypeModel: BillTypeModel(),
         billDetails: BillDetails(),
         status: Status.approved,
@@ -179,6 +193,7 @@ void main() {
       );
 
       final currentBill = BillModel(
+        freeBill: false,
         billTypeModel: BillTypeModel(),
         billDetails: BillDetails(),
         status: Status.approved,
@@ -197,6 +212,7 @@ void main() {
 
     test('returns empty map when previous and current bills are empty', () {
       final previousBill = BillModel(
+        freeBill: false,
         billTypeModel: BillTypeModel(),
         billDetails: BillDetails(),
         status: Status.approved,
@@ -204,6 +220,7 @@ void main() {
       );
 
       final currentBill = BillModel(
+        freeBill: false,
         billTypeModel: BillTypeModel(),
         billDetails: BillDetails(),
         status: Status.approved,
@@ -220,6 +237,7 @@ void main() {
   group('findBillItemChanges', () {
     test('returns an empty map when there are no changes (identical bills)', () {
       final previousBill = BillModel(
+        freeBill: false,
         billTypeModel: BillTypeModel(),
         billDetails: BillDetails(),
         status: Status.approved,
@@ -243,6 +261,7 @@ void main() {
 
     test('returns deleted items when some items are removed from the bill', () {
       final previousBill = BillModel(
+        freeBill: false,
         billTypeModel: BillTypeModel(),
         billDetails: BillDetails(),
         status: Status.approved,
@@ -253,6 +272,7 @@ void main() {
       );
 
       final currentBill = BillModel(
+        freeBill: false,
         billTypeModel: BillTypeModel(),
         billDetails: BillDetails(),
         status: Status.approved,
@@ -274,6 +294,7 @@ void main() {
 
     test('returns all items as deleted when the current bill is empty', () {
       final previousBill = BillModel(
+        freeBill: false,
         billTypeModel: BillTypeModel(),
         billDetails: BillDetails(),
         status: Status.approved,
@@ -284,6 +305,7 @@ void main() {
       );
 
       final currentBill = BillModel(
+        freeBill: false,
         billTypeModel: BillTypeModel(),
         billDetails: BillDetails(),
         status: Status.approved,
@@ -304,6 +326,7 @@ void main() {
 
     test('returns only added items when the previous bill is empty', () {
       final previousBill = BillModel(
+        freeBill: false,
         billTypeModel: BillTypeModel(),
         billDetails: BillDetails(),
         status: Status.approved,
@@ -311,6 +334,7 @@ void main() {
       );
 
       final currentBill = BillModel(
+        freeBill: false,
         billTypeModel: BillTypeModel(),
         billDetails: BillDetails(),
         status: Status.approved,
@@ -332,6 +356,7 @@ void main() {
 
     test('returns updated items when duplicate items are reduced in quantity', () {
       final previousBill = BillModel(
+        freeBill: false,
         billTypeModel: BillTypeModel(),
         billDetails: BillDetails(),
         status: Status.approved,
@@ -342,6 +367,7 @@ void main() {
       );
 
       final currentBill = BillModel(
+        freeBill: false,
         billTypeModel: BillTypeModel(),
         billDetails: BillDetails(),
         status: Status.approved,
@@ -365,6 +391,7 @@ void main() {
 
     test('returns an empty map when both previous and current bills are empty', () {
       final previousBill = BillModel(
+        freeBill: false,
         billTypeModel: BillTypeModel(),
         billDetails: BillDetails(),
         status: Status.approved,
@@ -372,6 +399,7 @@ void main() {
       );
 
       final currentBill = BillModel(
+        freeBill: false,
         billTypeModel: BillTypeModel(),
         billDetails: BillDetails(),
         status: Status.approved,
@@ -390,6 +418,7 @@ void main() {
 
     test('does not detect an update if only the item name or price changes', () {
       final previousBill = BillModel(
+        freeBill: false,
         billTypeModel: BillTypeModel(),
         billDetails: BillDetails(),
         status: Status.approved,
@@ -399,6 +428,7 @@ void main() {
       );
 
       final currentBill = BillModel(
+        freeBill: false,
         billTypeModel: BillTypeModel(),
         billDetails: BillDetails(),
         status: Status.approved,
@@ -419,6 +449,7 @@ void main() {
 
     test('detects an item as updated when its quantity increases', () {
       final previousBill = BillModel(
+        freeBill: false,
         billTypeModel: BillTypeModel(),
         billDetails: BillDetails(),
         status: Status.approved,
@@ -428,6 +459,7 @@ void main() {
       );
 
       final currentBill = BillModel(
+        freeBill: false,
         billTypeModel: BillTypeModel(),
         billDetails: BillDetails(),
         status: Status.approved,
@@ -449,6 +481,7 @@ void main() {
 
     test('detects an item as updated when its quantity decreases', () {
       final previousBill = BillModel(
+        freeBill: false,
         billTypeModel: BillTypeModel(),
         billDetails: BillDetails(),
         status: Status.approved,
@@ -458,6 +491,7 @@ void main() {
       );
 
       final currentBill = BillModel(
+        freeBill: false,
         billTypeModel: BillTypeModel(),
         billDetails: BillDetails(),
         status: Status.approved,
@@ -479,6 +513,7 @@ void main() {
 
     test('detects an item as deleted and newly added when it is removed and re-added with different quantity', () {
       final previousBill = BillModel(
+        freeBill: false,
         billTypeModel: BillTypeModel(),
         billDetails: BillDetails(),
         status: Status.approved,
@@ -488,6 +523,7 @@ void main() {
       );
 
       final currentBill = BillModel(
+        freeBill: false,
         billTypeModel: BillTypeModel(),
         billDetails: BillDetails(),
         status: Status.approved,
@@ -510,6 +546,7 @@ void main() {
 
     test('detects multiple additions, deletions, and updates in one operation', () {
       final previousBill = BillModel(
+        freeBill: false,
         billTypeModel: BillTypeModel(),
         billDetails: BillDetails(),
         status: Status.approved,
@@ -521,6 +558,7 @@ void main() {
       );
 
       final currentBill = BillModel(
+        freeBill: false,
         billTypeModel: BillTypeModel(),
         billDetails: BillDetails(),
         status: Status.approved,

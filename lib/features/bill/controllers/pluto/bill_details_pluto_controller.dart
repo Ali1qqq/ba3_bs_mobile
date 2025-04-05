@@ -274,11 +274,6 @@ class BillDetailsPlutoController extends IPlutoController<InvoiceRecordModel> {
     return vatStr.toDouble;
   }
 
-  double _getSubTotalWithVat() {
-    final subTotalWithVat = _extractCellValueAsNumber(AppConstants.invRecSubTotalWithVat);
-    return subTotalWithVat.toDouble;
-  }
-
   String _extractCellValueAsNumber(String field) {
     final cellValue = recordsTableStateManager.currentRow!.cells[field]?.value?.toString() ?? '';
     return AppServiceUtils.extractNumbersAndCalculate(cellValue);
@@ -498,6 +493,16 @@ class BillDetailsPlutoController extends IPlutoController<InvoiceRecordModel> {
     } else if (field == AppConstants.invRecSubTotal) {
       _showPriceTypeMenu(event, materialModel, context, row);
     }
+  }
+
+  clearVat() {
+    _gridService.clearAllVatAndAddedToSubTotal(recordsTableStateManager, billTypeModel);
+    safeUpdateUI();
+  }
+
+  returnVat() {
+    _gridService.returnVatAndAddedToSubTotal(recordsTableStateManager, billTypeModel);
+    safeUpdateUI();
   }
 }
 

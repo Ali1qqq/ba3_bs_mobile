@@ -86,8 +86,7 @@ mixin PdfHelperMixin {
     );
   }
 
-  TextDirection _getTextDirection(String text) =>
-      RegExp(r'[\u0600-\u06FF]').hasMatch(text) ? TextDirection.rtl : TextDirection.ltr;
+  TextDirection _getTextDirection(String text) => RegExp(r'[\u0600-\u06FF]').hasMatch(text) ? TextDirection.rtl : TextDirection.ltr;
 
   Widget buildSpacing() => SizedBox(height: 0.4 * PdfPageFormat.cm);
 
@@ -157,7 +156,7 @@ mixin PdfHelperMixin {
     int r = ((original.r * (1 - factor)) + (255 * factor)).toInt();
     int g = ((original.g * (1 - factor)) + (255 * factor)).toInt();
     int b = ((original.b * (1 - factor)) + (255 * factor)).toInt();
-    return Color.fromARGB(original.alpha, r, g, b).value; // Convert back to int
+    return Color.fromARGB(original.a.toInt(), r, g, b).toARGB32();
   }
 
   String billName(BillModel billModel) => BillType.byLabel(billModel.billTypeModel.billTypeLabel!).value;

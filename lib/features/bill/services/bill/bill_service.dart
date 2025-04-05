@@ -62,6 +62,7 @@ class BillDetailsService with PdfBase, EntryBondsGenerator, MatsStatementsGenera
     required int billPayType,
     required DateTime billDate,
     required double billFirstPay,
+    required bool freeBill,
   }) =>
       BillModel.fromBillData(
         billModel: billModel,
@@ -83,6 +84,7 @@ class BillDetailsService with PdfBase, EntryBondsGenerator, MatsStatementsGenera
         billDiscountsTotal: plutoController.computeDiscounts,
         billAdditionsTotal: plutoController.computeAdditions,
         billRecords: plutoController.generateRecords,
+        freeBill: freeBill,
       );
 
   void launchFloatingEntryBondDetailsScreen({required BuildContext context, required BillModel billModel}) {

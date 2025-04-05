@@ -45,6 +45,7 @@ class StoreCartController extends GetxController {
 
       saveBillFromStoreCardAndHandleResult(
         BillModel(
+          freeBill: false,
           billTypeModel: read<PatternController>().billsTypeSales,
           items: element.storeProducts!.toBillItems(),
           billDetails: BillDetails(

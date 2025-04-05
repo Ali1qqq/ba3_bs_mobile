@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:ba3_bs_mobile/core/helper/extensions/hive_extensions.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:easy_notifications/easy_notifications.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
@@ -37,7 +38,7 @@ Future<void> initializeAppServices() async {
   };
 
   WidgetsFlutterBinding.ensureInitialized();
-
+  EasyNotifications.askPermission();
   //   await initializeWindowSettings();
 
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);

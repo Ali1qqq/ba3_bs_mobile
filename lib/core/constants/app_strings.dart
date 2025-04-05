@@ -387,6 +387,27 @@ class AppStrings {
 
   static String success = 'نجاح';
 
+  static String usersManagement = 'ادارة المستخدمين';
 
   static const String whatsApp = 'WhatsApp';
+
+  static var choseDay = 'اختر اليوم';
+
+  static var error = 'خطأ';
+
+  static var warning = 'تنبيه';
+
+  static var info = 'معلومة';
+
+  static var loading = 'جاري التحميل';
+
+  static var enterPhone = 'ادخل رقم الهاتف';
+
+  static var invalidPhone = 'رقم الهاتف غير صحيح';
+
+  static var savedNumber = 'تم حفظ رقم الهاتف';
+
+  static var areYouSureContinueWithoutSeller = 'هل تريد المتابعة بدون تحديد البائع؟';
+  static var timeToLogIn = 'حان وقت تسجيل الدخول';
+  static var timeToLogOut = 'حان وقت تسجيل الخروج';
 }

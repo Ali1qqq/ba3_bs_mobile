@@ -411,4 +411,14 @@ class AppServiceUtils {
       return null; // Handle unexpected cases
     }
   }
+
+  static double parseDouble(dynamic value) {
+    if (value == null) return 0.0;
+    return double.tryParse(AppServiceUtils.replaceArabicNumbersWithEnglish(value.toString())) ?? 0;
+  }
+
+  static int parseInt(dynamic value) {
+    if (value == null) return 0;
+    return int.tryParse(AppServiceUtils.replaceArabicNumbersWithEnglish(value.toString())) ?? 0;
+  }
 }

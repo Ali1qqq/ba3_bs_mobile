@@ -78,6 +78,7 @@ class BillSearchController extends GetxController {
   BillModel _createPlaceholderBill(BillModel referenceBill) => BillModel(
         billTypeModel: referenceBill.billTypeModel,
         status: Status.pending,
+        freeBill: false,
         items: const BillItems(itemList: []),
         billDetails: BillDetails(
           billPayType: InvPayType.cash.index,

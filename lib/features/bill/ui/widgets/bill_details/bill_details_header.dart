@@ -17,6 +17,7 @@ import '../../../../../core/widgets/searchable_account_field.dart';
 import '../../../../accounts/data/models/account_model.dart';
 import '../../../../floating_window/services/overlay_service.dart';
 import '../../../../sellers/controllers/sellers_controller.dart';
+import '../../../../sellers/data/models/seller_model.dart';
 import '../../../controllers/bill/bill_details_controller.dart';
 import '../../../data/models/bill_model.dart';
 import '../bill_shared/bill_header_field.dart';
@@ -98,13 +99,13 @@ class BillDetailsHeader extends StatelessWidget {
                 textEditingController: billDetailsController.customerAccountController,
                 // validator: (value) => billDetailsController.validator(value, AppStrings.customerAccount.tr),
                 onSubmitted: (text) async {
-                  CustomerModel? accountModel = await read<AccountsController>().openCustomerSelectionDialog(
+                  CustomerModel? customerModel = await read<AccountsController>().openCustomerSelectionDialog(
                     accountId: billDetailsController.selectedBillAccount?.id!,
                     query: text,
                     context: context,
                   );
-                  if (accountModel != null) {
-                    billDetailsController.updateCustomerAccount(accountModel);
+                  if (customerModel != null) {
+                    billDetailsController.updateCustomerAccount(customerModel, billModel.billTypeModel);
                   }
                 },
               ),
@@ -114,12 +115,14 @@ class BillDetailsHeader extends StatelessWidget {
                 label: AppStrings.seller.tr,
                 readOnly: false,
                 textEditingController: billDetailsController.sellerAccountController,
-                onSubmitted: (text) {
-                  read<SellersController>().openSellerSelectionDialog(
+                onSubmitted: (text) async {
+                  SellerModel? sellerModel = await read<SellersController>().openSellerSelectionDialog(
                     query: text,
-                    textEditingController: billDetailsController.sellerAccountController,
                     context: context,
                   );
+                  if (sellerModel != null) {
+                    billDetailsController.updateSellerAccount(sellerModel);
+                  }
                 },
               ),
               secondItem: TextAndExpandedChildField(

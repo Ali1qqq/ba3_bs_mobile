@@ -65,6 +65,11 @@ dependencies:
   flutter_datetime_picker_plus: ^2.2.0
   fl_chart: ^0.70.2
   image_picker: ^1.1.2
+  uuid: ^4.5.1
+  pool: ^1.5.1
+  flutter_advanced_switch: ^3.1.0
+  vector_math: ^2.1.4
+
 
 dev_dependencies:
   flutter_test:
@@ -79,6 +84,8 @@ flutter:
     - assets/images/
     - assets/icons/
     - assets/flags/
+    - assets/gif_images/
+    - assets/alert_gif/
 
   fonts:
     - family: NotoSansArabic
