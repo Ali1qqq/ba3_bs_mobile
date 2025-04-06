@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
-import '../../features/sellers/controllers/seller_sales_controller.dart';
-import '../../features/sellers/ui/widgets/target_pointer_widget.dart';
-import '../constants/app_strings.dart';
+import '../../../features/sellers/controllers/seller_sales_controller.dart';
+import '../../../features/sellers/ui/widgets/target_pointer_widget.dart';
+import '../../constants/app_strings.dart';
 
 class UserTargets extends StatelessWidget {
   const UserTargets({

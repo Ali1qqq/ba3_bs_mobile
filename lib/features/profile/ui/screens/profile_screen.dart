@@ -10,7 +10,7 @@ import 'package:get/get.dart';
 
 import '../../../../core/helper/enums/enums.dart';
 import '../../../../core/helper/extensions/getx_controller_extensions.dart';
-import '../../../../core/widgets/user_target.dart';
+import '../../../../core/widgets/user_target/user_target.dart';
 import '../../../../core/widgets/user_target_shimmer_widget.dart';
 import '../../../floating_window/services/overlay_service.dart';
 import '../../../user_time/ui/widgets/layout_widgets/add_time_widget.dart';

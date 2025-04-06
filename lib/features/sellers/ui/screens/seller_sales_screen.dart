@@ -10,7 +10,7 @@ import 'package:get/get.dart';
 import '../../../../core/helper/enums/enums.dart';
 import '../../../../core/utils/app_ui_utils.dart';
 import '../../../../core/widgets/pluto_grid_with_app_bar_.dart';
-import '../../../../core/widgets/user_target.dart';
+import '../../../../core/widgets/user_target/user_target.dart';
 import '../../../bill/controllers/bill/all_bills_controller.dart';
 import '../widgets/date_range_picker.dart';
 
@@ -18,29 +18,25 @@ class SellerSalesScreen extends StatelessWidget {
   const SellerSalesScreen({super.key});
 
   @override
-  Widget build(BuildContext context) =>
-      GetBuilder<SellerSalesController>(
-        builder: (controller) =>
-            PlutoGridWithAppBar(
-              // title: '${AppStrings.bills.tr} ${controller.selectedSeller!.costName}',
-              appBar: _buildAppBar(context, controller),
-              onLoaded: (e) {},
-              rightChild: SizedBox(
-                  width: 0.23.sw,
-                  child: UserTargets(salesController: controller)),
-              onSelected: (event) {
-                final billId = event.row?.cells[AppConstants.billIdFiled]?.value;
-                // print( (billTypeName as Map<String,dynamic>));
+  Widget build(BuildContext context) => GetBuilder<SellerSalesController>(
+        builder: (controller) => PlutoGridWithAppBar(
+          // title: '${AppStrings.bills.tr} ${controller.selectedSeller!.costName}',
+          appBar: _buildAppBar(context, controller),
+          onLoaded: (e) {},
+          rightChild: SizedBox(width: 0.23.sw, child: UserTargets(salesController: controller)),
+          onSelected: (event) {
+            final billId = event.row?.cells[AppConstants.billIdFiled]?.value;
+            // print( (billTypeName as Map<String,dynamic>));
 
-                if (billId != null) {
-                  read<AllBillsController>().openFloatingBillDetailsById(
-                      billId: billId, context: context, bilTypeModel: BillType.sales.billTypeModel);
-                }
-              },
-              isLoading: controller.isLoading,
-              tableSourceModels: controller.sellerSales,
-              bottomChild: _buildSummary(controller),
-            ),
+            if (billId != null) {
+              read<AllBillsController>()
+                  .openFloatingBillDetailsById(billId: billId, context: context, bilTypeModel: BillType.sales.billTypeModel);
+            }
+          },
+          isLoading: controller.isLoading,
+          tableSourceModels: controller.sellerSales,
+          bottomChild: _buildSummary(controller),
+        ),
       );
 
   /// Builds the app bar with title, leading and action widgets.
@@ -58,7 +54,6 @@ class SellerSalesScreen extends StatelessWidget {
   Widget _buildLeadingSection(SellerSalesController controller, BuildContext context) {
     return Row(
       children: [
-
         const HorizontalSpace(20),
         DateRangePicker(
           onSubmit: () {
