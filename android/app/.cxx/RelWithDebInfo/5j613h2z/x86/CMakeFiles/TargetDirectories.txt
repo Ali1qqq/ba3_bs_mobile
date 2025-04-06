@@ -1,0 +1,2 @@
+/Users/alidabol/ba3_bs_mobile/android/app/.cxx/RelWithDebInfo/5j613h2z/x86/CMakeFiles/edit_cache.dir
+/Users/alidabol/ba3_bs_mobile/android/app/.cxx/RelWithDebInfo/5j613h2z/x86/CMakeFiles/rebuild_cache.dir
