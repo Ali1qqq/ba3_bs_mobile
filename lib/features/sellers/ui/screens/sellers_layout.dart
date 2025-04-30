@@ -16,30 +16,45 @@ class SellersLayout extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final SellerSalesController sellerSalesController = read<SellerSalesController>();
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(AppStrings.sellers.tr),
-        actions: [
-          if (RoleItemType.administrator.hasReadPermission)
-            Padding(
-              padding: EdgeInsets.all(5),
-              child: AppButton(title: AppStrings.downloadSellers.tr, onPressed: () => read<SellersController>().fetchAllSellersFromLocal()),
-            )
-        ],
-      ),
-      body: Column(
-        children: [
-          AppMenuItem(
-              text: AppStrings.addSellers.tr,
-              onTap: () {
-                sellerSalesController.navigateToAddSellerScreen(context: context);
-              }),
-          AppMenuItem(
-              text: AppStrings.viewSellers.tr,
-              onTap: () {
-                sellerSalesController.navigateToAllSellersScreen(context);
-              }),
-        ],
+
+    return Directionality(
+      textDirection: TextDirection.rtl,
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(AppStrings.sellers.tr),
+          actions: [
+            if (RoleItemType.administrator.hasReadPermission)
+              Padding(
+                padding: const EdgeInsets.all(6),
+                child: AppButton(
+                  title: AppStrings.downloadSellers.tr,
+                  width: 140,
+                  onPressed: () => read<SellersController>().fetchAllSellersFromLocal(),
+                ),
+              ),
+          ],
+        ),
+        body: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 16),
+          child: Column(
+            children: [
+              buildAppMenuItem(
+                icon: Icons.person_add,
+                title: AppStrings.addSellers.tr,
+                onTap: () {
+                  sellerSalesController.navigateToAddSellerScreen(context: context);
+                },
+              ),
+              buildAppMenuItem(
+                icon: Icons.groups,
+                title: AppStrings.viewSellers.tr,
+                onTap: () {
+                  sellerSalesController.navigateToAllSellersScreen(context);
+                },
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

@@ -35,5 +35,5 @@ class AppRoutes {
   static const String showAllMaterialsGroupScreen = '/allMaterialsGroupScreen';
   static const String showUserTimeListScreen = '/UserTimeListScreen';
   static const String showUserDetails = '/UserDetails';
-  static const String allBondsScreen='/allBondsScreen';
+  static const String allBondsScreen = '/allBondsScreen';
 }

@@ -58,7 +58,8 @@ mixin AppValidator {
   }
 
   String? isEmailValid(String? email) {
-    final emailRegex = RegExp(r'^.+@[a-zA-Z]+\.{1}[a-zA-Z]+(\.{0,1}[a-zA-Z]+)$');
+    final emailRegex =
+        RegExp(r'^.+@[a-zA-Z]+\.{1}[a-zA-Z]+(\.{0,1}[a-zA-Z]+)$');
     if (email == null || email.trim().isEmpty) {
       return 'Email is required!';
     } else if (!emailRegex.hasMatch(email.trim())) {
@@ -129,7 +130,8 @@ mixin AppValidator {
   ) {
     try {
       final clearedTextNum = textNumber.trim();
-      final number = clearedTextNum.isNotEmpty ? double.parse(clearedTextNum) : 0;
+      final number =
+          clearedTextNum.isNotEmpty ? double.parse(clearedTextNum) : 0;
       final isValid = number >= minValue && number <= maxValue;
       return isValid;
     } catch (_) {
@@ -145,7 +147,8 @@ mixin AppValidator {
   }
 
   static bool isValidUuid(String uuid) {
-    final uuidRegExp = RegExp(r'^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$');
+    final uuidRegExp = RegExp(
+        r'^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$');
     return uuidRegExp.hasMatch(uuid);
   }
 }

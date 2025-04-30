@@ -195,7 +195,7 @@ class SellerDashboardController extends GetxController with FloatingLauncher {
     }
 
     sellerMaxY = sellerChartData.isNotEmpty ? sellerChartData.map((d) => d.totalMobileSales).reduce((a, b) => a > b ? a : b) : 0;
-    sellerMaxY *= 1.5;
+    sellerMaxY *= 2;
   }
 
   void changeSellerTotalMobileTarget() {

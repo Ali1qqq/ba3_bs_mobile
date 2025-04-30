@@ -33,12 +33,10 @@ class SearchableMaterialField extends StatelessWidget {
           SizedBox(width: 150, child: Text(label)),
           Expanded(
             child: CustomTextFieldWithIcon(
-              readOnly: readOnly,
-
-              textEditingController: textController,
-              validator: validator,
-              onSubmitted: onSubmitted
-            ),
+                readOnly: readOnly,
+                textEditingController: textController,
+                validator: validator,
+                onSubmitted: onSubmitted),
           ),
         ],
       ),

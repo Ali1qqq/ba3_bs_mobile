@@ -1,5 +1,6 @@
-import 'dart:async';
+// lib/controllers/target_pointer_controller.dart
 
+import 'dart:async';
 import 'package:get/get.dart';
 
 class TargetPointerController extends GetxController {

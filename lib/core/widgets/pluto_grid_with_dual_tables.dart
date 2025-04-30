@@ -37,7 +37,8 @@ class PlutoGridWithDualTables extends StatelessWidget {
                               child: PlutoGrid(
                                 key: controller.plutoKey,
                                 columns: controller.generateColumns(false),
-                                rows: controller.generateRows(controller.creditItems, false),
+                                rows: controller.generateRows(
+                                    controller.creditItems, false),
                                 mode: PlutoGridMode.readOnly,
                               ),
                             ),
@@ -47,7 +48,8 @@ class PlutoGridWithDualTables extends StatelessWidget {
                               child: PlutoGrid(
                                 key: controller.plutoKey,
                                 columns: controller.generateColumns(true),
-                                rows: controller.generateRows(controller.debitItems, true),
+                                rows: controller.generateRows(
+                                    controller.debitItems, true),
                                 mode: PlutoGridMode.readOnly,
                               ),
                             ),
@@ -55,7 +57,8 @@ class PlutoGridWithDualTables extends StatelessWidget {
                         ),
                       ),
                     ),
-                    if (bottomChild != null) bottomChild!, // Pass bottomChild here
+                    if (bottomChild != null)
+                      bottomChild!, // Pass bottomChild here
                   ],
                 ),
         );

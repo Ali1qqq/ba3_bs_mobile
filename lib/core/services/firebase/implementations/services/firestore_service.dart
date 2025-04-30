@@ -29,9 +29,15 @@ class FireStoreService extends IRemoteDatabaseService<Map<String, dynamic>> {
   @override
   Future<List<Map<String, dynamic>>> fetchWhere({
     required String path,
-    required List<QueryFilter> queryFilters,
+    required List<QueryFilter>? queryFilters,
     DateFilter? dateFilter,
   }) async {
+    // If both field and dateFilter are null, return an empty list
+    if (queryFilters == null && dateFilter == null) {
+      log("fetchWhere: No filtering applied, returning empty list.");
+      return [];
+    }
+
     // Build the base query and apply filters
     final query = _applyDateFilterIfNeeded(
       _applyFilters(_firestoreInstance.collection(path), queryFilters),
@@ -43,14 +49,17 @@ class FireStoreService extends IRemoteDatabaseService<Map<String, dynamic>> {
     return snapshot.docs.map((doc) => doc.data()).toList();
   }
 
-// Applies filters to the query
-  Query<Map<String, dynamic>> _applyFilters(CollectionReference<Map<String, dynamic>> collection, List<QueryFilter> queryFilters) =>
-      queryFilters.fold<Query<Map<String, dynamic>>>(
-        collection,
-        (query, filter) => query.where(filter.field, isEqualTo: filter.value),
-      );
+  // Applies filters to the query
+  Query<Map<String, dynamic>> _applyFilters(CollectionReference<Map<String, dynamic>> collection, List<QueryFilter>? queryFilters) {
+    if (queryFilters == null) return collection;
 
-// Applies the date filter if provided
+    return queryFilters.fold<Query<Map<String, dynamic>>>(
+      collection,
+      (query, filter) => query.where(filter.field, isEqualTo: filter.value),
+    );
+  }
+
+  // Applies the date filter if provided
   Query<Map<String, dynamic>> _applyDateFilterIfNeeded(Query<Map<String, dynamic>> query, DateFilter? dateFilter) {
     if (dateFilter == null) return query;
 
@@ -73,7 +82,7 @@ class FireStoreService extends IRemoteDatabaseService<Map<String, dynamic>> {
   @override
   Future<void> delete({required String path, String? documentId, String? mapFieldName}) async {
     if (dateBaseGuard(path)) {
-      log('Migration guard triggered, skipping delete operation for path [$path].', name: 'delete CompoundFirestoreService');
+      // log('Migration guard triggered, skipping delete operation for path [$path].', name: 'delete CompoundFirestoreService');
       return;
     }
 
@@ -94,6 +103,7 @@ class FireStoreService extends IRemoteDatabaseService<Map<String, dynamic>> {
       log('Migration guard triggered, skipping add operation for path [$path].', name: 'add CompoundFirestoreService');
       return {};
     }
+
     Uuid uuid = Uuid();
 
     final newDoc = uuid.v4();
@@ -115,7 +125,7 @@ class FireStoreService extends IRemoteDatabaseService<Map<String, dynamic>> {
       await docRef.set(data);
     }
 
-    log('$data', name: 'Add FireStoreService');
+    // log('$data', name: 'Add FireStoreService');
     return data;
   }
 

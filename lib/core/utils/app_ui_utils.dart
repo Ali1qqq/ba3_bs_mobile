@@ -1,6 +1,8 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:ba3_bs_mobile/core/constants/app_strings.dart';
+import 'package:ba3_bs_mobile/core/dialogs/custom_alert_dialog/helper_alert.dart';
 import 'package:ba3_bs_mobile/core/helper/extensions/date_time/date_time_extensions.dart';
 import 'package:ba3_bs_mobile/core/styling/app_colors.dart';
 import 'package:ba3_bs_mobile/core/styling/app_text_style.dart';
@@ -105,7 +107,9 @@ class AppUIUtils {
   }
 
   static void showExportSuccessDialog(String filePath, String successMessage, String title) {
-    AppUIUtils.onSuccess('تم تصدير الفواتير بنجاح!');
+    AppUIUtils.onSuccess(
+      'تم تصدير الفواتير بنجاح!',
+    );
     Get.defaultDialog(
       title: 'تم تصدير الملف إلى:',
       radius: 8,
@@ -340,11 +344,9 @@ class AppUIUtils {
     }
   }
 
-  static onFailure(String message) => showErrorSnackBar(
-        message: message,
-      );
+  static onFailure(String message) => HelperAlert.showError(text: message);
 
-  static onSuccess(String message) => showSuccessSnackBar(message: message);
+  static onSuccess(String message) => HelperAlert.showSuccess(text: message);
 
   static onInfo(String message) => showInfoSnackBar(message: message);
 
@@ -409,6 +411,86 @@ class AppUIUtils {
       ),
     );
     return isConfirm ?? false;
+  }
+
+  static Future<bool> confirmOverlay(
+    BuildContext context, {
+    String? title,
+    Widget? content,
+    Widget? textOK,
+    Widget? textCancel,
+    bool canPop = false,
+    void Function(bool, dynamic)? onPopInvokedWithResult,
+  }) async {
+    final completer = Completer<bool>();
+
+    await OverlayService.showDialog(
+      context: context,
+      height: 200,
+      width: 350,
+      title: title ?? AppStrings.confirm.tr,
+      content: Builder(
+        builder: (_) => Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (content != null)
+              content
+            else
+              Text(
+                AppStrings.areYouSureContinue.tr,
+                style: AppTextStyles.headLineStyle2,
+                textAlign: TextAlign.center,
+              ),
+            const Spacer(),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                AppButton(
+                  title: AppConstants.no,
+                  onPressed: () {
+                    if (!completer.isCompleted) {
+                      Future.microtask(() {
+                        OverlayService.back();
+                      });
+                      completer.complete(false);
+                    }
+                  },
+                  iconData: Icons.clear,
+                  width: 80,
+                ),
+                const HorizontalSpace(20),
+                AppButton(
+                  title: AppConstants.yes,
+                  onPressed: () {
+                    if (!completer.isCompleted) {
+                      Future.microtask(() {
+                        OverlayService.back();
+                      });
+                      completer.complete(true);
+                    }
+                  },
+                  color: Colors.red,
+                  iconData: Icons.check,
+                  width: 80,
+                ),
+              ],
+            ),
+            const VerticalSpace(15),
+          ],
+        ),
+      ),
+      borderRadius: BorderRadius.circular(15),
+      color: AppColors.backGroundColor,
+      dialogAlignment: Alignment.center,
+      onCloseCallback: () {
+        if (!completer.isCompleted) {
+          completer.complete(false);
+        }
+        onPopInvokedWithResult?.call(false, null);
+      },
+    );
+
+    return completer.future;
   }
 
   static void showFullScreenFileImage(BuildContext context, String imagePath) {

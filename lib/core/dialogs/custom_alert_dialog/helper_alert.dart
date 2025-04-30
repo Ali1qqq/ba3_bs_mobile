@@ -9,12 +9,12 @@ import 'models/custom_alert_type.dart';
 
 class HelperAlert {
   static void showSuccess({
-    required BuildContext context,
+    // required BuildContext context,
     required String text,
     String? title,
   }) {
     CustomAlertDialog.show(
-      context: context,
+      // context: context,
       type: CustomAlertType.success,
       title: title ?? AppStrings.success.tr,
       text: text,
@@ -22,12 +22,12 @@ class HelperAlert {
   }
 
   static void showError({
-    required BuildContext context,
+    // required BuildContext context,
     required String text,
     String? title,
   }) {
     CustomAlertDialog.show(
-      context: context,
+      // context: context,
       type: CustomAlertType.error,
       title: title ?? AppStrings.error.tr,
       text: text,
@@ -40,7 +40,7 @@ class HelperAlert {
     String? title,
   }) {
     CustomAlertDialog.show(
-      context: context,
+      // context: context,
       type: CustomAlertType.warning,
       title: title ?? AppStrings.warning.tr,
       text: text,
@@ -53,7 +53,7 @@ class HelperAlert {
     String? title,
   }) {
     CustomAlertDialog.show(
-      context: context,
+      // context: context,
       type: CustomAlertType.info,
       title: title ?? AppStrings.info.tr,
       text: text,
@@ -66,7 +66,7 @@ class HelperAlert {
     required String text,
   }) {
     CustomAlertDialog.show(
-      context: context,
+      // context: context,
       type: CustomAlertType.loading,
       title: title ?? AppStrings.loading.tr,
       text: text,
@@ -85,7 +85,7 @@ class HelperAlert {
     final Completer<void> completer = Completer<void>();
     bool result = false;
     CustomAlertDialog.show(
-      context: context,
+      // context: context,
       type: CustomAlertType.confirm,
       title: title ?? AppStrings.confirm.tr,
       text: text,
@@ -117,7 +117,7 @@ class HelperAlert {
     String message = '';
 
     CustomAlertDialog.show(
-      context: context,
+      // context: context,
       type: CustomAlertType.custom,
       barrierDismissible: true,
       title: title,
@@ -135,7 +135,7 @@ class HelperAlert {
       onConfirmBtnTap: () async {
         if (message.length < 5) {
           await CustomAlertDialog.show(
-            context: context,
+            // context: context,
             type: CustomAlertType.error,
             text: AppStrings.invalidPhone.tr,
           );
@@ -145,7 +145,7 @@ class HelperAlert {
         await Future.delayed(const Duration(milliseconds: 300));
         if (!context.mounted) return;
         await CustomAlertDialog.show(
-          context: context,
+          // context: context,
           type: CustomAlertType.success,
           text: "${AppStrings.savedNumber.tr} '$message'",
         );

@@ -13,7 +13,8 @@ abstract class ExportServiceBase<T> implements IExportService<T> {
   /// Shared method for exporting JSON data to a file
   @override
   Future<String> exportToFile(List<T> itemsModels) async {
-    final Directory documentsDirectory = await getApplicationDocumentsDirectory();
+    final Directory documentsDirectory =
+        await getApplicationDocumentsDirectory();
     final String filePath = '${documentsDirectory.path}/exported_data.json';
 
     final File file = File(filePath);

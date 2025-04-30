@@ -16,15 +16,14 @@ import '../../utils/app_ui_utils.dart';
 
 mixin PdfBase {
   /// Sends the bill email with optional attachments
-  Future<void> sendToEmail({
-    required String recipientEmail,
-    String? documentId,
-    String? type,
-    String? url,
-    String? subject,
-    String? body,
-    List<String>? attachments,
-  }) async {
+  Future<void> sendToEmail(
+      {required String recipientEmail,
+      String? documentId,
+      String? type,
+      String? url,
+      String? subject,
+      String? body,
+      List<String>? attachments}) async {
     final mailerRepo = MailerMessagingRepository(GmailMessagingService());
 
     final result = await mailerRepo.sendMail(
@@ -110,7 +109,9 @@ mixin PdfBase {
 
   bool hasModelItems(List items) {
     if (items.isEmpty) {
-      AppUIUtils.onFailure('يرجى إضافة عنصر واحد على الأقل إلى الفاتورة!');
+      AppUIUtils.onFailure(
+        'يرجى إضافة عنصر واحد على الأقل إلى الفاتورة!',
+      );
       return false;
     }
     return true;

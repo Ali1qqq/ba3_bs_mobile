@@ -20,19 +20,14 @@ class EInvoiceDialogContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final url = 'https://ba3-bs.firebaseapp.com/?id=$billId&year=${DateTime
-        .now()
-        .year}';
+    final url = 'https://ba3-bs.firebaseapp.com/?id=$billId&year=${DateTime.now().year}';
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
         QrImageView(
           data: url,
           version: QrVersions.auto,
-          size: MediaQuery
-              .of(context)
-              .size
-              .height * 0.25,
+          size: MediaQuery.of(context).size.height * 0.25,
         ),
         const SizedBox(height: 20),
         const Text(

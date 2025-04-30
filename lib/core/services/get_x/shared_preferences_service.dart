@@ -11,9 +11,7 @@ class SharedPreferencesService extends GetxService {
     return this;
   }
 
-
   String? getString(String key) => _prefs.getString(key);
-
 
   Future<void> setString(String key, String value) async {
     await _prefs.setString(key, value);

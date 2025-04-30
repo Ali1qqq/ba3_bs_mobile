@@ -6,8 +6,8 @@ abstract class AppConstants {
 
   static const EnvType env = EnvType.debug; //"debug" or "release"
   static const vatGCC = 0.05;
-  static const constHeightTextField = 50.0;
-  static const constHeightDropDown = 30.0;
+  static const constHeightTextField = 30.0;
+  static const constHeightDropDown = 25.0;
 
   static const vat0_01 = 0.01;
   static const rowCustomBondAmount = 'rowCustomBondAmount';
@@ -358,7 +358,7 @@ abstract class AppConstants {
 
   static const String appLocalLangBox = 'appLocalLangBox';
 
-  static const String defaultLangCode = 'en';
+  static const String defaultLangCode = 'ar';
 
   static const String chequeToAccountId = '7d471b63-4499-4c2f-ba99-21912c8b98b5';
   static const String chequeToAccountName = 'اوراق الدفع';
@@ -381,14 +381,11 @@ abstract class AppConstants {
   static const String primaryCashAccountId = '5b36c82d-9105-4177-a5c3-0f90e5857e3c';
   static const String primaryCashAccountName = 'الصندوق';
 
-  /// Location Of Burj Al Arab Store
   static const double targetLatitude = 25.793679566610773; // Latitude المنطقة المستهدفة
   static const double targetLongitude = 55.948330278435; // Longitude المنطقة المستهدفة
-  static const double radiusInMeters = 50;
-
-  /// Location Of Ba3 Company
-  static const double secondTargetLatitude = 25.765356913421826; // Latitude المنطقة المستهدفة
-  static const double secondTargetLongitude = 55.97059530304945; // Longitude المنطقة المستهدفة
+  static const double radiusInMeters = 25;
+  static const double secondTargetLatitude = 25.765046214850365; // Latitude المنطقة المستهدفة
+  static const double secondTargetLongitude = 55.970645196084746; // Longitude المنطقة المستهدفة
   static const double secondRadiusInMeters = 50;
 
   ////// pluto Filed Names
@@ -423,4 +420,15 @@ abstract class AppConstants {
     "نوفمبر (11)": "11",
     "ديسمبر (12)": "12",
   };
+
+  /// when we import bills from local we must to make this false
+  /// and we import bills from free we must to make this true
+  /// In normal work we should make this null.
+  static bool? forceFree;
+
+  /// 🔹 To connect to a test Firebase project, use:
+  static const String testDataBaseAppName = 'test';
+  static const String defaultFirebaseAppName = '[DEFAULT]';
+
+  static String get getDatabaseAppName => defaultFirebaseAppName;
 }

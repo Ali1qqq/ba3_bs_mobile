@@ -10,7 +10,8 @@ import '../interfaces/export/i_export_service.dart';
 import '../interfaces/import/i_import_repository.dart';
 import '../interfaces/import/i_import_service.dart';
 
-class ImportExportRepository<T> implements IImportRepository<T>, IExportRepository<T> {
+class ImportExportRepository<T>
+    implements IImportRepository<T>, IExportRepository<T> {
   final IImportService<T> _jsonImport;
   final IExportService<T> _jsonExport;
 
@@ -30,8 +31,8 @@ class ImportExportRepository<T> implements IImportRepository<T>, IExportReposito
   @override
   Future<Either<Failure, List<T>>> importXmlFile(File filePath) async {
     // try {
-      List<T> itemsModels = await _jsonImport.importFromXmlFile(filePath);
-      return Right(itemsModels);
+    List<T> itemsModels = await _jsonImport.importFromXmlFile(filePath);
+    return Right(itemsModels);
     // } catch (e) {
     //   log('[$e] فشل في استيراد الملف');
     //   return Left(ErrorHandler(e).failure);

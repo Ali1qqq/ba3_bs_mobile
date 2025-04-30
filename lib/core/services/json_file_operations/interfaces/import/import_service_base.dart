@@ -15,12 +15,13 @@ abstract class ImportServiceBase<T> implements IImportService<T> {
 
   @override
   List<T> importFromJsonFile(File file) {
-    final jsonContent = jsonDecode(file.readAsStringSync()) as Map<String, dynamic>;
+    final jsonContent =
+        jsonDecode(file.readAsStringSync()) as Map<String, dynamic>;
     return fromImportJson(jsonContent);
   }
 
   @override
-  Future<List<T>> importFromXmlFile(File file)async {
+  Future<List<T>> importFromXmlFile(File file) async {
     final xmlContent = file.readAsStringSync();
     final XmlDocument document = XmlDocument.parse(xmlContent);
 

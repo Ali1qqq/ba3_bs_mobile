@@ -1,7 +1,8 @@
 import 'dart:async';
-
+import 'package:ba3_bs_mobile/core/constants/app_strings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:get/get.dart';
 
 import '../models/custom_alert_anim_type.dart';
 import '../models/custom_alert_options.dart';
@@ -10,10 +11,10 @@ import '../utils/custom_alert_animate.dart';
 import 'custom_alert_container.dart';
 
 class CustomAlertDialog {
-  static OverlayEntry? _currentOverlay;
+  static final List<OverlayEntry> _overlays = [];
 
   static Future<void> show({
-    required BuildContext context,
+    BuildContext? context,
     required CustomAlertType type,
     String? title,
     String? text,
@@ -24,8 +25,8 @@ class CustomAlertDialog {
     bool barrierDismissible = true,
     VoidCallback? onConfirmBtnTap,
     VoidCallback? onCancelBtnTap,
-    String confirmBtnText = 'Okay',
-    String cancelBtnText = 'Cancel',
+    String? confirmBtnText,
+    String? cancelBtnText,
     Color confirmBtnColor = Colors.blue,
     Color cancelBtnColor = Colors.redAccent,
     TextStyle? confirmBtnTextStyle,
@@ -44,7 +45,9 @@ class CustomAlertDialog {
     bool disableBackBtn = false,
   }) async {
     Timer? timer;
-    final overlay = Overlay.of(context, rootOverlay: true);
+
+    final validContext = context ?? Get.overlayContext!;
+    final overlay = Overlay.of(validContext, rootOverlay: true);
 
     if (autoCloseDuration != null) {
       timer = Timer(autoCloseDuration, () {
@@ -70,8 +73,8 @@ class CustomAlertDialog {
         hide();
         onCancelBtnTap?.call();
       },
-      confirmBtnText: confirmBtnText,
-      cancelBtnText: cancelBtnText,
+      confirmBtnText: confirmBtnText ?? AppStrings.done,
+      cancelBtnText: cancelBtnText ?? AppStrings.cancel,
       confirmBtnColor: confirmBtnColor,
       cancelBtnColor: cancelBtnColor,
       confirmBtnTextStyle: confirmBtnTextStyle,
@@ -96,11 +99,11 @@ class CustomAlertDialog {
     );
 
     if (type != CustomAlertType.loading) {
-      alert = KeyboardListener(
+      alert = RawKeyboardListener(
         focusNode: FocusNode(),
         autofocus: true,
-        onKeyEvent: (event) {
-          if (event is KeyUpEvent && event.logicalKey == LogicalKeyboardKey.enter) {
+        onKey: (event) {
+          if (event is RawKeyUpEvent && event.logicalKey == LogicalKeyboardKey.enter) {
             hide();
             onConfirmBtnTap?.call();
           }
@@ -110,7 +113,7 @@ class CustomAlertDialog {
     }
 
     Widget dialog = Material(
-      color: barrierColor ?? Colors.black.withAlpha(127),
+      color: barrierColor ?? Colors.black.withOpacity(0.5),
       child: GestureDetector(
         onTap: () {
           if (barrierDismissible) hide();
@@ -125,12 +128,24 @@ class CustomAlertDialog {
       ),
     );
 
-    _currentOverlay = OverlayEntry(builder: (_) => dialog);
-    overlay.insert(_currentOverlay!);
+    final entry = OverlayEntry(builder: (_) => dialog);
+    overlay.insert(entry);
+    _overlays.add(entry);
   }
 
+  /// يغلق آخر تنبيه مفتوح
   static void hide() {
-    _currentOverlay?.remove();
-    _currentOverlay = null;
+    if (_overlays.isNotEmpty) {
+      final last = _overlays.removeLast();
+      last.remove();
+    }
+  }
+
+  /// يغلق جميع التنبيهات المفتوحة
+  static void hideAll() {
+    for (final entry in _overlays) {
+      entry.remove();
+    }
+    _overlays.clear();
   }
 }

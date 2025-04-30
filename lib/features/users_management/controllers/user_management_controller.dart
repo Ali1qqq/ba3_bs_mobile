@@ -1,12 +1,10 @@
 import 'dart:developer';
 
 import 'package:ba3_bs_mobile/core/constants/app_constants.dart';
-import 'package:ba3_bs_mobile/core/constants/app_strings.dart';
 import 'package:ba3_bs_mobile/core/helper/enums/enums.dart';
 import 'package:ba3_bs_mobile/core/helper/extensions/getx_controller_extensions.dart';
 import 'package:ba3_bs_mobile/core/helper/extensions/task_status_extension.dart';
 import 'package:ba3_bs_mobile/core/helper/mixin/app_navigator.dart';
-import 'package:ba3_bs_mobile/core/helper/notifications/easy_notifications.dart';
 import 'package:ba3_bs_mobile/core/models/query_filter.dart';
 import 'package:ba3_bs_mobile/features/sellers/controllers/seller_sales_controller.dart';
 import 'package:ba3_bs_mobile/features/user_task/controller/all_task_controller.dart';
@@ -159,7 +157,9 @@ class UserManagementController extends GetxController with AppNavigator, Firesto
     final result = await _rolesFirebaseRepo.getAll();
 
     result.fold(
-      (failure) => AppUIUtils.onFailure(failure.message),
+      (failure) => AppUIUtils.onFailure(
+        failure.message,
+      ),
       (fetchedRoles) {
         allRoles = fetchedRoles;
       },
@@ -172,7 +172,9 @@ class UserManagementController extends GetxController with AppNavigator, Firesto
     final result = await _usersFirebaseRepo.getAll();
 
     result.fold(
-      (failure) => AppUIUtils.onFailure(failure.message),
+      (failure) => AppUIUtils.onFailure(
+        failure.message,
+      ),
       (fetchedUsers) => _onGetAllUsersSuccess(fetchedUsers),
     );
   }
@@ -192,15 +194,21 @@ class UserManagementController extends GetxController with AppNavigator, Firesto
     final result = await _usersFirebaseRepo.getById(userId);
 
     result.fold(
-      (failure) => _handleUserFetchFailure(failure),
-      (user) => _handleUserFetchSuccess(user),
+      (failure) => _handleUserFetchFailure(
+        failure,
+      ),
+      (user) => _handleUserFetchSuccess(
+        user,
+      ),
     );
   }
 
 // Handle failure when fetching the user
   void _handleUserFetchFailure(Failure failure) {
     offAll(AppRoutes.loginScreen);
-    AppUIUtils.onFailure(failure.message);
+    AppUIUtils.onFailure(
+      failure.message,
+    );
   }
 
   void updatePasswordVisibility() {
@@ -216,7 +224,9 @@ class UserManagementController extends GetxController with AppNavigator, Firesto
 // Check if the user is active
   bool _isUserActive(UserModel userModel) {
     if (userModel.userActiveStatus == UserActiveStatus.inactive) {
-      AppUIUtils.onFailure('حسابك غير نشط الان من فضلك حاول حقا!');
+      AppUIUtils.onFailure(
+        'حسابك غير نشط الان من فضلك حاول حقا!',
+      );
       return false;
     }
     return true;
@@ -233,12 +243,16 @@ class UserManagementController extends GetxController with AppNavigator, Firesto
     final loginPassword = loginPasswordController.text.trim();
 
     if (loginName.isEmpty || loginPassword.isEmpty) {
-      AppUIUtils.onFailure('من فضلك قم بادخال اسم الحساب و الرقم السري!');
+      AppUIUtils.onFailure(
+        'من فضلك قم بادخال اسم الحساب و الرقم السري!',
+      );
       return;
     }
 
     if (loginPassword.length < 6) {
-      AppUIUtils.onFailure('من فضلك أدخل كلمة مرور مكونة من 6 أرقام على الأقل!');
+      AppUIUtils.onFailure(
+        'من فضلك أدخل كلمة مرور مكونة من 6 أرقام على الأقل!',
+      );
       return;
     }
 
@@ -250,8 +264,12 @@ class UserManagementController extends GetxController with AppNavigator, Firesto
       queryFilters: [QueryFilter(field: ApiConstants.userPassword, value: loginPasswordController.text)],
     );
     result.fold(
-      (failure) => AppUIUtils.onFailure(failure.message),
-      (fetchedUsers) => _handleGetUserPinSuccess(fetchedUsers),
+      (failure) => AppUIUtils.onFailure(
+        failure.message,
+      ),
+      (fetchedUsers) => _handleGetUserPinSuccess(
+        fetchedUsers,
+      ),
     );
   }
 
@@ -265,7 +283,9 @@ class UserManagementController extends GetxController with AppNavigator, Firesto
     );
 
     if (firstFetchedUser == null) {
-      AppUIUtils.onFailure('أسم المستخدم غير صحيح!');
+      AppUIUtils.onFailure(
+        'أسم المستخدم غير صحيح!',
+      );
       return;
     }
 
@@ -279,7 +299,6 @@ class UserManagementController extends GetxController with AppNavigator, Firesto
     loggedInUserModel = firstFetchedUser;
 
     _sharedPreferencesService.setString(AppConstants.userIdKey, loggedInUserModel?.userId ?? '');
-    initNotifications(firstFetchedUser);
     offAll(AppRoutes.mainLayout);
   }
 
@@ -306,14 +325,18 @@ class UserManagementController extends GetxController with AppNavigator, Firesto
     if (!isCurrentRoute(AppRoutes.loginScreen)) {
       userNavigator.navigateToLogin();
     } else {
-      AppUIUtils.onFailure('لا يوجد تطابق!');
+      AppUIUtils.onFailure(
+        'لا يوجد تطابق!',
+      );
     }
 
     loginNameController.clear();
     loginPasswordController.clear();
   }
 
-  Future<void> saveOrUpdateRole({RoleModel? existingRoleModel}) async {
+  Future<void> saveOrUpdateRole({
+    RoleModel? existingRoleModel,
+  }) async {
     // Validate the form first
     if (!roleFormHandler.validate()) return;
 
@@ -326,16 +349,22 @@ class UserManagementController extends GetxController with AppNavigator, Firesto
 
     // Handle null role model
     if (updatedRoleModel == null) {
-      AppUIUtils.onFailure('من فضلك قم بادخال الصلاحيات!');
+      AppUIUtils.onFailure(
+        'من فضلك قم بادخال الصلاحيات!',
+      );
       return;
     }
 
     final result = await _rolesFirebaseRepo.save(updatedRoleModel);
 
     result.fold(
-      (failure) => AppUIUtils.onFailure(failure.message),
+      (failure) => AppUIUtils.onFailure(
+        failure.message,
+      ),
       (success) {
-        AppUIUtils.onSuccess('تم الحفظ بنجاح');
+        AppUIUtils.onSuccess(
+          'تم الحفظ بنجاح',
+        );
         getAllRoles();
       },
     );
@@ -356,7 +385,9 @@ class UserManagementController extends GetxController with AppNavigator, Firesto
   refreshLoggedInUser() async {
     final result = await _usersFirebaseRepo.getById(loggedInUserModel!.userId!);
     result.fold(
-      (failure) => AppUIUtils.onFailure(failure.message),
+      (failure) => AppUIUtils.onFailure(
+        failure.message,
+      ),
       (fetchedUser) => loggedInUserModel = fetchedUser,
     );
   }
@@ -426,6 +457,7 @@ class UserManagementController extends GetxController with AppNavigator, Firesto
         sellerId: loggedInUserModel!.userSellerId!, dateTimeRange: DateTimeRange(start: startDay, end: endDay), materialId: materialId);
   }
 
+/*'5eae14a3-aaa5-4309-bc44-f541def66fe1'*/
   void updateInventoryTask({required UserTaskModel task}) async {
     late UserTaskModel updatedTask;
     if (task.status.isInProgress) {
@@ -470,27 +502,5 @@ class UserManagementController extends GetxController with AppNavigator, Firesto
 
   UserModel? getUserBySellerId(String sellerId) {
     return allUsers.firstWhereOrNull((user) => user.userSellerId == sellerId);
-  }
-
-  void initNotifications(UserModel firstFetchedUser) {
-    log("initNotifications");
-
-    log("${firstFetchedUser.userWorkingHours?.length}", name: 'initNotifications');
-    firstFetchedUser.userWorkingHours?.forEach(
-      (key, value) {
-        scheduleLoginNotification(
-            time: value.enterTime!,
-            userName: firstFetchedUser.userName!,
-            title: AppStrings.timeToLogIn,
-            isLogin: true,
-            holidays: firstFetchedUser.userHolidays ?? []);
-        scheduleLoginNotification(
-            time: value.outTime!,
-            userName: firstFetchedUser.userName!,
-            title: AppStrings.timeToLogOut,
-            isLogin: false,
-            holidays: firstFetchedUser.userHolidays ?? []);
-      },
-    );
   }
 }

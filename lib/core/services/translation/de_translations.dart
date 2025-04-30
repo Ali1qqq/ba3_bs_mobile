@@ -91,7 +91,8 @@ final Map<String, String> deDE = {
   AppStrings.control: 'Kontrolle',
   AppStrings.panel: 'Panel',
   AppStrings.controlPanel: 'Kontrollpanel',
-  AppStrings.areYouSureYouWantToCloseTheProgram: 'Sind Sie sicher, dass Sie das Programm schließen möchten?',
+  AppStrings.areYouSureYouWantToCloseTheProgram:
+      'Sind Sie sicher, dass Sie das Programm schließen möchten?',
   AppStrings.exit: 'Beenden',
   AppStrings.cancel: 'Abbrechen',
   AppStrings.user: 'Benutzer',
@@ -214,7 +215,6 @@ final Map<String, String> deDE = {
   AppStrings.paymentBond: 'Zahlungsbond',
   AppStrings.deleteRefund: 'Erstattung löschen',
   AppStrings.paymentDelete: 'Zahlung löschen',
-
   AppStrings.addCheques: 'Scheck hinzufügen',
   AppStrings.viewCheques: 'Schecks anzeigen',
   AppStrings.viewMaterial: 'Material anzeigen',
@@ -234,5 +234,4 @@ final Map<String, String> deDE = {
   AppStrings.accessoriesTarget: 'Zubehörziel',
   AppStrings.achievementsPanel: 'Erfolgsanzeige',
   AppStrings.profile: 'Profil',
-
 };

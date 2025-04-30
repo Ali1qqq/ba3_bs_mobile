@@ -91,7 +91,8 @@ final Map<String, String> frFR = {
   AppStrings.control: 'Contrôle',
   AppStrings.panel: 'Panneau',
   AppStrings.controlPanel: 'Panneau de contrôle',
-  AppStrings.areYouSureYouWantToCloseTheProgram: 'Êtes-vous sûr de vouloir fermer le programme?',
+  AppStrings.areYouSureYouWantToCloseTheProgram:
+      'Êtes-vous sûr de vouloir fermer le programme?',
   AppStrings.exit: 'Quitter',
   AppStrings.cancel: 'Annuler',
   AppStrings.user: 'Utilisateur',
@@ -214,7 +215,6 @@ final Map<String, String> frFR = {
   AppStrings.paymentBond: 'Bon de paiement',
   AppStrings.deleteRefund: 'Supprimer le remboursement',
   AppStrings.paymentDelete: 'Supprimer le paiement',
-
   AppStrings.addCheques: 'Ajouter un chèque',
   AppStrings.viewCheques: 'Voir les chèques',
   AppStrings.viewMaterial: 'Voir le matériau',
@@ -234,5 +234,4 @@ final Map<String, String> frFR = {
   AppStrings.accessoriesTarget: 'Cible des accessoires',
   AppStrings.achievementsPanel: 'Panneau des réalisations',
   AppStrings.profile: 'Profil',
-
 };

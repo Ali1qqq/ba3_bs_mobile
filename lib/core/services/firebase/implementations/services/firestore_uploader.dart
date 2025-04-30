@@ -44,7 +44,8 @@ class FirestoreUploader {
     WriteBatch batch = _firestoreInstance.batch();
 
     for (int i = 0; i < data.length; i++) {
-      final docId = data[i].putIfAbsent('docId', () => _firestoreInstance.collection(collectionPath).doc().id);
+      final docId = data[i].putIfAbsent('docId',
+          () => _firestoreInstance.collection(collectionPath).doc().id);
 
       final docRef = _firestoreInstance.collection(collectionPath).doc(docId);
       batch.set(docRef, data[i]);
@@ -64,11 +65,13 @@ class FirestoreUploader {
   }
 
   /// Helper method to commit a batch of items.
-  Future<void> _addBatch(List<Map<String, dynamic>> data, String collectionPath) async {
+  Future<void> _addBatch(
+      List<Map<String, dynamic>> data, String collectionPath) async {
     WriteBatch batch = _firestoreInstance.batch();
 
     for (Map<String, dynamic> item in data) {
-      final docId = item.putIfAbsent('docId', () => _firestoreInstance.collection(collectionPath).doc().id);
+      final docId = item.putIfAbsent('docId',
+          () => _firestoreInstance.collection(collectionPath).doc().id);
       final docRef = _firestoreInstance.collection(collectionPath).doc(docId);
       batch.set(docRef, item);
     }

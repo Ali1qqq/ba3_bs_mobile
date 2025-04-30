@@ -19,7 +19,8 @@ class EntryBondCreatorFactory {
       // Returns a single BillEntryBondCreator wrapped in a list
       return [BillEntryBondCreator()];
     }
-    throw UnimplementedError("No EntryBondCreator implementation for model of type ${model.runtimeType}");
+    throw UnimplementedError(
+        "No EntryBondCreator implementation for model of type ${model.runtimeType}");
   }
 
   static EntryBondCreator resolveEntryBondCreator<T>(T model) {
@@ -27,7 +28,8 @@ class EntryBondCreatorFactory {
       // Extracts the first EntryBondCreator from the list for single-entry models
       return resolveEntryBondCreators(model).first;
     }
-    throw UnimplementedError("No EntryBondCreator implementation for model of type ${model.runtimeType}");
+    throw UnimplementedError(
+        "No EntryBondCreator implementation for model of type ${model.runtimeType}");
   }
 
   static EntryBondType resolveOriginType<T>(T model) {
@@ -38,6 +40,7 @@ class EntryBondCreatorFactory {
     } else if (model is BillModel) {
       return EntryBondType.bill;
     }
-    throw UnimplementedError("No EntryBondType defined for model of type ${model.runtimeType}");
+    throw UnimplementedError(
+        "No EntryBondType defined for model of type ${model.runtimeType}");
   }
 }

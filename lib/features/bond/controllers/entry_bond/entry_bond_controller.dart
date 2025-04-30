@@ -27,12 +27,14 @@ class EntryBondController extends GetxController with FloatingLauncher {
   EntryBondController(this._entryBondsFirebaseRepo, this._accountsStatementsFirebaseRepo);
 
   /// Method to save an Entry Bond and update related account statements
-  Future<List<EntryBondModel>> fetchAllEntryBonds() async {
+  Future<List<EntryBondModel>> fetchAllEntryBonds(BuildContext context) async {
     final result = await _entryBondsFirebaseRepo.getAll();
 
     return result.fold(
       (failure) {
-        AppUIUtils.onFailure(failure.message);
+        AppUIUtils.onFailure(
+          failure.message,
+        );
         return [];
       },
       (fetchedEntryBonds) => fetchedEntryBonds,
@@ -50,7 +52,9 @@ class EntryBondController extends GetxController with FloatingLauncher {
     final result = await _entryBondsFirebaseRepo.save(entryBondModel);
 
     result.fold(
-      (failure) => AppUIUtils.onFailure(failure.message),
+      (failure) => AppUIUtils.onFailure(
+        failure.message,
+      ),
       (savedEntryBondModel) => _onEntryBondSaved(
         entryBondModel: savedEntryBondModel,
         sourceNumber: sourceNumber,
@@ -76,7 +80,9 @@ class EntryBondController extends GetxController with FloatingLauncher {
 
     // 2. Check if the batch save succeeded/failed
     return saveResult.fold(
-      (failure) => AppUIUtils.onFailure(failure.message),
+      (failure) => AppUIUtils.onFailure(
+        failure.message,
+      ),
       (savedBonds) async {
         // 3. For each successfully saved bond, run post-save logic
         int counter = 0;
@@ -107,28 +113,24 @@ class EntryBondController extends GetxController with FloatingLauncher {
 
     // Run grouped-item saving and item modifications in parallel
     await Future.wait([
-      _saveGroupedEntryBondItems(entryBondItems),
+      _saveGroupedEntryBondItems(
+        entryBondItems,
+      ),
       _handleModifiedEntryBondItems(
         entryBondModel: entryBondModel,
         modifiedAccounts: modifiedAccounts,
       ),
     ]);
-
-    final logController = read<LogController>();
-
-    read<LogController>().addLog(
-      logController.getLogModel(
-        entryBondModel: entryBondModel,
-        eventType: isSave ? LogEventType.add : LogEventType.update,
-        sourceNumber: sourceNumber,
-      ),
-    );
+    read<LogController>()
+        .addLog(item: entryBondModel, eventType: isSave ? LogEventType.add : LogEventType.update, sourceNumber: sourceNumber);
 
     log('Finish _onEntryBondSaved');
   }
 
   /// Saves grouped Entry Bond items by account, in parallel
-  Future<void> _saveGroupedEntryBondItems(List<EntryBondItemModel> entryBondItems) async {
+  Future<void> _saveGroupedEntryBondItems(
+    List<EntryBondItemModel> entryBondItems,
+  ) async {
     log('Start _saveGroupedEntryBondItems', name: entryBondItems.isNotEmpty ? entryBondItems.first.account.id : '');
     final itemsGroupedByAccount = entryBondItems.groupBy((item) => item.account.id);
 
@@ -153,7 +155,9 @@ class EntryBondController extends GetxController with FloatingLauncher {
     // Handle potential failures
     for (final result in results) {
       result.fold(
-        (failure) => AppUIUtils.onFailure(failure.message),
+        (failure) => AppUIUtils.onFailure(
+          failure.message,
+        ),
         (_) => {}, // or success
       );
     }
@@ -187,7 +191,9 @@ class EntryBondController extends GetxController with FloatingLauncher {
     // Handle potential failures
     for (final result in results) {
       result.fold(
-        (failure) => AppUIUtils.onFailure('${failure.message} in _handleModifiedEntryBondItems'),
+        (failure) => AppUIUtils.onFailure(
+          '${failure.message} in _handleModifiedEntryBondItems',
+        ),
         (_) => {},
       );
     }
@@ -213,26 +219,39 @@ class EntryBondController extends GetxController with FloatingLauncher {
     }).toList();
   }
 
-  Future<EntryBondModel> getEntryBondById({required String entryId}) async {
+  Future<EntryBondModel> getEntryBondById({
+    required String entryId,
+  }) async {
     final result = await _entryBondsFirebaseRepo.getById(entryId);
 
     return result.fold(
-      (failure) => AppUIUtils.onFailure(failure.message),
+      (failure) => AppUIUtils.onFailure(
+        failure.message,
+      ),
       (entryBondModel) => entryBondModel,
     );
   }
 
   // Method to create a bond based on bill type
-  Future<void> deleteEntryBondModel({required String entryId, required int sourceNumber}) async {
+  Future<void> deleteEntryBondModel({
+    required String entryId,
+    required int sourceNumber,
+  }) async {
     final result = await _entryBondsFirebaseRepo.getById(entryId);
 
     result.fold(
-      (failure) => AppUIUtils.onFailure(failure.message),
+      (failure) => AppUIUtils.onFailure(
+        failure.message,
+      ),
       (entryBondModel) async => await onEntryBondDeleted(entryBondModel: entryBondModel, entryId: entryId, sourceNumber: sourceNumber),
     );
   }
 
-  Future<void> onEntryBondDeleted({required EntryBondModel entryBondModel, required String entryId, required int sourceNumber}) async {
+  Future<void> onEntryBondDeleted({
+    required EntryBondModel entryBondModel,
+    required String entryId,
+    required int sourceNumber,
+  }) async {
     final List<Future<void>> deletedTasks = [];
     final errors = <String>[]; // Collect error messages.
 
@@ -261,23 +280,24 @@ class EntryBondController extends GetxController with FloatingLauncher {
     await Future.wait(deletedTasks);
 
     if (errors.isNotEmpty) {
-      AppUIUtils.onFailure('Some deletions failed: ${errors.join(', ')}');
+      AppUIUtils.onFailure(
+        'Some deletions failed: ${errors.join(', ')}',
+      );
       return;
     }
 
     final deleteBondResult = await _entryBondsFirebaseRepo.delete(entryId);
     deleteBondResult.fold(
-      (failure) => AppUIUtils.onFailure(failure.message),
+      (failure) => AppUIUtils.onFailure(
+        failure.message,
+      ),
       (_) {
         log('deleteBond Success');
-        final logController = read<LogController>();
 
         read<LogController>().addLog(
-          logController.getLogModel(
-            entryBondModel: entryBondModel,
-            eventType: LogEventType.delete,
-            sourceNumber: sourceNumber,
-          ),
+          item: entryBondModel,
+          eventType: LogEventType.delete,
+          sourceNumber: sourceNumber,
         );
       },
     );

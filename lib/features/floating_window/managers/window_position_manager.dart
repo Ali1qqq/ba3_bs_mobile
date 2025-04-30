@@ -77,6 +77,8 @@ class WindowPositionManager {
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
+      DeviceOrientation.landscapeLeft,
+      DeviceOrientation.landscapeRight,
     ]);
     windowPositionRatios.remove(position);
   }

@@ -92,7 +92,8 @@ final Map<String, String> urPK = {
   AppStrings.control: 'کنٹرول',
   AppStrings.panel: 'پینل',
   AppStrings.controlPanel: 'کنٹرول پینل',
-  AppStrings.areYouSureYouWantToCloseTheProgram: 'کیا آپ واقعی پروگرام بند کرنا چاہتے ہیں؟',
+  AppStrings.areYouSureYouWantToCloseTheProgram:
+      'کیا آپ واقعی پروگرام بند کرنا چاہتے ہیں؟',
   AppStrings.exit: 'باہر نکلیں',
   AppStrings.cancel: 'منسوخ کریں',
   AppStrings.user: 'صارف',

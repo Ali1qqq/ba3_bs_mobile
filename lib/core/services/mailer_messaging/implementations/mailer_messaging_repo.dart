@@ -12,9 +12,13 @@ class MailerMessagingRepository {
   MailerMessagingRepository(this._mailerService);
 
   Future<Either<Failure, Unit>> sendMail(String recipientEmail,
-      {String? url, String? subject, String? body, List<String>? attachments}) async {
+      {String? url,
+      String? subject,
+      String? body,
+      List<String>? attachments}) async {
     try {
-      await _mailerService.sendMail(recipientEmail, url: url, subject: subject, body: body, attachments: attachments);
+      await _mailerService.sendMail(recipientEmail,
+          url: url, subject: subject, body: body, attachments: attachments);
       return const Right(unit);
     } catch (e) {
       log('[$e] فشل في ارسال الايميل');

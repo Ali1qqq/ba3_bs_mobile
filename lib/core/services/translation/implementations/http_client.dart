@@ -10,8 +10,10 @@ class HttpClient<T> implements IAPiClient<T> {
   HttpClient(this.client);
 
   @override
-  Future<T> post(String url, {Map<String, String>? headers, Object? body}) async {
-    final response = await client.post(Uri.parse(url), headers: headers, body: body);
+  Future<T> post(String url,
+      {Map<String, String>? headers, Object? body}) async {
+    final response =
+        await client.post(Uri.parse(url), headers: headers, body: body);
 
     if (response.statusCode == 200) {
       return json.decode(response.body);

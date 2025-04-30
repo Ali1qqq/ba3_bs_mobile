@@ -34,13 +34,13 @@ class AppButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return ElevatedButton(
         style: ButtonStyle(
-          backgroundColor: WidgetStatePropertyAll(color ?? Colors.blue.shade700),
+          backgroundColor: WidgetStatePropertyAll(isLoading ? Colors.grey : (color ?? Colors.blue.shade700)),
           padding: WidgetStateProperty.all(const EdgeInsets.symmetric(horizontal: 12, vertical: 8)),
           shape: WidgetStatePropertyAll(
             RoundedRectangleBorder(borderRadius: borderRadius ?? BorderRadius.all(Radius.circular(5))),
           ),
         ),
-        onPressed: onPressed,
+        onPressed: isLoading ? () {} : onPressed,
         child: SizedBox(
           width: width ?? 120,
           height: height ?? 35,

@@ -93,7 +93,8 @@ final Map<String, String> arAR = {
   AppStrings.control: 'التحكم',
   AppStrings.panel: 'لوحة',
   AppStrings.controlPanel: 'لوحة التحكم',
-  AppStrings.areYouSureYouWantToCloseTheProgram: 'هل انت متأكد انك تريد إغلاق البرنامج',
+  AppStrings.areYouSureYouWantToCloseTheProgram:
+      'هل انت متأكد انك تريد إغلاق البرنامج',
   AppStrings.exit: 'خروج',
   AppStrings.cancel: 'الغاء',
   AppStrings.user: 'المستخدم',

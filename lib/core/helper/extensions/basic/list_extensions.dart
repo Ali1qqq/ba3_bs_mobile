@@ -160,7 +160,8 @@ extension ListExtensions<T> on List<T> {
   /// people.sortBy((person) => person['age']);
   /// // people is now sorted by age in ascending order.
   /// ```
-  void sortBy<K extends Comparable>(K Function(T) keySelector) => sort((a, b) => keySelector(a).compareTo(keySelector(b)));
+  void sortBy<K extends Comparable>(K Function(T) keySelector) =>
+      sort((a, b) => keySelector(a).compareTo(keySelector(b)));
 
   /// Sorts the list in place based on a key provided by [keySelector] in descending order.
   ///
@@ -191,7 +192,8 @@ extension ListExtensions<T> on List<T> {
   /// // sum: 6
   /// ```
   K sumBy<K extends num>(K Function(T item) selector) {
-    return fold<K>(0 as K, (previous, current) => (previous + selector(current)) as K);
+    return fold<K>(
+        0 as K, (previous, current) => (previous + selector(current)) as K);
   }
 
   /// Returns the element with the minimum value as determined by [keySelector].
@@ -205,7 +207,10 @@ extension ListExtensions<T> on List<T> {
   /// // minNumber: 5
   /// ```
   T? minBy<K extends Comparable<K>>(K Function(T item) keySelector) {
-    return isEmpty ? null : reduce((a, b) => keySelector(a).compareTo(keySelector(b)) < 0 ? a : b);
+    return isEmpty
+        ? null
+        : reduce(
+            (a, b) => keySelector(a).compareTo(keySelector(b)) < 0 ? a : b);
   }
 
   /// Returns the element with the maximum value as determined by [keySelector].
@@ -219,7 +224,10 @@ extension ListExtensions<T> on List<T> {
   /// // maxNumber: 10
   /// ```
   T? maxBy<K extends Comparable<K>>(K Function(T item) keySelector) {
-    return isEmpty ? null : reduce((a, b) => keySelector(a).compareTo(keySelector(b)) > 0 ? a : b);
+    return isEmpty
+        ? null
+        : reduce(
+            (a, b) => keySelector(a).compareTo(keySelector(b)) > 0 ? a : b);
   }
 
   /// Splits the list into sublists (chunks) of the given [size].
@@ -412,7 +420,8 @@ extension ListExtensions<T> on List<T> {
   /// final windowsFalse = numbers.windowed(3, step: 2, partialWindows: false);
   /// print(windowsFalse); // Output: [[1, 2, 3], [3, 4, 5]]
   /// ```
-  List<List<T>> windowed(int size, {int step = 1, bool partialWindows = false}) {
+  List<List<T>> windowed(int size,
+      {int step = 1, bool partialWindows = false}) {
     final List<List<T>> windows = [];
     for (var i = 0; i < length; i += step) {
       if (i + size > length && !partialWindows) break;
@@ -606,7 +615,8 @@ extension ListExtensions<T> on List<T> {
   /// final result = numbers.foldIndexed(0, (i, acc, n) => acc + n * i);
   /// // result: 0*1 + 1*2 + 2*3 = 8
   /// ```
-  R foldIndexed<R>(R initial, R Function(int index, R accumulated, T item) combine) {
+  R foldIndexed<R>(
+      R initial, R Function(int index, R accumulated, T item) combine) {
     var result = initial;
     for (var i = 0; i < length; i++) {
       result = combine(i, result, this[i]);
@@ -671,7 +681,8 @@ extension ListExtensions<T> on List<T> {
   /// final scanResult = numbers.scanIndexed(0, (i, acc, n) => acc + n * i);
   /// // scanResult: [0, 2, 8]
   /// ```
-  List<R> scanIndexed<R>(R initial, R Function(int index, R accumulated, T item) combine) {
+  List<R> scanIndexed<R>(
+      R initial, R Function(int index, R accumulated, T item) combine) {
     final List<R> result = [];
     var accumulated = initial;
     for (var i = 0; i < length; i++) {
@@ -774,7 +785,8 @@ extension ListExtensions<T> on List<T> {
   /// - [compare]: A function to compare two items and determine if they are different.
   ///
   /// Returns a list of items from the current list that are present in [other] but have changed.
-  List<T> diffBy<K>(List<T> other, K Function(T) keySelector, bool Function(T, T) compare) {
+  List<T> diffBy<K>(
+      List<T> other, K Function(T) keySelector, bool Function(T, T) compare) {
     // Convert the 'other' list into a map for quick lookup.
     final otherMap = other.toMap(keySelector);
 
@@ -817,11 +829,13 @@ extension ListExtensions<T> on List<T> {
     return diffBy(
       other,
       keySelector,
-      (currentItem, previousItem) => quantitySelector(currentItem) != quantitySelector(previousItem),
+      (currentItem, previousItem) =>
+          quantitySelector(currentItem) != quantitySelector(previousItem),
     ).map((currentItem) {
       final oldQuantity = quantitySelector(
         other.firstWhere(
-          (previousItem) => keySelector(previousItem) == keySelector(currentItem),
+          (previousItem) =>
+              keySelector(previousItem) == keySelector(currentItem),
         ),
       );
 

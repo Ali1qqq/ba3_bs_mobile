@@ -1,5 +1,8 @@
+import 'package:ba3_bs_mobile/core/helper/mixin/floating_launcher.dart';
+import 'package:ba3_bs_mobile/features/user_task/controller/all_task_controller.dart';
 import 'package:ba3_bs_mobile/features/users_management/controllers/user_details_controller.dart';
 import 'package:ba3_bs_mobile/features/users_management/services/role_form_handler.dart';
+import 'package:flutter/cupertino.dart';
 
 import '../../../core/constants/app_constants.dart';
 import '../../../core/helper/extensions/getx_controller_extensions.dart';
@@ -10,7 +13,7 @@ import '../controllers/user_management_controller.dart';
 import '../data/models/role_model.dart';
 import '../data/models/user_model.dart';
 
-class UserNavigator with AppNavigator {
+class UserNavigator with AppNavigator, FloatingLauncher {
   final RoleFormHandler _roleFormHandler;
   final SharedPreferencesService _sharedPreferencesService;
 
@@ -35,9 +38,12 @@ class UserNavigator with AppNavigator {
 
   void navigateToAllUsersScreen() => to(AppRoutes.showAllUsersScreen);
 
-  void navigateToUserTimeListScreen() async {
-    await _userController.getAllUsers();
-    to(AppRoutes.showUserTimeListScreen);
+  void navigateToUserTimeListScreen() => to(AppRoutes.showUserTimeListScreen);
+
+  void lunchAllTaskScreen(BuildContext context) {
+    read<AllTaskController>().lunchAllTaskScreen(context: context);
+
+    // launchFloatingWindow(context: context, floatingScreen: AddTaskScreen());
   }
 
   void navigateToLAllPermissionsScreen() {
@@ -54,7 +60,9 @@ class UserNavigator with AppNavigator {
     if (_sharedPreferencesService.getString(AppConstants.userIdKey) == null) {
       offAll(AppRoutes.loginScreen);
     } else {
-      _userController.fetchAndHandleUser(_sharedPreferencesService.getString(AppConstants.userIdKey)!);
+      _userController.fetchAndHandleUser(
+        _sharedPreferencesService.getString(AppConstants.userIdKey)!,
+      );
     }
   }
 }

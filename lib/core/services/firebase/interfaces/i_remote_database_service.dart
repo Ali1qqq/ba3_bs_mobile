@@ -7,7 +7,10 @@ abstract class IRemoteDatabaseService<T> {
 
   /// Fetches a list of items of type [T] from the specified [path] where the field [field]
   /// matches the value [_value] of type [V].
-  Future<List<T>> fetchWhere({required String path, required List<QueryFilter> queryFilters, DateFilter? dateFilter});
+  Future<List<T>> fetchWhere(
+      {required String path,
+      required List<QueryFilter>? queryFilters,
+      DateFilter? dateFilter});
 
   /// Fetches a single item of type [T] from the specified [path] by its [documentId].
   Future<T> fetchById({required String path, String? documentId});
@@ -15,13 +18,20 @@ abstract class IRemoteDatabaseService<T> {
   Stream<T> subscribeToDoc({required String path, String? documentId});
 
   /// Deletes an item from the specified [path] by its [documentId].
-  Future<void> delete({required String path, String? documentId, String? mapFieldName});
+  Future<void> delete(
+      {required String path, String? documentId, String? mapFieldName});
 
   /// Adds a new item of type [T] to the specified [path] with the given [data].
-  Future<T> add({required String path, String? documentId, required Map<String, dynamic> data});
+  Future<T> add(
+      {required String path,
+      String? documentId,
+      required Map<String, dynamic> data});
 
   /// Updates an item of type [T] in the specified [path] by its [documentId] with the given [data].
-  Future<void> update({required String path, String? documentId, required Map<String, dynamic> data});
+  Future<void> update(
+      {required String path,
+      String? documentId,
+      required Map<String, dynamic> data});
 
   /// Adds multiple items to the specified [path] using a batch write and returns the added items.
   Future<List<T>> addAll({

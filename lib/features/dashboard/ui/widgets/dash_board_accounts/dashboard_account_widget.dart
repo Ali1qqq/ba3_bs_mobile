@@ -13,25 +13,27 @@ class DashBoardAccountWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 35.w,
-      height: 28.h,
-      padding: EdgeInsets.symmetric(horizontal: 3.w),
-      alignment: Alignment.center,
-      decoration:
-      BoxDecoration(borderRadius: BorderRadius.circular(5), color: Colors.white, border: Border.all(color: AppColors.blueColor)),
-      child: Row(
+      width: 100.w,
+      height: 35.h,
+      padding: EdgeInsets.symmetric(horizontal: 4.w),
+      decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(5), color: AppColors.backGroundColor, border: Border.all(color: AppColors.blueColor)),
+      child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
-        crossAxisAlignment: CrossAxisAlignment.end,
-        spacing: 3,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        spacing: 2,
         children: [
           Expanded(
-              child: Text(
-                name,
-                style: AppTextStyles.headLineStyle4,
-              )),
-          Text(
-            balance,
-            style: AppTextStyles.headLineStyle4,
+            child: Text(
+              name,
+              style: AppTextStyles.headLineStyle4,
+            ),
+          ),
+          Center(
+            child: Text(
+              balance,
+              style: AppTextStyles.headLineStyle4.copyWith(),
+            ),
           ),
         ],
       ),

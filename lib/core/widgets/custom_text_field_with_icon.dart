@@ -15,7 +15,7 @@ class CustomTextFieldWithIcon extends StatefulWidget {
     this.inputFormatters,
     this.isNumeric = false,
     this.textStyle,
-     this.readOnly=false,
+    this.readOnly = false,
   });
 
   final TextEditingController textEditingController;
@@ -32,7 +32,8 @@ class CustomTextFieldWithIcon extends StatefulWidget {
   final bool readOnly;
 
   @override
-  State<CustomTextFieldWithIcon> createState() => _CustomTextFieldWithIconState();
+  State<CustomTextFieldWithIcon> createState() =>
+      _CustomTextFieldWithIconState();
 }
 
 class _CustomTextFieldWithIconState extends State<CustomTextFieldWithIcon> {
@@ -57,7 +58,8 @@ class _CustomTextFieldWithIconState extends State<CustomTextFieldWithIcon> {
       );
 
       if (text != convertedText) {
-        widget.textEditingController.value = widget.textEditingController.value.copyWith(
+        widget.textEditingController.value =
+            widget.textEditingController.value.copyWith(
           text: convertedText,
           selection: TextSelection.collapsed(offset: convertedText.length),
         );
@@ -68,8 +70,7 @@ class _CustomTextFieldWithIconState extends State<CustomTextFieldWithIcon> {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height:AppConstants.constHeightTextField,
-
+      height: AppConstants.constHeightTextField,
       child: TextFormField(
         readOnly: widget.readOnly,
         onFieldSubmitted: widget.onSubmitted,
@@ -79,17 +80,19 @@ class _CustomTextFieldWithIconState extends State<CustomTextFieldWithIcon> {
         scrollPadding: EdgeInsets.zero,
         controller: widget.textEditingController,
         inputFormatters: widget.inputFormatters,
-        onTap: () => widget.textEditingController.selection =
-            TextSelection(baseOffset: 0, extentOffset: widget.textEditingController.text.length),
+        onTap: () => widget.textEditingController.selection = TextSelection(
+            baseOffset: 0,
+            extentOffset: widget.textEditingController.text.length),
         style: const TextStyle(fontSize: 12),
         decoration: InputDecoration(
-            fillColor:  Colors.white,
+            fillColor: Colors.white,
             filled: true,
             isDense: true,
-            suffixIconConstraints: BoxConstraints(maxHeight: AppConstants.constHeightTextField, maxWidth: 45,minWidth: 45),
-            suffixIcon: Icon(
-                Icons.search
-            ),
+            suffixIconConstraints: BoxConstraints(
+                maxHeight: AppConstants.constHeightTextField,
+                maxWidth: 45,
+                minWidth: 45),
+            suffixIcon: Icon(Icons.search),
             focusedBorder: OutlineInputBorder(
               borderSide: const BorderSide(
                 color: Colors.blue, // Change the border color when focused
@@ -98,11 +101,10 @@ class _CustomTextFieldWithIconState extends State<CustomTextFieldWithIcon> {
               borderRadius: BorderRadius.circular(5.0),
             ),
             // suffixIcon: SizedBox.shrink(),
-            contentPadding: const EdgeInsets.fromLTRB(0, 12,0, 12)),
+            contentPadding: const EdgeInsets.fromLTRB(0, 12, 0, 12)),
         textAlign: TextAlign.center,
 
-
-      // Center the text horizontally
+        // Center the text horizontally
       ),
     );
   }

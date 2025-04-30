@@ -17,9 +17,11 @@ abstract class BaseEntryBondCreator<T> implements EntryBondCreator<T> {
         ),
       );
 
-  EntryBondOrigin createOrigin({required T model, required EntryBondType originType});
+  EntryBondOrigin createOrigin(
+      {required T model, required EntryBondType originType});
 
   String getModelId(T model);
 
-  List<EntryBondItemModel> generateItems({required T model, bool? isSimulatedVat});
+  List<EntryBondItemModel> generateItems(
+      {required T model, bool? isSimulatedVat});
 }

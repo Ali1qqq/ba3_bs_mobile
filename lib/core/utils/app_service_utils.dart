@@ -229,25 +229,33 @@ class AppServiceUtils {
   }
 
   static double calcVat(int? vatRatio, double? subTotal) {
-    if (vatRatio == null || vatRatio == 0 || subTotal == null || subTotal == 0) return 0;
+    if (vatRatio == null || vatRatio == 0 || subTotal == null || subTotal == 0) {
+      return 0;
+    }
 
     return calcSub(vatRatio, subTotal) - subTotal;
   }
 
   static double calcSubtotal(int? quantity, double? total) {
-    if (quantity == null || quantity == 0 || total == null || total == 0) return 0;
+    if (quantity == null || quantity == 0 || total == null || total == 0) {
+      return 0;
+    }
 
     return total / quantity;
   }
 
   static double calcGiftPrice(int? quantity, double? subTotal) {
-    if (quantity == null || quantity == 0 || subTotal == null || subTotal == 0) return 0;
+    if (quantity == null || quantity == 0 || subTotal == null || subTotal == 0) {
+      return 0;
+    }
 
     return subTotal * quantity;
   }
 
   static double calcTotal(int? quantity, double? subtotal, double? vat) {
-    if (quantity == null || quantity == 0 || subtotal == null || subtotal == 0) return 0;
+    if (quantity == null || quantity == 0 || subtotal == null || subtotal == 0) {
+      return 0;
+    }
 
     return quantity * (subtotal + (vat ?? 0));
   }

@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
-GridColumn gridColumnItem({required String label, required String name, Color? color, double fontSize = 20}) {
+GridColumn gridColumnItem(
+    {required String label,
+    required String name,
+    Color? color,
+    double fontSize = 20}) {
   return GridColumn(
       allowEditing: false,
       columnName: name,
@@ -11,6 +15,9 @@ GridColumn gridColumnItem({required String label, required String name, Color? c
           alignment: Alignment.center,
           child: Text(
             label,
-            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: fontSize),
+            style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: fontSize),
           )));
 }

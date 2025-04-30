@@ -71,8 +71,6 @@
 //   print('${sugarMilkCoffee.description()} costs \$${sugarMilkCoffee.cost()}');
 // }
 
-
-
 /// Virtual Proxy
 // Step 1: Define the Subject (Interface)
 abstract class Image {

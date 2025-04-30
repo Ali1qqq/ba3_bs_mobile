@@ -126,7 +126,9 @@ class AccountStatementController extends GetxController with FloatingLauncher, A
     final tradingEntities = tradingAccounts.map(AccountEntity.fromAccountModel).toList();
 
     // Fetch trading account statements first (used in multiple cases)
-    final tradingAccountResult = await fetchAccountsStatement(tradingEntities);
+    final tradingAccountResult = await fetchAccountsStatement(
+      tradingEntities,
+    );
     Map<AccountEntity, List<EntryBondItems>> result = {};
 
     if (selectedFinalAccount == FinalAccounts.tradingAccount) {
@@ -162,7 +164,9 @@ class AccountStatementController extends GetxController with FloatingLauncher, A
 
     // Fetch profit & loss statements
     final profitLossEntities = profitAndLossAccounts.map(AccountEntity.fromAccountModel).toList();
-    final profitAndLossAccountResult = await fetchAccountsStatement(profitLossEntities);
+    final profitAndLossAccountResult = await fetchAccountsStatement(
+      profitLossEntities,
+    );
     result.addAll(profitAndLossAccountResult);
 
     return result;
@@ -178,8 +182,12 @@ class AccountStatementController extends GetxController with FloatingLauncher, A
     final balanceSheetEntities = balanceSheetAccounts.map(AccountEntity.fromAccountModel).toList();
 
     final results = await Future.wait([
-      fetchAccountsStatement(profitLossEntities),
-      fetchAccountsStatement(balanceSheetEntities),
+      fetchAccountsStatement(
+        profitLossEntities,
+      ),
+      fetchAccountsStatement(
+        balanceSheetEntities,
+      ),
     ]);
     final profitAndLossAccountResult = results[0];
     final balanceSheetAccountResult = results[1];
@@ -245,7 +253,9 @@ class AccountStatementController extends GetxController with FloatingLauncher, A
   Future<void> fetchAccountEntryBondItems() async {
     final accountModel = _accountsController.getAccountModelByName(accountNameController.text);
     if (accountModel == null) {
-      AppUIUtils.onFailure("يرجى إدخال اسم الحساب");
+      AppUIUtils.onFailure(
+        "يرجى إدخال اسم الحساب",
+      );
       return;
     }
 
@@ -309,7 +319,9 @@ class AccountStatementController extends GetxController with FloatingLauncher, A
 
       final result = await _accountsStatementsRepo.getAll(account);
       result.fold(
-        (failure) => AppUIUtils.onFailure(failure.message),
+        (failure) => AppUIUtils.onFailure(
+          failure.message,
+        ),
         (fetchedItems) {
           entryBondItems.addAll(fetchedItems.expand((item) => item.itemList));
         },
@@ -321,7 +333,7 @@ class AccountStatementController extends GetxController with FloatingLauncher, A
     return balance;
   }
 
-  Future<List<EntryBondItemModel>> fetchAccountStatement(AccountEntity accountEntity) async {
+  Future<List<EntryBondItemModel>> fetchAccountStatement(AccountEntity accountEntity, BuildContext context) async {
     final result = await _accountsStatementsRepo.getAll(accountEntity);
 
     return result.fold(
@@ -338,7 +350,9 @@ class AccountStatementController extends GetxController with FloatingLauncher, A
 
     return result.fold(
       (failure) {
-        AppUIUtils.onFailure(failure.message);
+        AppUIUtils.onFailure(
+          failure.message,
+        );
         return {};
       },
       (Map<AccountEntity, List<EntryBondItems>> fetchedItems) => fetchedItems,

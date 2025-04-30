@@ -173,6 +173,8 @@ class FloatingWindowController extends GetxController with CursorUpdateMixin {
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
+      DeviceOrientation.landscapeLeft,
+      DeviceOrientation.landscapeRight,
     ]);
     width = bottomWindowWidthRatio * parentSize.value.width; // Width for the minimized container
     height = bottomWindowHeightRatio * parentSize.value.height; // Height for the minimized container

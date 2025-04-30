@@ -1,5 +1,4 @@
 import 'package:ba3_bs_mobile/core/constants/app_constants.dart';
-import 'package:ba3_bs_mobile/core/widgets/app_spacer.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -32,7 +31,7 @@ class LanguageDropdown extends StatelessWidget {
           hint: Icon(
             Icons.keyboard_arrow_down,
             color: Colors.black,
-            size: 24,
+            size: 14,
           ),
           onChanged: (String? newLangCode) {
             if (newLangCode != null) {
@@ -46,11 +45,11 @@ class LanguageDropdown extends StatelessWidget {
                 children: [
                   Image.asset(
                     translationController.getFlagAsset(langCode),
-                    width: 0.080.sw,
+                    width: 0.020.sw,
                     height: 0.020.sh,
                     fit: BoxFit.cover,
                   ),
-                  HorizontalSpace(),
+                  SizedBox(width: 8),
                   Text(
                     translationController.getLanguageName(langCode),
                     style: TextStyle(fontSize: 12.sp, color: Colors.black),

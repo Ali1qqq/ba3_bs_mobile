@@ -99,7 +99,8 @@ class CustomAlertAnimate {
   }
 
   /// getByType Helper
-  static Widget getByType(CustomAlertAnimType type, {
+  static Widget getByType(
+    CustomAlertAnimType type, {
     required Widget child,
     required Animation<double> animation,
   }) {

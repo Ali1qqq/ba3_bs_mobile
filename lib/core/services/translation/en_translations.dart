@@ -92,7 +92,8 @@ final Map<String, String> enUS = {
   AppStrings.control: 'Control',
   AppStrings.panel: 'Panel',
   AppStrings.controlPanel: 'Control Panel',
-  AppStrings.areYouSureYouWantToCloseTheProgram: 'Are you sure you want to close the program?',
+  AppStrings.areYouSureYouWantToCloseTheProgram:
+      'Are you sure you want to close the program?',
   AppStrings.exit: 'Exit',
   AppStrings.cancel: 'Cancel',
   AppStrings.user: 'User',

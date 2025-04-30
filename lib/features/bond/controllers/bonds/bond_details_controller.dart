@@ -52,6 +52,10 @@ class BondDetailsController extends GetxController with AppValidator {
 
   late bool isDebitOrCredit;
 
+  Rx<RequestState> saveBondRequestState = RequestState.initial.obs;
+
+  Rx<RequestState> deleteBondRequestState = RequestState.initial.obs;
+
   void setAccount(AccountModel setAccount) {
     selectedAccount = setAccount;
     bondDetailsPlutoController.setAccountGuid = setAccount.id;
@@ -90,28 +94,53 @@ class BondDetailsController extends GetxController with AppValidator {
   }
 
   Future<void> deleteBond(BondModel bondModel, {bool fromBondById = false}) async {
+    deleteBondRequestState.value = RequestState.loading;
+
     final result = await _bondsFirebaseRepo.delete(bondModel);
 
-    result.fold(
-      (failure) => AppUIUtils.onFailure(failure.message),
-      (success) => _bondService.handleDeleteSuccess(bondModel, bondSearchController, fromBondById),
+    await result.fold(
+      (failure) {
+        deleteBondRequestState.value = RequestState.error;
+        AppUIUtils.onFailure(
+          failure.message,
+        );
+      },
+      (success) async {
+        await _bondService.handleDeleteSuccess(bondModel, bondSearchController, fromBondById);
+        deleteBondRequestState.value = RequestState.success;
+      },
     );
   }
 
-  Future<void> saveBond(BondType bondType) async {
-    await _saveOrUpdateBond(bondType: bondType);
+  Future<void> saveBond(
+    BondType bondType,
+  ) async {
+    await _saveOrUpdateBond(
+      bondType: bondType,
+    );
   }
 
-  Future<void> updateBond({required BondType bondType, required BondModel bondModel}) async {
-    await _saveOrUpdateBond(bondType: bondType, existingBondModel: bondModel);
+  Future<void> updateBond({
+    required BondType bondType,
+    required BondModel bondModel,
+  }) async {
+    await _saveOrUpdateBond(
+      bondType: bondType,
+      existingBondModel: bondModel,
+    );
   }
 
-  Future<void> _saveOrUpdateBond({required BondType bondType, BondModel? existingBondModel}) async {
+  Future<void> _saveOrUpdateBond({
+    required BondType bondType,
+    BondModel? existingBondModel,
+  }) async {
     // Validate the form first
     if (!validateForm()) return;
 
     if (!bondDetailsPlutoController.checkIfBalancedBond()) {
-      AppUIUtils.onFailure('يجب موازنة السند من فضلك!');
+      AppUIUtils.onFailure(
+        'يجب موازنة السند من فضلك!',
+      );
       return;
     }
     // Create the bond model from the provided data
@@ -119,32 +148,42 @@ class BondDetailsController extends GetxController with AppValidator {
 
     // Handle null bond model
     if (updatedBondModel == null) {
-      AppUIUtils.onFailure('من فضلك يرجى اضافة الحساب!');
+      AppUIUtils.onFailure(
+        'من فضلك يرجى اضافة الحساب!',
+      );
       return;
     }
 
     // Ensure there are bond items
     if (updatedBondModel.payItems.itemList.isEmpty) {
-      AppUIUtils.onFailure('من فضلك يرجى اضافة حقول للسند');
+      AppUIUtils.onFailure(
+        'من فضلك يرجى اضافة حقول للسند',
+      );
       return;
     }
 
+    saveBondRequestState.value = RequestState.loading;
+
     // Save the bond to Firestore
     final result = await _bondsFirebaseRepo.save(updatedBondModel);
-
     // Handle the result (success or failure)
-    result.fold(
+    await result.fold(
       (failure) {
-        return AppUIUtils.onFailure(failure.message);
+        saveBondRequestState.value = RequestState.error;
+        return AppUIUtils.onFailure(
+          failure.message,
+        );
       },
-      (bondModel) {
-        _bondService.handleSaveOrUpdateSuccess(
+      (bondModel) async {
+        await _bondService.handleSaveOrUpdateSuccess(
           previousBond: existingBondModel,
           currentBond: bondModel,
           bondSearchController: bondSearchController,
           isSave: existingBondModel == null,
           bondDetailsController: this,
         );
+
+        saveBondRequestState.value = RequestState.success;
       },
     );
   }
@@ -165,7 +204,9 @@ class BondDetailsController extends GetxController with AppValidator {
   BondModel? _createBondModelFromBondData(BondType bondType, [BondModel? bondModel]) {
     // Validate customer accounts
     if (bondSearchController.bondDetailsController.isDebitOrCredit) {
-      if (!_bondService.validateAccount(selectedAccount)) {
+      if (!_bondService.validateAccount(
+        selectedAccount,
+      )) {
         return null;
       }
     }
@@ -195,6 +236,7 @@ class BondDetailsController extends GetxController with AppValidator {
     setBondDate(bond.payDate!.toDate);
     isBondSaved.value = bond.payGuid != null;
     initBondNumberController(bond.payNumber);
+    initBondNote(bond.payNote);
 
     if (AppServiceUtils.getAccountModelFromLabel(bond.payAccountGuid) != null) {
       setAccount(AppServiceUtils.getAccountModelFromLabel(bond.payAccountGuid)!);
@@ -206,7 +248,9 @@ class BondDetailsController extends GetxController with AppValidator {
     bondPlutoController.update();
   }
 
-  generateAndSendBondPdf(BondModel bondModel) {
+  generateAndSendBondPdf(
+    BondModel bondModel,
+  ) {
     if (!_bondService.hasModelId(bondModel.payGuid)) return;
 
     if (!_bondService.hasModelItems(bondModel.payItems.itemList)) return;
@@ -221,5 +265,9 @@ class BondDetailsController extends GetxController with AppValidator {
     BondModel newBond = BondModel.empty(bondType: bondType, lastBondNumber: lastBondNumber);
 
     bondSearchController.insertLastAndUpdate(newBond);
+  }
+
+  void initBondNote(String? payNote) {
+    noteController.text = payNote ?? '';
   }
 }

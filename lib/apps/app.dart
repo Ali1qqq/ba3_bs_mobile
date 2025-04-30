@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
-import '../core/bindings/bindings.dart';
 import '../core/constants/app_strings.dart';
 import '../core/helper/extensions/getx_controller_extensions.dart';
 import '../core/router/app_router.dart';
@@ -23,7 +22,7 @@ class MyApp extends StatelessWidget {
       splitScreenMode: true,
       fontSizeResolver: FontSizeResolvers.height,
       child: GetMaterialApp(
-        initialBinding: AppBindings(),
+        // initialBinding: AppBindings(),
         debugShowCheckedModeBanner: false,
         scrollBehavior: AppScrollBehavior(),
         locale: Locale(translationController.localLangCode),

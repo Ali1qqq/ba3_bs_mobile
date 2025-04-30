@@ -94,7 +94,10 @@ class WhatsappService {
 
     if (response.statusCode == 200) {
       log('✅ تم إرسال رابط الفاتورة بنجاح!', name: 'SendWhatsAppInvoiceLink');
-      AppUIUtils.onSuccess('✅ تم إرسال رابط الفاتورة بنجاح إلى الواتساب!');
+
+      AppUIUtils.onSuccess(
+        '✅ تم إرسال رابط الفاتورة بنجاح إلى الواتساب!',
+      );
     } else {
       log('⚠️ فشل في إرسال الرابط: ${response.body}', name: 'SendWhatsAppInvoiceLink');
     }

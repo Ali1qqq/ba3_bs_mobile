@@ -30,7 +30,7 @@ class OrganizedWidget extends StatelessWidget {
                 ),
               ),
               child: Row(
-                children: [Expanded(child: titleWidget ?? SizedBox())],
+                children: [Expanded(child: titleWidget!)],
               ),
             ),
           Container(width: 1.sw, height: 1, color: Colors.white10),

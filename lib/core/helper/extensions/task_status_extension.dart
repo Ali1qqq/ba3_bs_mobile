@@ -2,11 +2,14 @@ import '../enums/enums.dart';
 
 extension TaskStatusExtension on TaskStatus? {
   bool get isFinished {
-    return this == null || this == TaskStatus.done || this == TaskStatus.canceled || this == TaskStatus.failure;
+    return this == null ||
+        this == TaskStatus.done ||
+        this == TaskStatus.canceled ||
+        this == TaskStatus.failure;
   }
 
   bool get isFailed {
-    return this == TaskStatus.failure||this ==TaskStatus.canceled;
+    return this == TaskStatus.failure || this == TaskStatus.canceled;
   }
 
   bool get isNotStarted {
@@ -17,7 +20,8 @@ extension TaskStatusExtension on TaskStatus? {
   bool get isInProgress {
     return this == null || this == TaskStatus.inProgress;
   }
+
   bool get isDone {
-    return  this == TaskStatus.done;
+    return this == TaskStatus.done;
   }
 }

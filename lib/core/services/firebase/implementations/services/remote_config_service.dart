@@ -34,7 +34,8 @@ class RemoteConfigService {
 
   static Future<void> init() async {
     try {
-      final snapshot = await _firestoreInstance.collection('config').doc('app').get();
+      final snapshot =
+          await _firestoreInstance.collection('config').doc('app').get();
 
       if (snapshot.exists) {
         final data = snapshot.data();

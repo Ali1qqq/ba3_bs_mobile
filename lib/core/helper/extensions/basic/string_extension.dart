@@ -6,7 +6,8 @@ extension StringExtension on String {
     // return replaceAll(RegExp(r'[^\x20-\x7Eء-ي]'), '');
   }
 
-  String get capitalizeFirst => isNotEmpty ? this[0].toUpperCase() + substring(1).toLowerCase() : "";
+  String get capitalizeFirst =>
+      isNotEmpty ? this[0].toUpperCase() + substring(1).toLowerCase() : "";
 
   int get toInt => int.tryParse(this) ?? 0;
 
@@ -45,12 +46,13 @@ extension NullableStringExtension on String? {
   }
 
   String get orEmpty => this ?? "";
-
 }
+
 extension TimeParsing on String {
   DateTime toWorkingTime() {
     final now = DateTime.now();
-    final parsed = DateFormat("hh:mm a").tryParse(this) ?? DateFormat("a hh:mm").parse(this);
+    final parsed = DateFormat("hh:mm a").tryParse(this) ??
+        DateFormat("a hh:mm").parse(this);
     return DateTime(
       now.year,
       now.month,

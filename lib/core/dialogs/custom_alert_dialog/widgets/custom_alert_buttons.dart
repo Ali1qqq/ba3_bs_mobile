@@ -33,7 +33,7 @@ class CustomAlertButtons extends StatelessWidget {
       return const SizedBox();
     }
     final showCancelBtn =
-    options.type == CustomAlertType.confirm ? true : options.showCancelBtn!;
+        options.type == CustomAlertType.confirm ? true : options.showCancelBtn!;
 
     final okayBtn = buildButton(
         context: context,
@@ -55,7 +55,7 @@ class CustomAlertButtons extends StatelessWidget {
 
   Widget cancelBtn(context) {
     final showCancelBtn =
-    options.type == CustomAlertType.confirm ? true : options.showCancelBtn!;
+        options.type == CustomAlertType.confirm ? true : options.showCancelBtn!;
 
     final cancelBtn = buildButton(
         context: context,
@@ -104,11 +104,10 @@ class CustomAlertButtons extends StatelessWidget {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(15.0),
       ),
-      color:options.cancelBtnColor ??  Theme.of(context!).cardColor,
+      color: options.cancelBtnColor ?? Theme.of(context!).cardColor,
       onPressed: onTap,
       child: Padding(
         padding: const EdgeInsets.all(7.5),
-
         child: Center(
           child: btnText,
         ),

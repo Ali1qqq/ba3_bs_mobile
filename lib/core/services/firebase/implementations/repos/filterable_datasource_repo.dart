@@ -14,9 +14,9 @@ class FilterableDataSourceRepository<T> extends RemoteDataSourceRepository<T> {
 
   FilterableDataSourceRepository(this._filterableDatasource) : super(_filterableDatasource);
 
-  Future<Either<Failure, List<T>>> fetchWhere({required List<QueryFilter> queryFilters, DateFilter? dateFilter}) async {
+  Future<Either<Failure, List<T>>> fetchWhere({List<QueryFilter>? queryFilters, DateFilter? dateFilter}) async {
     try {
-      final savedItems = await _filterableDatasource.fetchWhere(queryFilters: queryFilters);
+      final savedItems = await _filterableDatasource.fetchWhere(queryFilters: queryFilters, dateFilter: dateFilter);
       return Right(savedItems); // Return the list of saved items
     } catch (e, stackTrace) {
       log('Error in fetchWhere: $e', stackTrace: stackTrace, name: 'FilterableDataSourceRepository fetchWhere');

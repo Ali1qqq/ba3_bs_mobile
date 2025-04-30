@@ -19,35 +19,37 @@ class DashBoardAccountViewWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: 110.h,
-      width: 110.w,
+    return Container(
+      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(8)),
+      height: 120.h,
+      width: 1.sw,
       child: Column(
         children: [
           Row(
             children: [
               Spacer(),
-              Text(AppStrings.mainUsers.tr, style: AppTextStyles.headLineStyle3),
+              Text(AppStrings.mainUsers.tr, style: AppTextStyles.headLineStyle2),
               Spacer(),
               CustomIconButton(
-                disabled: false,
                 onPressed: () {
                   controller.refreshDashBoardAccounts();
                 },
                 icon: LanguageSwitchFaIcon(
-                  iconData: FontAwesomeIcons.refresh,
+                  iconData: FontAwesomeIcons.arrowsRotate,
+                  size: 13,
                 ),
               ),
               HorizontalSpace(),
               CustomIconButton(
-                disabled: false,
                 onPressed: () {
                   showDialog<String>(context: Get.context!, builder: (BuildContext context) => showDashboardAccountDialog(context));
                 },
                 icon: LanguageSwitchFaIcon(
-                  iconData:FontAwesomeIcons.add,
+                  iconData: FontAwesomeIcons.plus,
+                  size: 13,
                 ),
               ),
+              HorizontalSpace(),
             ],
           ),
           Divider(),

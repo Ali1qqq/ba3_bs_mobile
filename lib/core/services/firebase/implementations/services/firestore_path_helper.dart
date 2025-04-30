@@ -33,7 +33,7 @@ mixin FirestorePathHelper<ItemTypeModel> {
       BillTypeModel(:final billTypeLabel) => billTypeLabel,
       BondType(:final label) => label,
       ChequesType(:final label) => label,
-      AccountEntity(:final name) => name,
+      AccountEntity(:final id) => id,
       String name => name, // For String, directly return it.
       _ => throw ArgumentError('Unsupported typeModel for getSubCollectionPath.'),
     };

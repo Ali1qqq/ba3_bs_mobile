@@ -6,10 +6,12 @@ abstract class UploaderCapability<T> {
   Future<String> uploadImage(String imagePath);
 }
 
-abstract class UploaderStorageDataSource<T> extends RemoteDatasourceBase<T> implements UploaderCapability<T> {
+abstract class UploaderStorageDataSource<T> extends RemoteDatasourceBase<T>
+    implements UploaderCapability<T> {
   final IRemoteStorageService<String> databaseStorageService;
 
-  UploaderStorageDataSource({required super.databaseService, required this.databaseStorageService});
+  UploaderStorageDataSource(
+      {required super.databaseService, required this.databaseStorageService});
 }
 
 abstract class ImageLoaderUploaderCapability<T> {

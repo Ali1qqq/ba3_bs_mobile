@@ -27,7 +27,7 @@ class SearchableAccountField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: width ?? Get.width * 0.65,
+      width: width ?? Get.width * 0.45,
       height: height,
       child: Row(
         children: [

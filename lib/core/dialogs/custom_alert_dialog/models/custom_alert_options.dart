@@ -45,6 +45,7 @@ class CustomAlertOptions {
 
   /// Color for confirm button
   Color? confirmBtnColor;
+
   /// Color for confirm button
   Color? cancelBtnColor;
 
@@ -124,6 +125,7 @@ class CustomAlertOptions {
 
     /// Color for confirm button
     this.confirmBtnColor,
+
     /// Color for confirm button
     this.cancelBtnColor,
 

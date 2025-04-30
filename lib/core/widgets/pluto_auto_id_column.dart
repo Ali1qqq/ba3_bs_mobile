@@ -1,9 +1,9 @@
-
 import 'package:flutter/material.dart';
 import 'package:pluto_grid/pluto_grid.dart';
 
 // Function to create a numbered column with automatic ID generation.
-PlutoColumn createAutoIdColumn({String title = '', double width = 50}) => PlutoColumn(
+PlutoColumn createAutoIdColumn({String title = '', double width = 50}) =>
+    PlutoColumn(
       width: width,
       title: title,
       field: title,
@@ -17,8 +17,6 @@ PlutoColumn createAutoIdColumn({String title = '', double width = 50}) => PlutoC
         final rowIndex = rendererContext.rowIdx;
         final autoId = calculateAutoId(currentPage, rowIndex);
 
-
-
         return Text(
           autoId.toString(),
           style: const TextStyle(fontWeight: FontWeight.bold),
@@ -27,4 +25,5 @@ PlutoColumn createAutoIdColumn({String title = '', double width = 50}) => PlutoC
       },
     );
 
-int calculateAutoId(int currentPage, int rowIndex) => (currentPage - 1) * 100 + rowIndex + 1;
+int calculateAutoId(int currentPage, int rowIndex) =>
+    (currentPage - 1) * 100 + rowIndex + 1;

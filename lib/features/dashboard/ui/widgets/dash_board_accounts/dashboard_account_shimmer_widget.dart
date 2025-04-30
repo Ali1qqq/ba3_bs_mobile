@@ -16,7 +16,7 @@ class DashBoardAccountShimmerWidget extends StatelessWidget {
       baseColor: Colors.grey[300]!,
       highlightColor: Colors.grey[100]!,
       child: Container(
-        width: 35.w,
+        width: 81.w,
         height: 35.h,
         padding: EdgeInsets.symmetric(horizontal: 3.w),
         alignment: Alignment.center,

@@ -24,8 +24,8 @@ class UserTaskDataSource extends UploaderStorageQueryableDatasource<UserTaskMode
   }
 
   @override
-  Future<List<UserTaskModel>> fetchWhere({required List<QueryFilter> queryFilters, DateFilter? dateFilter}) async {
-    final data = await databaseService.fetchWhere(path: path, queryFilters: queryFilters);
+  Future<List<UserTaskModel>> fetchWhere({required List<QueryFilter>? queryFilters, DateFilter? dateFilter}) async {
+    final data = await databaseService.fetchWhere(path: path, queryFilters: queryFilters, dateFilter: dateFilter);
 
     final userTask = data.map((item) => UserTaskModel.fromJson(item)).toList();
 

@@ -1,6 +1,5 @@
 /// Define Animation Type
 class CustomAlertGifs {
-
   /// Loading Animation
   static const loading = '$_baseImagesPath/loading.gif';
 
@@ -19,5 +18,6 @@ class CustomAlertGifs {
   /// Confirm Animation
   static const confirm = '$_baseImagesPath/confirm.gif';
 }
+
 const _baseAssetsPath = 'assets';
 const _baseImagesPath = '$_baseAssetsPath/alert_gif';

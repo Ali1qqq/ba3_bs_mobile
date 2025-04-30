@@ -14,7 +14,8 @@ class HiveDatabaseService<T> implements ILocalDatabaseService<T> {
 
   @override
   Future<void> insertAll(Map<String, T> data) async {
-    await _box.putAll(data); // Insert multiple objects with their respective IDs
+    await _box
+        .putAll(data); // Insert multiple objects with their respective IDs
   }
 
   @override

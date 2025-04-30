@@ -14,7 +14,10 @@ class GmailMessagingService implements IMailerMessagingService {
 
   @override
   Future<void> sendMail(String recipientEmail,
-      {String? url, String? subject, String? body, List<String>? attachments}) async {
+      {String? url,
+      String? subject,
+      String? body,
+      List<String>? attachments}) async {
     final String newBody = body ??
         (url == null
             ? "<h1>شكرا لك لزيارتك محل برج العرب للهواتف المتحركة</h1>"
@@ -24,8 +27,8 @@ class GmailMessagingService implements IMailerMessagingService {
     final message = Message()
       ..from = Address(_username, 'برج العرب للهواتف المتحركة')
       ..recipients.add(recipientEmail)
-      ..subject =
-          subject ?? 'الموضوع:فاتورتك الألكترونية من برج العرب للهواتف المتحركة بتاريخ ${Timestamp.now().toDate()}'
+      ..subject = subject ??
+          'الموضوع:فاتورتك الألكترونية من برج العرب للهواتف المتحركة بتاريخ ${Timestamp.now().toDate()}'
       ..html = newBody;
 
     if (attachments != null) {

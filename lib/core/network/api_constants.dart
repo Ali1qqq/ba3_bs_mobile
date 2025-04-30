@@ -3,8 +3,10 @@ import '../constants/app_constants.dart';
 import '../helper/extensions/getx_controller_extensions.dart';
 
 class ApiConstants {
-  static const String translationApiKey = 'AIzaSyAil4Csq27_oCC_BzF7ZMetUEyNM665VqQ';
-  static const String translationBaseUrl = 'https://translation.googleapis.com/language/translate/v2';
+  static const String translationApiKey =
+      'AIzaSyAil4Csq27_oCC_BzF7ZMetUEyNM665VqQ';
+  static const String translationBaseUrl =
+      'https://translation.googleapis.com/language/translate/v2';
 
   // static const String whatsappPhoneNumberID = '578828715319909';
 
@@ -20,7 +22,8 @@ class ApiConstants {
 
     final currentVersion = migrationController.currentVersion;
 
-    return currentVersion == AppConstants.defaultVersion || currentVersion.isEmpty
+    return currentVersion == AppConstants.defaultVersion ||
+            currentVersion.isEmpty
         ? ''
         : '${migrationController.currentVersion}_';
   }

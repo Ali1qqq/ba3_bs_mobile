@@ -69,7 +69,6 @@ class GetProductByEnterAction extends PlutoGridShortcutAction {
   }
 
   Future<void> getProduct(PlutoGridStateManager stateManager, IPlutoController plutoController) async {
-    log("-" * 90);
     if (stateManager.currentColumn?.field != AppConstants.invRecProduct) return;
 
     // Initialize variables
@@ -96,7 +95,9 @@ class GetProductByEnterAction extends PlutoGridShortcutAction {
       );
     } else if (searchedMaterials.isEmpty) {
       // No matches
-      AppUIUtils.onFailure('هذه المادة غير موجودة');
+      AppUIUtils.onFailure(
+        'هذه المادة غير موجودة',
+      );
 
       updateWithSelectedMaterial(
           inputSearch: productText, materialModel: null, stateManager: stateManager, plutoController: plutoController);
@@ -129,7 +130,11 @@ class GetProductByEnterAction extends PlutoGridShortcutAction {
         searchedMaterials: searchedMaterials,
         onRowSelected: (PlutoGridOnSelectedEvent onSelectedEvent) {
           final materialId = onSelectedEvent.row?.cells[AppConstants.materialIdFiled]?.value;
-          final selectedMaterial = materialId != null ? materialController.getMaterialById(materialId) : null;
+          final selectedMaterial = materialId != null
+              ? materialController.getMaterialById(
+                  materialId,
+                )
+              : null;
           updateWithSelectedMaterial(
               inputSearch: inputSearch, materialModel: selectedMaterial, stateManager: stateManager, plutoController: plutoController);
 

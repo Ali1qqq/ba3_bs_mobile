@@ -4,7 +4,11 @@ import 'package:get/get.dart';
 import 'custom_text_field_with_icon.dart';
 
 class OptionTextWidget extends StatelessWidget {
-  const OptionTextWidget({required this.title, super.key, required this.controller, required this.onSubmitted});
+  const OptionTextWidget(
+      {required this.title,
+      super.key,
+      required this.controller,
+      required this.onSubmitted});
 
   final String title;
   final TextEditingController controller;
@@ -20,7 +24,8 @@ class OptionTextWidget extends StatelessWidget {
           SizedBox(width: 100, child: Text(title)),
           SizedBox(
             width: Get.width / 3,
-            child: CustomTextFieldWithIcon(textEditingController: controller, onSubmitted: onSubmitted),
+            child: CustomTextFieldWithIcon(
+                textEditingController: controller, onSubmitted: onSubmitted),
           ),
         ],
       ),
@@ -30,7 +35,10 @@ class OptionTextWidget extends StatelessWidget {
 
 class OptionTextWithoutIconWidget extends StatelessWidget {
   const OptionTextWithoutIconWidget(
-      {required this.title, super.key, required this.controller, required this.onSubmitted});
+      {required this.title,
+      super.key,
+      required this.controller,
+      required this.onSubmitted});
 
   final String title;
   final TextEditingController controller;

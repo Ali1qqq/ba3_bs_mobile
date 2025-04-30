@@ -62,7 +62,7 @@ class BillsExport {
         // Customer pointer.
         XmlHelpers.element('BillCustPtr', bill.billDetails.billCustomerId),
         // Customer name from the caches account.
-        XmlHelpers.element('BillCustName', bill.billTypeModel.accounts?[BillAccounts.caches]?.accName),
+        XmlHelpers.element('BillCustName', bill.billTypeModel.accounts![BillAccounts.caches]?.accName),
         // Currency GUID with a default constant value.
         XmlHelpers.element('BillCurrencyGuid', '884edcde-c172-490d-a2f2-f10a0b90326a'),
         // Currency value (typically '1').
@@ -74,7 +74,7 @@ class BillsExport {
         // Bill note.
         XmlHelpers.element('Note', bill.billDetails.billNote),
         // Customer account GUID set to default.
-        XmlHelpers.element('BillCustAcc', '00000000-0000-0000-0000-000000000000'),
+        XmlHelpers.element('BillCustAcc', bill.billDetails.billAccountId),
         // Material account GUID (currently null).
         XmlHelpers.element('BillMatAccGuid', null),
         // Cost GUID set to default.

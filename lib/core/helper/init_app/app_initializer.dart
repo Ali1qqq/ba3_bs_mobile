@@ -1,8 +1,8 @@
 import 'dart:developer';
 
+import 'package:ba3_bs_mobile/core/bindings/bindings.dart';
 import 'package:ba3_bs_mobile/core/helper/extensions/hive_extensions.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:easy_notifications/easy_notifications.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
@@ -17,31 +17,38 @@ import '../../../features/migration/controllers/migration_controller.dart';
 import '../../../features/migration/data/datasources/remote/migration_data_source.dart';
 import '../../../features/migration/data/models/migration_model.dart';
 import '../../../features/patterns/data/models/bill_type_model.dart';
+import '../../../features/users_management/controllers/user_management_controller.dart';
+import '../../../features/users_management/data/datasources/roles_data_source.dart';
+import '../../../features/users_management/data/datasources/users_data_source.dart';
+import '../../../features/users_management/data/models/role_model.dart';
+import '../../../features/users_management/data/models/user_model.dart';
 import '../../../firebase_options.dart';
 import '../../constants/app_constants.dart';
 import '../../services/firebase/implementations/repos/compound_datasource_repo.dart';
+import '../../services/firebase/implementations/repos/filterable_datasource_repo.dart';
 import '../../services/firebase/implementations/repos/remote_datasource_repo.dart';
 import '../../services/firebase/implementations/services/compound_firestore_service.dart';
 import '../../services/firebase/implementations/services/firestore_service.dart';
 import '../../services/firebase/implementations/services/remote_config_service.dart';
 import '../../services/firebase/interfaces/i_compound_database_service.dart';
 import '../../services/firebase/interfaces/i_remote_database_service.dart';
+import '../../services/get_x/shared_preferences_service.dart';
 import '../../services/local_database/implementations/services/hive_database_service.dart';
 import '../../services/translation/translation_controller.dart';
 import '../enums/enums.dart';
 import '../extensions/getx_controller_extensions.dart';
+
+bool isConnected = true;
 
 Future<void> initializeAppServices() async {
   FlutterError.onError = (FlutterErrorDetails details) {
     log('${details.exception}', name: 'FlutterError Error');
     FlutterError.presentError(details);
   };
-
-  WidgetsFlutterBinding.ensureInitialized();
-  EasyNotifications.askPermission();
   //   await initializeWindowSettings();
+  WidgetsFlutterBinding.ensureInitialized();
 
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform, name: AppConstants.getDatabaseAppName);
 
   await Hive.initializeApp();
 
@@ -52,6 +59,23 @@ Future<void> initializeAppServices() async {
   setupMigrationDependencies();
 
   await RemoteConfigService.init();
+
+  await _initializeApp();
+
+  await AppBindings().dependencies();
+}
+
+Future<void> _initializeApp() async {
+  final sharedPreferencesService = await putAsync(SharedPreferencesService().init());
+
+  put(
+    UserManagementController(
+      read<RemoteDataSourceRepository<RoleModel>>(),
+      read<FilterableDataSourceRepository<UserModel>>(),
+      sharedPreferencesService,
+    ),
+    permanent: true,
+  );
 }
 
 Future<void> initializeAppLocalization({required String boxName}) async {
@@ -65,14 +89,14 @@ Future<void> initializeAppLocalization({required String boxName}) async {
 void setupDatabaseServices() {
   // final FirebaseStorage firebaseStorageInstance = FirebaseStorage.instance;
 
-  final FirebaseFirestore firestoreInstance = FirebaseFirestore.instance;
+  FirebaseFirestore firestoreInstance = FirebaseFirestore.instanceFor(
+      app: Firebase.app(AppConstants.getDatabaseAppName),
+      databaseId: AppConstants.getDatabaseAppName == AppConstants.defaultFirebaseAppName ? null : AppConstants.getDatabaseAppName);
 
-  /// 🔹 To connect to a test Firebase project, use:
-
-  // final FirebaseFirestore firestoreInstance = FirebaseFirestore.instanceFor(
-  //   app: Firebase.app(),
-  //   databaseId: 'test',
-  // );
+/*  final FirebaseFirestore firestoreInstance = FirebaseFirestore.instanceFor(
+    app: Firebase.app(),
+    databaseId: 'test',
+  );*/
 
   // Initialize Firestore services
   final remoteDatabaseService = createRemoteDatabaseService(firestoreInstance);
@@ -107,6 +131,14 @@ void setupMigrationDependencies() {
 
   // Register MigrationController
   put(MigrationController(bondsRepository, billsRepository, chequesRepository, migrationRepository));
+
+  final rolesRepo = RemoteDataSourceRepository(RolesDatasource(databaseService: fireStoreService));
+
+  final usersRepo = FilterableDataSourceRepository(UsersDatasource(databaseService: fireStoreService));
+
+  lazyPut(rolesRepo);
+
+  lazyPut(usersRepo);
 }
 
 // 🔹 Helper Methods for Initialization

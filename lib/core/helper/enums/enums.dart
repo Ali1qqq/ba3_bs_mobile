@@ -1,7 +1,10 @@
 import 'package:ba3_bs_mobile/features/accounts/data/models/account_model.dart';
 import 'package:ba3_bs_mobile/features/patterns/data/models/bill_type_model.dart';
+import 'package:hive/hive.dart';
 
 import '../../constants/app_assets.dart';
+
+part 'enums.g.dart';
 
 enum EnvType { debug, release }
 
@@ -151,19 +154,27 @@ enum BillType {
   // Factory constructor with error handling for unmatched labels
   factory BillType.byLabel(String label) {
     return BillType.values.firstWhere(
-      (type) => type.label == label,
+          (type) => type.label == label,
       orElse: () => throw ArgumentError('No matching BillType for label: $label'),
     );
   }
 
   factory BillType.byTypeGuide(String typeGuide) {
     return BillType.values.firstWhere(
-      (type) => type.typeGuide == typeGuide,
+          (type) => type.typeGuide == typeGuide,
       orElse: () => throw ArgumentError('No matching BillType for guide: $typeGuide'),
     );
   }
 
-  BillTypeModel get billTypeModel => BillTypeModel(
+  factory BillType.byValue(String value) {
+    return BillType.values.firstWhere(
+          (type) => type.value == value,
+      orElse: () => throw ArgumentError('No matching BillType for guide: $value'),
+    );
+  }
+
+  BillTypeModel get billTypeModel =>
+      BillTypeModel(
         billTypeId: typeGuide,
         billTypeLabel: label,
         color: color,
@@ -179,50 +190,47 @@ enum BillType {
   BillPatternType get billPatternType => BillPatternType.byValue(label);
 }
 
+List<BillTypeModel> get allBillTypeModels => BillType.values.map((billType) => billType.billTypeModel).toList();
+
+@HiveType(typeId: 8) // Use a unique typeId
 enum BillPatternType {
+  @HiveField(0)
   purchase(label: 'شراء', value: 'purchase'),
+  @HiveField(1)
   sales(label: 'مبيع', value: 'sales'),
+  @HiveField(2)
   buyReturn(label: 'مرتجع شراء', value: 'purchaseReturn'),
+  @HiveField(3)
   salesReturn(label: 'مرتجع بيع', value: 'salesReturn'),
+  @HiveField(4)
   add(label: 'تسوية إدخال', value: 'adjustmentEntry'),
+  @HiveField(5)
   remove(label: 'تسوية إخراج', value: 'outputAdjustment'),
+  @HiveField(6)
   firstPeriodInventory(label: 'بضاعة اول مدة', value: 'firstPeriodInventory'),
-  transferOut(
-    value: 'transferOut',
-    label: 'تسوية النقص',
-  ),
-  salesService(
-    value: 'sales service',
-    label: 'مبيع خدمة',
-  ),
-  transferIn(
-    value: 'transferIn',
-    label: 'تسوية الزيادة',
-  );
+  @HiveField(7)
+  transferOut(label: 'تسوية النقص', value: 'transferOut'),
+  @HiveField(8)
+  salesService(label: 'مبيع خدمة', value: 'sales service'),
+  @HiveField(9)
+  transferIn(label: 'تسوية الزيادة', value: 'transferIn');
 
   final String label;
   final String value;
 
-  const BillPatternType({
-    required this.label,
-    required this.value,
-  });
+  const BillPatternType({required this.label, required this.value});
 
-  // Factory constructor with error handling for unmatched labels
-  factory BillPatternType.byValue(String value) {
-    return BillPatternType.values.firstWhere(
-      (type) => type.value == value,
-      orElse: () => throw ArgumentError('No matching BillPatternType for value: $value'),
-    );
-  }
+  factory BillPatternType.byValue(String value) =>
+      BillPatternType.values.firstWhere(
+            (e) => e.value == value,
+        orElse: () => throw ArgumentError('No matching value: $value'),
+      );
 
-  // Factory constructor with error handling for unmatched labels
-  factory BillPatternType.byLabel(String label) {
-    return BillPatternType.values.firstWhere(
-      (type) => type.label == label,
-      orElse: () => throw ArgumentError('No matching BillPatternType for label: $label'),
-    );
-  }
+  factory BillPatternType.byLabel(String label) =>
+      BillPatternType.values.firstWhere(
+            (e) => e.label == label,
+        orElse: () => throw ArgumentError('No matching label: $label'),
+      );
 }
 
 enum RequestState { initial, loading, error, success }
@@ -240,15 +248,19 @@ enum InvPayType {
 
   factory InvPayType.fromIndex(int index) {
     return InvPayType.values.firstWhere(
-      (type) => type.index == index,
+          (type) => type.index == index,
       orElse: () => throw ArgumentError('No matching BillType for label: $index'),
     );
   }
 }
 
+@HiveType(typeId: 9)
 enum Status {
+  @HiveField(0)
   approved('approved'),
+  @HiveField(1)
   canceled('canceled'),
+  @HiveField(2)
   pending('pending');
 
   final String value;
@@ -258,13 +270,16 @@ enum Status {
   // Factory constructor to handle conversion from string to BillStatus
   factory Status.byValue(String value) {
     return Status.values.firstWhere(
-      (status) => status.value == value,
+          (status) => status.value == value,
       orElse: () => throw ArgumentError('No matching Status for value: $value'),
     );
   }
 }
 
+
+@HiveType(typeId: 16)
 enum BondType {
+  @HiveField(0)
   openingEntry(
     label: "OpeningEntry",
     value: "القيد الافتتاحي",
@@ -276,6 +291,7 @@ enum BondType {
     // color: 15132399,
     color: "E6E6EF",
   ),
+  @HiveField(1)
   receiptVoucher(
     label: "ReceiptVoucher",
     value: "سند قبض",
@@ -287,6 +303,7 @@ enum BondType {
     // color: 7193225,
     color: "6DC289",
   ),
+  @HiveField(2)
   paymentVoucher(
     label: "PaymentVoucher",
     value: "سند دفع",
@@ -298,6 +315,7 @@ enum BondType {
     // color: 12741997,
     color: "C26D6D",
   ),
+  @HiveField(3)
   journalVoucher(
     label: "JournalVoucher",
     value: "سند يومية",
@@ -333,15 +351,22 @@ enum BondType {
   // Factory constructor with error handling for unmatched labels
   factory BondType.byLabel(String label) {
     return BondType.values.firstWhere(
-      (type) => type.label == label,
+          (type) => type.label == label,
       orElse: () => throw ArgumentError('No matching BondType for label: $label'),
     );
   }
 
   factory BondType.byTypeGuide(String typeGuide) {
     return BondType.values.firstWhere(
-      (type) => type.typeGuide == typeGuide,
+          (type) => type.typeGuide == typeGuide,
       orElse: () => throw ArgumentError('No matching BondType for guide: $typeGuide'),
+    );
+  }
+
+  factory BondType.byValue(String value) {
+    return BondType.values.firstWhere(
+          (type) => type.value == value,
+      orElse: () => throw ArgumentError('No matching BondType for guide: $value'),
     );
   }
 }
@@ -381,15 +406,22 @@ enum ChequesType {
   // Factory constructor with error handling for unmatched labels
   factory ChequesType.byLabel(String label) {
     return ChequesType.values.firstWhere(
-      (type) => type.label == label,
+          (type) => type.label == label,
       orElse: () => throw ArgumentError('No matching ChequesType for label: $label'),
     );
   }
 
   factory ChequesType.byTypeGuide(String typeGuide) {
     return ChequesType.values.firstWhere(
-      (type) => type.typeGuide == typeGuide,
+          (type) => type.typeGuide == typeGuide,
       orElse: () => throw ArgumentError('No matching ChequesType for guide: $typeGuide'),
+    );
+  }
+
+  factory ChequesType.byValue(String value) {
+    return ChequesType.values.firstWhere(
+          (type) => type.value == value,
+      orElse: () => throw ArgumentError('No matching ChequesType for guide: $value'),
     );
   }
 }
@@ -406,7 +438,7 @@ enum EntryBondType {
   // Factory constructor with error handling for unmatched labels
   factory EntryBondType.byLabel(String label) {
     return EntryBondType.values.firstWhere(
-      (type) => type.label == label,
+          (type) => type.label == label,
       orElse: () => throw ArgumentError('No matching EntryBondType for label: $label'),
     );
   }
@@ -422,7 +454,7 @@ enum MatOriginType {
   // Factory constructor with error handling for unmatched labels
   factory MatOriginType.byLabel(String label) {
     return MatOriginType.values.firstWhere(
-      (type) => type.label == label,
+          (type) => type.label == label,
       orElse: () => throw ArgumentError('No matching MatOriginType for label: $label'),
     );
   }
@@ -439,7 +471,7 @@ enum BondItemType {
   // Factory constructor with error handling for unmatched labels
   factory BondItemType.byLabel(String label) {
     return BondItemType.values.firstWhere(
-      (type) => type.label == label,
+          (type) => type.label == label,
       orElse: () => throw ArgumentError('No matching BondItemType for label: $label'),
     );
   }
@@ -456,7 +488,7 @@ enum ChequesStatus {
   // Factory constructor with error handling for unmatched labels
   factory ChequesStatus.byLabel(String label) {
     return ChequesStatus.values.firstWhere(
-      (type) => type.label == label,
+          (type) => type.label == label,
       orElse: () => throw ArgumentError('No matching ChequesStatus for label: $label'),
     );
   }
@@ -466,13 +498,21 @@ abstract class Account {
   String get label;
 }
 
+@HiveType(typeId: 12)
 enum BillAccounts implements Account {
+  @HiveField(0)
   materials('المواد'),
+  @HiveField(1)
   discounts('الحسميات'),
+  @HiveField(2)
   additions('الاضافات'),
+  @HiveField(3)
   caches('النقديات'),
+  @HiveField(4)
   gifts('الهدايا'),
+  @HiveField(5)
   exchangeForGifts('مقابل الهدايا'),
+  @HiveField(6)
   store('المستودع');
 
   @override
@@ -483,7 +523,7 @@ enum BillAccounts implements Account {
   // Factory constructor with error handling for unmatched labels
   factory BillAccounts.byLabel(String label) {
     return BillAccounts.values.firstWhere(
-      (type) => type.label == label,
+          (type) => type.label == label,
       orElse: () => throw ArgumentError('No matching BillType for label: $label'),
     );
   }
@@ -553,7 +593,7 @@ enum UserWorkStatus {
   // Factory constructor with error handling for unmatched labels
   factory UserWorkStatus.byLabel(String label) {
     return UserWorkStatus.values.firstWhere(
-      (type) => type.label == label,
+          (type) => type.label == label,
       orElse: () => throw ArgumentError('No matching TimeType for label: $label'),
     );
   }
@@ -570,7 +610,7 @@ enum UserActiveStatus {
   // Factory constructor with error handling for unmatched labels
   factory UserActiveStatus.byLabel(String label) {
     return UserActiveStatus.values.firstWhere(
-      (status) => status.label == label,
+          (status) => status.label == label,
       orElse: () => throw ArgumentError('No matching ActiveStatus for label: $label'),
     );
   }
@@ -598,19 +638,20 @@ enum StoreAccount {
   // Factory constructor with error handling for unmatched labels
   factory StoreAccount.byLabel(String label) {
     return StoreAccount.values.firstWhere(
-      (type) => type.label == label,
+          (type) => type.label == label,
       orElse: () => throw ArgumentError('No matching StoreAccount for label: $label'),
     );
   }
 
   factory StoreAccount.byTypeGuide(String typeGuide) {
     return StoreAccount.values.firstWhere(
-      (type) => type.typeGuide == typeGuide,
+          (type) => type.typeGuide == typeGuide,
       orElse: () => throw ArgumentError('No matching StoreAccount for guide: $typeGuide'),
     );
   }
 
-  AccountModel get toStoreAccountModel => AccountModel(
+  AccountModel get toStoreAccountModel =>
+      AccountModel(
         id: typeGuide,
         accName: value,
       );
@@ -627,7 +668,7 @@ enum AccountType {
 
   factory AccountType.byTitle(String title) {
     return AccountType.values.firstWhere(
-      (type) => type.title == title,
+          (type) => type.title == title,
       orElse: () => throw ArgumentError('No matching AccountType for title: $title'),
     );
   }
@@ -653,7 +694,11 @@ enum VatEnums {
       taxName: 'ضريبة القيمة المضافة رأس الخيمة',
       taxRatio: 0.05,
       taxAccountGuid: 'a5c04527-63e8-4373-92e8-68d8f88bdb16'),
-  withOutVat(taxGuid: 'kCfkUHwNyRbxTlD71uXV', taxName: 'معفى', taxRatio: 0, taxAccountGuid: 'a5c04527-63e8-4373-92e8-68d8f88bdb16');
+  withOutVat(
+      taxGuid: 'kCfkUHwNyRbxTlD71uXV',
+      taxName: 'معفى',
+      taxRatio: 0,
+      taxAccountGuid: 'a5c04527-63e8-4373-92e8-68d8f88bdb16');
 
   final String? taxGuid;
   final String? taxName;
@@ -670,14 +715,14 @@ enum VatEnums {
 // Factory constructor with error handling for unmatched labels
   factory VatEnums.byName(String label) {
     return VatEnums.values.firstWhere(
-      (type) => type.taxName == label,
+          (type) => type.taxName == label,
       orElse: () => throw ArgumentError('No matching Vat for label: $label'),
     );
   }
 
   factory VatEnums.byGuid(String guid) {
     return VatEnums.values.firstWhere(
-      (type) => type.taxGuid == guid,
+          (type) => type.taxGuid == guid,
       orElse: () => throw ArgumentError('No matching Vat for guid: $guid'),
     );
   }
@@ -727,14 +772,14 @@ enum FinalAccounts {
 
   factory FinalAccounts.byPtr(String ptr) {
     return FinalAccounts.values.firstWhere(
-      (account) => account.accPtr == ptr,
+          (account) => account.accPtr == ptr,
       orElse: () => throw ArgumentError('No matching account for ptr: $ptr'),
     );
   }
 
   factory FinalAccounts.byName(String name) {
     return FinalAccounts.values.firstWhere(
-      (account) => account.accName == name,
+          (account) => account.accName == name,
       orElse: () => throw ArgumentError('No matching account for name: $name'),
     );
   }
@@ -751,7 +796,7 @@ enum LogEventType {
 
   factory LogEventType.byLabel(String label) {
     return LogEventType.values.firstWhere(
-      (type) => type.label == label,
+          (type) => type.label == label,
       orElse: () => throw ArgumentError('No matching LogEventType for label: $label'),
     );
   }
@@ -769,7 +814,7 @@ enum TaskType {
   // Factory constructor with error handling for unmatched labels
   factory TaskType.byValue(String label) {
     return TaskType.values.firstWhere(
-      (status) => status.label == label,
+          (status) => status.label == label,
       orElse: () => throw ArgumentError('No matching TaskType for byValue: $label'),
     );
   }
@@ -789,7 +834,7 @@ enum TaskStatus {
   // Factory constructor to handle conversion from string to StatusTask
   factory TaskStatus.byValue(String value) {
     return TaskStatus.values.firstWhere(
-      (status) => status.value == value,
+          (status) => status.value == value,
       orElse: () => throw ArgumentError('No matching StatusTask for value: $value'),
     );
   }

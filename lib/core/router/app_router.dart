@@ -23,7 +23,6 @@ import '../../features/bond/ui/screens/bond_details_screen.dart';
 import '../../features/cheques/ui/screens/all_cheques_view.dart';
 import '../../features/login/ui/screens/login_screen.dart';
 import '../../features/sellers/ui/screens/add_seller_screen.dart';
-import '../../features/sellers/ui/screens/all_sellers_screen.dart';
 import '../../features/user_time/ui/screens/user_details.dart';
 import '../../features/users_management/ui/screens/role_management/all_roles_screen.dart';
 import '../../features/users_management/ui/screens/user_time_list/user_time_list_screen.dart';
@@ -101,10 +100,10 @@ List<GetPage<dynamic>>? appRouter = [
     name: AppRoutes.addSellerScreen,
     page: () => const AddSellerScreen(),
   ),
-  GetPage(
-    name: AppRoutes.allSellersScreen,
-    page: () => const AllSellersScreen(),
-  ),
+  // GetPage(
+  //   name: AppRoutes.allSellersScreen,
+  //   page: () => const AllSellersScreen(),
+  // ),
   GetPage(
     name: AppRoutes.sellerSalesScreen,
     page: () => const SellerSalesScreen(),

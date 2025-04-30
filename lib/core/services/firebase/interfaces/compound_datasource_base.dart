@@ -4,7 +4,8 @@ import '../implementations/services/firestore_path_helper.dart';
 import '../implementations/services/firestore_sequential_numbers.dart';
 import 'i_compound_database_service.dart';
 
-abstract class CompoundDatasourceBase<T, I> with FirestorePathHelper<I>, FirestoreSequentialNumbers {
+abstract class CompoundDatasourceBase<T, I>
+    with FirestorePathHelper<I>, FirestoreSequentialNumbers {
   final ICompoundDatabaseService<Map<String, dynamic>> compoundDatabaseService;
 
   CompoundDatasourceBase({required this.compoundDatabaseService});
@@ -25,13 +26,15 @@ abstract class CompoundDatasourceBase<T, I> with FirestorePathHelper<I>, Firesto
 
   Future<T> fetchById({required String id, required I itemIdentifier});
 
-  Future<double?> fetchMetaData({required String id, required I itemIdentifier});
+  Future<double?> fetchMetaData(
+      {required String id, required I itemIdentifier});
 
   Future<void> delete({required T item});
 
   Future<T> save({required T item});
 
-  Future<int> countDocuments({required I itemIdentifier, QueryFilter? countQueryFilter});
+  Future<int> countDocuments(
+      {required I itemIdentifier, QueryFilter? countQueryFilter});
 
   Future<List<T>> saveAll({required List<T> items, required I itemIdentifier});
 

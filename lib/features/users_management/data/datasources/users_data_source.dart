@@ -22,8 +22,8 @@ class UsersDatasource extends FilterableDatasource<UserModel> {
   }
 
   @override
-  Future<List<UserModel>> fetchWhere({required List<QueryFilter> queryFilters, DateFilter? dateFilter}) async {
-    final data = await databaseService.fetchWhere(path: path, queryFilters: queryFilters);
+  Future<List<UserModel>> fetchWhere({required List<QueryFilter>? queryFilters, DateFilter? dateFilter}) async {
+    final data = await databaseService.fetchWhere(path: path, queryFilters: queryFilters, dateFilter: dateFilter);
 
     final users = data.map((item) => UserModel.fromJson(item)).toList();
 

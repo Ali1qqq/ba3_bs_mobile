@@ -91,7 +91,8 @@ class AppStrings {
   static const String panel = 'لوحة';
 
   static const String controlPanel = 'لوحة التحكم';
-  static const String areYouSureYouWantToCloseTheProgram = 'هل انت متأكد انك تريد إغلاق البرنامج';
+  static const String areYouSureYouWantToCloseTheProgram =
+      'هل انت متأكد انك تريد إغلاق البرنامج';
   static const String exit = 'خروج';
   static const String cancel = 'الغاء';
   static const String user = 'المستخدم';
@@ -407,7 +408,6 @@ class AppStrings {
 
   static var savedNumber = 'تم حفظ رقم الهاتف';
 
-  static var areYouSureContinueWithoutSeller = 'هل تريد المتابعة بدون تحديد البائع؟';
-  static var timeToLogIn = 'حان وقت تسجيل الدخول';
-  static var timeToLogOut = 'حان وقت تسجيل الخروج';
+  static var areYouSureContinueWithoutSeller =
+      'هل تريد المتابعة بدون تحديد البائع؟';
 }

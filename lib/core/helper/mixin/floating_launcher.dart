@@ -13,7 +13,7 @@ mixin FloatingLauncher {
     VoidCallback? onCloseCallback,
     double? defaultHeight,
     double? defaultWidth,
-    bool? isResizing,
+    bool? enableResizing,
   }) {
     FloatingWindowService.launchFloatingWindow(
       context: context,

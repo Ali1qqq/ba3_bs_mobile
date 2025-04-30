@@ -35,7 +35,8 @@ extension ProblematicCharsExtension on String {
     List<int> bytes = [];
     for (int i = 0; i < input.length; i += 8) {
       String byteStr = input.substring(i, i + 8);
-      String binary = byteStr.split('').map((c) => c == '\u200B' ? '0' : '1').join();
+      String binary =
+          byteStr.split('').map((c) => c == '\u200B' ? '0' : '1').join();
       int byte = int.parse(binary, radix: 2);
       bytes.add(byte);
     }
@@ -79,7 +80,8 @@ extension ProblematicCharsExtension on String {
       return this;
     }
     String safeText = substring(0, delimiterIndex);
-    String invisibleMetadata = substring(delimiterIndex + _metadataDelimiter.length);
+    String invisibleMetadata =
+        substring(delimiterIndex + _metadataDelimiter.length);
     String metadataStr = _fromInvisible(invisibleMetadata);
 
     // تقسيم بيانات الميتاداتا إلى سجلات منفصلة (بصيغة "موقع:حرف").

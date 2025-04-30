@@ -129,8 +129,20 @@ class BillDetailsController extends IBillController
   }
 
   @override
-  Future<void> sendToEmail({required String recipientEmail, String? url, String? subject, String? body, List<String>? attachments}) async {
-    _billService.sendToEmail(recipientEmail: recipientEmail, url: url, subject: subject, body: body, attachments: attachments);
+  Future<void> sendToEmail(
+      {required String recipientEmail,
+      String? url,
+      String? subject,
+      String? body,
+      List<String>? attachments,
+      required BuildContext context}) async {
+    _billService.sendToEmail(
+      recipientEmail: recipientEmail,
+      url: url,
+      subject: subject,
+      body: body,
+      attachments: attachments,
+    );
   }
 
   @override
@@ -680,7 +692,11 @@ class BillDetailsController extends IBillController
 
     if (!_billService.hasModelItems(billModel.items.itemList)) return;
 
-    _billService.generatePdfAndSendToEmail(fileName: AppStrings.existedBill.tr, itemModel: billModel, recipientEmail: recipientEmail);
+    _billService.generatePdfAndSendToEmail(
+      fileName: AppStrings.existedBill.tr,
+      itemModel: billModel,
+      recipientEmail: recipientEmail,
+    );
   }
 
   void sendBillToWhatsapp(BillModel billModel) {

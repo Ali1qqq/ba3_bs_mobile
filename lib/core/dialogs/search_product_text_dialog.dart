@@ -46,7 +46,9 @@ Future<MaterialModel?> searchProductTextDialog(String productText) async {
                               onSelected: (PlutoGridOnSelectedEvent onSelectedEvent) {
                                 final materialId = onSelectedEvent.row?.cells['الرقم التعريفي']?.value;
                                 if (materialId != null) {
-                                  selectedMaterial = materialController.getMaterialById(materialId);
+                                  selectedMaterial = materialController.getMaterialById(
+                                    materialId,
+                                  );
                                   Get.back();
                                 }
                               },

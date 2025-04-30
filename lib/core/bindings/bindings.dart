@@ -44,7 +44,6 @@ import 'package:ba3_bs_mobile/features/sellers/controllers/sellers_controller.da
 import 'package:ba3_bs_mobile/features/sellers/data/datasources/remote/sellers_data_source.dart';
 import 'package:ba3_bs_mobile/features/sellers/data/models/seller_model.dart';
 import 'package:ba3_bs_mobile/features/user_time/data/repositories/user_time_repo.dart';
-import 'package:ba3_bs_mobile/features/users_management/data/datasources/roles_data_source.dart';
 import 'package:ba3_bs_mobile/features/users_management/data/models/user_model.dart';
 import 'package:dio/dio.dart';
 import 'package:get/get.dart';
@@ -91,7 +90,6 @@ import '../../features/user_task/controller/all_task_controller.dart';
 import '../../features/user_task/data/datasources/user_task_data_source.dart';
 import '../../features/user_task/data/model/user_task_model.dart';
 import '../../features/users_management/controllers/user_details_controller.dart';
-import '../../features/users_management/data/datasources/users_data_source.dart';
 import '../helper/extensions/getx_controller_extensions.dart';
 import '../network/api_constants.dart';
 import '../services/firebase/implementations/repos/compound_datasource_repo.dart';
@@ -111,7 +109,7 @@ import '../services/translation/interfaces/i_api_client.dart';
 
 class AppBindings extends Bindings {
   @override
-  void dependencies() async {
+  Future<void> dependencies() async {
     // Initialize services
     final dioClient = _initializeDioClient();
 
@@ -121,15 +119,15 @@ class AppBindings extends Bindings {
 
     // final IRemoteStorageService<String> remoteStorageService = read<IRemoteStorageService<String>>();
 
-    final rolesRepo = RemoteDataSourceRepository(RolesDatasource(databaseService: fireStoreService));
-
-    final usersRepo = FilterableDataSourceRepository(UsersDatasource(databaseService: fireStoreService));
+    // final rolesRepo = RemoteDataSourceRepository(RolesDatasource(databaseService: fireStoreService));
+    //
+    // final usersRepo = FilterableDataSourceRepository(UsersDatasource(databaseService: fireStoreService));
 
     final changesRepo = ListenDataSourceRepository(ChangesListenDatasource(databaseService: fireStoreService));
 
-    lazyPut(rolesRepo);
-
-    lazyPut(usersRepo);
+    // lazyPut(rolesRepo);
+    //
+    // lazyPut(usersRepo);
 
     lazyPut(changesRepo);
 
@@ -138,7 +136,7 @@ class AppBindings extends Bindings {
     final dashboardHiveService = await _initializeHiveService<DashAccountModel>(boxName: ApiConstants.dashBoardAccounts);
 
     // final ILocalDatabaseService<String> appLocalLangService = await _initializeHiveService<String>(boxName: AppConstants.appLocalLangBox);
-    //
+
     // put(TranslationController(appLocalLangService));
 
     final translationService = _initializeTranslationService(dioClient);
@@ -270,7 +268,7 @@ class AppBindings extends Bindings {
 
       tasksRepo: UploaderStorageQueryableRepo(UserTaskDataSource(databaseService: remoteDatabaseService)),
 
-      logsRepo: RemoteDataSourceRepository(LogDataSource(databaseService: remoteDatabaseService)),
+      logsRepo: FilterableDataSourceRepository(LogDataSource(databaseService: remoteDatabaseService)),
     );
   }
 
@@ -297,6 +295,7 @@ class AppBindings extends Bindings {
     lazyPut(PlutoController());
 
     lazyPut(PlutoDualTableController());
+    // lazyPut(TargetPointerController());
 
     lazyPut(EntryBondController(repositories.entryBondsRepo, repositories.accountsStatementsRepo));
 
@@ -375,7 +374,7 @@ class _Repositories {
   final CompoundDatasourceRepository<MatStatementModel, String> matStatementsRepo;
   final ListenDataSourceRepository<StoreCartModel> storeCartRepo;
   final UploaderStorageQueryableRepo<UserTaskModel> tasksRepo;
-  final RemoteDataSourceRepository<LogModel> logsRepo;
+  final FilterableDataSourceRepository<LogModel> logsRepo;
 
   _Repositories({
     required this.translationRepo,
