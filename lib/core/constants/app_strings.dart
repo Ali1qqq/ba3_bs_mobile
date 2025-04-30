@@ -301,7 +301,7 @@ class AppStrings {
 
   static const String onlineUsers = 'المستخدمين الموجودين';
 
-  static const String allBillsDues = 'الفواتير المستحقة';
+  static const String allBillsDues = 'المستحقة';
 
   static const String allUsersMustOnline = ' ضمن الدوام';
 

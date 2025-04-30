@@ -32,7 +32,7 @@ class ChartBoxWidget extends StatelessWidget {
             decoration: BoxDecoration(borderRadius: BorderRadius.circular(2), color: color),
           ),
           SizedBox(
-            width: 18.w,
+            width: 60.w,
             child: Text(
               totals.formatNumber(),
               style: AppTextStyles.headLineStyle3,

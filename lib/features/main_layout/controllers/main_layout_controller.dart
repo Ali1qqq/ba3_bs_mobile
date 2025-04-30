@@ -8,6 +8,7 @@ import '../../accounts/ui/screens/account_layout.dart';
 import '../../bill/ui/screens/bill_layout.dart';
 import '../../bond/ui/screens/bond_layout.dart';
 import '../../cheques/ui/screens/cheque_layout.dart';
+import '../../dashboard/ui/screens/dash_board_layout.dart';
 import '../../materials/ui/screens/materials_layout.dart';
 import '../../patterns/ui/screens/pattern_layout.dart';
 import '../../profile/ui/screens/profile_screen.dart';
@@ -24,6 +25,13 @@ class MainLayoutController extends GetxController {
   void closeDrawer() => isDrawerOpen.value = false;
 
   RxList<AppLayoutItemModel> appLayouts = [
+    if (RoleItemType.administrator.hasReadPermission)
+      AppLayoutItemModel(
+        name: 'لوحة التحكم',
+        layout: const DashBoardLayout(),
+        icon: AppAssets.dashBoardIcon,
+        unSelectedIcon: AppAssets.dashBoardUnselectedIcon,
+      ),
     if (RoleItemType.viewBill.hasReadPermission)
       AppLayoutItemModel(
         name: 'الفواتير',

@@ -23,38 +23,45 @@ class ProfitDateFilterHeader extends StatelessWidget {
       ),
       child: Padding(
         padding: const EdgeInsets.all(15),
-        child: Row(
+        child: Column(
           children: [
-            SizedBox(
-              width: 200,
-              child: Obx(() {
-                return MonthYearPicker(
-                  initMonthYear: controller.profitMonth.value.dayMonthYear,
-                  color: AppColors.grayColor,
-                  textColor: Colors.white,
-                  onMonthYearSelected: (date) {
-                    controller.onProfitMothChange(date);
-                  },
-                );
-              }),
-            ),
-            Spacer(),
-            GestureDetector(
-              onTap: () => controller.lunchBillScreen(context: context),
-              child: Text(
-                AppStrings.selleAndProfitStatement.tr,
-                style: AppTextStyles.headLineStyle1,
+            Align(
+              alignment: Alignment.centerRight,
+              child: SizedBox(
+                width: 200,
+                child: Obx(() {
+                  return MonthYearPicker(
+                    initMonthYear: controller.profitMonth.value.dayMonthYear,
+                    color: AppColors.grayColor,
+                    textColor: Colors.white,
+                    onMonthYearSelected: (date) {
+                      controller.onProfitMothChange(date);
+                    },
+                  );
+                }),
               ),
             ),
-            Spacer(),
-            IconButton(
-              tooltip: AppStrings.refresh.tr,
-              icon: Icon(
-                FontAwesomeIcons.refresh,
-                color: AppColors.lightBlueColor,
+            Row(children: [
+              Spacer(),
+              GestureDetector(
+                onTap: () => controller.lunchBillScreen(context: context),
+                child: Text(
+                  AppStrings.selleAndProfitStatement.tr,
+                  style: AppTextStyles.headLineStyle1,
+                ),
               ),
-              onPressed: controller.initProfitChartData,
-            ),
+              Spacer(),
+              InkWell(
+                // tooltip: AppStrings.refresh.tr,
+                onTap: controller.initProfitChartData,
+                // tooltip: AppStrings.refresh.tr,
+                child: Icon(
+                  FontAwesomeIcons.arrowsRotate,
+                  color: AppColors.lightBlueColor,
+                  size: 16,
+                ),
+              ),
+            ]),
           ],
         ),
       ),

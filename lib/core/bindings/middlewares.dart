@@ -8,18 +8,19 @@ class LandscapeMiddleware extends GetMiddleware {
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.landscapeLeft,
       DeviceOrientation.landscapeRight,
-
     ]);
-
 
     return null;
   }
+
   @override
   void onPageDispose() {
     // إعادة الوضع الرأسي عند مغادرة الصفحة
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
+      DeviceOrientation.landscapeLeft,
+      DeviceOrientation.landscapeRight,
     ]);
     super.onPageDispose();
   }

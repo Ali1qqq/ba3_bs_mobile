@@ -15,7 +15,7 @@ class BoxOrganizeWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 60.w,
+      width: 0.43.sw,
       height: 110.h,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(15),
@@ -30,7 +30,6 @@ class BoxOrganizeWidget extends StatelessWidget {
       ),
       child: Stack(
         children: [
-
           Positioned(
             top: -40.h,
             left: -30.w,
@@ -78,12 +77,13 @@ class BoxOrganizeWidget extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Center(child: Text(titleText, style: AppTextStyles.headLineStyle2.copyWith(color: Colors.white))),
-                  Divider(color: Colors.grey.shade300,),
+                  Divider(
+                    color: Colors.grey.shade300,
+                  ),
                   SizedBox(
-                    height:60.h ,
+                    height: 60.h,
                     child: childWidget,
                   ),
-
                 ],
               ),
             ),

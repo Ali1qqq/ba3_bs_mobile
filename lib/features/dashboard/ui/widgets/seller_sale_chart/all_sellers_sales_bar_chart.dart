@@ -30,7 +30,7 @@ class AllSellersSalesBarChart extends StatelessWidget {
               child: Container(
                 padding: const EdgeInsets.all(16),
                 height: 500.h,
-                width: 1.1.sw,
+                width: 2.sw,
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(15),
@@ -43,8 +43,8 @@ class AllSellersSalesBarChart extends StatelessWidget {
               child: Container(
                 color: Colors.white,
                 padding: const EdgeInsets.all(16),
-                height: 500.h,
-                width: 1.1.sw,
+                height: 600.h,
+                width: 2.sw,
                 child: BarChart(
                   BarChartData(
                     maxY: controller.sellerMaxY,
@@ -52,13 +52,15 @@ class AllSellersSalesBarChart extends StatelessWidget {
                     borderData: FlBorderData(show: false),
                     alignment: BarChartAlignment.spaceEvenly,
                     barTouchData: BarTouchData(
-                      touchCallback: (p0, p1) {
-                        if (p0 is FlPanDownEvent) {
-                          if (p1?.spot?.spot.x != null) {
-                            controller.lunchSellerScree(context, (p1?.spot?.spot.x)!.toInt());
+                      handleBuiltInTouches: true,
+                      touchCallback: (FlTouchEvent event, BarTouchResponse? response) {
+                        // هنا ننتظر بداية الـ long press
+                        if (event is FlLongPressStart) {
+                          final x = response?.spot?.touchedBarGroup.x;
+                          if (x != null) {
+                            controller.lunchSellerScree(context, x.toInt());
                           }
                         }
-                        // log(p1.toString());
                       },
                       touchTooltipData: BarTouchTooltipData(
                         getTooltipColor: (group) => Colors.black,

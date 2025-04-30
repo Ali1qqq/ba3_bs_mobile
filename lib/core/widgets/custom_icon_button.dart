@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../styling/app_colors.dart';
-
 class CustomIconButton extends StatelessWidget {
   final Widget icon;
   final VoidCallback onPressed;
@@ -11,12 +9,15 @@ class CustomIconButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return IconButton(
-      color: disabled ? AppColors.grayColor : Colors.blue.shade700,
-      padding: EdgeInsets.zero,
-      constraints: BoxConstraints(),
-      onPressed: disabled ? () {} : onPressed,
-      icon: icon,
+    return InkWell(
+      // color: disabled ? AppColors.grayColor : Colors.blue.shade700,
+      // padding: EdgeInsets.zero,
+
+      // no inner padding
+      // constraints: const BoxConstraints(),
+      // no min/max size constraints
+      onTap: disabled ? () {} : onPressed,
+      child: icon,
     );
   }
 }

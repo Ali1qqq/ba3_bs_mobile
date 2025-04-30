@@ -3,17 +3,15 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 
+import '../styling/app_colors.dart';
+
 class LanguageSwitchFaIcon extends StatelessWidget {
   final IconData iconData;
   final double size;
   final Color? color;
+  final bool disabled;
 
-  const LanguageSwitchFaIcon({
-    super.key,
-    required this.iconData,
-    this.size = 20.0,
-    this.color,
-  });
+  const LanguageSwitchFaIcon({super.key, required this.iconData, this.size = 20.0, this.color, this.disabled = false});
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +22,7 @@ class LanguageSwitchFaIcon extends StatelessWidget {
         child: FaIcon(
           iconData,
           size: size,
-          color: color,
+          color: disabled ? AppColors.grayColor : Colors.blue.shade700,
         ),
       );
     });

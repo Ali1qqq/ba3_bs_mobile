@@ -1,6 +1,7 @@
+import 'package:ba3_bs_mobile/core/widgets/app_spacer.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:get/get.dart';
 
 import '../../../../../core/constants/app_strings.dart';
 import '../../../../../core/styling/app_colors.dart';
@@ -16,43 +17,52 @@ class SellerDateFilterHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
+      width: 1.sw,
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.vertical(top: Radius.circular(8)),
       ),
       child: Padding(
         padding: const EdgeInsets.all(15),
-        child: Row(
+        child: Column(
           children: [
+            Row(
+              children: [
+                Spacer(),
+                GestureDetector(
+                  onTap: () => controller.openAllSellersSales(context),
+                  child: Text(
+                    AppStrings.sellers,
+                    style: AppTextStyles.headLineStyle1,
+                  ),
+                ),
+                Spacer(),
+                InkWell(
+                  // tooltip: AppStrings.swap.tr,
+                  onTap: controller.swapSellerCrossFadeState,
+                  // tooltip: AppStrings.swap.tr,
+                  child: Icon(
+                    size: 16,
+                    controller.crossSellerFadeState == CrossFadeState.showFirst ? FontAwesomeIcons.chartPie : FontAwesomeIcons.chartSimple,
+                    color: AppColors.lightBlueColor,
+                  ),
+                ),
+                HorizontalSpace(),
+                InkWell(
+                  onTap: controller.getSellersBillsByDate,
+                  child: Icon(
+                    FontAwesomeIcons.arrowsRotate,
+                    color: AppColors.lightBlueColor,
+                    size: 16,
+                  ),
+                ),
+              ],
+            ),
+            VerticalSpace(),
             DateRangePicker(
               onSubmit: controller.onSubmitDateRangePicker,
               pickedDateRange: controller.dateRange,
               onSelectionChanged: controller.onSelectionChanged,
-            ),
-            Spacer(),
-            GestureDetector(
-              onTap:()=>controller.openAllSellersSales(context) ,
-              child: Text(
-                AppStrings.sellers,
-                style: AppTextStyles.headLineStyle1,
-              ),
-            ),
-            Spacer(),
-            IconButton(
-              tooltip: AppStrings.swap.tr,
-              icon: Icon(
-                controller.crossSellerFadeState == CrossFadeState.showFirst?   FontAwesomeIcons.chartPie: FontAwesomeIcons.chartSimple,
-                color: AppColors.lightBlueColor,
-              ),
-              onPressed: controller.swapSellerCrossFadeState,
-            ),
-            IconButton(
-              tooltip: AppStrings.refresh.tr,
-              icon: Icon(
-                FontAwesomeIcons.refresh,
-                color: AppColors.lightBlueColor,
-              ),
-              onPressed: controller.getSellersBillsByDate,
             ),
           ],
         ),

@@ -14,13 +14,13 @@ class SellerChartSummarySection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 15,vertical: 5),
+      padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.vertical(bottom: Radius.circular(8)),
       ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.end,
+      child: Wrap(
+        // mainAxisAlignment: MainAxisAlignment.end,
         children: [
           ChartColumn(
             items: [
@@ -31,7 +31,7 @@ class SellerChartSummarySection extends StatelessWidget {
               ),
               ChartItem(
                 color: AppColors.mobileSaleColor,
-                onTap:controller.changeSellerTotalMobileTarget,
+                onTap: controller.changeSellerTotalMobileTarget,
                 text: AppStrings.totalMobileTarget.tr,
                 total: controller.totalSellerSalesMobile.toStringAsFixed(2),
               ),
@@ -40,15 +40,13 @@ class SellerChartSummarySection extends StatelessWidget {
           ChartColumn(
             items: [
               ChartItem(
-                onTap:controller.changeSellerAccessoryTarget,
-
+                onTap: controller.changeSellerAccessoryTarget,
                 color: AppColors.accessorySaleColor,
                 text: AppStrings.totalAccessoriesTarget.tr,
                 total: controller.totalSellerSalesAccessory.toStringAsFixed(2),
               ),
               ChartItem(
-                onTap:controller.changeSellerTotalFees,
-
+                onTap: controller.changeSellerTotalFees,
                 color: AppColors.feesSaleColor,
                 text: AppStrings.totalFees.tr,
                 total: controller.totalSellerFees.toStringAsFixed(2),

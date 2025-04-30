@@ -5,6 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:easy_notifications/easy_notifications.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 import '../../../features/bill/data/datasources/bills_compound_data_source.dart';
@@ -36,7 +37,12 @@ Future<void> initializeAppServices() async {
     log('${details.exception}', name: 'FlutterError Error');
     FlutterError.presentError(details);
   };
-
+  SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+    DeviceOrientation.landscapeLeft,
+    DeviceOrientation.landscapeRight,
+  ]);
   WidgetsFlutterBinding.ensureInitialized();
   EasyNotifications.askPermission();
   //   await initializeWindowSettings();
