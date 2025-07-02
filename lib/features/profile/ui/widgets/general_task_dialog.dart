@@ -31,33 +31,33 @@ class GeneralTaskDialog extends StatelessWidget {
             child: userManagementController.image == null && (!task.status.isFinished)
                 ? Text(AppStrings.uploadImage.tr, style: AppTextStyles.headLineStyle3)
                 : GestureDetector(
-                onTap: () {
-                  if (task.status.isFinished) {
-                    AppUIUtils.showFullScreenNetworkImage(context, task.taskImage!);
-                  } else {
-                    AppUIUtils.showFullScreenFileImage(context, userManagementController.image!.path);
-                  }
-                },
-                child: task.status.isFinished
-                    ? FadeInImage.assetNetwork(
-                  placeholder: AppAssets.loadingImage,
-                  image: task.taskImage!,
-                  fit: BoxFit.cover,
-                  placeholderScale: 5.0,
-                  // تصغير حجم الـ placeholder
+                    onTap: () {
+                      if (task.status.isFinished) {
+                        AppUIUtils.showFullScreenNetworkImage(context, task.taskImage!);
+                      } else {
+                        AppUIUtils.showFullScreenFileImage(context, userManagementController.image!.path);
+                      }
+                    },
+                    child: task.status.isFinished
+                        ? FadeInImage.assetNetwork(
+                            placeholder: AppAssets.loadingImage,
+                            image: task.taskImage!,
+                            fit: BoxFit.cover,
+                            placeholderScale: 5.0,
+                            // تصغير حجم الـ placeholder
 
-                  height: 370,
-                  imageErrorBuilder: (context, error, stackTrace) {
-                    return Icon(Icons.broken_image, size: 50, color: Colors.grey); // أيقونة عند فشل التحميل
-                  },
-                )
-                    : Image.file(
-                  File(
-                    userManagementController.image!.path,
-                  ),
-                  fit: BoxFit.cover,
-                  height: 350,
-                )),
+                            height: 370,
+                            imageErrorBuilder: (context, error, stackTrace) {
+                              return Icon(Icons.broken_image, size: 50, color: Colors.grey); // أيقونة عند فشل التحميل
+                            },
+                          )
+                        : Image.file(
+                            File(
+                              userManagementController.image!.path,
+                            ),
+                            fit: BoxFit.cover,
+                            height: 350,
+                          )),
           ),
           Spacer(),
           if (!task.status.isFinished)
@@ -72,7 +72,7 @@ class GeneralTaskDialog extends StatelessWidget {
                 Spacer(),
                 AppButton(
                   title: AppStrings.save.tr,
-                  iconData: FontAwesomeIcons.add,
+                  iconData: FontAwesomeIcons.plus,
                   onPressed: () {
                     userManagementController.updateGeneralTask(task: task);
                   },

@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:xml/xml.dart';
 
 import '../../../../core/services/json_file_operations/interfaces/import/import_service_base.dart';

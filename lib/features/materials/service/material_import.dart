@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:ba3_bs_mobile/core/helper/extensions/encode_decode_text.dart';
 import 'package:ba3_bs_mobile/features/materials/data/models/materials/material_model.dart';
 import 'package:xml/xml.dart';

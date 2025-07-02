@@ -15,6 +15,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../../core/dialogs/account_filter_dialog.dart' show AccountFilterDialog;
 import '../../../core/dialogs/account_selection_dialog_content.dart';
 import '../../../core/dialogs/customer_selection_dialog_content.dart';
 import '../../../core/helper/mixin/app_navigator.dart';
@@ -548,5 +549,14 @@ class AccountsController extends GetxController with AppNavigator, FloatingLaunc
             (customer) => customerIds.contains(customer.id),
           ),
     );
+  }
+
+  showAccountFilterDialog({required BuildContext context}) {
+    launchFloatingWindow(
+        context: context,
+        minimizedTitle: ApiConstants.accounts.tr,
+        floatingScreen: const AccountFilterDialog(),
+        defaultHeight: 100,
+        defaultWidth: 300);
   }
 }

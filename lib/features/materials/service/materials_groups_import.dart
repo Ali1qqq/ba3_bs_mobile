@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:ba3_bs_mobile/features/materials/data/models/materials/material_group.dart';
 import 'package:xml/xml.dart';
 

@@ -91,8 +91,7 @@ class AppStrings {
   static const String panel = 'لوحة';
 
   static const String controlPanel = 'لوحة التحكم';
-  static const String areYouSureYouWantToCloseTheProgram =
-      'هل انت متأكد انك تريد إغلاق البرنامج';
+  static const String areYouSureYouWantToCloseTheProgram = 'هل انت متأكد انك تريد إغلاق البرنامج';
   static const String exit = 'خروج';
   static const String cancel = 'الغاء';
   static const String user = 'المستخدم';
@@ -302,7 +301,7 @@ class AppStrings {
 
   static const String onlineUsers = 'المستخدمين الموجودين';
 
-  static const String allBillsDues = 'المستحقة';
+  static const String allBillsDues = 'الفواتير المستحقة';
 
   static const String allUsersMustOnline = ' ضمن الدوام';
 
@@ -407,7 +406,25 @@ class AppStrings {
   static var invalidPhone = 'رقم الهاتف غير صحيح';
 
   static var savedNumber = 'تم حفظ رقم الهاتف';
+  static var viewProducts = 'عرض المنتجات';
+  static var billProductView = 'عرض منتجات الفاتورة';
 
-  static var areYouSureContinueWithoutSeller =
-      'هل تريد المتابعة بدون تحديد البائع؟';
+  static var areYouSureContinueWithoutSeller = 'هل تريد المتابعة بدون تحديد البائع؟';
+
+  static var firstPay = 'الدفعة الاولى';
+
+  static const String vatName = 'الضريبة';
+
+  static const String dailySales = 'المبيعات اليومية';
+
+  static const String dailiesReports = 'التقارير اليومية';
+
+  static const String monthlyReports = 'التقارير الشهرية';
+  static const String billsReports = 'تقارير الفواتير';
+
+  static const String originName = 'اصل السند';
+
+  static const String balanceAfter = 'الرصيد بعد العملية';
+
+  static const String requiredRequestNumber = 'مطلوب رقم الطلب';
 }

@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
@@ -8,7 +10,6 @@ import '../../../../core/helper/extensions/getx_controller_extensions.dart';
 import '../../controller/bill_profit_dashboard_controller.dart';
 
 class EmployeeDateMonthHeader extends StatelessWidget {
-
   const EmployeeDateMonthHeader({super.key});
 
   @override
@@ -22,7 +23,6 @@ class EmployeeDateMonthHeader extends StatelessWidget {
         padding: const EdgeInsets.all(15),
         child: Row(
           children: [
-
             Spacer(),
             GestureDetector(
               onTap: () {},
@@ -38,9 +38,8 @@ class EmployeeDateMonthHeader extends StatelessWidget {
                 FontAwesomeIcons.refresh,
                 color: AppColors.lightBlueColor,
               ),
-              onPressed: (){
+              onPressed: () {
                 read<BillProfitDashboardController>().getAllEmployeeCommitment();
-
               },
             ),
           ],

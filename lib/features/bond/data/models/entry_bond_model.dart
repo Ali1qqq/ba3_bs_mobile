@@ -1,6 +1,8 @@
 import 'package:ba3_bs_mobile/core/constants/app_constants.dart';
 import 'package:ba3_bs_mobile/core/constants/app_strings.dart';
+import 'package:ba3_bs_mobile/core/helper/extensions/basic/string_extension.dart';
 import 'package:ba3_bs_mobile/features/accounts/data/models/account_model.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:get/get.dart';
 import 'package:pluto_grid/pluto_grid.dart';
 
@@ -12,15 +14,19 @@ import '../../../pluto/data/models/pluto_adaptable.dart';
 class EntryBondModel {
   /// Contains an identifier and a list of bond items.
   final EntryBondItems? items;
+  final DateTime entryBondDate;
 
   /// Refers to the origin entity of the bond entry (e.g., billTypeId for invoices).
   final EntryBondOrigin? origin;
 
-  EntryBondModel({this.items, this.origin});
+  EntryBondModel({this.items, this.origin, required this.entryBondDate});
 
   /// Creates an instance from a JSON object.
   factory EntryBondModel.fromJson(Map<String, dynamic> json) {
     return EntryBondModel(
+      entryBondDate: json['entryBondDate'] != null
+          ? (json['entryBondDate'] as Timestamp).toDate()
+          : EntryBondItems.fromJson(json['items']).itemList.first.date.toDate,
       items: json['items'] != null ? EntryBondItems.fromJson(json['items']) : null,
       origin: EntryBondOrigin.fromJson(json['origin']),
     );
@@ -31,6 +37,7 @@ class EntryBondModel {
     return {
       'items': items?.toJson(),
       'origin': origin?.toJson(),
+      'entryBondDate': Timestamp.fromDate(entryBondDate),
     };
   }
 
@@ -38,10 +45,12 @@ class EntryBondModel {
   EntryBondModel copyWith({
     EntryBondItems? items,
     EntryBondOrigin? origin,
+    DateTime? entryBondDate,
   }) {
     return EntryBondModel(
       items: items ?? this.items,
       origin: origin ?? this.origin,
+      entryBondDate: entryBondDate ?? this.entryBondDate,
     );
   }
 }
@@ -55,7 +64,11 @@ class EntryBondItems {
   /// List of bond items.
   final List<EntryBondItemModel> itemList;
 
-  EntryBondItems({required this.id, required this.itemList, this.docId});
+  EntryBondItems({
+    required this.id,
+    required this.itemList,
+    this.docId,
+  });
 
   /// Creates an instance from a JSON object.
   factory EntryBondItems.fromJson(Map<String, dynamic> json) {
@@ -79,6 +92,7 @@ class EntryBondItems {
   EntryBondItems copyWith({
     final String? id,
     final String? docId,
+    final DateTime? entryBondDate,
     final List<EntryBondItemModel>? itemList,
   }) {
     return EntryBondItems(
@@ -96,6 +110,8 @@ class EntryBondItemModel implements PlutoAdaptable {
 
   /// The monetary amount associated with this bond item.
   final double? amount;
+  final double? amountAfterOperation;
+  final String? originName;
 
   /// The account related to this bond item.
   final AccountEntity account;
@@ -116,6 +132,8 @@ class EntryBondItemModel implements PlutoAdaptable {
     this.originId,
     this.date,
     this.docId,
+    this.amountAfterOperation,
+    this.originName,
     required this.account,
   });
 
@@ -128,6 +146,7 @@ class EntryBondItemModel implements PlutoAdaptable {
       originId: json['docId'] as String?,
       date: json['date'] as String?,
       docId: json['docId'] as String?,
+      originName: json['originName'] ?? '',
       account: AccountEntity.fromJson(json['account']),
     );
   }
@@ -141,6 +160,7 @@ class EntryBondItemModel implements PlutoAdaptable {
       'originId': originId,
       'date': date,
       'docId': docId,
+      'originName': originName,
       'account': account.toJson(),
     };
   }
@@ -149,10 +169,12 @@ class EntryBondItemModel implements PlutoAdaptable {
   EntryBondItemModel copyWith({
     final BondItemType? bondItemType,
     final double? amount,
+    final double? amountAfterOperation,
     final String? note,
     final String? originId,
     final String? docId,
     final String? date,
+    final String? originName,
     final AccountEntity? account,
   }) {
     return EntryBondItemModel(
@@ -163,6 +185,8 @@ class EntryBondItemModel implements PlutoAdaptable {
       date: date ?? this.date,
       docId: docId ?? this.docId,
       account: account ?? this.account,
+      amountAfterOperation: amountAfterOperation ?? this.amountAfterOperation,
+      originName: originName ?? this.originName,
     );
   }
 
@@ -178,9 +202,13 @@ class EntryBondItemModel implements PlutoAdaptable {
       PlutoColumn(hide: true, title: AppStrings.identificationNumber.tr, field: AppConstants.entryBonIdFiled, type: PlutoColumnType.text()):
           originId ?? '',
       createAutoIdColumn(): '#',
+      createCheckColumn(): '',
+      PlutoColumn(width: 125, title: AppStrings.originName.tr, field: 'اصل السند', type: PlutoColumnType.text()): originName ?? '',
+      PlutoColumn(title: AppStrings.date.tr, field: 'التاريخ', width: 100, type: PlutoColumnType.date()): date,
       PlutoColumn(
           title: AppStrings.debtor.tr,
           field: 'مدين',
+          width: 125,
           type: PlutoColumnType.currency(
             format: '#,##0.00 AED',
             locale: 'en_AE',
@@ -189,14 +217,23 @@ class EntryBondItemModel implements PlutoAdaptable {
       PlutoColumn(
           title: AppStrings.creditor.tr,
           field: 'دائن',
+          width: 125,
           type: PlutoColumnType.currency(
             format: '#,##0.00 AED',
             locale: 'en_AE',
             symbol: 'AED',
           )): bondItemType == BondItemType.creditor ? amount : 0,
-      PlutoColumn(title: AppStrings.account.tr.tr, field: 'الحساب', type: PlutoColumnType.text()): account.name,
-      PlutoColumn(title: AppStrings.date.tr, field: 'التاريخ', type: PlutoColumnType.date()): date,
+      PlutoColumn(
+          width: 124,
+          title: AppStrings.balanceAfter.tr,
+          field: 'الرصيد',
+          type: PlutoColumnType.currency(
+            format: '#,##0.00 AED',
+            locale: 'en_AE',
+            symbol: 'AED',
+          )): amountAfterOperation,
       PlutoColumn(title: AppStrings.illustration.tr, field: 'البيان', type: PlutoColumnType.text()): note,
+      PlutoColumn(title: AppStrings.account.tr.tr, field: 'الحساب', width: 125, type: PlutoColumnType.text()): account.name,
     };
   }
 }

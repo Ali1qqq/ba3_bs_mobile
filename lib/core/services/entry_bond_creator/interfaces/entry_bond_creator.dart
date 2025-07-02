@@ -5,6 +5,7 @@ abstract class EntryBondCreator<T> {
   EntryBondModel createEntryBond({
     required EntryBondType originType,
     required T model,
+    required DateTime entryBondDate,
     bool? isSimulatedVat,
   });
 }

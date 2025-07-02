@@ -110,7 +110,7 @@ class ProfileScreen extends StatelessWidget {
 
                       Spacer(),
                     */
-                        Container(
+                        SizedBox(
                           height: 1.sh,
                           width: 1.sw,
                           child: Obx(() {

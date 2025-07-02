@@ -1,22 +1,29 @@
 import 'dart:developer';
 
 import 'package:ba3_bs_mobile/core/helper/enums/enums.dart';
+import 'package:ba3_bs_mobile/core/helper/extensions/basic/list_extensions.dart';
+import 'package:ba3_bs_mobile/core/helper/extensions/basic/string_extension.dart';
 import 'package:ba3_bs_mobile/core/helper/extensions/getx_controller_extensions.dart';
 import 'package:ba3_bs_mobile/core/router/app_routes.dart';
 import 'package:ba3_bs_mobile/core/utils/app_ui_utils.dart';
 import 'package:ba3_bs_mobile/features/accounts/controllers/accounts_controller.dart';
 import 'package:ba3_bs_mobile/features/accounts/use_cases/group_accounts_by_final_category_use_case.dart';
 import 'package:ba3_bs_mobile/features/bond/controllers/entry_bond/entry_bond_controller.dart';
+import 'package:dartz/dartz.dart' show Either;
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../../core/helper/mixin/app_navigator.dart';
 import '../../../core/helper/mixin/floating_launcher.dart';
+import '../../../core/models/date_filter.dart';
+import '../../../core/network/api_constants.dart';
+import '../../../core/network/error/failure.dart';
 import '../../../core/services/firebase/implementations/repos/compound_datasource_repo.dart';
 import '../../bond/data/models/entry_bond_model.dart';
 import '../../bond/ui/screens/entry_bond_details_screen.dart';
 import '../data/models/account_model.dart';
 import '../service/account_statement_service.dart';
+import '../ui/screens/account_statement_screen.dart' show AccountStatementScreen;
 import '../use_cases/filter_entry_bond_items_by_date_use_case.dart';
 import '../use_cases/merge_entry_bond_items_use_case.dart';
 import '../use_cases/process_entry_bond_items_in_isolate_use_case.dart';
@@ -250,8 +257,9 @@ class AccountStatementController extends GetxController with FloatingLauncher, A
   // }
 
   // Fetch bond items for the selected account
-  Future<void> fetchAccountEntryBondItems() async {
+  Future<void> fetchAccountEntryBondItems(bool oldWay) async {
     final accountModel = _accountsController.getAccountModelByName(accountNameController.text);
+
     if (accountModel == null) {
       AppUIUtils.onFailure(
         "يرجى إدخال اسم الحساب",
@@ -268,18 +276,62 @@ class AccountStatementController extends GetxController with FloatingLauncher, A
 
     for (var account in accountEntities) {
       log(account.name, name: 'Account name');
+      late Either<Failure, List<EntryBondItems>> result;
+      if (oldWay) {
+        result = await _accountsStatementsRepo.getAll(account);
+      } else {
+        result = await _accountsStatementsRepo.fetchWhere(
+            itemIdentifier: account,
+            dateFilter: DateFilter(
+                dateFieldName: ApiConstants.entryBondDateField,
+                range: DateTimeRange(start: startDateController.text.toStartDate, end: endDateController.text.toEndDate)));
+      }
 
-      final result = await _accountsStatementsRepo.getAll(account);
       result.fold(
-        (failure) => AppUIUtils.onFailure(failure.message),
+        (failure) => AppUIUtils.onFailure(
+          'لا يوجد حركات في ${account.name} خلال الفترة: ${startDateController.text} - ${endDateController.text} ',
+        ),
         (fetchedItems) {
-          entryBondItems.addAll(fetchedItems.expand((item) => item.itemList));
+          processEntryBondItemsAsync(fetchedItems.expand((item) => item.itemList).toList());
         },
       );
     }
 
-    _filterAndCalculateValues();
+    _filterAndCalculateValues(oldWay);
     _setLoadingState(false);
+  }
+
+  processEntryBondItemsAsync(List<EntryBondItemModel> fetchedItems) {
+    log(fetchedItems.length.toString(), name: 'fetchedItems');
+    final List<EntryBondItemModel> helperList = [];
+
+    entryBondItems.addAll(fetchedItems.mergeBy<BondKey>(
+      (bondItem) => BondKey(bondItem.docId ?? '', bondItem.bondItemType?.label ?? ''),
+      (accumulated, current) {
+        return EntryBondItemModel(
+          account: current.account,
+          amount: (accumulated.amount ?? 0) + (current.amount ?? 0),
+          bondItemType: current.bondItemType,
+          date: current.date,
+          docId: current.docId,
+          note: "${current.note} + ${accumulated.note}",
+          originId: current.originId,
+          amountAfterOperation: 0,
+          originName: current.originName,
+        );
+      },
+    ));
+    double balance = 0.0;
+    entryBondItems.sortBy((bondItem) => bondItem.date!);
+    helperList.assignAll(entryBondItems);
+    entryBondItems.assignAll(helperList.map((e) {
+      if (e.bondItemType!.label == BondItemType.debtor.label) {
+        balance += e.amount!;
+      } else {
+        balance -= e.amount!;
+      }
+      return e.copyWith(amountAfterOperation: balance);
+    }));
   }
 
   void _setLoadingState(bool state) {
@@ -298,12 +350,17 @@ class AccountStatementController extends GetxController with FloatingLauncher, A
     return accountChildren.map(AccountEntity.fromAccountModel).toList();
   }
 
-  void _filterAndCalculateValues() {
-    filteredEntryBondItems = _filterEntryBondItemsByDateUseCase.execute(
-      startDateController.text,
-      endDateController.text,
-      entryBondItems,
-    );
+  void _filterAndCalculateValues(bool oldWay) {
+    if (oldWay) {
+      filteredEntryBondItems = _filterEntryBondItemsByDateUseCase.execute(
+        startDateController.text,
+        endDateController.text,
+        entryBondItems,
+      );
+    } else {
+      filteredEntryBondItems = entryBondItems;
+    }
+
     _calculateValues();
   }
 
@@ -328,7 +385,7 @@ class AccountStatementController extends GetxController with FloatingLauncher, A
       );
     }
 
-    _filterAndCalculateValues();
+    _filterAndCalculateValues(true);
     balance = totalValue;
     return balance;
   }
@@ -360,7 +417,9 @@ class AccountStatementController extends GetxController with FloatingLauncher, A
   }
 
   /// Navigation handler
-  void navigateToAccountStatementScreen() => to(AppRoutes.accountStatementScreen);
+  void navigateToAccountStatementScreen(BuildContext context) {
+    launchFloatingWindow(context: context, floatingScreen: AccountStatementScreen());
+  }
 
   void navigateToFinalAccountDetails(FinalAccounts account) => to(AppRoutes.finalAccountDetailsScreen, arguments: account);
 
@@ -414,4 +473,19 @@ class AccountStatementController extends GetxController with FloatingLauncher, A
       floatingScreen: EntryBondDetailsScreen(entryBondModel: entryBondModel),
     );
   }
+}
+
+class BondKey {
+  final String docId;
+  final String bondTypeLabel;
+
+  BondKey(this.docId, this.bondTypeLabel);
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is BondKey && runtimeType == other.runtimeType && docId == other.docId && bondTypeLabel == other.bondTypeLabel;
+
+  @override
+  int get hashCode => docId.hashCode ^ bondTypeLabel.hashCode;
 }

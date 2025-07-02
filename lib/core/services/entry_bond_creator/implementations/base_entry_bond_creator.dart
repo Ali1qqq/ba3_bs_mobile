@@ -7,21 +7,21 @@ abstract class BaseEntryBondCreator<T> implements EntryBondCreator<T> {
   EntryBondModel createEntryBond({
     required EntryBondType originType,
     required T model,
+    required DateTime entryBondDate,
     bool? isSimulatedVat,
   }) =>
       EntryBondModel(
         origin: createOrigin(model: model, originType: originType),
+        entryBondDate: entryBondDate,
         items: EntryBondItems(
           id: getModelId(model),
           itemList: generateItems(model: model, isSimulatedVat: isSimulatedVat),
         ),
       );
 
-  EntryBondOrigin createOrigin(
-      {required T model, required EntryBondType originType});
+  EntryBondOrigin createOrigin({required T model, required EntryBondType originType});
 
   String getModelId(T model);
 
-  List<EntryBondItemModel> generateItems(
-      {required T model, bool? isSimulatedVat});
+  List<EntryBondItemModel> generateItems({required T model, bool? isSimulatedVat});
 }

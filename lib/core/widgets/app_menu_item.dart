@@ -1,10 +1,9 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-Widget buildAppMenuItem(
-    {required IconData icon,
-    required String title,
-    required VoidCallback onTap}) {
+Widget buildAppMenuItem({required IconData icon, required String title, required VoidCallback onTap}) {
   return Padding(
     padding: const EdgeInsets.only(bottom: 16),
     child: InkWell(

@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:math_expressions/math_expressions.dart';
 import 'package:pluto_grid/pluto_grid.dart';
 

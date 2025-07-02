@@ -1,12 +1,9 @@
 import 'package:ba3_bs_mobile/core/constants/app_strings.dart';
 import 'package:ba3_bs_mobile/features/accounts/controllers/accounts_controller.dart';
-import 'package:ba3_bs_mobile/features/customer/controllers/customers_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../../../../core/dialogs/account_filter_dialog.dart';
 import '../../../../core/helper/extensions/getx_controller_extensions.dart';
-import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_menu_item.dart';
 
 class AccountLayout extends StatelessWidget {
@@ -17,7 +14,7 @@ class AccountLayout extends StatelessWidget {
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
-        appBar: AppBar(
+/*        appBar: AppBar(
           title: Text(AppStrings.accounts.tr),
           actions: [
             _buildAppBarButton(AppStrings.downloadAccounts.tr, () {
@@ -27,7 +24,7 @@ class AccountLayout extends StatelessWidget {
               read<CustomersController>().fetchAllCustomersFromLocal();
             }),
           ],
-        ),
+        ),*/
         body: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20),
           child: Column(
@@ -45,10 +42,7 @@ class AccountLayout extends StatelessWidget {
                 icon: Icons.receipt_long,
                 title: AppStrings.accountStatement.tr,
                 onTap: () {
-                  showDialog<String>(
-                    context: context,
-                    builder: (BuildContext context) => showAccountFilterDialog(context),
-                  );
+                  read<AccountsController>().showAccountFilterDialog(context: context);
                 },
               ),
               buildAppMenuItem(
@@ -72,6 +66,7 @@ class AccountLayout extends StatelessWidget {
     );
   }
 
+/*
   Widget _buildAppBarButton(String title, VoidCallback onPressed) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
@@ -82,4 +77,5 @@ class AccountLayout extends StatelessWidget {
       ),
     );
   }
+*/
 }

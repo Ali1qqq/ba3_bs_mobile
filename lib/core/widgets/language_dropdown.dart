@@ -15,7 +15,7 @@ class LanguageDropdown extends StatelessWidget {
 
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 15.h),
-      height: AppConstants.constHeightTextField,
+      height: AppConstants.constHeightTextField * 2,
       width: 1.sw,
       decoration: BoxDecoration(
         color: Colors.white,
@@ -45,8 +45,8 @@ class LanguageDropdown extends StatelessWidget {
                 children: [
                   Image.asset(
                     translationController.getFlagAsset(langCode),
-                    width: 0.070.sw,
-                    height: 0.050.sh,
+                    width: 0.100.sw,
+                    height: 0.040.sh,
                     fit: BoxFit.cover,
                   ),
                   SizedBox(width: 8),

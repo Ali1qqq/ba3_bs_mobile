@@ -1,3 +1,5 @@
+import 'package:ba3_bs_mobile/core/helper/extensions/basic/string_extension.dart';
+
 import '../../../../features/bill/data/models/bill_model.dart';
 import '../../../../features/bill/services/bill/bill_entry_bond_creator.dart';
 import '../../../../features/bond/data/models/bond_model.dart';
@@ -19,8 +21,7 @@ class EntryBondCreatorFactory {
       // Returns a single BillEntryBondCreator wrapped in a list
       return [BillEntryBondCreator()];
     }
-    throw UnimplementedError(
-        "No EntryBondCreator implementation for model of type ${model.runtimeType}");
+    throw UnimplementedError("No EntryBondCreator implementation for model of type ${model.runtimeType}");
   }
 
   static EntryBondCreator resolveEntryBondCreator<T>(T model) {
@@ -28,8 +29,7 @@ class EntryBondCreatorFactory {
       // Extracts the first EntryBondCreator from the list for single-entry models
       return resolveEntryBondCreators(model).first;
     }
-    throw UnimplementedError(
-        "No EntryBondCreator implementation for model of type ${model.runtimeType}");
+    throw UnimplementedError("No EntryBondCreator implementation for model of type ${model.runtimeType}");
   }
 
   static EntryBondType resolveOriginType<T>(T model) {
@@ -40,7 +40,17 @@ class EntryBondCreatorFactory {
     } else if (model is BillModel) {
       return EntryBondType.bill;
     }
-    throw UnimplementedError(
-        "No EntryBondType defined for model of type ${model.runtimeType}");
+    throw UnimplementedError("No EntryBondType defined for model of type ${model.runtimeType}");
+  }
+
+  static DateTime resolveOriginDate<T>(T model) {
+    if (model is ChequesModel) {
+      return model.chequesDate.toDate;
+    } else if (model is BondModel) {
+      return model.payDate.toDate;
+    } else if (model is BillModel) {
+      return model.billDetails.billDate!;
+    }
+    throw UnimplementedError("No EntryBondType defined for model of type ${model.runtimeType}");
   }
 }

@@ -3,10 +3,8 @@ import '../constants/app_constants.dart';
 import '../helper/extensions/getx_controller_extensions.dart';
 
 class ApiConstants {
-  static const String translationApiKey =
-      'AIzaSyAil4Csq27_oCC_BzF7ZMetUEyNM665VqQ';
-  static const String translationBaseUrl =
-      'https://translation.googleapis.com/language/translate/v2';
+  static const String translationApiKey = 'AIzaSyAil4Csq27_oCC_BzF7ZMetUEyNM665VqQ';
+  static const String translationBaseUrl = 'https://translation.googleapis.com/language/translate/v2';
 
   // static const String whatsappPhoneNumberID = '578828715319909';
 
@@ -22,10 +20,7 @@ class ApiConstants {
 
     final currentVersion = migrationController.currentVersion;
 
-    return currentVersion == AppConstants.defaultVersion ||
-            currentVersion.isEmpty
-        ? ''
-        : '${migrationController.currentVersion}_';
+    return currentVersion == AppConstants.defaultVersion || currentVersion.isEmpty ? '' : '${migrationController.currentVersion}_';
   }
 
   /// COLLECTIONS
@@ -69,6 +64,9 @@ class ApiConstants {
   static const String status = 'status';
   static const String userPassword = 'userPassword';
   static const String billDate = 'billDetails.billDate';
+
+  ///m5zMyvnAsoblbjjcgR4Y
+  static const String bondDate = 'PayDate';
   static const String billSellerId = 'billDetails.billSellerId';
   static const String type = 'type';
   static const String lastNumber = 'lastNumber';
@@ -77,6 +75,7 @@ class ApiConstants {
   static const String customerPhone = 'billDetails.customerPhone';
   static const String bondNumber = 'PayNumber';
   static const String metaValue = 'metaValue';
+  static const String entryBondDateField = 'entryBondDate';
 
   static String userTask = 'user_task';
 }

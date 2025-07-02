@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'dart:async';
 import 'package:ba3_bs_mobile/core/constants/app_strings.dart';
 import 'package:flutter/material.dart';

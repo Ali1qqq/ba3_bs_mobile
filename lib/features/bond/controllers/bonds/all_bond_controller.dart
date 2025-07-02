@@ -62,11 +62,11 @@ class AllBondsController extends FloatingBondDetailsLauncher
     final result = await _bondsFirebaseRepo.fetchAllNested(BondType.values);
 
     result.fold(
-          (failure) => AppUIUtils.onFailure(failure.message),
-          (fetchedNestedBonds) => nestedBonds.assignAll(fetchedNestedBonds),
+      (failure) => AppUIUtils.onFailure(failure.message),
+      (fetchedNestedBonds) => nestedBonds.assignAll(fetchedNestedBonds),
     );
     bondsByTypeGuid.assignAll(nestedBonds.map(
-          (bondType, bonds) => MapEntry(bondType.typeGuide, bonds),
+      (bondType, bonds) => MapEntry(bondType.typeGuide, bonds),
     ));
     nestedBonds.forEach((k, v) => log('bond Type: ${k.label} has ${v.length} bonds'));
 
@@ -92,8 +92,8 @@ class AllBondsController extends FloatingBondDetailsLauncher
     final result = await _bondsFirebaseRepo.getAll(itemTypeModel);
 
     result.fold(
-          (failure) => AppUIUtils.onFailure(failure.message),
-          (fetchedBonds) => bonds.assignAll(fetchedBonds),
+      (failure) => AppUIUtils.onFailure(failure.message),
+      (fetchedBonds) => bonds.assignAll(fetchedBonds),
     );
 
     isLoading = false;
@@ -110,8 +110,8 @@ class AllBondsController extends FloatingBondDetailsLauncher
       final result = await _jsonImportExportRepo.importXmlFile(file);
 
       result.fold(
-            (failure) => AppUIUtils.onFailure(failure.message),
-            (fetchedBonds) async {
+        (failure) => AppUIUtils.onFailure(failure.message),
+        (fetchedBonds) async {
           log('bonds.length ${fetchedBonds.length}');
           bonds.assignAll(fetchedBonds);
           if (bonds.isNotEmpty) {
@@ -175,8 +175,8 @@ class AllBondsController extends FloatingBondDetailsLauncher
     final result = await _bondsFirebaseRepo.getById(id: bondId, itemIdentifier: itemTypeModel);
 
     result.fold(
-          (failure) => AppUIUtils.onFailure(failure.message),
-          (fetchedBonds) => bondModel = fetchedBonds,
+      (failure) => AppUIUtils.onFailure(failure.message),
+      (fetchedBonds) => bondModel = fetchedBonds,
     );
     return bondModel;
   }
@@ -224,9 +224,7 @@ class AllBondsController extends FloatingBondDetailsLauncher
 
     launchFloatingWindow(
       context: context,
-      minimizedTitle: BondType
-          .byTypeGuide(currentBond.payTypeGuid!)
-          .value,
+      minimizedTitle: BondType.byTypeGuide(currentBond.payTypeGuid!).value,
       floatingScreen: BondDetailsScreen(
         fromBondById: false,
         bondDetailsController: bondDetailsController,
@@ -269,8 +267,8 @@ class AllBondsController extends FloatingBondDetailsLauncher
       fetchTasks.add(
         _bondsFirebaseRepo.count(itemIdentifier: bondTypeModel).then((result) {
           result.fold(
-                (failure) => errors.add('Failed to fetch count for ${bondTypeModel.label}: ${failure.message}'),
-                (count) {
+            (failure) => errors.add('Failed to fetch count for ${bondTypeModel.label}: ${failure.message}'),
+            (count) {
               allBondsCountsByType[bondTypeModel] = count;
             },
           );
@@ -298,8 +296,8 @@ class AllBondsController extends FloatingBondDetailsLauncher
     final result = await _bondsFirebaseRepo.getAll(bondType);
 
     result.fold(
-          (failure) => AppUIUtils.onFailure('لا يوجد سندات  في ${bondType.value}'),
-          (fetchedPendingBonds) {
+      (failure) => AppUIUtils.onFailure('لا يوجد سندات  في ${bondType.value}'),
+      (fetchedPendingBonds) {
         bonds.assignAll(fetchedPendingBonds);
       },
     );
