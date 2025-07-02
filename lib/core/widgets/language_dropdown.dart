@@ -45,8 +45,8 @@ class LanguageDropdown extends StatelessWidget {
                 children: [
                   Image.asset(
                     translationController.getFlagAsset(langCode),
-                    width: 0.020.sw,
-                    height: 0.020.sh,
+                    width: 0.070.sw,
+                    height: 0.050.sh,
                     fit: BoxFit.cover,
                   ),
                   SizedBox(width: 8),

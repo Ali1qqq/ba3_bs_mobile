@@ -32,7 +32,7 @@ class MainLayoutController extends GetxController {
         icon: AppAssets.dashBoardIcon,
         unSelectedIcon: AppAssets.dashBoardUnselectedIcon,
       ),
-    if (RoleItemType.viewBill.hasReadPermission)
+    if (RoleItemType.viewBill.hasAdminPermission)
       AppLayoutItemModel(
         name: 'الفواتير',
         layout: const BillLayout(),

@@ -36,15 +36,19 @@ class ProfileScreen extends StatelessWidget {
         child: SingleChildScrollView(
           child: Obx(() {
             return salesController.profileScreenState.value == RequestState.loading
-                ? ListView(
-                    shrinkWrap: true,
-                    children: List.generate(
-                      10,
-                      (index) => Column(
-                        children: [
-                          ProfileInfoRowShimmerWidget(),
-                          VerticalSpace(),
-                        ],
+                ? SizedBox(
+                    height: 1.sh,
+                    width: 1.sw,
+                    child: ListView(
+                      shrinkWrap: true,
+                      children: List.generate(
+                        10,
+                        (index) => Column(
+                          children: [
+                            ProfileInfoRowShimmerWidget(),
+                            VerticalSpace(),
+                          ],
+                        ),
                       ),
                     ),
                   )
@@ -106,11 +110,15 @@ class ProfileScreen extends StatelessWidget {
 
                       Spacer(),
                     */
-                        Obx(() {
-                          return salesController.profileScreenState.value == RequestState.loading
-                              ? UserTargetShimmerWidget()
-                              : UserTargets(salesController: salesController);
-                        }),
+                        Container(
+                          height: 1.sh,
+                          width: 1.sw,
+                          child: Obx(() {
+                            return salesController.profileScreenState.value == RequestState.loading
+                                ? UserTargetShimmerWidget()
+                                : UserTargets(salesController: salesController);
+                          }),
+                        ),
                         const ProfileFooter(),
                       ],
                     );
