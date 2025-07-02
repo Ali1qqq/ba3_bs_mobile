@@ -19,6 +19,8 @@ class LandscapeMiddleware extends GetMiddleware {
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
+      DeviceOrientation.landscapeLeft,
+      DeviceOrientation.landscapeRight,
     ]);
     super.onPageDispose();
   }

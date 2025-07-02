@@ -1,16 +1,46 @@
 # ba3_bs_mobile
 
-A new Flutter project.
+Full Accounting System – Flutter Application
 
-## Getting Started
+This is a comprehensive accounting and business management system built with Flutter, inspired by solutions like Al-Ameen Accounting Software. The application supports both online and offline modes, and runs on Windows, macOS, Android, and iOS.
 
-This project is a starting point for a Flutter application.
+Key Features
 
-A few resources to get you started if this is your first Flutter project:
+Full sales and inventory tracking.
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+Mobile app for on-the-go sales and real-time monitoring.
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+Employee attendance tracking, task assignment, and sales target management.
+
+Offline functionality with local storage and data synchronization.
+
+Online capabilities powered by Firebase.
+
+
+Tech Stack
+
+Frontend: Flutter
+
+Architecture: Clean MVVC pattern
+
+State Management: GetX
+
+Online Backend: Firebase (Authentication, Firestore, etc.)
+
+Offline Storage: Hive database
+
+
+Supported Platforms
+
+Android
+
+iOS
+
+Windows
+
+macOS
+
+
+Installation
+
+Coming soon.
