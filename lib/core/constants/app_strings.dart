@@ -427,4 +427,12 @@ class AppStrings {
   static const String balanceAfter = 'الرصيد بعد العملية';
 
   static const String requiredRequestNumber = 'مطلوب رقم الطلب';
+
+  static const String askForPermission = 'تحتاج الصلاحيات لفعل ذالك';
+
+  static const String groupForTarget = 'تارغيت الشركة';
+
+  static const String userSalaryRatio = 'تقييم الموظف';
+
+  static const String userSalary = 'راتب الموظف';
 }

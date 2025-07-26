@@ -48,7 +48,6 @@ class HelperAlert {
   }
 
   static void showInfo({
-    required BuildContext context,
     required String text,
     String? title,
   }) {

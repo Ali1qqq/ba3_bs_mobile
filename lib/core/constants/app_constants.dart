@@ -1,3 +1,4 @@
+import '../../features/users_management/data/models/user_model.dart';
 import '../helper/enums/enums.dart';
 
 abstract class AppConstants {
@@ -430,5 +431,17 @@ abstract class AppConstants {
   static const String testDataBaseAppName = 'test';
   static const String defaultFirebaseAppName = '[DEFAULT]';
 
+  static bool forcePending = false;
+  static String staticAppPassword = 'Asd123';
+
+  static List<UserWorkingHours> fridayWorkingHours = [
+    UserWorkingHours(
+      id: '0',
+      enterTime: "04:45 AM",
+      outTime: "12:00 AM",
+    )
+  ];
+
+  // @preserve: ali-dev-only getter
   static String get getDatabaseAppName => defaultFirebaseAppName;
 }

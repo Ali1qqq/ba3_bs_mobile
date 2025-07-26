@@ -58,8 +58,12 @@ class SellerSalesController extends GetxController with AppNavigator, FloatingLa
   double get totalSales => calculateTotalSales(sellerSales);
 
   double totalAccessoriesSales = 0.0;
+  double totalGroupSales = 0.0;
+
   double totalMobilesSales = 0.0;
   double totalFees = 0.0;
+
+  UserModel? get loggedInUserModel => read<UserManagementController>().loggedInUserModel;
 
   set setSelectedSeller(SellerModel sellerModel) {
     selectedSeller = sellerModel;
@@ -192,6 +196,8 @@ class SellerSalesController extends GetxController with AppNavigator, FloatingLa
           AppUIUtils.onFailure(' لا توجد أي فواتير مسجلة لـ ${sellerModel.costName} في هذا التاريخ❌ ');
           totalAccessoriesSales = 0;
           totalMobilesSales = 0;
+          totalGroupSales = 0;
+
           clearFilter();
         }
         sellerBills.clear();
@@ -207,6 +213,43 @@ class SellerSalesController extends GetxController with AppNavigator, FloatingLa
       sellerBills.assignAll(bills);
     }
     calculateTotalAccessoriesMobiles();
+  }
+
+  void calculateTotalAccessoriesMobiles() {
+    // Reset totals
+    totalAccessoriesSales = 0;
+    totalMobilesSales = 0;
+    totalFees = 0;
+    totalGroupSales = 0;
+
+    final bills = inFilterMode ? filteredBills : sellerBills;
+    log("calculateTotalAccessoriesMobiles ${bills.length}");
+    // Iterate through all bills
+    for (final bill in bills) {
+      // Iterate through all items in each bill
+      for (final item in bill.items.itemList) {
+        final materialModel = read<MaterialController>().getMaterialById(item.itemGuid);
+        double itemCalcPrice = materialModel?.calcMinPrice ?? 0.0;
+        log((loggedInUserModel?.groupForTarget?.matGroupGuid).toString());
+        if (loggedInUserModel!.hasGroupTarget && loggedInUserModel?.groupForTarget?.matGroupGuid == materialModel?.matGroupGuid) {
+          totalGroupSales += item.itemTotalPrice.toDouble;
+        }
+
+        if (item.itemSubTotalPrice != null) {
+          totalFees += item.itemSubTotalPrice! - itemCalcPrice;
+          double itemTotal = item.itemTotalPrice.toDouble;
+
+          if (item.itemSubTotalPrice! < 1000) {
+            totalAccessoriesSales += itemTotal;
+          } else {
+            totalMobilesSales += itemTotal;
+          }
+        }
+      }
+    }
+    profileScreenState.value = RequestState.success;
+
+    safeUpdateUI();
   }
 
   int _handleGetSellerMaterialsSalesSuccess(List<BillModel> bills, String materialId) {
@@ -228,37 +271,6 @@ class SellerSalesController extends GetxController with AppNavigator, FloatingLa
 
   // Method to calculate the total sales
   double calculateTotalSales(List<BillModel> bills) => bills.fold(0.0, (sum, bill) => sum + (bill.billDetails.billTotal ?? 0));
-
-  void calculateTotalAccessoriesMobiles() {
-    // Reset totals
-    totalAccessoriesSales = 0;
-    totalMobilesSales = 0;
-    totalFees = 0;
-
-    final bills = inFilterMode ? filteredBills : sellerBills;
-    log("calculateTotalAccessoriesMobiles ${bills.length}");
-    // Iterate through all bills
-    for (final bill in bills) {
-      // Iterate through all items in each bill
-      for (final item in bill.items.itemList) {
-        double itemCalcPrice = read<MaterialController>().getMaterialMinPriceById(item.itemGuid);
-
-        if (item.itemSubTotalPrice != null) {
-          totalFees += item.itemSubTotalPrice! - itemCalcPrice;
-          double itemTotal = item.itemTotalPrice.toDouble;
-
-          if (item.itemSubTotalPrice! < 1000) {
-            totalAccessoriesSales += itemTotal;
-          } else {
-            totalMobilesSales += itemTotal;
-          }
-        }
-      }
-    }
-    profileScreenState.value = RequestState.success;
-
-    safeUpdateUI();
-  }
 
   void safeUpdateUI() => WidgetsFlutterBinding.ensureInitialized().waitUntilFirstFrameRasterized.then(
         (value) {

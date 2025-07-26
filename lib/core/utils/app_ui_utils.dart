@@ -350,7 +350,7 @@ class AppUIUtils {
 
   static onSuccess(String message) => HelperAlert.showSuccess(text: message);
 
-  static onInfo(String message) => showInfoSnackBar(message: message);
+  static onInfo(String message, String title) => HelperAlert.showInfo(text: message, title: title);
 
   /// The `title` argument is used to title of alert dialog.
   /// The `content` argument is used to content of alert dialog.

@@ -15,7 +15,7 @@ class BillItems extends Equatable {
 
   factory BillItems.fromBillRecords(List<InvoiceRecordModel> invoiceRecords) {
     final itemList = invoiceRecords.map(
-          (invoiceRecord) {
+      (invoiceRecord) {
         return BillItem(
           itemGuid: invoiceRecord.invRecId!,
           itemName: invoiceRecord.invRecProduct!,
@@ -34,13 +34,11 @@ class BillItems extends Equatable {
     return BillItems(itemList: itemList);
   }
 
-  Map<String, dynamic> toJson() =>
-      {
+  Map<String, dynamic> toJson() => {
         'Item': itemList.map((item) => item.toJson()).toList(),
       };
 
-  BillItems copyWith({List<BillItem>? itemList}) =>
-      BillItems(
+  BillItems copyWith({List<BillItem>? itemList}) => BillItems(
         itemList: itemList ?? this.itemList,
       );
 
@@ -67,7 +65,6 @@ class BillItem extends Equatable {
   final double? itemVatPrice;
   final int? itemGiftsNumber;
   final double? itemGiftsPrice;
-
   final String? soldSerialNumber;
   final List<String>? itemSerialNumbers;
 
@@ -99,33 +96,35 @@ class BillItem extends Equatable {
     );
   }
 
-  factory BillItem.fromJson(Map<String, dynamic> json) =>
-      BillItem(
-        itemGuid: json['ItemGuid'],
-        itemName: json['ItemName'],
-        itemQuantity: json['ItemQuantity'],
-        itemTotalPrice: json['itemTotalPrice'],
-        itemSubTotalPrice: json['itemSubTotalPrice'],
-        itemVatPrice: json['itemVatPrice'],
-        itemGiftsNumber: json['itemGiftsNumber'],
-        itemGiftsPrice: json['itemGiftsPrice'],
-        soldSerialNumber: json.containsKey('soldSerialNumber') ? json['soldSerialNumber'] as String? : null,
-        itemSerialNumbers: (json['itemSerialNumbers'] is List) ? List<String>.from(json['itemSerialNumbers'] as List) : null,
-      );
+  factory BillItem.fromJson(Map<String, dynamic> json) {
+    return BillItem(
+      itemGuid: json['ItemGuid'],
+      itemName: json['ItemName'],
+      itemQuantity: json['ItemQuantity'],
+      itemTotalPrice: json['itemTotalPrice'],
+      itemSubTotalPrice: json['itemSubTotalPrice'],
+      itemVatPrice: json['itemVatPrice'],
+      itemGiftsNumber: json['itemGiftsNumber'],
+      itemGiftsPrice: json['itemGiftsPrice'],
+      soldSerialNumber: json.containsKey('soldSerialNumber') ? json['soldSerialNumber'] as String? : null,
+      itemSerialNumbers: (json['itemSerialNumbers'] is List) ? List<String>.from(json['itemSerialNumbers'] as List) : null,
+    );
+  }
 
-  Map<String, dynamic> toJson() =>
-      {
-        'ItemGuid': itemGuid,
-        if (itemName != null) 'ItemName': itemName,
-        'ItemQuantity': itemQuantity,
-        'itemTotalPrice': itemTotalPrice,
-        if (itemSubTotalPrice != null) 'itemSubTotalPrice': itemSubTotalPrice,
-        if (itemVatPrice != null) 'itemVatPrice': itemVatPrice,
-        if (itemGiftsNumber != null) 'itemGiftsNumber': itemGiftsNumber,
-        if (itemGiftsPrice != null) 'itemGiftsPrice': itemGiftsPrice,
-        if (soldSerialNumber != null && soldSerialNumber!.isNotEmpty) 'soldSerialNumber': soldSerialNumber,
-        if (itemSerialNumbers != null && itemSerialNumbers!.isNotEmpty) 'itemSerialNumbers': itemSerialNumbers,
-      };
+  Map<String, dynamic> toJson() {
+    return {
+      'ItemGuid': itemGuid,
+      if (itemName != null) 'ItemName': itemName,
+      'ItemQuantity': itemQuantity,
+      'itemTotalPrice': itemTotalPrice,
+      if (itemSubTotalPrice != null) 'itemSubTotalPrice': itemSubTotalPrice,
+      if (itemVatPrice != null) 'itemVatPrice': itemVatPrice,
+      if (itemGiftsNumber != null) 'itemGiftsNumber': itemGiftsNumber,
+      if (itemGiftsPrice != null) 'itemGiftsPrice': itemGiftsPrice,
+      if (soldSerialNumber != null && soldSerialNumber!.isNotEmpty) 'soldSerialNumber': soldSerialNumber,
+      if (itemSerialNumbers != null && itemSerialNumbers!.isNotEmpty) 'itemSerialNumbers': itemSerialNumbers,
+    };
+  }
 
   BillItem copyWith({
     final String? itemGuid,
@@ -153,8 +152,7 @@ class BillItem extends Equatable {
       );
 
   @override
-  List<Object?> get props =>
-      [
+  List<Object?> get props => [
         itemGuid,
         itemName,
         itemQuantity,

@@ -158,7 +158,7 @@ class MigrationController extends FloatingBondDetailsLauncher with EntryBondsGen
       },
       (_) {
         updateMigrationVersionsRequestState.value = RequestState.success;
-        AppUIUtils.onInfo('تم تحديث سنة الترحيل ل $currentVersion بنجاح');
+        AppUIUtils.onInfo('تم تحديث سنة الترحيل ل $currentVersion بنجاح', 'الترحيل');
       },
     );
   }

@@ -1,3 +1,4 @@
+/*
 import 'dart:math';
 
 import 'package:ba3_bs_mobile/core/widgets/app_spacer.dart';
@@ -6,7 +7,7 @@ import 'package:flutter/cupertino.dart';
 import '../../../../../core/styling/app_text_style.dart';
 import '../../../../../core/utils/app_service_utils.dart';
 import '../../../../../core/widgets/organized_widget.dart';
-import '../../../../profile/controller/user_time_controller.dart';
+import '../../../controller/user_time_controller.dart';
 
 class HolidaysWidget extends StatelessWidget {
   const HolidaysWidget({
@@ -62,4 +63,4 @@ final List<String> holidaysName = holidays
     .map(
       (e) => AppServiceUtils.getDayNameAndMonthName(e),
     )
-    .toList();
+    .toList();*/

@@ -1,14 +1,14 @@
-import 'package:ba3_bs_mobile/core/constants/app_strings.dart';
-import 'package:ba3_bs_mobile/core/utils/app_service_utils.dart';
-import 'package:ba3_bs_mobile/features/materials/controllers/material_group_controller.dart';
-import 'package:ba3_bs_mobile/features/pluto/data/models/pluto_adaptable.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 import 'package:pluto_grid/pluto_grid.dart';
 
 import '../../../../../core/constants/app_constants.dart';
+import '../../../../../core/constants/app_strings.dart';
 import '../../../../../core/helper/extensions/getx_controller_extensions.dart';
+import '../../../../../core/utils/app_service_utils.dart';
 import '../../../../../core/widgets/pluto_auto_id_column.dart';
+import '../../../../pluto/data/models/pluto_adaptable.dart';
+import '../../../controllers/material_group_controller.dart';
 
 part 'material_model.g.dart'; // This will be generated automatically by the build_runner
 
@@ -327,6 +327,7 @@ class MaterialModel extends HiveObject implements PlutoAdaptable {
         'MatQuantity': matQuantity,
         'calcMinPrice': calcMinPrice,
         'matLocalQuantity': matLocalQuantity,
+        'matFreeQuantity': matFreeQuantity,
         'serialNumbers': serialNumbers,
         // 'MatUnity': matUnity,
         // 'MatPriceType': matPriceType,
@@ -372,6 +373,7 @@ class MaterialModel extends HiveObject implements PlutoAdaptable {
       PlutoColumn(title: AppStrings.identificationNumber.tr, field: AppConstants.materialIdFiled, type: PlutoColumnType.text(), hide: true):
           id,
       createAutoIdColumn(): '#',
+      createCheckColumn(): '',
       PlutoColumn(title: AppStrings.materialName, field: 'اسم المادة', type: PlutoColumnType.text(), width: 400): matName,
       PlutoColumn(
           title: AppStrings.quantity.tr,
@@ -427,6 +429,18 @@ class MaterialModel extends HiveObject implements PlutoAdaptable {
           type: PlutoColumnType.text(),
           width: 120,
           textAlign: PlutoColumnTextAlign.center): matBarCode,
+      PlutoColumn(
+          title: 'free quantity',
+          field: 'free quantity',
+          type: PlutoColumnType.text(),
+          width: 120,
+          textAlign: PlutoColumnTextAlign.center): matFreeQuantity,
+      PlutoColumn(
+          title: 'local quantity',
+          field: 'local quantity',
+          type: PlutoColumnType.text(),
+          width: 120,
+          textAlign: PlutoColumnTextAlign.center): matLocalQuantity,
       PlutoColumn(title: AppStrings.group.tr, field: 'المجموعة', type: PlutoColumnType.text()):
           read<MaterialGroupController>().getMaterialGroupById(matGroupGuid!)?.groupName ?? '',
     };
@@ -558,7 +572,7 @@ class MaterialModel extends HiveObject implements PlutoAdaptable {
 }
 
 @HiveType(typeId: 1)
-class MatExtraBarcodeModel {
+class MatExtraBarcodeModel extends HiveObject {
   @HiveField(0)
   final String? barcode;
 

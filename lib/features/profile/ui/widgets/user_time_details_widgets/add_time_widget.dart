@@ -7,7 +7,7 @@ import '../../../../../core/helper/enums/enums.dart';
 import '../../../../../core/styling/app_text_style.dart';
 import '../../../../../core/widgets/app_button.dart';
 import '../../../../../core/widgets/organized_widget.dart';
-import '../../../controller/user_time_controller.dart';
+import '../../../../user_time/controller/user_time_controller.dart';
 
 class AddTimeWidget extends StatelessWidget {
   const AddTimeWidget({
@@ -35,7 +35,7 @@ class AddTimeWidget extends StatelessWidget {
                   title: AppStrings.checkIn.tr,
                   width: 40.w,
                   height: 20,
-                  onPressed: () => userTimeController.checkLogInAndSave(),
+                  onPressed: () => userTimeController.logIn(context),
                   isLoading: userTimeController.logInState.value == RequestState.loading,
                 ),
                 Spacer(),
@@ -58,7 +58,7 @@ class AddTimeWidget extends StatelessWidget {
                   title: AppStrings.checkOut.tr,
                   width: 40.w,
                   height: 20,
-                  onPressed: () => userTimeController.checkLogOutAndSave(),
+                  onPressed: () => userTimeController.logOut(context),
                   isLoading: userTimeController.logOutState.value == RequestState.loading,
                 ),
                 Spacer(),

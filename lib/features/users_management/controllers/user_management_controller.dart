@@ -213,6 +213,7 @@ class UserManagementController extends GetxController with AppNavigator, Firesto
 
   void updatePasswordVisibility() {
     isPasswordVisible.value = !isPasswordVisible.value;
+    update();
   }
 
 // Handle success when fetching the user

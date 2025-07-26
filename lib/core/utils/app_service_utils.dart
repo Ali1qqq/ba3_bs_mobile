@@ -429,4 +429,18 @@ class AppServiceUtils {
     if (value == null) return 0;
     return int.tryParse(AppServiceUtils.replaceArabicNumbersWithEnglish(value.toString())) ?? 0;
   }
+
+  static bool isRoughlyEqual(double a, double b, [double precision = 0.01]) {
+    return (a - b).abs() < precision;
+  }
+
+  static double truncateToTwoDecimals(double value) {
+    String decimalPart = value.toStringAsFixed(10).split('.')[1].substring(0, 2);
+    return double.parse('${value.floor()}.$decimalPart');
+  }
+
+  static bool isFriday() {
+    // في Dart: 5 = Friday
+    return DateTime.now().weekday == DateTime.friday;
+  }
 }

@@ -1,3 +1,4 @@
+/*
 import 'package:flutter/material.dart';
 import 'package:get/get_state_manager/src/rx_flutter/rx_obx_widget.dart';
 
@@ -5,7 +6,7 @@ import '../../../../../core/helper/enums/enums.dart';
 import '../../../../../core/styling/app_text_style.dart';
 import '../../../../../core/widgets/app_button.dart';
 import '../../../../../core/widgets/organized_widget.dart';
-import '../../../../profile/controller/user_time_controller.dart';
+import '../../../controller/user_time_controller.dart';
 
 class AddTimeWidget extends StatelessWidget {
   const AddTimeWidget({
@@ -33,7 +34,7 @@ class AddTimeWidget extends StatelessWidget {
                 children: [
                   AppButton(
                     title: "دخول",
-                    onPressed: () => userTimeController.checkLogInAndSave(),
+                    onPressed: () => userTimeController.logIn(context),
                     isLoading: userTimeController.logInState.value == RequestState.loading,
                   ),
                   Text(
@@ -50,7 +51,7 @@ class AddTimeWidget extends StatelessWidget {
                 children: [
                   AppButton(
                     title: "خروج",
-                    onPressed: () => userTimeController.checkLogOutAndSave(),
+                    onPressed: () => userTimeController.logOut(context),
                     isLoading: userTimeController.logOutState.value == RequestState.loading,
                   ),
                   Text(
@@ -65,4 +66,4 @@ class AddTimeWidget extends StatelessWidget {
       ),
     );
   }
-}
+}*/

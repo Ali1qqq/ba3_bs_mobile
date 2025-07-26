@@ -47,7 +47,7 @@ Future<void> initializeAppServices() async {
   };
   //   await initializeWindowSettings();
 
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform, name: AppConstants.testDataBaseAppName);
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform, name: AppConstants.defaultFirebaseAppName);
 
   await Hive.initializeApp();
 
