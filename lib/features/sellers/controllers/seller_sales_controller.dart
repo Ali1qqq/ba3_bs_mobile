@@ -7,6 +7,7 @@ import 'package:ba3_bs_mobile/core/helper/extensions/task_status_extension.dart'
 import 'package:ba3_bs_mobile/core/helper/mixin/floating_launcher.dart';
 import 'package:ba3_bs_mobile/core/models/date_filter.dart';
 import 'package:ba3_bs_mobile/core/network/api_constants.dart';
+import 'package:ba3_bs_mobile/features/materials/controllers/material_group_controller.dart';
 import 'package:ba3_bs_mobile/features/pluto/controllers/pluto_controller.dart';
 import 'package:ba3_bs_mobile/features/sellers/controllers/add_seller_controller.dart';
 import 'package:ba3_bs_mobile/features/sellers/controllers/sellers_controller.dart';
@@ -229,9 +230,11 @@ class SellerSalesController extends GetxController with AppNavigator, FloatingLa
       // Iterate through all items in each bill
       for (final item in bill.items.itemList) {
         final materialModel = read<MaterialController>().getMaterialById(item.itemGuid);
+        final materialGroupModel = read<MaterialGroupController>().getMaterialGroupById(materialModel?.matGroupGuid);
         double itemCalcPrice = materialModel?.calcMinPrice ?? 0.0;
-        log((loggedInUserModel?.groupForTarget?.matGroupGuid).toString());
-        if (loggedInUserModel!.hasGroupTarget && loggedInUserModel?.groupForTarget?.matGroupGuid == materialModel?.matGroupGuid) {
+        if (loggedInUserModel!.hasGroupTarget &&
+            (loggedInUserModel?.groupForTarget?.matGroupGuid == materialGroupModel?.parentGuid ||
+                loggedInUserModel?.groupForTarget?.matGroupGuid == materialGroupModel?.matGroupGuid)) {
           totalGroupSales += item.itemTotalPrice.toDouble;
         }
 
@@ -296,9 +299,15 @@ class SellerSalesController extends GetxController with AppNavigator, FloatingLa
     await onSelectSeller(sellerModel: sellerModel);
     if (!context.mounted) return;
     if (sellerBills.isNotEmpty) {
-      launchFloatingWindow(context: context, floatingScreen: SellerSalesScreen());
+      launchSellerSalesScreen(context);
     } else {
       AppUIUtils.onFailure(' لا توجد فواتير مسجلة لـ ${sellerModel.costName} في هذا التاريخ❌ ');
+    }
+  }
+
+  launchSellerSalesScreen(BuildContext context) {
+    if (sellerBills.isNotEmpty) {
+      launchFloatingWindow(context: context, floatingScreen: SellerSalesScreen());
     }
   }
 

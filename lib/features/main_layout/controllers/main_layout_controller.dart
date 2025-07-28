@@ -1,4 +1,5 @@
 import 'package:ba3_bs_mobile/core/helper/extensions/role_item_type_extension.dart';
+import 'package:ba3_bs_mobile/features/profile/ui/screens/seller_profile.dart';
 import 'package:ba3_bs_mobile/features/users_management/data/models/role_model.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -95,6 +96,12 @@ class MainLayoutController extends GetxController {
         icon: AppAssets.billsIcon,
         unSelectedIcon: AppAssets.billsUnselectedIcon,
       ),
+    AppLayoutItemModel(
+      name: 'لوحة الانجازات',
+      layout: const SellerProfile(),
+      icon: AppAssets.materialIcon,
+      unSelectedIcon: AppAssets.materialUnselectedIcon,
+    ),
     AppLayoutItemModel(
       name: 'الملف الشخصي',
       layout: const ProfileScreen(),

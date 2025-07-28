@@ -435,4 +435,8 @@ class AppStrings {
   static const String userSalaryRatio = 'تقييم الموظف';
 
   static const String userSalary = 'راتب الموظف';
+
+  static const String viewSales = 'عرض المبيعات';
+
+  static const String workInJetourShop = 'دوام محل الجيتور';
 }

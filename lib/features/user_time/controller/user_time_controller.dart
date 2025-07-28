@@ -42,13 +42,28 @@ class UserTimeController extends GetxController {
       )
       .toList();
 
+  List<String>? get userJetourDays => getUserById.userJetourWork
+      ?.toList()
+      .where(
+        (element) => element.split("-")[1] == Timestamp.now().toDate().month.toString().padLeft(2, "0"),
+      )
+      .toList();
+
   List<String>? get userHolidaysWithDay => userHolidays
       ?.map(
         (date) => AppServiceUtils.getDayNameAndMonthName(date),
       )
       .toList();
 
+  List<String>? get userJetourWorkWithDay => userJetourDays
+      ?.map(
+        (date) => AppServiceUtils.getDayNameAndMonthName(date),
+      )
+      .toList();
+
   int get userHolidaysLength => userHolidays?.length ?? 0;
+
+  int get userJetourLength => userJetourWorkWithDay?.length ?? 0;
 
   UserModel get getUserById => read<UserManagementController>().loggedInUserModel!;
 

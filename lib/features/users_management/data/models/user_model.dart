@@ -25,6 +25,7 @@ class UserModel implements PlutoAdaptable {
   final UserWorkStatus? userWorkStatus;
   final UserActiveStatus? userActiveStatus;
   final List<String>? userHolidays;
+  final List<String>? userJetourWork;
   final List<UserTaskModel>? userTaskList;
   final Map<String, UserWorkingHours>? userWorkingHours;
   bool hasGroupTarget;
@@ -56,6 +57,7 @@ class UserModel implements PlutoAdaptable {
     this.groupForTarget,
     this.userSalaryRatio,
     this.userSalary,
+    this.userJetourWork,
     this.hasGroupTarget = false,
     // this.groupTarget,
   });
@@ -79,6 +81,7 @@ class UserModel implements PlutoAdaptable {
       if (userActiveStatus != null) 'userActiveStatus': userActiveStatus?.label,
       if (userWorkStatus != null) 'userWorkStatus': userWorkStatus?.label,
       if (userHolidays != null) 'userHolidays': userHolidays?.toList(),
+      if (userJetourWork != null) 'userJetourWork': userJetourWork?.toList(),
       if (userWorkingHours != null)
         'userWorkingHours': Map.fromEntries(userWorkingHours!.entries.map((e) => MapEntry(e.key, e.value.toJson())).toList()),
       if (userTimeModel != null) "userTime": Map.fromEntries(userTimeModel!.entries.map((e) => MapEntry(e.key, e.value.toJson())).toList()),
@@ -117,6 +120,7 @@ class UserModel implements PlutoAdaptable {
       userSalary: json['userSalary'],
       groupForTarget: MaterialGroupModel.fromJson(json['groupForTarget'] ?? {}),
       userHolidays: List<String>.from(json['userHolidays'] ?? []),
+      userJetourWork: List<String>.from(json['userJetourWork'] ?? []),
       userWorkingHours: userDailyTime,
       userWorkStatus: UserWorkStatus.byLabel(json['userWorkStatus'] ?? UserWorkStatus.away.label),
       userActiveStatus: json['userActiveStatus'] != null ? UserActiveStatus.byLabel(json['userActiveStatus']) : UserActiveStatus.inactive,
@@ -136,6 +140,7 @@ class UserModel implements PlutoAdaptable {
     final UserWorkStatus? userWorkStatus,
     final UserActiveStatus? userActiveStatus,
     final List<String>? userHolidays,
+    final List<String>? userJetourWork,
     final List<UserTaskModel>? userTaskList,
     final Map<String, UserTimeModel>? userTimeModel,
     final Map<String, UserWorkingHours>? userWorkingHours,
@@ -156,6 +161,7 @@ class UserModel implements PlutoAdaptable {
         userWorkStatus: userWorkStatus ?? this.userWorkStatus,
         userActiveStatus: userActiveStatus ?? this.userActiveStatus,
         userHolidays: userHolidays ?? this.userHolidays,
+        userJetourWork: userJetourWork ?? this.userJetourWork,
         userWorkingHours: userWorkingHours ?? this.userWorkingHours,
         loginDelay: loginDelay ?? this.loginDelay,
         logoutDelay: logoutDelay ?? this.logoutDelay,
@@ -240,6 +246,19 @@ class UserModel implements PlutoAdaptable {
         textAlign: PlutoColumnTextAlign.center,
         type: PlutoColumnType.text(),
       ): userHolidays?.where((date) => date.split("-")[1] == DateTime.now().month.toString().padLeft(2, '0')).toList().join(" , "),
+      PlutoColumn(
+        title: AppStrings.workInJetourShop.tr,
+        field: 'دوام محل الجيتور',
+        width: 400,
+        renderer: (context) => Center(
+          child: Text(
+            context.cell.value.toString(),
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+          ),
+        ),
+        textAlign: PlutoColumnTextAlign.center,
+        type: PlutoColumnType.text(),
+      ): userJetourWork?.where((date) => date.split("-")[1] == DateTime.now().month.toString().padLeft(2, '0')).toList().join(" , "),
       PlutoColumn(
         title: AppStrings.status.tr,
         field: 'الحالة',
