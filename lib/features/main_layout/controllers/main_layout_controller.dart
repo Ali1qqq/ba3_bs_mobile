@@ -33,56 +33,56 @@ class MainLayoutController extends GetxController {
         icon: AppAssets.dashBoardIcon,
         unSelectedIcon: AppAssets.dashBoardUnselectedIcon,
       ),
-    if (RoleItemType.viewBill.hasAdminPermission)
+    if (RoleItemType.administrator.hasReadPermission)
       AppLayoutItemModel(
         name: 'الفواتير',
         layout: const BillLayout(),
         icon: AppAssets.billsIcon,
         unSelectedIcon: AppAssets.billsUnselectedIcon,
       ),
-    if (RoleItemType.viewPattern.hasReadPermission)
+    if (RoleItemType.administrator.hasReadPermission)
       AppLayoutItemModel(
         name: 'الأنماط',
         layout: const PatternLayout(),
         icon: AppAssets.patternsIcon,
         unSelectedIcon: AppAssets.patternsUnselectedIcon,
       ),
-    if (RoleItemType.viewProduct.hasAdminPermission)
+    if (RoleItemType.administrator.hasReadPermission)
       AppLayoutItemModel(
         name: 'المواد',
         layout: const MaterialLayout(),
         icon: AppAssets.materialIcon,
         unSelectedIcon: AppAssets.materialUnselectedIcon,
       ),
-    if (RoleItemType.viewAccount.hasReadPermission)
+    if (RoleItemType.administrator.hasReadPermission)
       AppLayoutItemModel(
         name: 'الحسابات',
         layout: const AccountLayout(),
         icon: AppAssets.accountsIcon,
         unSelectedIcon: AppAssets.accountsUnselectedIcon,
       ),
-    if (RoleItemType.viewBond.hasReadPermission)
+    if (RoleItemType.administrator.hasReadPermission)
       AppLayoutItemModel(
         name: 'السندات',
         layout: const BondLayout(),
         icon: AppAssets.bondsIcon,
         unSelectedIcon: AppAssets.bondsUnselectedIcon,
       ),
-    if (RoleItemType.viewCheques.hasReadPermission)
+    if (RoleItemType.administrator.hasReadPermission)
       AppLayoutItemModel(
         name: 'الشيكات',
         layout: const ChequeLayout(),
         icon: AppAssets.chequesIcon,
         unSelectedIcon: AppAssets.chequesUnselectedIcon,
       ),
-    if (RoleItemType.viewSellers.hasAdminPermission)
+    if (RoleItemType.administrator.hasReadPermission)
       AppLayoutItemModel(
         name: 'البائعون',
         layout: const SellersLayout(),
         icon: AppAssets.accountsIcon,
         unSelectedIcon: AppAssets.accountsUnselectedIcon,
       ),
-    if (RoleItemType.viewUserManagement.hasAdminPermission)
+    if (RoleItemType.administrator.hasReadPermission)
       AppLayoutItemModel(
         name: 'إدارة المستخدمين',
         layout: const UserManagementLayout(),

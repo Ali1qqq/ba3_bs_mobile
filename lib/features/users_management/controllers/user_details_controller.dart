@@ -9,7 +9,6 @@ import '../../../core/helper/extensions/getx_controller_extensions.dart';
 import '../../../core/network/error/failure.dart';
 import '../../../core/services/firebase/implementations/repos/filterable_datasource_repo.dart';
 import '../../../core/utils/app_ui_utils.dart';
-import '../../changes/controller/changes_controller.dart';
 import '../data/models/user_model.dart';
 import '../services/role_form_handler.dart';
 import '../services/user_form_handler.dart';
@@ -140,13 +139,17 @@ class UserDetailsController extends GetxController {
     // Check if the user was newly saved
     final isSaved = selectedUserModel == null;
     if (isSaved) {
+/*
       _createChangeDocument(userModel.userId!);
+*/
     }
     update();
   }
 
   // Call the ChangesController to create the document
+/*
   Future<void> _createChangeDocument(String userId) async => await read<ChangesController>().createChangeDocument(userId);
+*/
 
   void initUserFormHandler(UserModel? user) {
     userFormHandler.init(user);

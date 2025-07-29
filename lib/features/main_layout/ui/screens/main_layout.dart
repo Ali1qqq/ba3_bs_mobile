@@ -4,11 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../../../core/helper/extensions/getx_controller_extensions.dart';
-import '../../../../core/services/firebase/implementations/repos/listen_datasource_repo.dart';
 import '../../../../core/styling/app_colors.dart';
 import '../../../../core/styling/app_text_style.dart';
-import '../../../changes/controller/changes_controller.dart';
-import '../../../changes/data/model/changes_model.dart';
 import '../widgets/left_main_widget.dart';
 
 class MainLayout extends StatelessWidget {
@@ -17,7 +14,9 @@ class MainLayout extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     put(MainLayoutController());
+/*
     put(ChangesController(read<ListenDataSourceRepository<ChangesModel>>()), permanent: true);
+*/
 
     return SafeArea(
       child: GetBuilder<MainLayoutController>(builder: (mainController) {
