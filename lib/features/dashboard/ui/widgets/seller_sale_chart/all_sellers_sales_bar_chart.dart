@@ -21,6 +21,7 @@ class AllSellersSalesBarChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    DateTime? lastTapTime;
     return Obx(() {
       return controller.sellerBillsRequest.value == RequestState.loading
           ? Shimmer.fromColors(
@@ -54,11 +55,27 @@ class AllSellersSalesBarChart extends StatelessWidget {
                     barTouchData: BarTouchData(
                       handleBuiltInTouches: true,
                       touchCallback: (FlTouchEvent event, BarTouchResponse? response) {
-                        // هنا ننتظر بداية الـ long press
+                        /*      // هنا ننتظر بداية الـ long press
                         if (event is FlLongPressStart) {
                           final x = response?.spot?.touchedBarGroup.x;
                           if (x != null) {
                             controller.lunchSellerScree(context, x.toInt());
+                          }
+                        }*/
+
+                        if (event is FlTapDownEvent) {
+                          final now = DateTime.now();
+
+                          if (lastTapTime == null || now.difference(lastTapTime!) > Duration(milliseconds: 300)) {
+                            // أول ضغطة
+                            lastTapTime = now;
+                          } else {
+                            // دبل تاب
+                            final x = response?.spot?.touchedBarGroup.x;
+                            if (x != null) {
+                              controller.lunchSellerScree(context, x.toInt());
+                            }
+                            lastTapTime = null; // نعيد التعيين
                           }
                         }
                       },

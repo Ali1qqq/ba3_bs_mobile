@@ -5,6 +5,7 @@ import 'package:ba3_bs_mobile/features/user_task/data/model/user_task_model.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
+import '../../../../core/helper/enums/enums.dart';
 import '../../../../core/styling/app_text_style.dart';
 
 class TaskListExpansionTile extends StatelessWidget {
@@ -21,6 +22,8 @@ class TaskListExpansionTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final generalTaskList = taskList.where((element) => element.taskType == TaskType.generalTask).toList();
+    final saleTaskList = taskList.where((element) => element.taskType == TaskType.saleTask).toList();
     return Container(
       margin: EdgeInsets.symmetric(vertical: 4.h),
       decoration: BoxDecoration(
@@ -44,28 +47,61 @@ class TaskListExpansionTile extends StatelessWidget {
           style: AppTextStyles.headLineStyle3.copyWith(color: Colors.black),
         ),
         children: [
-          for (int i = 0; i < taskList.length; i++) ...[
+          for (int i = 0; i < generalTaskList.length; i++) ...[
             ListTile(
-              onTap: () => onTap(taskList[i]),
+              onTap: () => onTap(generalTaskList[i]),
               title: Text(
-                taskList[i].title ?? '',
+                generalTaskList[i].title ?? '',
+                style: AppTextStyles.headLineStyle3,
+                maxLines: 3,
+              ),
+              // subtitle: Text(
+              //   "اخر تاريخ للمهمة ${taskList[i].dueDate?.dayMonthYear ?? ''}",
+              //   style: TextStyle(color: Colors.red),
+              // ),
+              // trailing: Column(
+              //   mainAxisAlignment: MainAxisAlignment.center,
+              //   children: [
+              //     Text(taskList[i].taskType?.label ?? ''),
+              //     Text(
+              //       taskList[i].status?.value ?? '',
+              //       style: AppTextStyles.headLineStyle4.copyWith(
+              //         color: taskList[i].status != null
+              //             ? (taskList[i].status!.isFailed
+              //                 ? Colors.red
+              //                 : taskList[i].status!.isInProgress
+              //                     ? Colors.green
+              //                     : AppColors.mobileSaleColor)
+              //             : Colors.black,
+              //       ),
+              //     ),
+              //   ],
+              // ),
+            ),
+            Divider(height: 1, thickness: 1)
+          ],
+          for (int i = 0; i < saleTaskList.length; i++) ...[
+            ListTile(
+              onTap: () => onTap(saleTaskList[i]),
+              title: Text(
+                saleTaskList[i].title ?? '',
                 style: AppTextStyles.headLineStyle3,
               ),
               subtitle: Text(
-                "اخر تاريخ للمهمة ${taskList[i].dueDate?.dayMonthYear ?? ''}",
+                "اخر تاريخ للمهمة ${saleTaskList[i].dueDate?.dayMonthYear ?? ''}",
                 style: TextStyle(color: Colors.red),
               ),
               trailing: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(taskList[i].taskType?.label ?? ''),
+                  Text(saleTaskList[i].taskType?.label ?? ''),
                   Text(
-                    taskList[i].status?.value ?? '',
+                    saleTaskList[i].status?.value ?? '',
                     style: AppTextStyles.headLineStyle4.copyWith(
-                      color: taskList[i].status != null
-                          ? (taskList[i].status!.isFailed
+                      color: saleTaskList[i].status != null
+                          ? (saleTaskList[i].status!.isFailed
                               ? Colors.red
-                              : taskList[i].status!.isInProgress
+                              : saleTaskList[i].status!.isInProgress
                                   ? Colors.green
                                   : AppColors.mobileSaleColor)
                           : Colors.black,
@@ -74,6 +110,7 @@ class TaskListExpansionTile extends StatelessWidget {
                 ],
               ),
             ),
+
             // إضافة فاصل بين العناصر فقط، دون فاصل في البداية أو النهاية
             if (i < taskList.length - 1) Divider(height: 1, thickness: 1),
           ]

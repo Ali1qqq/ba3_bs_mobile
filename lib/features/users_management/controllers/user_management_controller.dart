@@ -487,7 +487,7 @@ class UserManagementController extends GetxController with AppNavigator, Firesto
 
   void updateGeneralTask({required UserTaskModel task}) async {
     if (image != null) {
-      final imageUrl = await read<AllTaskController>().uploadImageTask(image!.path);
+      final imageUrl = await read<AllTaskController>().uploadImageTask(image!.path, "task/${task.docId}");
 
       final updatedTask = task.copyWith(status: TaskStatus.done, endedAt: DateTime.now(), taskImage: imageUrl);
       final updatedTaskList = [...loggedInUserModel!.userTaskList!.where((element) => element.docId != updatedTask.docId), updatedTask];

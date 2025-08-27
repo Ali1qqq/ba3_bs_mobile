@@ -23,7 +23,7 @@ class SellerSalesScreen extends StatelessWidget {
           // title: '${AppStrings.bills.tr} ${controller.selectedSeller!.costName}',
           appBar: _buildAppBar(context, controller),
           onLoaded: (e) {},
-          rightChild: SizedBox(width: 0.23.sw, child: UserTargets(salesController: controller)),
+          rightChild: SizedBox(width: 0.4.sw, child: UserTargets(salesController: controller)),
           onSelected: (event) {
             final billId = event.row?.cells[AppConstants.billIdFiled]?.value;
             // print( (billTypeName as Map<String,dynamic>));

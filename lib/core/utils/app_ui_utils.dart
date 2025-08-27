@@ -512,7 +512,25 @@ class AppUIUtils {
       width: 1.sw,
       height: 1.sh,
       content: InteractiveViewer(
-        child: Image.network(imagePath, fit: BoxFit.contain),
+        child: Image.network(
+          imagePath,
+          fit: BoxFit.contain,
+          loadingBuilder: (context, child, loadingProgress) {
+            if (loadingProgress == null) return child;
+            return Center(
+              child: CircularProgressIndicator(
+                value: loadingProgress.expectedTotalBytes != null
+                    ? loadingProgress.cumulativeBytesLoaded / (loadingProgress.expectedTotalBytes ?? 1)
+                    : null,
+              ),
+            );
+          },
+          errorBuilder: (context, error, stackTrace) {
+            return const Center(
+              child: Icon(Icons.broken_image, size: 60, color: Colors.grey),
+            );
+          },
+        ),
       ),
     );
   }

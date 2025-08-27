@@ -69,6 +69,7 @@ dependencies:
   pool: ^1.5.1
   flutter_advanced_switch: ^3.1.0
   vector_math: ^2.1.4
+  firebase_storage: ^12.4.10
 
 
 dev_dependencies:

@@ -18,66 +18,68 @@ class UserTargets extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      spacing: 25,
-      children: [
-        Column(
-          spacing: 10,
-          children: [
-            Text(
-              AppStrings.mobileTarget.tr,
-              style: TextStyle(fontSize: 22),
-            ),
-            Container(
-                color: Colors.red,
-                width: 1.sw,
-                height: height ?? 400,
-                child: TargetPointerWidget(
-                  maxValue: 350000,
-                  midValue: 250000,
-                  minValue: 150000,
-                  value: salesController.totalMobilesSales,
-                )),
-          ],
-        ),
-        Column(
-          spacing: 10,
-          children: [
-            Text(
-              AppStrings.accessoriesTarget.tr,
-              style: TextStyle(fontSize: 22),
-            ),
-            SizedBox(
-                width: 1.sw,
-                height: height ?? 400,
-                child: TargetPointerWidget(
-                  maxValue: 200000,
-                  midValue: 150000,
-                  minValue: 75000,
-                  value: salesController.totalAccessoriesSales,
-                )),
-            if (salesController.loggedInUserModel!.hasGroupTarget)
-              Column(
-                spacing: 10,
-                children: [
-                  Text(
-                    AppStrings.groupForTarget.tr,
-                    style: TextStyle(fontSize: 22),
-                  ),
-                  SizedBox(
-                      width: 1.sw,
-                      height: height ?? 400,
-                      child: TargetPointerWidget(
-                        maxValue: 60000,
-                        midValue: 45000,
-                        minValue: 30000,
-                        value: salesController.totalGroupSales,
-                      )),
-                ],
+    return SingleChildScrollView(
+      child: Column(
+        spacing: 25,
+        children: [
+          Column(
+            spacing: 10,
+            children: [
+              Text(
+                AppStrings.mobileTarget.tr,
+                style: TextStyle(fontSize: 22),
               ),
-          ],
-        ),
-      ],
+              Container(
+                  color: Colors.red,
+                  width: 1.sw,
+                  height: height ?? 400,
+                  child: TargetPointerWidget(
+                    maxValue: 350000,
+                    midValue: 250000,
+                    minValue: 150000,
+                    value: salesController.totalMobilesSales,
+                  )),
+            ],
+          ),
+          Column(
+            spacing: 10,
+            children: [
+              Text(
+                AppStrings.accessoriesTarget.tr,
+                style: TextStyle(fontSize: 22),
+              ),
+              SizedBox(
+                  width: 1.sw,
+                  height: height ?? 400,
+                  child: TargetPointerWidget(
+                    maxValue: 200000,
+                    midValue: 150000,
+                    minValue: 75000,
+                    value: salesController.totalAccessoriesSales,
+                  )),
+              if (salesController.loggedInUserModel!.hasGroupTarget)
+                Column(
+                  spacing: 10,
+                  children: [
+                    Text(
+                      AppStrings.groupForTarget.tr,
+                      style: TextStyle(fontSize: 22),
+                    ),
+                    SizedBox(
+                        width: 1.sw,
+                        height: height ?? 400,
+                        child: TargetPointerWidget(
+                          maxValue: 60000,
+                          midValue: 45000,
+                          minValue: 30000,
+                          value: salesController.totalGroupSales,
+                        )),
+                  ],
+                ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 }

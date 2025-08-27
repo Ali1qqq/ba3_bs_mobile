@@ -95,14 +95,17 @@ extension TimeParsing on String {
 }
 
 extension NumberFormatting on String {
-  String formatNumber({int decimalPlaces = 2}) {
-    double? number = double.tryParse(this);
+  String formatNumber() {
+    final number = double.tryParse(this);
 
     if (number == null || number.isNaN || number.isInfinite) {
-      return "0"; // ضمان عدم إرجاع NaN أو قيم غير صحيحة
+      return "0.00"; // لو القيمة مش رقم
     }
 
-    final formatter = NumberFormat("#,##0.${'0' * decimalPlaces}", "en_US");
+    final formatter = NumberFormat("#,##0.00", "en");
+    // "en" = 1,234,567.89
+    // إذا بدك أرقام عربية غيّرها لـ "ar"
+
     return formatter.format(number);
   }
 }

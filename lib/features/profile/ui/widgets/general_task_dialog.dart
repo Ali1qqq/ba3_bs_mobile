@@ -1,3 +1,43 @@
+import 'package:ba3_bs_mobile/core/constants/app_strings.dart';
+import 'package:ba3_bs_mobile/features/user_task/data/model/user_task_model.dart';
+import 'package:ba3_bs_mobile/features/users_management/controllers/user_management_controller.dart';
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+
+import '../../../../core/styling/app_text_style.dart';
+
+class GeneralTaskDialog extends StatelessWidget {
+  final UserTaskModel task;
+
+  const GeneralTaskDialog({super.key, required this.task});
+
+  @override
+  Widget build(BuildContext context) {
+    return GetBuilder<UserManagementController>(builder: (userManagementController) {
+      return Column(
+        children: [
+          Center(
+              child: Text(
+            AppStrings.taskDescription,
+            style: AppTextStyles.headLineStyle1,
+          )),
+          Spacer(),
+          Container(
+              height: 370,
+              color: Colors.white,
+              alignment: Alignment.center,
+              child: Text(
+                task.title.toString(),
+                style: AppTextStyles.headLineStyle1,
+                maxLines: 10,
+              )),
+          Spacer(),
+        ],
+      );
+    });
+  }
+}
+/*
 import 'dart:io';
 
 import 'package:ba3_bs_mobile/core/constants/app_assets.dart';
@@ -97,4 +137,4 @@ class GeneralTaskDialog extends StatelessWidget {
       );
     });
   }
-}
+}*/

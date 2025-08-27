@@ -214,12 +214,14 @@ class MaterialTaskModel {
   String? materialName;
   int? quantity;
   int? quantityInTask;
+  String? materialBarcode;
 
   MaterialTaskModel({
     this.docId,
     this.materialName,
     this.quantity,
     this.quantityInTask,
+    this.materialBarcode,
   });
 
   Map<String, dynamic> toJson() {
@@ -228,6 +230,7 @@ class MaterialTaskModel {
       'materialName': materialName,
       'quantity': quantity,
       'quantityInTask': quantityInTask,
+      'materialBarcode': materialBarcode,
     };
   }
 
@@ -235,6 +238,7 @@ class MaterialTaskModel {
     return MaterialTaskModel(
       docId: json['docId'] as String?,
       materialName: json['materialName'] as String?,
+      materialBarcode: json['materialBarcode'] as String?,
       quantity: json['quantity'] as int?,
       quantityInTask: json['quantityInTask'] as int?,
     );
@@ -243,6 +247,7 @@ class MaterialTaskModel {
   MaterialTaskModel copyWith({
     String? docId,
     String? materialName,
+    String? materialBarcode,
     int? quantity,
     int? quantityInTask,
   }) {
@@ -251,6 +256,7 @@ class MaterialTaskModel {
       materialName: materialName ?? this.materialName,
       quantity: quantity ?? this.quantity,
       quantityInTask: quantityInTask ?? this.quantityInTask,
+      materialBarcode: materialBarcode ?? this.materialBarcode,
     );
   }
 

@@ -13,6 +13,7 @@ import 'package:ba3_bs_mobile/features/users_management/controllers/user_managem
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:pluto_grid/pluto_grid.dart';
 
 import '../../../core/constants/app_constants.dart';
@@ -337,14 +338,26 @@ class AllTaskController extends GetxController with FloatingLauncher {
     );
   }
 
-  Future<String> uploadImageTask(String imagePath) async {
+  Future<String> uploadImageTask(String imagePath, String imageName) async {
     String imgUrl = '';
-    final result = await _userTaskRepo.uploadImage(imagePath);
+    final result = await _userTaskRepo.uploadImage(imagePath, imageName);
 
     result.fold((failure) => AppUIUtils.onFailure(failure.message), (imageUrl) async {
       imgUrl = imageUrl;
     });
+    image = null;
     return imgUrl;
+  }
+
+  XFile? image;
+  final ImagePicker _picker = ImagePicker();
+
+  Future<void> pickImage() async {
+    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      image = pickedFile;
+      update();
+    }
   }
 
   void uploadDateTask({required UserTaskModel task, required DateTime date, required TaskStatus status}) async {

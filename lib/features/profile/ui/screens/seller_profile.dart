@@ -56,17 +56,17 @@ class SellerProfile extends StatelessWidget {
                           label: AppStrings.totalSales.tr,
                           value: (salesController.totalAccessoriesSales + salesController.totalMobilesSales).toString(),
                         ),
-                        ProfileInfoRowWidget(
-                          label: AppStrings.groupForTarget.tr,
-                          value: controller.loggedInUserModel!.hasGroupTarget
-                              ? controller.loggedInUserModel!.groupForTarget!.groupName
-                              : 'لا يوجد',
-                        ),
+                        // ProfileInfoRowWidget(
+                        //   label: AppStrings.groupForTarget.tr,
+                        //   value: controller.loggedInUserModel!.hasGroupTarget
+                        //       ? controller.loggedInUserModel!.groupForTarget!.groupName
+                        //       : 'لا يوجد',
+                        // ),
                         TaskListExpansionTile(
                           taskList: controller.allTaskList,
                           onTap: (task) {
                             OverlayService.showDialog(
-                              height: 460,
+                              height: 500,
                               context: context,
                               content: TaskDialogFactory.getStrategy(task.taskType!).buildDialog(task),
                             );
@@ -77,7 +77,7 @@ class SellerProfile extends StatelessWidget {
                           taskList: controller.allTaskListDone,
                           onTap: (task) {
                             OverlayService.showDialog(
-                              height: 460,
+                              height: 500,
                               context: context,
                               content: TaskDialogFactory.getStrategy(task.taskType!).buildDialog(task),
                             );

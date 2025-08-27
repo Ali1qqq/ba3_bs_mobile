@@ -97,6 +97,7 @@ import '../services/firebase/implementations/repos/listen_datasource_repo.dart';
 import '../services/firebase/implementations/repos/remote_datasource_repo.dart';
 import '../services/firebase/implementations/repos/uploader_storage_queryable_repo.dart';
 import '../services/firebase/interfaces/i_compound_database_service.dart';
+import '../services/firebase/interfaces/i_remote_storage_service.dart';
 import '../services/json_file_operations/interfaces/export/i_export_service.dart';
 import '../services/json_file_operations/interfaces/import/i_import_service.dart';
 import '../services/local_database/implementations/repos/local_datasource_repo.dart';
@@ -117,7 +118,7 @@ class AppBindings extends Bindings {
 
     final ICompoundDatabaseService<Map<String, dynamic>> compoundFireStoreService = read<ICompoundDatabaseService<Map<String, dynamic>>>();
 
-    // final IRemoteStorageService<String> remoteStorageService = read<IRemoteStorageService<String>>();
+    final IRemoteStorageService<String> remoteStorageService = read<IRemoteStorageService<String>>();
 
     // final rolesRepo = RemoteDataSourceRepository(RolesDatasource(databaseService: fireStoreService));
     //
@@ -159,7 +160,7 @@ class AppBindings extends Bindings {
     final repositories = _initializeRepositories(
       remoteDatabaseService: fireStoreService,
       remoteCompoundDataBaseService: compoundFireStoreService,
-      //  remoteStorageService: remoteStorageService,
+      remoteStorageService: remoteStorageService,
       translationService: translationService,
       billImportService: billImport,
       billExportService: billExport,
@@ -204,7 +205,7 @@ class AppBindings extends Bindings {
   _Repositories _initializeRepositories({
     required IRemoteDatabaseService<Map<String, dynamic>> remoteDatabaseService,
     required ICompoundDatabaseService<Map<String, dynamic>> remoteCompoundDataBaseService,
-    // required IRemoteStorageService<String> remoteStorageService,
+    required IRemoteStorageService<String> remoteStorageService,
     required ITranslationService translationService,
     required IImportService<BillModel> billImportService,
     required IExportService<BillModel> billExportService,
@@ -262,11 +263,11 @@ class AppBindings extends Bindings {
         remoteDatasource: RemoteDashboardDataSource(databaseService: remoteDatabaseService),
       ),
 
-      // tasksRepo: UploaderStorageQueryableRepo(
-      //   UserTaskDataSource(databaseService: remoteDatabaseService, databaseStorageService: remoteStorageService),
-      // ),
+      tasksRepo: UploaderStorageQueryableRepo(
+        UserTaskDataSource(databaseService: remoteDatabaseService, databaseStorageService: remoteStorageService),
+      ),
 
-      tasksRepo: UploaderStorageQueryableRepo(UserTaskDataSource(databaseService: remoteDatabaseService)),
+      // tasksRepo: UploaderStorageQueryableRepo(UserTaskDataSource(databaseService: remoteDatabaseService)),
 
       logsRepo: FilterableDataSourceRepository(LogDataSource(databaseService: remoteDatabaseService)),
     );

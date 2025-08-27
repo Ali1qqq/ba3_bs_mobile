@@ -17,8 +17,10 @@ import 'package:ba3_bs_mobile/features/materials/service/material_service.dart';
 import 'package:ba3_bs_mobile/features/materials/ui/screens/all_materials_screen.dart';
 import 'package:ba3_bs_mobile/features/users_management/controllers/user_management_controller.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:logger/logger.dart';
 
 import '../../../core/helper/enums/enums.dart';
@@ -29,6 +31,7 @@ import '../../../core/services/firebase/implementations/repos/queryable_savable_
 import '../../../core/services/firebase/implementations/services/firestore_uploader.dart';
 import '../../../core/utils/app_service_utils.dart';
 import '../../../core/utils/app_ui_utils.dart';
+import '../../user_task/controller/all_task_controller.dart';
 import '../data/models/materials/material_model.dart';
 import '../ui/screens/add_material_screen.dart';
 
@@ -423,7 +426,9 @@ class MaterialController extends GetxController with AppNavigator, FloatingLaunc
 
   void _onSaveSuccess(MaterialModel materialModel, {required ChangeType changeType, bool withReloadMaterial = true}) async {
     if (withReloadMaterial) reloadMaterials();
-
+    if (image != null) {
+      uploadImageTask(materialModel.id!);
+    }
     // Prepare user change queue for saving
     final userChangeQueue = _prepareUserChangeQueue(materialModel, changeType);
 
@@ -581,6 +586,42 @@ class MaterialController extends GetxController with AppNavigator, FloatingLaunc
       materialFromHandler.init(mat.copyWith(matName: mat.matName!.encodeProblematic()));
       await saveOrUpdateMaterial();
       log('mat number ${++i}');
+    }
+  }
+
+  final FirebaseStorage _storage = FirebaseStorage.instance;
+
+  Future<String> uploadImageTask(
+    String imageName,
+  ) async {
+    String imgUrl = await read<AllTaskController>().uploadImageTask(image!.path, "materialImage/$imageName");
+
+    return imgUrl;
+  }
+
+  XFile? image;
+  final ImagePicker _picker = ImagePicker();
+
+  Future<void> pickImage() async {
+    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      image = pickedFile;
+      update();
+    }
+  }
+
+  Future<String?> getMaterialImageById({required String matId}) async {
+    try {
+      // 👈 موقع الصورة بالمجلد
+      final ref = _storage.ref().child("materialImage/$matId.jpg");
+      log(ref.toString(), name: 'ref');
+      // 👈 جلب رابط التحميل
+      final url = await ref.getDownloadURL();
+      return url;
+    } catch (e) {
+      // إذا ما لقى الصورة أو صار خطأ
+      log("Error getting image for $matId: $e");
+      return null;
     }
   }
 }
