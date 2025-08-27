@@ -4,38 +4,95 @@ import 'package:ba3_bs_mobile/core/utils/app_service_utils.dart';
 import 'package:ba3_bs_mobile/features/accounts/controllers/accounts_controller.dart';
 import 'package:ba3_bs_mobile/features/pluto/data/models/pluto_adaptable.dart';
 import 'package:get/get.dart';
+import 'package:hive/hive.dart';
 import 'package:pluto_grid/pluto_grid.dart';
 
 import '../../../../core/helper/extensions/getx_controller_extensions.dart';
 import '../../../../core/widgets/pluto_auto_id_column.dart';
 
+part 'account_model.g.dart';
+
+@HiveType(typeId: 10)
 class AccountModel implements PlutoAdaptable {
+  @HiveField(0)
   final String? id;
+
+  @HiveField(1)
   final String? accName;
+
+  @HiveField(2)
   final String? accLatinName;
+
+  @HiveField(3)
   final String? accCode;
+
+  @HiveField(4)
   final DateTime? accCDate;
+
+  @HiveField(5)
   final DateTime? accCheckDate;
+
+  @HiveField(6)
   final String? accParentGuid;
+
+  @HiveField(7)
   final String? accParentName;
+
+  @HiveField(8)
   final String? accFinalGuid;
+
+  @HiveField(9)
   final int? accAccNSons;
+
+  @HiveField(10)
   final double? accInitDebit;
+
+  @HiveField(11)
   final double? accInitCredit;
+
+  @HiveField(12)
   final double? maxDebit;
+
+  @HiveField(13)
   final int? accWarn;
+
+  @HiveField(14)
   final String? note;
+
+  @HiveField(15)
   final int? accCurVal;
+
+  @HiveField(16)
   final String? accCurGuid;
+
+  @HiveField(17)
   final int? accSecurity;
+
+  @HiveField(18)
   final int? accDebitOrCredit;
+
+  @HiveField(19)
   final int? accType;
+
+  @HiveField(20)
   final int? accState;
+
+  @HiveField(21)
   final int? accIsChangableRatio;
+
+  @HiveField(22)
   final String? accBranchGuid;
+
+  @HiveField(23)
   final int? accNumber;
+
+  @HiveField(24)
   final int? accBranchMask;
+
+  @HiveField(25)
   final List<String>? accCustomer;
+  @HiveField(26)
+  final bool? requiredRequestNumber;
 
   // final List<String>? billsId;
 
@@ -67,6 +124,7 @@ class AccountModel implements PlutoAdaptable {
     // this.billsId,
     this.accParentName,
     this.accCustomer,
+    this.requiredRequestNumber,
   });
 
   factory AccountModel.fromJson(Map<String, dynamic> json) {
@@ -79,7 +137,8 @@ class AccountModel implements PlutoAdaptable {
       accCheckDate: json['AccCheckDate'] == null ? null : DateTime.tryParse(json['AccCheckDate']),
       accParentGuid: json['AccParentGuid'] ?? '',
       accFinalGuid: json['AccFinalGuid'] ?? '',
-      // accAccNSons: json['AccAccNSons']??0,
+      accAccNSons: json['AccAccNSons'] ?? 0,
+      requiredRequestNumber: json['requiredRequestNumber'] ?? false,
       // accInitDebit: (json['AccInitDebit'] as num?)?.toDouble(),
       // accInitCredit: (json['AccInitCredit'] as num?)?.toDouble(),
       // maxDebit: (json['MaxDebit'] as num?)?.toDouble(),
@@ -107,7 +166,7 @@ class AccountModel implements PlutoAdaptable {
       'AccName': accName,
       'AccLatinName': accLatinName,
       'AccCode': accCode,
-      'AccCDate': accCDate?.toIso8601String() ?? DateTime.now(),
+      'AccCDate': (accCDate ?? DateTime.now()).toIso8601String(),
       'AccCheckDate': accCheckDate?.toIso8601String(),
       'AccParentGuid': accParentGuid,
       'AccFinalGuid': accFinalGuid,
@@ -129,6 +188,7 @@ class AccountModel implements PlutoAdaptable {
       'AccBranchMask': accBranchMask,
       'accParentName': accParentName,
       'accCustomer': accCustomer,
+      'requiredRequestNumber': requiredRequestNumber,
       // 'billsId': billsId?.toList() ?? [],
     };
   }
@@ -169,6 +229,7 @@ class AccountModel implements PlutoAdaptable {
     String? accParentName,
     int? accNumber,
     int? accBranchMask,
+    bool? requiredRequestNumber,
     List<String>? accCustomer,
   }) {
     return AccountModel(
@@ -198,15 +259,17 @@ class AccountModel implements PlutoAdaptable {
       accBranchMask: accBranchMask ?? this.accBranchMask,
       accParentName: accParentName ?? this.accParentName,
       accCustomer: accCustomer ?? this.accCustomer,
+      requiredRequestNumber: requiredRequestNumber ?? this.requiredRequestNumber,
     );
   }
 
   @override
   Map<PlutoColumn, dynamic> toPlutoGridFormat([type]) {
     return {
-      PlutoColumn(field: AppStrings.identificationNumber.tr, type: PlutoColumnType.text(), title: AppConstants.accountIdFiled, hide: true):
+      PlutoColumn(field: AppConstants.accountIdFiled, type: PlutoColumnType.text(), title: AppStrings.identificationNumber.tr, hide: true):
           id,
       createAutoIdColumn(): '#',
+      createCheckColumn(): '',
       PlutoColumn(title: AppStrings.accountNumber.tr, type: PlutoColumnType.text(), field: 'رقم الحساب', width: 180): accNumber,
       PlutoColumn(title: AppStrings.accountCode.tr, type: PlutoColumnType.text(), field: 'رمز الحساب', width: 180): accCode,
       PlutoColumn(title: AppStrings.accountName.tr, type: PlutoColumnType.text(), field: 'اسم الحساب'): accName,
@@ -215,7 +278,7 @@ class AccountModel implements PlutoAdaptable {
           AppServiceUtils.getAccountType(accType),
       PlutoColumn(title: AppStrings.fatherAccount.tr, type: PlutoColumnType.text(), field: 'حساب الاب'): accParentName,
       PlutoColumn(title: AppStrings.children.tr, type: PlutoColumnType.text(), field: 'الاولاد'):
-          read<AccountsController>().getAccountChildren(id).join(' , '),
+          read<AccountsController>().getAccountChildrenNames(id).join(' , '),
       PlutoColumn(title: AppStrings.customers.tr, type: PlutoColumnType.text(), field: 'الزبائن'): accCustomer?.toList().join(' , '),
     };
   }

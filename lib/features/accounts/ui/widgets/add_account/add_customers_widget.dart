@@ -114,7 +114,7 @@ class AddCustomersWidget extends StatelessWidget {
                         VerticalSpace(20),
                         OutlinedButton(
                           onPressed: () {
-                            controller.addNewCustomer();
+                            controller.addNewCustomer(context);
                           },
                           child: Text(
                             AppStrings.save.tr,

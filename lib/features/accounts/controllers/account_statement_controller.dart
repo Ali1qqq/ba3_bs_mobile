@@ -4,18 +4,19 @@ import 'package:ba3_bs_mobile/core/helper/enums/enums.dart';
 import 'package:ba3_bs_mobile/core/helper/extensions/basic/list_extensions.dart';
 import 'package:ba3_bs_mobile/core/helper/extensions/basic/string_extension.dart';
 import 'package:ba3_bs_mobile/core/helper/extensions/getx_controller_extensions.dart';
+import 'package:ba3_bs_mobile/core/models/date_filter.dart';
 import 'package:ba3_bs_mobile/core/router/app_routes.dart';
 import 'package:ba3_bs_mobile/core/utils/app_ui_utils.dart';
 import 'package:ba3_bs_mobile/features/accounts/controllers/accounts_controller.dart';
+import 'package:ba3_bs_mobile/features/accounts/ui/screens/account_statement_screen.dart';
 import 'package:ba3_bs_mobile/features/accounts/use_cases/group_accounts_by_final_category_use_case.dart';
 import 'package:ba3_bs_mobile/features/bond/controllers/entry_bond/entry_bond_controller.dart';
-import 'package:dartz/dartz.dart' show Either;
+import 'package:dartz/dartz.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../../core/helper/mixin/app_navigator.dart';
 import '../../../core/helper/mixin/floating_launcher.dart';
-import '../../../core/models/date_filter.dart';
 import '../../../core/network/api_constants.dart';
 import '../../../core/network/error/failure.dart';
 import '../../../core/services/firebase/implementations/repos/compound_datasource_repo.dart';
@@ -23,7 +24,7 @@ import '../../bond/data/models/entry_bond_model.dart';
 import '../../bond/ui/screens/entry_bond_details_screen.dart';
 import '../data/models/account_model.dart';
 import '../service/account_statement_service.dart';
-import '../ui/screens/account_statement_screen.dart' show AccountStatementScreen;
+// import '../use_cases/filter_entry_bond_items_by_date_use_case.dart';
 import '../use_cases/filter_entry_bond_items_by_date_use_case.dart';
 import '../use_cases/merge_entry_bond_items_use_case.dart';
 import '../use_cases/process_entry_bond_items_in_isolate_use_case.dart';
@@ -40,6 +41,7 @@ class AccountStatementController extends GetxController with FloatingLauncher, A
   late final MergeEntryBondItemsUseCase _mergeEntryBondItemsUseCase;
 
   late final ProcessEntryBondItemsInIsolateUseCase processEntryBondItemsInIsolateUseCase;
+
   late final FilterEntryBondItemsByDateUseCase _filterEntryBondItemsByDateUseCase;
   late final GroupAccountsByFinalCategoryUseCase _filterAccountsUseCase;
 
@@ -152,7 +154,6 @@ class AccountStatementController extends GetxController with FloatingLauncher, A
     finalAccountsEntryBondItems.assignAll(entryBondItems);
 
     _calculateFinalAccountValues();
-    log('finish', name: 'FetchFinalAccountsStatements');
   }
 
   Future<Map<AccountEntity, List<EntryBondItems>>> _fetchAndProcessProfitAndLoss(
@@ -165,7 +166,10 @@ class AccountStatementController extends GetxController with FloatingLauncher, A
     final mergedTradingItem = _mergeEntryBondItemsUseCase.mergeTradingItems(tradingAccountResult);
     if (mergedTradingItem != null) {
       result[AccountEntity(id: FinalAccounts.tradingAccount.accPtr, name: FinalAccounts.tradingAccount.accName)] = [
-        EntryBondItems(id: '', itemList: [mergedTradingItem])
+        EntryBondItems(
+          id: '',
+          itemList: [mergedTradingItem],
+        )
       ];
     }
 
@@ -203,7 +207,10 @@ class AccountStatementController extends GetxController with FloatingLauncher, A
     if (mergedProfitLossItem != null) {
       return {
         AccountEntity(id: FinalAccounts.tradingAccount.accPtr, name: FinalAccounts.tradingAccount.accName): [
-          EntryBondItems(id: '', itemList: [mergedProfitLossItem])
+          EntryBondItems(
+            id: '',
+            itemList: [mergedProfitLossItem],
+          )
         ]
       }..addAll(balanceSheetAccountResult);
     }
@@ -257,6 +264,7 @@ class AccountStatementController extends GetxController with FloatingLauncher, A
   // }
 
   // Fetch bond items for the selected account
+
   Future<void> fetchAccountEntryBondItems(bool oldWay) async {
     final accountModel = _accountsController.getAccountModelByName(accountNameController.text);
 
@@ -390,7 +398,7 @@ class AccountStatementController extends GetxController with FloatingLauncher, A
     return balance;
   }
 
-  Future<List<EntryBondItemModel>> fetchAccountStatement(AccountEntity accountEntity, BuildContext context) async {
+  Future<List<EntryBondItemModel>> fetchAccountStatement(AccountEntity accountEntity) async {
     final result = await _accountsStatementsRepo.getAll(accountEntity);
 
     return result.fold(
@@ -464,7 +472,9 @@ class AccountStatementController extends GetxController with FloatingLauncher, A
   // Helper Methods
 
   void launchBondEntryBondScreen({required BuildContext context, required String originId}) async {
-    EntryBondModel entryBondModel = await read<EntryBondController>().getEntryBondById(entryId: originId);
+    EntryBondModel entryBondModel = await read<EntryBondController>().getEntryBondById(
+      entryId: originId,
+    );
 
     if (!context.mounted) return;
     launchFloatingWindow(
@@ -472,6 +482,10 @@ class AccountStatementController extends GetxController with FloatingLauncher, A
       minimizedTitle: 'سند خاص ب ${entryBondModel.origin!.originType!.label}',
       floatingScreen: EntryBondDetailsScreen(entryBondModel: entryBondModel),
     );
+  }
+
+  void onRefresh() {
+    fetchAccountEntryBondItems(false);
   }
 }
 

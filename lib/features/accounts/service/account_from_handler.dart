@@ -18,6 +18,7 @@ class AccountFromHandler with AppValidator implements IAccountTypeSelectionHandl
   final TextEditingController latinNameController = TextEditingController();
   final TextEditingController codeController = TextEditingController();
   final TextEditingController accParentName = TextEditingController();
+  bool accRequiredRequestNumber = false;
   AccountType accountType = AccountType.normal;
 
   AccountModel? accountParentModel;
@@ -27,8 +28,9 @@ class AccountFromHandler with AppValidator implements IAccountTypeSelectionHandl
       nameController.text = accountModel.accName!;
       latinNameController.text = accountModel.accLatinName!;
       codeController.text = accountModel.accCode!;
-      accountParentModel = accountController.getAccountModelById(accountModel.id!)!;
-      accParentName.text = accountParentModel!.accName!;
+      accRequiredRequestNumber = accountModel.requiredRequestNumber!;
+      accountParentModel = accountController.getAccountModelById(accountModel.accParentGuid!);
+      accParentName.text = accountParentModel?.accName ?? '';
       accountType = AccountType.byIndex(accountModel.accType!);
     } else {
       log("accountModel =null");
@@ -44,6 +46,7 @@ class AccountFromHandler with AppValidator implements IAccountTypeSelectionHandl
     accParentName.clear();
     latinNameController.clear();
     accountParentModel = null;
+    accRequiredRequestNumber = false;
   }
 
   bool validate() => formKey.currentState?.validate() ?? false;
@@ -65,4 +68,9 @@ class AccountFromHandler with AppValidator implements IAccountTypeSelectionHandl
 
   @override
   Rx<AccountType> get selectedAccountType => accountType.obs;
+
+  changeRequiredRequestNumber(bool? value) {
+    accRequiredRequestNumber = value ?? false;
+    accountController.update();
+  }
 }

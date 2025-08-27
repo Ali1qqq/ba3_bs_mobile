@@ -1,6 +1,9 @@
+/*
+import 'package:ba3_bs_mobile/core/constants/app_strings.dart';
 import 'package:ba3_bs_mobile/core/helper/extensions/getx_controller_extensions.dart';
 import 'package:ba3_bs_mobile/features/accounts/controllers/accounts_controller.dart';
 import 'package:ba3_bs_mobile/features/pluto/data/models/pluto_adaptable.dart';
+import 'package:get/get.dart';
 import 'package:pluto_grid/pluto_grid.dart';
 
 import '../../../../core/constants/app_constants.dart';
@@ -55,20 +58,21 @@ class AccountCustomer implements PlutoAdaptable {
   Map<PlutoColumn, dynamic> toPlutoGridFormat([void _]) {
     return {
       PlutoColumn(
-        title: 'الرقم',
+        title: AppStrings.number.tr,
         field: 'customerAccountId',
         readOnly: true,
         hide: true,
-        type: PlutoColumnType.text(),
+        type: PlutoColumnType.value(),
       ): customerAccountId,
-      PlutoColumn(title: 'رقم بطاقة الزبون', field: 'customerCardNumber', type: PlutoColumnType.text()): customerCardNumber,
+      PlutoColumn(title: 'رقم بطاقة الزبون', field: 'customerCardNumber', type: PlutoColumnType.value()):
+      customerCardNumber,
       PlutoColumn(
-        title: 'اسم الزبون',
+        title: AppStrings.customerName.tr,
         field: 'customerAccountName',
-        type: PlutoColumnType.text(),
+        type: PlutoColumnType.value(),
       ): customerAccountName,
       PlutoColumn(
-        title: 'نوع الضريبة',
+        title: AppStrings.taxType.tr,
         field: 'customerVAT',
         type: PlutoColumnType.select([AppConstants.mainVATCategory, AppConstants.withoutVAT]),
       ): customerVAT,
@@ -77,11 +81,11 @@ class AccountCustomer implements PlutoAdaptable {
 
   Map<String, dynamic> toMap() {
     return {
-      'customerAccountId': customerAccountId,
-      'رقم بطاقة الزبون': customerCardNumber,
-      'اسم الزبون': customerAccountName,
-      'الحساب': read<AccountsController>().getAccountNameById(mainAccount),
-      'نوع الضريبة': customerVAT,
+      AppStrings.number.tr: customerAccountId,
+      AppStrings.customerCardNumber.tr: customerCardNumber,
+      AppStrings.customerName.tr: customerAccountName,
+      AppStrings.account.tr: read<AccountsController>().getAccountNameById(mainAccount),
+      AppStrings.taxType.tr: customerVAT,
     };
   }
 
@@ -95,10 +99,10 @@ class AccountCustomer implements PlutoAdaptable {
   @override
   int get hashCode {
     return customerVAT.hashCode ^
-        customerCardNumber.hashCode ^
-        customerAccountName.hashCode ^
-        mainAccount.hashCode ^
-        customerAccountId.hashCode;
+    customerCardNumber.hashCode ^
+    customerAccountName.hashCode ^
+    mainAccount.hashCode ^
+    customerAccountId.hashCode;
   }
 
   // Override for equality (==): للمقارنة بين الكائنات
@@ -114,3 +118,4 @@ class AccountCustomer implements PlutoAdaptable {
         other.customerAccountId == customerAccountId;
   }
 }
+*/

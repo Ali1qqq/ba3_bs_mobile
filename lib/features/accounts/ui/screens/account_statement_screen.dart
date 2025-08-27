@@ -1,5 +1,6 @@
 import 'package:ba3_bs_mobile/core/constants/app_constants.dart';
 import 'package:ba3_bs_mobile/core/constants/app_strings.dart';
+import 'package:ba3_bs_mobile/core/widgets/app_spacer.dart';
 import 'package:ba3_bs_mobile/features/accounts/controllers/account_statement_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -25,19 +26,6 @@ class AccountStatementScreen extends StatelessWidget {
           },
           isLoading: controller.isLoading,
           tableSourceModels: controller.filteredEntryBondItems,
-          // .mergeBy(
-          //   (entry) => entry.originId,
-          //   (accumulated, current) => EntryBondItemModel(
-          //     account: current.account,
-          //     amount: accumulated.amount! + current.amount!,
-          //     bondItemType: current.bondItemType,
-          //     date: current.date,
-          //     note: '${current.note} + ${accumulated.note}',
-          //     originId: current.originId,
-          //     docId: current.docId,
-          //   ),
-          // )
-          // .toList(),
           bottomChild: Padding(
             padding: const EdgeInsets.all(8.0),
             child: Row(
@@ -52,9 +40,7 @@ class AccountStatementScreen extends StatelessWidget {
                       AppStrings.debtor.tr,
                       style: TextStyle(color: Colors.black, fontWeight: FontWeight.w300, fontSize: 24),
                     ),
-                    const SizedBox(
-                      width: 10,
-                    ),
+                    const HorizontalSpace(),
                     Text(
                       AppUIUtils.formatDecimalNumberWithCommas(controller.debitValue),
                       style: TextStyle(color: Colors.blue.shade700, fontWeight: FontWeight.w600, fontSize: 32),
@@ -94,6 +80,15 @@ class AccountStatementScreen extends StatelessWidget {
                       style: TextStyle(color: Colors.blue.shade700, fontWeight: FontWeight.w600, fontSize: 32),
                     ),
                   ],
+                ),
+                IconButton(
+                  onPressed: () {
+                    controller.onRefresh();
+                  },
+                  icon: const Icon(
+                    Icons.refresh,
+                    color: Colors.blue,
+                  ),
                 ),
               ],
             ),

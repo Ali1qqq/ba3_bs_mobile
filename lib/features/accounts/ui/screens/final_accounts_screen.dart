@@ -1,5 +1,4 @@
 import 'package:ba3_bs_mobile/core/helper/extensions/getx_controller_extensions.dart';
-import 'package:ba3_bs_mobile/core/styling/app_colors.dart';
 import 'package:ba3_bs_mobile/features/accounts/controllers/account_statement_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -19,36 +18,67 @@ class FinalAccountScreen extends StatelessWidget {
       appBar: AppBar(
         title: Text(AppStrings.finalAccounts.tr),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: FinalAccounts.values.map((account) {
-            return Column(
-              children: [
-                _buildAccountCard(account),
-                const SizedBox(height: 16),
-              ],
-            );
-          }).toList(),
-        ),
+      body: ListView.separated(
+        padding: const EdgeInsets.all(16),
+        itemCount: FinalAccounts.values.length,
+        separatorBuilder: (_, __) => const SizedBox(height: 16),
+        itemBuilder: (context, index) {
+          final account = FinalAccounts.values[index];
+          return _buildAccountCard(context, account);
+        },
       ),
     );
   }
 
-  Widget _buildAccountCard(FinalAccounts account) => Card(
-        elevation: 4,
-        color: AppColors.lightBlueColor,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        child: ListTile(
-          leading: Icon(_getIconForAccount(account), size: 32, color: Colors.white),
-          title: Text(account.accName, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white)),
-          trailing: const Icon(Icons.arrow_forward_ios, size: 20, color: Colors.white),
-          onTap: () {
-            read<AccountStatementController>().navigateToFinalAccountDetails(account);
-          },
+  Widget _buildAccountCard(BuildContext context, FinalAccounts account) {
+    final icon = _getIconForAccount(account);
+    final gradient = _getGradientForAccount(account);
+
+    return InkWell(
+      onTap: () {
+        read<AccountStatementController>().navigateToFinalAccountDetails(account);
+      },
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        decoration: BoxDecoration(
+          gradient: gradient,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.1),
+              blurRadius: 8,
+              offset: const Offset(0, 4),
+            )
+          ],
         ),
-      );
+        padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+        child: Row(
+          children: [
+            Container(
+              decoration: BoxDecoration(
+                color: Colors.white24,
+                shape: BoxShape.circle,
+              ),
+              padding: const EdgeInsets.all(12),
+              child: Icon(icon, size: 28, color: Colors.white),
+            ),
+            const SizedBox(width: 20),
+            Expanded(
+              child: Text(
+                account.accName,
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+            const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.white),
+          ],
+        ),
+      ),
+    );
+  }
 
   IconData _getIconForAccount(FinalAccounts account) {
     switch (account) {
@@ -60,79 +90,31 @@ class FinalAccountScreen extends StatelessWidget {
         return Icons.account_balance;
     }
   }
+
+  LinearGradient _getGradientForAccount(FinalAccounts account) {
+    switch (account) {
+      case FinalAccounts.tradingAccount:
+        return const LinearGradient(
+          colors: [Color(0xFFF2994A), Color(0xFFF2C94C)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        );
+      case FinalAccounts.profitAndLoss:
+        return const LinearGradient(
+          colors: [Color(0xFF27AE60), Color(0xFF6FCF97)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        );
+      case FinalAccounts.balanceSheet:
+        return const LinearGradient(
+          colors: [Color(0xFF2D9CDB), Color(0xFF56CCF2)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        );
+    }
+  }
 }
-//
-// class FinalAccountDetailsScreen extends StatefulWidget {
-//   const FinalAccountDetailsScreen({super.key, required this.account});
-//
-//   final FinalAccounts account;
-//
-//   @override
-//   State<FinalAccountDetailsScreen> createState() => _FinalAccountDetailsScreenState();
-// }
-//
-// class _FinalAccountDetailsScreenState extends State<FinalAccountDetailsScreen> {
-//   late Future<void> _fetchDataFuture;
-//
-//   @override
-//   void initState() {
-//     super.initState();
-//     _fetchDataFuture = fetchData();
-//   }
-//
-//   Future<void> fetchData() async => read<AccountStatementController>().fetchFinalAccountsStatements(widget.account);
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       body: FutureBuilder<void>(
-//         future: _fetchDataFuture,
-//         builder: (context, snapshot) {
-//           final controller = read<AccountStatementController>();
-//           return PlutoGridWithAppBar(
-//             title: 'حركات ${widget.account.accName.tr}',
-//             onLoaded: (e) {},
-//             onSelected: (event) {
-//               String originId = event.row?.cells[AppConstants.entryBonIdFiled]?.value;
-//               controller.launchBondEntryBondScreen(context: context, originId: originId);
-//             },
-//             isLoading: snapshot.connectionState == ConnectionState.waiting,
-//             tableSourceModels: controller.finalAccountsEntryBondItems,
-//             bottomChild: _buildAccountSummary(controller),
-//           );
-//         },
-//       ),
-//     );
-//   }
-//
-//   Widget _buildAccountSummary(AccountStatementController controller) {
-//     return Padding(
-//       padding: const EdgeInsets.all(8.0),
-//       child: Row(
-//         mainAxisAlignment: MainAxisAlignment.spaceAround,
-//         children: [
-//           _buildSummaryItem(AppStrings.debtor.tr, controller.debitFinalAccountValue),
-//           _buildSummaryItem(AppStrings.creditor.tr, controller.creditFinalAccountValue),
-//           _buildSummaryItem(AppStrings.theTotal.tr, controller.totalFinalAccountValue),
-//         ],
-//       ),
-//     );
-//   }
-//
-//   Widget _buildSummaryItem(String label, double value) {
-//     return Row(
-//       children: [
-//         Text(label, style: const TextStyle(color: Colors.black, fontWeight: FontWeight.w300, fontSize: 24)),
-//         const SizedBox(width: 10),
-//         Text(
-//           AppUIUtils.formatDecimalNumberWithCommas(value),
-//           style: TextStyle(color: Colors.blue.shade700, fontWeight: FontWeight.w600, fontSize: 32),
-//         ),
-//       ],
-//     );
-//   }
-// }
-//
+
 // ///---------------------------
 // ///test
 // //المتاجرة 52396.43

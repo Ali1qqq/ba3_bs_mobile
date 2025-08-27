@@ -23,7 +23,7 @@ class LoginBodyWidget extends StatelessWidget {
       // width: 1.sw,
       height: 0.4.sh,
       child: Column(
-        spacing: 15,
+        spacing: 10,
         children: [
           const Spacer(),
           Text(

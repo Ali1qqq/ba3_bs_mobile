@@ -15,7 +15,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../../../core/dialogs/account_filter_dialog.dart' show AccountFilterDialog;
+import '../../../core/dialogs/account_filter_dialog.dart';
 import '../../../core/dialogs/account_selection_dialog_content.dart';
 import '../../../core/dialogs/customer_selection_dialog_content.dart';
 import '../../../core/helper/mixin/app_navigator.dart';
@@ -102,7 +102,7 @@ class AccountsController extends GetxController with AppNavigator, FloatingLaunc
     );
   }
 
-  Future<void> fetchAllAccountsFromLocal() async {
+  Future<void> fetchAllAccountsFromLocal(BuildContext context) async {
     log('fetchAllAccountsFromLocal');
 
     FilePickerResult? resultFile = await FilePicker.platform.pickFiles();
@@ -115,18 +115,14 @@ class AccountsController extends GetxController with AppNavigator, FloatingLaunc
         (failure) => AppUIUtils.onFailure(
           failure.message,
         ),
-        (fetchedAccounts) => _handelFetchAllAccountsFromLocalSuccess(
-          fetchedAccounts,
-        ),
+        (fetchedAccounts) => _handelFetchAllAccountsFromLocalSuccess(fetchedAccounts, context),
       );
     }
 
     update();
   }
 
-  void _handelFetchAllAccountsFromLocalSuccess(
-    List<AccountModel> fetchedAccounts,
-  ) async {
+  void _handelFetchAllAccountsFromLocalSuccess(List<AccountModel> fetchedAccounts, BuildContext context) async {
     log("fetchedAccounts length ${fetchedAccounts.length}");
     log('current accounts length is ${accounts.length}');
 
@@ -387,7 +383,7 @@ class AccountsController extends GetxController with AppNavigator, FloatingLaunc
     return selectedCustomerModel;
   }
 
-  void saveOrUpdateAccount() async {
+  void saveOrUpdateAccount(BuildContext context) async {
     if (!_validateInput()) return;
 
     final updatedAccountModel = _createUpdatedAccountModel();
@@ -400,50 +396,42 @@ class AccountsController extends GetxController with AppNavigator, FloatingLaunc
     }
 
     saveAccountRequestState.value = RequestState.loading;
-    await _saveAccountWithCustomers(
-      updatedAccountModel,
-    );
+    await _saveAccountWithCustomers(updatedAccountModel, context);
   }
 
   bool _validateInput() => accountFromHandler.validate();
 
   AccountModel? _createUpdatedAccountModel() => accountService.createAccountModel(
-        accountModel: selectedAccount,
-        accName: accountFromHandler.nameController.text,
-        accCode: accountFromHandler.codeController.text,
-        accLatinName: accountFromHandler.latinNameController.text,
-        accType: accountFromHandler.accountType,
-        accParentGuid: accountFromHandler.accountParentModel?.id,
-        accParentName: accountFromHandler.accountParentModel?.accName,
-        accCheckDate: Timestamp.now().toDate(),
-      );
+      accountModel: selectedAccount,
+      accName: accountFromHandler.nameController.text,
+      accCode: accountFromHandler.codeController.text,
+      accLatinName: accountFromHandler.latinNameController.text,
+      accType: accountFromHandler.accountType,
+      accParentGuid: accountFromHandler.accountParentModel?.id,
+      accParentName: accountFromHandler.accountParentModel?.accName,
+      accCheckDate: Timestamp.now().toDate(),
+      requiredRequestNumber: accountFromHandler.accRequiredRequestNumber);
 
-  Future<void> _saveAccountWithCustomers(
-    AccountModel updatedAccountModel,
-  ) async {
+  Future<void> _saveAccountWithCustomers(AccountModel updatedAccountModel, BuildContext context) async {
     if (addedCustomers.isNotEmpty) {
-      final result = await read<CustomersController>().addCustomers(addedCustomers);
+      final result = await read<CustomersController>().addCustomers(
+        addedCustomers,
+      );
 
       result.fold(
         (failure) => AppUIUtils.onFailure(
           failure.message,
         ),
-        (savedCustomers) => _onSaveCustomersSuccess(
-          updatedAccountModel: updatedAccountModel,
-          savedCustomers: savedCustomers,
-        ),
+        (savedCustomers) =>
+            _onSaveCustomersSuccess(updatedAccountModel: updatedAccountModel, savedCustomers: savedCustomers, context: context),
       );
     } else {
-      await _onSaveCustomersSuccess(
-        updatedAccountModel: updatedAccountModel,
-      );
+      await _onSaveCustomersSuccess(updatedAccountModel: updatedAccountModel, context: context);
     }
   }
 
-  Future<void> _onSaveCustomersSuccess({
-    required AccountModel updatedAccountModel,
-    List<CustomerModel>? savedCustomers,
-  }) async {
+  Future<void> _onSaveCustomersSuccess(
+      {required AccountModel updatedAccountModel, List<CustomerModel>? savedCustomers, required BuildContext context}) async {
     final accountWithCustomers = _attachSavedCustomers(updatedAccountModel, savedCustomers);
 
     final result = await _accountsFirebaseRepo.save(accountWithCustomers);
@@ -476,7 +464,7 @@ class AccountsController extends GetxController with AppNavigator, FloatingLaunc
     return updatedAccountModel.copyWith(accCustomer: savedCustomerIds);
   }
 
-  void deleteAccount() async {
+  void deleteAccount(BuildContext context) async {
     deleteAccountRequestState.value = RequestState.loading;
 
     if (isEditAccount) {
@@ -505,7 +493,7 @@ class AccountsController extends GetxController with AppNavigator, FloatingLaunc
     showAddCustomerForm.value = !showAddCustomerForm.value;
   }
 
-  void addNewCustomer() {
+  void addNewCustomer(BuildContext context) {
     if (newCustomerNameController.text.isNotEmpty && newCustomerPhoneController.text.isNotEmpty) {
       addedCustomers.add(
         CustomerModel(
