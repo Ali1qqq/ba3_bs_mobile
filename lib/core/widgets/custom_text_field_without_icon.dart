@@ -20,6 +20,7 @@ class CustomTextFieldWithoutIcon extends StatefulWidget {
     this.textStyle,
     this.maxLength,
     this.filedColor,
+    this.hintText,
   });
 
   final TextEditingController textEditingController;
@@ -36,6 +37,7 @@ class CustomTextFieldWithoutIcon extends StatefulWidget {
   final int? maxLine;
   final int? maxLength;
   final Color? filedColor;
+  final String? hintText;
 
   @override
   State<CustomTextFieldWithoutIcon> createState() => _CustomTextFieldWithoutIconState();
@@ -81,6 +83,7 @@ class _CustomTextFieldWithoutIconState extends State<CustomTextFieldWithoutIcon>
         onChanged: widget.onChanged,
         validator: widget.validator,
         enabled: widget.enabled,
+
         // readOnly: widget.enable,
         onFieldSubmitted: widget.onSubmitted,
         controller: widget.textEditingController,
@@ -92,6 +95,7 @@ class _CustomTextFieldWithoutIconState extends State<CustomTextFieldWithoutIcon>
         inputFormatters: widget.inputFormatters,
         style: widget.textStyle ?? const TextStyle(fontSize: 12),
         decoration: InputDecoration(
+            hintText: widget.hintText,
             fillColor: widget.filedColor ?? Colors.white,
             filled: true,
             isDense: true,
@@ -102,7 +106,7 @@ class _CustomTextFieldWithoutIconState extends State<CustomTextFieldWithoutIcon>
               ),
               borderRadius: BorderRadius.circular(5.0),
             ),
-            // suffixIcon: SizedBox.shrink(),
+            suffixIcon: widget.suffixIcon,
             contentPadding: const EdgeInsets.fromLTRB(0, 12, 0, 12)),
         textAlign: TextAlign.center,
         // Center the text horizontally

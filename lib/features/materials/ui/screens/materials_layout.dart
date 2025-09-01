@@ -72,6 +72,13 @@ class MaterialLayout extends StatelessWidget {
                           read<MaterialController>().navigateToAddOrUpdateMaterialScreen(context: context);
                         },
                       ),
+                    buildAppMenuItem(
+                      icon: Icons.search,
+                      title: AppStrings.searchMaterial.tr,
+                      onTap: () {
+                        read<MaterialController>().navigateToSearchMaterialScreen();
+                      },
+                    ),
                   ],
                 ),
               ),

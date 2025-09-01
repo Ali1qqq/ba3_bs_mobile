@@ -439,4 +439,8 @@ class AppStrings {
   static const String viewSales = 'عرض المبيعات';
 
   static const String workInJetourShop = 'دوام محل الجيتور';
+
+  static var searchMaterial = 'بحث عن مادة';
+
+  static var search = 'بحث';
 }

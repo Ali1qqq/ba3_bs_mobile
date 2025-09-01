@@ -70,6 +70,7 @@ dependencies:
   flutter_advanced_switch: ^3.1.0
   vector_math: ^2.1.4
   firebase_storage: ^12.4.10
+  mobile_scanner: ^6.0.2
 
 
 dev_dependencies:

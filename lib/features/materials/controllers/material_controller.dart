@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:developer';
 import 'dart:io';
 
@@ -15,14 +16,19 @@ import 'package:ba3_bs_mobile/features/materials/data/models/materials/material_
 import 'package:ba3_bs_mobile/features/materials/service/material_from_handler.dart';
 import 'package:ba3_bs_mobile/features/materials/service/material_service.dart';
 import 'package:ba3_bs_mobile/features/materials/ui/screens/all_materials_screen.dart';
+import 'package:ba3_bs_mobile/features/materials/ui/screens/search_material_screen.dart';
 import 'package:ba3_bs_mobile/features/users_management/controllers/user_management_controller.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:logger/logger.dart';
+import 'package:pluto_grid/pluto_grid.dart';
 
+import '../../../core/constants/app_constants.dart';
+import '../../../core/dialogs/product_selection_dialog_content.dart';
 import '../../../core/helper/enums/enums.dart';
 import '../../../core/helper/mixin/floating_launcher.dart';
 import '../../../core/network/api_constants.dart';
@@ -31,6 +37,7 @@ import '../../../core/services/firebase/implementations/repos/queryable_savable_
 import '../../../core/services/firebase/implementations/services/firestore_uploader.dart';
 import '../../../core/utils/app_service_utils.dart';
 import '../../../core/utils/app_ui_utils.dart';
+import '../../floating_window/services/overlay_service.dart';
 import '../../user_task/controller/all_task_controller.dart';
 import '../data/models/materials/material_model.dart';
 import '../ui/screens/add_material_screen.dart';
@@ -41,6 +48,9 @@ class MaterialController extends GetxController with AppNavigator, FloatingLaunc
 
   final QueryableSavableRepository<MaterialModel> _materialRemoteRepo;
   final ListenDataSourceRepository<ChangesModel> _listenDataSourceRepository;
+
+  /// this only for mobile
+  final FirebaseStorage _storage = FirebaseStorage.instance;
 
   MaterialController(this._jsonImportExportRepo, this._materialsHiveRepo, this._listenDataSourceRepository, this._materialRemoteRepo);
 
@@ -589,8 +599,6 @@ class MaterialController extends GetxController with AppNavigator, FloatingLaunc
     }
   }
 
-  final FirebaseStorage _storage = FirebaseStorage.instance;
-
   Future<String> uploadImageTask(
     String imageName,
   ) async {
@@ -624,4 +632,104 @@ class MaterialController extends GetxController with AppNavigator, FloatingLaunc
       return null;
     }
   }
+
+  /// this only for mobile
+  void navigateToSearchMaterialScreen() {
+    Get.to(() => SearchMaterialScreen());
+  }
+
+  /// this only for mobile
+  Future<MaterialModel?> _handleMultipleMaterialsSelection(BuildContext context, List<MaterialModel> searchedMaterials) async {
+    if (searchedMaterials.length == 1) return searchedMaterials.first;
+
+    final materialTextEditingController = TextEditingController();
+    MaterialModel? selectedMaterial;
+
+    await OverlayService.showDialog(
+      context: context,
+      height: .7.sh,
+      width: .8.sw,
+      content: ProductSelectionDialogContent(
+        searchedMaterials: searchedMaterials,
+        onRowSelected: (PlutoGridOnSelectedEvent onSelectedEvent) {
+          // Retrieve selected material ID
+          final materialId = onSelectedEvent.row?.cells[AppConstants.materialIdFiled]?.value;
+          selectedMaterial = read<MaterialController>().getMaterialById(materialId);
+          OverlayService.back();
+        },
+        onSubmitted: (_) async {},
+        productTextController: materialTextEditingController,
+      ),
+      onCloseCallback: () => log('Product Selection Dialog Closed.'),
+    );
+
+    return selectedMaterial;
+  }
+
+  /// this only for mobile
+  void searchMaterialAndNavigate(String text, BuildContext context) async {
+    final searchedMaterials = searchOfProductByText(text);
+
+    // Show failure message if no materials found
+    if (searchedMaterials.isEmpty) {
+      AppUIUtils.onFailure('لا يوجد مواد بهذا الاسم');
+      return;
+    }
+    final selectedMaterial = await _handleMultipleMaterialsSelection(context, searchedMaterials);
+    if (selectedMaterial == null) {
+      AppUIUtils.onFailure('يرجى اختيار مادة');
+      return;
+    }
+    if (!context.mounted) return;
+    FocusScope.of(context).unfocus();
+
+    navigateToAddOrUpdateMaterialScreen(context: context, matId: selectedMaterial.id);
+  }
+
+  /// this only for mobile
+  getMaterialByBarcode(String code, BuildContext context) async {
+    if (isLoading2.value) {
+      return;
+    }
+    isLoading2.value = true;
+    final searchedMaterials = searchOfProductByText(code);
+
+    // Show failure message if no materials found
+    if (searchedMaterials.isEmpty) {
+      await AppUIUtils.showFullScreenMessage(
+        title: "خطأ",
+        message: "لا يوجد مواد بهذا الباركود",
+        color: Colors.red,
+        icon: Icons.error,
+      );
+      isLoading2.value = false;
+      return;
+    }
+    final selectedMaterial = await _handleMultipleMaterialsSelection(context, searchedMaterials);
+    if (selectedMaterial == null) {
+      await AppUIUtils.showFullScreenMessage(
+        title: "خطأ",
+        message: "يرجى اختيار مادة",
+        color: Colors.red,
+        icon: Icons.error,
+      );
+      isLoading2.value = false;
+
+      return;
+    }
+
+    await AppUIUtils.showFullScreenMessage(
+      title: selectedMaterial.matName ?? '',
+      message: "last perches is : ${(selectedMaterial.matLastPriceCurVal ?? 0) * 1.05}\n"
+          "last price is : ${(selectedMaterial.calcMinPrice ?? 0) * 1.05}",
+      color: Colors.blue, // أو أي لون بدك
+      icon: Icons.info, // أو أي أيقونة مناسبة
+    );
+    isLoading2.value = false;
+  }
+
+  /// this only for mobile
+  final RxBool isLoading2 = false.obs;
+  bool isProcessing = false;
+  var isScannerOpen = false.obs;
 }

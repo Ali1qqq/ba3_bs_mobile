@@ -50,8 +50,8 @@ class HelperAlert {
   static void showInfo({
     required String text,
     String? title,
-  }) {
-    CustomAlertDialog.show(
+  }) async {
+    await CustomAlertDialog.show(
       // context: context,
       type: CustomAlertType.info,
       title: title ?? AppStrings.info.tr,

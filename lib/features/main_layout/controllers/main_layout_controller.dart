@@ -11,6 +11,7 @@ import '../../bond/ui/screens/bond_layout.dart';
 import '../../cheques/ui/screens/cheque_layout.dart';
 import '../../dashboard/ui/screens/dash_board_layout.dart';
 import '../../materials/ui/screens/materials_layout.dart';
+import '../../materials/ui/screens/search_material_screen.dart';
 import '../../patterns/ui/screens/pattern_layout.dart';
 import '../../profile/ui/screens/profile_screen.dart';
 import '../../sellers/ui/screens/sellers_layout.dart';
@@ -107,6 +108,12 @@ class MainLayoutController extends GetxController {
       layout: const ProfileScreen(),
       icon: AppAssets.profileIcon,
       unSelectedIcon: AppAssets.profileUnselectedIcon,
+    ),
+    AppLayoutItemModel(
+      name: 'بحث المواد',
+      layout: const SearchMaterialScreen(),
+      icon: AppAssets.materialIcon,
+      unSelectedIcon: AppAssets.materialUnselectedIcon,
     ),
   ].obs;
 

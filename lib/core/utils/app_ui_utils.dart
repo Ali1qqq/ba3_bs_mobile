@@ -534,4 +534,67 @@ class AppUIUtils {
       ),
     );
   }
+
+  static Future<void> showFullScreenMessage({
+    required String title,
+    required String message,
+    required Color color,
+    required IconData icon,
+    Duration duration = const Duration(seconds: 5),
+  }) async {
+    // نستخدم Completer حتى نتحكم بالإغلاق المتزامن
+    final completer = Completer<void>();
+
+    Get.dialog(
+      GestureDetector(
+        onTap: () {
+          if (!completer.isCompleted) {
+            completer.complete();
+            Get.back();
+          }
+        },
+        child: Scaffold(
+          backgroundColor: color,
+          body: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Icon(icon, size: 100, color: Colors.white),
+                const SizedBox(height: 20),
+                Center(
+                  child: Text(
+                    title,
+                    style: const TextStyle(
+                      fontSize: 32,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  message,
+                  style: const TextStyle(fontSize: 20, color: Colors.white),
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+      barrierDismissible: false,
+    );
+
+    // إغلاق تلقائي بعد الوقت المحدد
+    Future.delayed(duration, () {
+      if (!completer.isCompleted) {
+        completer.complete();
+        if (Get.isDialogOpen ?? false) Get.back();
+      }
+    });
+
+    // ننتظر إما ضغط المستخدم أو مرور الوقت
+    await completer.future;
+  }
 }

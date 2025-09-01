@@ -134,8 +134,8 @@ class UserTimeController extends GetxController {
     final logOutCount = model?.logOutDateList?.length ?? 0;
     final expected = u.userWorkingHours?.length ?? 0;
 
-    if (logInCount >= expected || u.userWorkStatus == targetStatus) return false;
-    if (logOutCount >= expected || u.userWorkStatus == targetStatus) return false;
+    if (logInCount >= expected /*|| u.userWorkStatus == targetStatus*/) return false;
+    if (logOutCount >= expected /*|| u.userWorkStatus == targetStatus*/) return false;
 
     return true;
   }
