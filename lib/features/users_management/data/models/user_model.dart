@@ -366,8 +366,8 @@ class UserWorkingHours {
 
 class UserTimeModel {
   final String? dayName;
-  final List<DateTime>? logInDateList;
-  final List<DateTime>? logOutDateList;
+  List<DateTime>? logInDateList;
+  List<DateTime>? logOutDateList;
   int? totalLogInDelay;
   int? totalOutEarlier;
   int? totalExtraMinutes;

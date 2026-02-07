@@ -31,38 +31,42 @@ class AddTimeWidget extends StatelessWidget {
           children: [
             Obx(() {
               return Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                spacing: 20,
                 children: [
-                  AppButton(
-                    title: AppStrings.checkIn.tr,
-                    onPressed: () => userTimeController.logIn(context),
-                    isLoading: userTimeController.logInState.value == RequestState.loading,
+                  Column(
+                    children: [
+                      AppButton(
+                        title: AppStrings.checkIn.tr,
+                        onPressed: () => userTimeController.checkTime(context),
+                        isLoading: userTimeController.checkTimeState.value == RequestState.loading,
+                      ),
+                      /*       AppButton(
+                        title: AppStrings.checkOut.tr,
+                        onPressed: () => userTimeController.logOut(context),
+                        isLoading: userTimeController.logOutState.value == RequestState.loading,
+                      ),*/
+                    ],
                   ),
-                  SizedBox(
-                    width: 125.w,
-                    child: Text(
-                      userTimeController.lastEnterTime.value.tr,
-                      style: AppTextStyles.headLineStyle3,
-                    ),
-                  ),
-                ],
-              );
-            }),
-            Divider(),
-            Obx(() {
-              return Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  AppButton(
-                    title: AppStrings.checkOut.tr,
-                    onPressed: () => userTimeController.logOut(context),
-                    isLoading: userTimeController.logOutState.value == RequestState.loading,
-                  ),
-                  SizedBox(
-                    width: 125.w,
-                    child: Text(
-                      userTimeController.lastOutTime.value.tr,
-                      style: AppTextStyles.headLineStyle3,
+                  Expanded(
+                    child: Column(
+                      children: [
+                        SizedBox(
+                          width: 125.w,
+                          child: Text(
+                            userTimeController.lastEnterTime.value.tr,
+                            style: AppTextStyles.headLineStyle3,
+                          ),
+                        ),
+                        Divider(),
+                        SizedBox(
+                          width: 125.w,
+                          child: Text(
+                            userTimeController.lastOutTime.value.tr,
+                            style: AppTextStyles.headLineStyle3,
+                          ),
+                        )
+                      ],
                     ),
                   )
                 ],

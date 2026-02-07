@@ -94,7 +94,7 @@ class AddCustomersWidget extends StatelessWidget {
                           child: Container(
                               color: AppColors.backGroundColor,
                               child: DropdownButtonFormField<VatEnums>(
-                                value: controller.selectedVat.value,
+                                initialValue: controller.selectedVat.value,
                                 alignment: Alignment.center,
                                 isExpanded: true,
                                 items: VatEnums.values.map((vat) {

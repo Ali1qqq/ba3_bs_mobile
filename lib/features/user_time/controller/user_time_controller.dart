@@ -25,7 +25,9 @@ class UserTimeController extends GetxController {
   Rx<String> lastEnterTime = AppStrings.notLoggedToday.tr.obs;
   Rx<String> lastOutTime = AppStrings.notLoggedToday.tr.obs;
 
-  Rx<RequestState> logInState = RequestState.initial.obs;
+  Rx<UserWorkStatus> userStatus = UserWorkStatus.away.obs;
+
+  Rx<RequestState> checkTimeState = RequestState.initial.obs;
   Rx<RequestState> logOutState = RequestState.initial.obs;
 
   @override
@@ -67,17 +69,14 @@ class UserTimeController extends GetxController {
 
   UserModel get getUserById => read<UserManagementController>().loggedInUserModel!;
 
-  Future<void> logIn(BuildContext context) async {
+  Future<void> checkTime(BuildContext context) async {
     await _handleLog(
       context: context,
-      newStatus: UserWorkStatus.online,
-      onUpdate: (user) => _userTimeServices.addLoginTimeToUserModel(userModel: user),
-      errorMsg: "يجب تسجيل الخروج أولاً",
-      state: logInState,
+      onUpdate: (user) => _userTimeServices.smartCheckTime(userModel: user),
     );
   }
 
-  Future<void> logOut(BuildContext context) async {
+  /* Future<void> logOut(BuildContext context) async {
     await _handleLog(
       context: context,
       newStatus: UserWorkStatus.away,
@@ -85,57 +84,57 @@ class UserTimeController extends GetxController {
       errorMsg: "يجب تسجيل الدخول أولاً",
       state: logOutState,
     );
-  }
+  }*/
 
-  Future<void> _handleLog({
-    required BuildContext context,
-    required UserWorkStatus newStatus,
-    required UserModel Function(UserModel) onUpdate,
-    required String errorMsg,
-    required Rx<RequestState> state,
-  }) async {
-    await read<UserManagementController>().refreshLoggedInUser();
-
-    if (!_validateLog(getUserById, newStatus)) {
-      AppUIUtils.onFailure('تجاوزت حد اوقات الدخول لهذا اليوم');
-      return;
-    }
-
-    /// we don't need it in diskTop app
-    /*   /// check if user in regin
+  /// we don't need it in diskTop app
+  /*   /// check if user in regin
     if (!await isWithinRegion()) {
       AppUIUtils.onFailure('خطأ في المنطقة الجغرافية');
       return;
     }*/
+  Future<void> _handleLog({
+    required BuildContext context,
+    required UserModel Function(UserModel) onUpdate,
+  }) async {
+    await read<UserManagementController>().refreshLoggedInUser();
 
-    state.value = RequestState.loading;
+    if (!_validateLog(
+      getUserById,
+    )) {
+      AppUIUtils.onFailure('تجاوزت حد اوقات الدخول لهذا اليوم');
+      return;
+    }
+
+    checkTimeState.value = RequestState.loading;
 
     final updated = onUpdate(getUserById);
     final result = await _usersRepo.save(updated);
 
     result.fold(
       (failure) {
-        state.value = RequestState.error;
+        checkTimeState.value = RequestState.error;
         AppUIUtils.onFailure(failure.message);
       },
       (_) {
-        state.value = RequestState.success;
-        AppUIUtils.onSuccess(newStatus == UserWorkStatus.online ? 'تم تسجيل الدخول بنجاح' : 'تم تسجيل الخروج بنجاح');
+        checkTimeState.value = RequestState.success;
+        AppUIUtils.onSuccess(userStatus.value != UserWorkStatus.online ? 'تم تسجيل الدخول بنجاح' : 'تم تسجيل الخروج بنجاح');
         _updateLastTimes();
       },
     );
   }
 
-  bool _validateLog(UserModel u, UserWorkStatus targetStatus) {
+  bool _validateLog(
+    UserModel u,
+  ) {
     final today = _userTimeServices.getCurrentDayName();
     final model = u.userTimeModel?[today];
 
     final logInCount = model?.logInDateList?.length ?? 0;
     final logOutCount = model?.logOutDateList?.length ?? 0;
-    final expected = u.userWorkingHours?.length ?? 0;
+    final expected = (u.userWorkingHours?.length ?? 0) * 2;
 
-    if (logInCount >= expected /*|| u.userWorkStatus == targetStatus*/) return false;
-    if (logOutCount >= expected /*|| u.userWorkStatus == targetStatus*/) return false;
+    // if (logInCount >= expected /*|| u.userWorkStatus == targetStatus*/) return false;
+    if (logOutCount + logInCount == expected /*|| u.userWorkStatus == targetStatus*/) return false;
 
     return true;
   }
@@ -144,7 +143,7 @@ class UserTimeController extends GetxController {
     final today = _userTimeServices.getCurrentDayName();
     final loginList = getUserById.userTimeModel?[today]?.logInDateList ?? [];
     final logoutList = getUserById.userTimeModel?[today]?.logOutDateList ?? [];
-
+    userStatus.value = getUserById.userWorkStatus ?? UserWorkStatus.away;
     if (loginList.isNotEmpty) {
       lastEnterTime.value = AppServiceUtils.formatDateTime(loginList.last);
     }
