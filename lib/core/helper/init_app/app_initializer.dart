@@ -50,8 +50,8 @@ Future<void> initializeAppServices() async {
   };
   //   await initializeWindowSettings();
 
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform, name: AppConstants.defaultFirebaseAppName);
-
+  // await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform, name: AppConstants.defaultFirebaseAppName);
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await Hive.initializeApp();
 
   await initializeAppLocalization(boxName: AppConstants.appLocalLangBox);
@@ -68,7 +68,8 @@ Future<void> initializeAppServices() async {
 }
 
 Future<void> _initializeApp() async {
-  final sharedPreferencesService = await putAsync(SharedPreferencesService().init());
+  final sharedPreferencesService =
+      await putAsync(SharedPreferencesService().init());
 
   put(
     UserManagementController(
@@ -83,7 +84,8 @@ Future<void> _initializeApp() async {
 Future<void> initializeAppLocalization({required String boxName}) async {
   final Box<String> box = await Hive.openBox<String>(boxName);
 
-  final HiveDatabaseService<String> hiveLocalLangService = HiveDatabaseService(box);
+  final HiveDatabaseService<String> hiveLocalLangService =
+      HiveDatabaseService(box);
 
   put(TranslationController(hiveLocalLangService));
 }
@@ -91,16 +93,21 @@ Future<void> initializeAppLocalization({required String boxName}) async {
 void setupDatabaseServices() {
   final FirebaseStorage firebaseStorageInstance = FirebaseStorage.instance;
 
-  FirebaseFirestore firestoreInstance = FirebaseFirestore.instanceFor(
-      app: Firebase.app(AppConstants.getDatabaseAppName),
-      databaseId: AppConstants.getDatabaseAppName == AppConstants.defaultFirebaseAppName ? null : AppConstants.getDatabaseAppName);
+  final firebaseApp = Firebase.app();
+  FirebaseFirestore firestoreInstance =
+      FirebaseFirestore.instanceFor(app: firebaseApp, databaseId: "test-eu");
+  // databaseId: AppConstants.getDatabaseAppName == AppConstants.defaultFirebaseAppName
+  //      ? null
+  //      : AppConstants.getDatabaseAppName);
 
   // Initialize Firestore services
   final remoteDatabaseService = createRemoteDatabaseService(firestoreInstance);
   // Initialize Storage services
-  final remoteStorageService = createRemoteStorageService(firebaseStorageInstance);
+  final remoteStorageService =
+      createRemoteStorageService(firebaseStorageInstance);
   // Initialize Firestore services
-  final compoundDatabaseService = createCompoundDatabaseService(firestoreInstance);
+  final compoundDatabaseService =
+      createCompoundDatabaseService(firestoreInstance);
 
   // Register dependencies using lazyPut
   lazyPut(firestoreInstance);
@@ -110,9 +117,37 @@ void setupDatabaseServices() {
   lazyPut(compoundDatabaseService);
   lazyPut(remoteStorageService);
 }
+// void setupDatabaseServices() {
+//   final FirebaseStorage firebaseStorageInstance = FirebaseStorage.instance;
+
+//   FirebaseFirestore firestoreInstance = FirebaseFirestore.instanceFor(
+//       app: Firebase.app(AppConstants.getDatabaseAppName),
+//       databaseId:
+//           AppConstants.getDatabaseAppName == AppConstants.defaultFirebaseAppName
+//               ? null
+//               : AppConstants.getDatabaseAppName);
+
+//   // Initialize Firestore services
+//   final remoteDatabaseService = createRemoteDatabaseService(firestoreInstance);
+//   // Initialize Storage services
+//   final remoteStorageService =
+//       createRemoteStorageService(firebaseStorageInstance);
+//   // Initialize Firestore services
+//   final compoundDatabaseService =
+//       createCompoundDatabaseService(firestoreInstance);
+
+//   // Register dependencies using lazyPut
+//   lazyPut(firestoreInstance);
+
+//   lazyPut(remoteDatabaseService);
+
+//   lazyPut(compoundDatabaseService);
+//   lazyPut(remoteStorageService);
+// }
 
 void setupMigrationDependencies() {
-  final compoundFireStoreService = read<ICompoundDatabaseService<Map<String, dynamic>>>();
+  final compoundFireStoreService =
+      read<ICompoundDatabaseService<Map<String, dynamic>>>();
 
   final fireStoreService = read<IRemoteDatabaseService<Map<String, dynamic>>>();
 
@@ -126,11 +161,14 @@ void setupMigrationDependencies() {
   final migrationRepository = createMigrationRepository(fireStoreService);
 
   // Register MigrationController
-  put(MigrationController(bondsRepository, billsRepository, chequesRepository, migrationRepository));
+  put(MigrationController(bondsRepository, billsRepository, chequesRepository,
+      migrationRepository));
 
-  final rolesRepo = RemoteDataSourceRepository(RolesDatasource(databaseService: fireStoreService));
+  final rolesRepo = RemoteDataSourceRepository(
+      RolesDatasource(databaseService: fireStoreService));
 
-  final usersRepo = FilterableDataSourceRepository(UsersDatasource(databaseService: fireStoreService));
+  final usersRepo = FilterableDataSourceRepository(
+      UsersDatasource(databaseService: fireStoreService));
 
   lazyPut(rolesRepo);
 
@@ -138,24 +176,37 @@ void setupMigrationDependencies() {
 }
 
 // 🔹 Helper Methods for Initialization
-IRemoteDatabaseService<Map<String, dynamic>> createRemoteDatabaseService(FirebaseFirestore instance) => FireStoreService(instance);
+IRemoteDatabaseService<Map<String, dynamic>> createRemoteDatabaseService(
+        FirebaseFirestore instance) =>
+    FireStoreService(instance);
 
-ICompoundDatabaseService<Map<String, dynamic>> createCompoundDatabaseService(FirebaseFirestore instance) =>
+ICompoundDatabaseService<Map<String, dynamic>> createCompoundDatabaseService(
+        FirebaseFirestore instance) =>
     CompoundFireStoreService(instance);
 
-IRemoteStorageService<String> createRemoteStorageService(FirebaseStorage instance) => FirebaseStorageService(instance);
+IRemoteStorageService<String> createRemoteStorageService(
+        FirebaseStorage instance) =>
+    FirebaseStorageService(instance);
 
-CompoundDatasourceRepository<BillModel, BillTypeModel> createBillsRepository(ICompoundDatabaseService<Map<String, dynamic>> service) =>
-    CompoundDatasourceRepository(BillCompoundDatasource(compoundDatabaseService: service));
+CompoundDatasourceRepository<BillModel, BillTypeModel> createBillsRepository(
+        ICompoundDatabaseService<Map<String, dynamic>> service) =>
+    CompoundDatasourceRepository(
+        BillCompoundDatasource(compoundDatabaseService: service));
 
-CompoundDatasourceRepository<BondModel, BondType> createBondsRepository(ICompoundDatabaseService<Map<String, dynamic>> service) =>
-    CompoundDatasourceRepository(BondCompoundDatasource(compoundDatabaseService: service));
+CompoundDatasourceRepository<BondModel, BondType> createBondsRepository(
+        ICompoundDatabaseService<Map<String, dynamic>> service) =>
+    CompoundDatasourceRepository(
+        BondCompoundDatasource(compoundDatabaseService: service));
 
-CompoundDatasourceRepository<ChequesModel, ChequesType> createChequesRepository(ICompoundDatabaseService<Map<String, dynamic>> service) =>
-    CompoundDatasourceRepository(ChequesCompoundDatasource(compoundDatabaseService: service));
+CompoundDatasourceRepository<ChequesModel, ChequesType> createChequesRepository(
+        ICompoundDatabaseService<Map<String, dynamic>> service) =>
+    CompoundDatasourceRepository(
+        ChequesCompoundDatasource(compoundDatabaseService: service));
 
-RemoteDataSourceRepository<MigrationModel> createMigrationRepository(IRemoteDatabaseService<Map<String, dynamic>> service) =>
-    RemoteDataSourceRepository(MigrationRemoteDatasource(databaseService: service));
+RemoteDataSourceRepository<MigrationModel> createMigrationRepository(
+        IRemoteDatabaseService<Map<String, dynamic>> service) =>
+    RemoteDataSourceRepository(
+        MigrationRemoteDatasource(databaseService: service));
 
 // Future<void> initializeWindowSettings() async {
 //   await windowManager.ensureInitialized();

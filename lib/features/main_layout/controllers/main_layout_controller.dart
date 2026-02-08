@@ -125,4 +125,11 @@ class MainLayoutController extends GetxController {
     tabIndex = index;
     update();
   }
+
+  @override
+  void onInit() {
+    // print(".........................");
+    // print(RoleItemType.administrator.hasReadPermission);
+    super.onInit();
+  }
 }

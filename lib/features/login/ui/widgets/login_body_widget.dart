@@ -51,7 +51,9 @@ class LoginBodyWidget extends StatelessWidget {
                   label: Text(AppStrings.password.tr),
                   suffixIcon: IconButton(
                     icon: Icon(
-                      userManagementController.isPasswordVisible.value ? Icons.visibility : Icons.visibility_off,
+                      userManagementController.isPasswordVisible.value
+                          ? Icons.visibility
+                          : Icons.visibility_off,
                       size: 20,
                       color: AppColors.blueColor,
                     ),

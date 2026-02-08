@@ -33,13 +33,12 @@ extension RoleItemTypeExtension on RoleItemType {
     // Retrieve the RoleModel based on the user's role ID
     final roleModel =
         userManagementController.getRoleById(userModel.userRoleId!);
-
     // Check if roleModel is null
     if (roleModel == null) return false;
+    // print(roleModel.roles.entries.map((entry) => entry.value).toList());
 
     // Get the list of RoleItems for the given RoleItemType
     final List<RoleItem>? roleItems = roleModel.roles[this];
-
     // Check if the list contains RoleItem.userAdmin
     return roleItems?.contains(roleItem) == true;
   }

@@ -42,7 +42,7 @@ class CustomDropDown extends StatelessWidget {
               borderSide: BorderSide(color: AppColors.blueColor, width: 1),
             ),
           ),
-          value: value == '' ? null : value,
+          // value: value == '' ? null : value,
           iconEnabledColor: Colors.blue,
           hint: Text(label, style: AppTextStyles.headLineStyle4, overflow: TextOverflow.ellipsis),
           onChanged: onChange,
