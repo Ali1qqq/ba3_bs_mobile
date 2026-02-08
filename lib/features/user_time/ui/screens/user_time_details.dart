@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../../../profile/ui/widgets/user_time_details_widgets/add_time_widget.dart';
 import '../../../profile/ui/widgets/user_time_details_widgets/holidays_widget.dart';
 import '../../../profile/ui/widgets/user_time_details_widgets/user_daily_time_widget.dart';
 import '../../controller/user_time_controller.dart';
@@ -16,9 +15,9 @@ class UserTimeDetails extends StatelessWidget {
         return ListView(
           physics: ClampingScrollPhysics(),
           children: [
-            AddTimeWidget(
-              userTimeController: userTimeController,
-            ),
+            // AddTimeWidget(
+            //   userTimeController: userTimeController,
+            // ),
             HolidaysWidget(
               userTimeController: userTimeController,
             ),
