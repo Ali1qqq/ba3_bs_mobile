@@ -1,3 +1,4 @@
+import 'package:ba3_bs_mobile/test_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -15,7 +16,8 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final TranslationController translationController = read<TranslationController>();
+    final TranslationController translationController =
+        read<TranslationController>();
 
     return ScreenUtilInit(
       designSize: const Size(390, 852),
@@ -31,6 +33,7 @@ class MyApp extends StatelessWidget {
         title: AppStrings.appTitle.tr,
         theme: AppThemes.defaultTheme,
         getPages: appRouter,
+        home: MigrationScreen(),
       ),
     );
   }

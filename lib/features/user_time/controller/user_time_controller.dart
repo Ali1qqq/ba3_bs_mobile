@@ -1,8 +1,7 @@
+import 'package:ba3_bs_mobile/core/constants/app_constants.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
-
-import '../../../core/constants/app_constants.dart';
 import '../../../core/constants/app_strings.dart';
 import '../../../core/helper/enums/enums.dart';
 import '../../../core/helper/extensions/getx_controller_extensions.dart';
@@ -34,20 +33,25 @@ class UserTimeController extends GetxController {
   void onInit() {
     super.onInit();
     _userTimeServices = UserTimeServices();
+    debugPrint(getUserById.toJson().toString(), wrapWidth: 1024);
     _updateLastTimes();
   }
 
   List<String>? get userHolidays => getUserById.userHolidays
       ?.toList()
       .where(
-        (element) => element.split("-")[1] == Timestamp.now().toDate().month.toString().padLeft(2, "0"),
+        (element) =>
+            element.split("-")[1] ==
+            Timestamp.now().toDate().month.toString().padLeft(2, "0"),
       )
       .toList();
 
   List<String>? get userJetourDays => getUserById.userJetourWork
       ?.toList()
       .where(
-        (element) => element.split("-")[1] == Timestamp.now().toDate().month.toString().padLeft(2, "0"),
+        (element) =>
+            element.split("-")[1] ==
+            Timestamp.now().toDate().month.toString().padLeft(2, "0"),
       )
       .toList();
 
@@ -67,41 +71,23 @@ class UserTimeController extends GetxController {
 
   int get userJetourLength => userJetourWorkWithDay?.length ?? 0;
 
-  UserModel get getUserById => read<UserManagementController>().loggedInUserModel!;
+  UserModel get getUserById =>
+      read<UserManagementController>().loggedInUserModel!;
 
   Future<void> checkTime(BuildContext context) async {
     await _handleLog(
-      context: context,
-      onUpdate: (user) => _userTimeServices.smartCheckTime(userModel: user),
-    );
+        context: context,
+        onUpdate: (user) => _userTimeServices.toggleCheckInOut(user));
   }
 
-  /* Future<void> logOut(BuildContext context) async {
-    await _handleLog(
-      context: context,
-      newStatus: UserWorkStatus.away,
-      onUpdate: (u) => _userTimeServices.addLogOutTimeToUserModel(userModel: u),
-      errorMsg: "يجب تسجيل الدخول أولاً",
-      state: logOutState,
-    );
-  }*/
-
-  /// we don't need it in diskTop app
-  /*   /// check if user in regin
-    if (!await isWithinRegion()) {
-      AppUIUtils.onFailure('خطأ في المنطقة الجغرافية');
-      return;
-    }*/
   Future<void> _handleLog({
     required BuildContext context,
     required UserModel Function(UserModel) onUpdate,
   }) async {
     await read<UserManagementController>().refreshLoggedInUser();
-
-    if (!_validateLog(
-      getUserById,
-    )) {
-      AppUIUtils.onFailure('تجاوزت حد اوقات الدخول لهذا اليوم');
+    bool isValid = await _validateLog(getUserById);
+    if (!isValid) {
+      AppUIUtils.onFailure("يجب ان تكون ضمن منطقة العمل");
       return;
     }
 
@@ -109,38 +95,41 @@ class UserTimeController extends GetxController {
 
     final updated = onUpdate(getUserById);
     final result = await _usersRepo.save(updated);
-
     result.fold(
-      (failure) {
+      (failure) async {
         checkTimeState.value = RequestState.error;
+        await _updateLastTimes();
         AppUIUtils.onFailure(failure.message);
       },
-      (_) {
+      (_) async {
         checkTimeState.value = RequestState.success;
-        AppUIUtils.onSuccess(userStatus.value != UserWorkStatus.online ? 'تم تسجيل الدخول بنجاح' : 'تم تسجيل الخروج بنجاح');
-        _updateLastTimes();
+        await _updateLastTimes();
+        AppUIUtils.onSuccess(userStatus.value == UserWorkStatus.online
+            ? 'تم تسجيل الدخول بنجاح'
+            : 'تم تسجيل الخروج بنجاح');
       },
     );
   }
 
-  bool _validateLog(
-    UserModel u,
-  ) {
-    final today = _userTimeServices.getCurrentDayName();
-    final model = u.userTimeModel?[today];
+  Future<bool> _validateLog(UserModel u) async {
+    // final today = _userTimeServices.todayKey;
+    // final model = u.userTimeModel?[today];
 
-    final logInCount = model?.logInDateList?.length ?? 0;
-    final logOutCount = model?.logOutDateList?.length ?? 0;
-    final expected = (u.userWorkingHours?.length ?? 0) * 2;
+    // final logInCount = model?.logInDateList?.length ?? 0;
+    // final logOutCount = model?.logOutDateList?.length ?? 0;
+    // final expected = (u.userWorkingHours?.length ?? 0) * 2;
 
-    // if (logInCount >= expected /*|| u.userWorkStatus == targetStatus*/) return false;
-    if (logOutCount + logInCount == expected /*|| u.userWorkStatus == targetStatus*/) return false;
-
+    // // if (logInCount >= expected /*|| u.userWorkStatus == targetStatus*/) return false;
+    // if (logOutCount + logInCount ==
+    //     expected /*|| u.userWorkStatus == targetStatus*/) return false;
+    if (await isWithinRegion() == false) return false;
     return true;
   }
 
-  void _updateLastTimes() {
-    final today = _userTimeServices.getCurrentDayName();
+  Future<void> _updateLastTimes() async {
+    await read<UserManagementController>().refreshLoggedInUser();
+    final today = _userTimeServices.todayKey;
+    print("today: $today");
     final loginList = getUserById.userTimeModel?[today]?.logInDateList ?? [];
     final logoutList = getUserById.userTimeModel?[today]?.logOutDateList ?? [];
     userStatus.value = getUserById.userWorkStatus ?? UserWorkStatus.away;
@@ -148,12 +137,15 @@ class UserTimeController extends GetxController {
       lastEnterTime.value = AppServiceUtils.formatDateTime(loginList.last);
     }
 
-    if (logoutList.isNotEmpty) {
+    if (logoutList.isNotEmpty && logoutList.length == loginList.length) {
       lastOutTime.value = AppServiceUtils.formatDateTime(logoutList.last);
+    }
+    if (logoutList.length < loginList.length) {
+      lastOutTime.value = "لم يتم تسجيل خروج بعد";
     }
   }
 
-  Future<bool> isWithinRegion(BuildContext context) async {
+  Future<bool> isWithinRegion() async {
     final result = await _timeRepo.getCurrentLocation();
     bool isWithinRegion = false;
     result.fold(
@@ -164,9 +156,15 @@ class UserTimeController extends GetxController {
       },
       (location) {
         return isWithinRegion = _userTimeServices.isWithinRegion(
-                location, AppConstants.targetLatitude, AppConstants.targetLongitude, AppConstants.radiusInMeters) ||
+                location,
+                AppConstants.targetLatitude,
+                AppConstants.targetLongitude,
+                AppConstants.radiusInMeters) ||
             _userTimeServices.isWithinRegion(
-                location, AppConstants.secondTargetLatitude, AppConstants.secondTargetLongitude, AppConstants.secondRadiusInMeters);
+                location,
+                AppConstants.secondTargetLatitude,
+                AppConstants.secondTargetLongitude,
+                AppConstants.secondRadiusInMeters);
       },
     );
 
@@ -174,18 +172,52 @@ class UserTimeController extends GetxController {
   }
 
   String get getTotalLoginDelayTime {
-    return AppServiceUtils.convertMinutesAndFormat((getUserById.userTimeModel?.values.fold(
-          0,
-          (previousValue, element) => previousValue! + (element.totalLogInDelay ?? 0),
-        ) ??
-        0));
+    int delay = 0;
+
+    final now = DateTime.now();
+    final currentYear = now.year;
+    final currentMonth = now.month;
+
+    getUserById.userTimeModel?.forEach((key, value) {
+      final date = DateTime.parse(key);
+
+      final isSameMonth =
+          date.year == currentYear && date.month == currentMonth;
+
+      final isNotToday = date.day != now.day ||
+          date.month != now.month ||
+          date.year != now.year;
+
+      if (isSameMonth && isNotToday) {
+        delay += value.totalLogInDelay ?? 0;
+      }
+    });
+
+    return AppServiceUtils.convertMinutesAndFormat(delay);
   }
 
   String get getTotalOutEarlierTime {
-    return AppServiceUtils.convertMinutesAndFormat((getUserById.userTimeModel?.values.fold(
-          0,
-          (previousValue, element) => previousValue! + (element.totalOutEarlier ?? 0),
-        ) ??
-        0));
+    int late = 0;
+
+    final now = DateTime.now();
+    final currentYear = now.year;
+    final currentMonth = now.month;
+
+    getUserById.userTimeModel?.forEach((key, value) {
+      final date = DateTime.parse(key);
+
+      final isSameMonth =
+          date.year == currentYear && date.month == currentMonth;
+
+      final isNotToday = date.day != now.day ||
+          date.month != now.month ||
+          date.year != now.year;
+
+      if (isSameMonth && isNotToday) {
+        late += value.totalOutEarlier ?? 0;
+      }
+    });
+
+    return AppServiceUtils.convertMinutesAndFormat(late);
   }
 }

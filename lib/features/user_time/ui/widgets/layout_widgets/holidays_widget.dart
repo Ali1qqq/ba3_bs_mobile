@@ -18,6 +18,7 @@ class HolidaysWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    print("-------${userTimeController.userHolidaysLength}");
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: OrganizedWidget(
@@ -43,7 +44,8 @@ class HolidaysWidget extends StatelessWidget {
                       ),
                       HorizontalSpace(),
                       Text(
-                        userTimeController.userHolidaysWithDay!.elementAt(index),
+                        userTimeController.userHolidaysWithDay!
+                            .elementAt(index),
                         style: AppTextStyles.headLineStyle3,
                       ),
                     ],
@@ -58,7 +60,8 @@ class HolidaysWidget extends StatelessWidget {
 
 final List<String> holidays = List.generate(
   2,
-  (index) => "2024-${(index + 1).toString().padLeft(2, "0")}-${(Random().nextInt(30) + 1).toString().padLeft(2, "0")}",
+  (index) =>
+      "2024-${(index + 1).toString().padLeft(2, "0")}-${(Random().nextInt(30) + 1).toString().padLeft(2, "0")}",
 );
 final List<String> holidaysName = holidays
     .map(
