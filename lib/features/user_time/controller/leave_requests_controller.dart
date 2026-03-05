@@ -139,6 +139,14 @@ class LeaveController extends GetxController {
       );
       return;
     }
+    final start = DateTime.parse(startDate.value).add(const Duration(days: 1));
+    final end = DateTime.parse(endDate.value);
+
+    if (start.isAfter(end)) {
+      AppUIUtils.onFailure(
+          'تاريخ البداية يجب أن يكون قبل او يساوي تاريخ النهاية');
+      return;
+    }
     addLeaveState.value = RequestState.loading;
 
     final leave = LeaveRequestModel(
