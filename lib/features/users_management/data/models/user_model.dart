@@ -2,6 +2,7 @@ import 'package:ba3_bs_mobile/core/constants/app_strings.dart';
 import 'package:ba3_bs_mobile/core/helper/extensions/task_status_extension.dart';
 import 'package:ba3_bs_mobile/core/utils/app_service_utils.dart';
 import 'package:ba3_bs_mobile/features/pluto/data/models/pluto_adaptable.dart';
+import 'package:ba3_bs_mobile/features/user_time/data/models/leave_requests_model.dart';
 import 'package:ba3_bs_mobile/features/users_management/data/models/target_model.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -25,6 +26,7 @@ class UserModel implements PlutoAdaptable {
   final UserActiveStatus? userActiveStatus;
   final List<String>? userHolidays;
   final List<String>? userJetourWork;
+  final List<UserLeaveRequestModel>? userLeaveRequests;
   final List<UserTaskModel>? userTaskList;
   final Map<String, UserWorkingHours>? userWorkingHours;
   bool hasGroupTarget;
@@ -57,6 +59,7 @@ class UserModel implements PlutoAdaptable {
     this.userSalary,
     this.userJetourWork,
     this.hasGroupTarget = false,
+    this.userLeaveRequests,
     // this.groupTarget,
   });
 
@@ -88,6 +91,15 @@ class UserModel implements PlutoAdaptable {
         "userTime": Map.fromEntries(userTimeModel!.entries
             .map((e) => MapEntry(e.key, e.value.toJson()))
             .toList()),
+
+      'userLeaveRequests':
+          (userLeaveRequests == null || (userLeaveRequests?.isEmpty ?? true))
+              ? []
+              : userLeaveRequests
+                  ?.map(
+                    (e) => e.toJson(),
+                  )
+                  .toList(),
     };
   }
 
@@ -117,6 +129,11 @@ class UserModel implements PlutoAdaptable {
           .groupName
           .trim()
           .isNotEmpty,
+      userLeaveRequests: json['userLeaveRequests'] == null
+          ? []
+          : (json['userLeaveRequests'] as List<dynamic>?)
+              ?.map((e) => UserLeaveRequestModel.fromJson(e))
+              .toList(),
 
       userId: json['docId'],
       userSellerId: json['userSellerId'],
@@ -143,28 +160,32 @@ class UserModel implements PlutoAdaptable {
   }
 
   /// Creates a copy of this UserModel with updated fields.
-  UserModel copyWith({
-    final String? userId,
-    final String? userName,
-    final String? userPassword,
-    final String? userRoleId,
-    final String? userSellerId,
-    final String? userSalary,
-    final UserWorkStatus? userWorkStatus,
-    final UserActiveStatus? userActiveStatus,
-    final List<String>? userHolidays,
-    final List<String>? userJetourWork,
-    final List<UserTaskModel>? userTaskList,
-    final Map<String, UserTimeModel>? userTimeModel,
-    final Map<String, UserWorkingHours>? userWorkingHours,
-    final String? loginDelay,
-    final String? logoutDelay,
-    final bool? haveHoliday,
-    final MaterialGroupModel? groupForTarget,
-    final double? userSalaryRatio,
-    final TargetModel? groupTarget,
-  }) =>
-      UserModel(
+  UserModel copyWith(
+      {final String? userId,
+      final String? userName,
+      final String? userPassword,
+      final String? userRoleId,
+      final String? userSellerId,
+      final String? userSalary,
+      final UserWorkStatus? userWorkStatus,
+      final UserActiveStatus? userActiveStatus,
+      final List<String>? userHolidays,
+      final List<String>? userJetourWork,
+      final List<UserTaskModel>? userTaskList,
+      final Map<String, UserTimeModel>? userTimeModel,
+      final Map<String, UserWorkingHours>? userWorkingHours,
+      final String? loginDelay,
+      final String? logoutDelay,
+      final bool? haveHoliday,
+      final MaterialGroupModel? groupForTarget,
+      final double? userSalaryRatio,
+      final TargetModel? groupTarget,
+      final List<UserLeaveRequestModel>? userLeaveRequests}) {
+    for (var e in userLeaveRequests ?? []) {
+      print('e.toJson()');
+      print(e.toJson());
+    }
+    return UserModel(
         userId: userId ?? this.userId,
         userName: userName ?? this.userName,
         userPassword: userPassword ?? this.userPassword,
@@ -183,8 +204,10 @@ class UserModel implements PlutoAdaptable {
         groupForTarget: groupForTarget ?? this.groupForTarget,
         userSalaryRatio: userSalaryRatio ?? this.userSalaryRatio,
         userSalary: userSalary ?? this.userSalary,
+        userLeaveRequests: userLeaveRequests ?? this.userLeaveRequests
         // groupTarget: groupTarget ?? this.groupTarget,
-      );
+        );
+  }
 
   @override
   Map<PlutoColumn, dynamic> toPlutoGridFormat([type]) {
@@ -479,6 +502,64 @@ class UserTimeModel {
               ? totalExtraMinutes + (this.totalExtraMinutes ?? 0)
               : this.totalExtraMinutes)
           ?.abs(),
+    );
+  }
+}
+
+class UserLeaveRequestModel {
+  final String id;
+  final String startDate;
+  final String endDate;
+  final LeaveType leaveType;
+  final LeaveStatus status;
+
+  UserLeaveRequestModel({
+    this.id = '',
+    this.startDate = '',
+    this.endDate = '',
+    this.leaveType = LeaveType.sick,
+    this.status = LeaveStatus.pending,
+  });
+
+  factory UserLeaveRequestModel.fromJson(Map<String, dynamic> map) {
+    return UserLeaveRequestModel(
+      id: map['docId'] ?? '',
+      startDate: map['startDate'] ?? '',
+      endDate: map['endDate'] ?? '',
+      leaveType: LeaveType.values.firstWhere(
+        (e) => e.name == map['leaveType'],
+        orElse: () => LeaveType.sick,
+      ),
+      status: LeaveStatus.values.firstWhere(
+        (e) => e.name == map['status'],
+        orElse: () => LeaveStatus.pending,
+      ),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'docId': id,
+      'startDate': startDate,
+      'endDate': endDate,
+      'leaveType': leaveType.name,
+      'status': status.name,
+    };
+  }
+
+  UserLeaveRequestModel copyWith({
+    String? id,
+    String? startDate,
+    String? endDate,
+    LeaveType? leaveType,
+    LeaveStatus? status,
+  }) {
+    return UserLeaveRequestModel(
+      id: id ?? this.id,
+      startDate: startDate ?? this.startDate,
+      endDate: endDate ?? this.endDate,
+      leaveType: leaveType ?? this.leaveType,
+      status: status ?? this.status,
     );
   }
 }

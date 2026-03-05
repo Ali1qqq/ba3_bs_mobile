@@ -1,5 +1,6 @@
 import 'package:ba3_bs_mobile/core/helper/extensions/role_item_type_extension.dart';
 import 'package:ba3_bs_mobile/features/profile/ui/screens/seller_profile.dart';
+import 'package:ba3_bs_mobile/features/user_time/ui/screens/leave_requests_screen.dart';
 import 'package:ba3_bs_mobile/features/users_management/data/models/role_model.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -108,6 +109,12 @@ class MainLayoutController extends GetxController {
       layout: const ProfileScreen(),
       icon: AppAssets.profileIcon,
       unSelectedIcon: AppAssets.profileUnselectedIcon,
+    ),
+    AppLayoutItemModel(
+      name: 'طلبات الاجازات',
+      layout: LeavePage(),
+      icon: AppAssets.usersTimeIcon,
+      unSelectedIcon: AppAssets.usersTimeUnselectedIcon,
     ),
     AppLayoutItemModel(
       name: 'بحث المواد',

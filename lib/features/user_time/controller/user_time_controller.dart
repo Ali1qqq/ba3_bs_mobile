@@ -1,6 +1,6 @@
 import 'package:ba3_bs_mobile/core/constants/app_constants.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../core/constants/app_strings.dart';
 import '../../../core/helper/enums/enums.dart';
@@ -85,30 +85,107 @@ class UserTimeController extends GetxController {
     required UserModel Function(UserModel) onUpdate,
   }) async {
     await read<UserManagementController>().refreshLoggedInUser();
-    bool isValid = await _validateLog(getUserById);
-    if (!isValid) {
-      AppUIUtils.onFailure("يجب ان تكون ضمن منطقة العمل");
+    // bool isValid = await _validateLog(getUserById);
+    // if (!isValid) {
+    //   AppUIUtils.onFailure("يجب ان تكون ضمن منطقة العمل");
+    //   return;
+    // }
+
+    checkTimeState.value = RequestState.loading;
+    final shifts = _userTimeServices.getSortedShifts(getUserById);
+    final yesterday = _userTimeServices.yesterdayKey;
+    final today = _userTimeServices.todayKey;
+    final loginYesterdayList =
+        getUserById.userTimeModel?[yesterday]?.logInDateList ?? [];
+    final logoutYesterdayList =
+        getUserById.userTimeModel?[yesterday]?.logOutDateList ?? [];
+    final loginTodayList =
+        getUserById.userTimeModel?[today]?.logInDateList ?? [];
+    final logoutTodayList =
+        getUserById.userTimeModel?[today]?.logOutDateList ?? [];
+
+    final updated = onUpdate(getUserById);
+
+    if ((loginYesterdayList.length > logoutYesterdayList.length) &&
+        !_userTimeServices.validateLoginTime(shifts)) {
+      final confirm =
+          await _confirmAction(message: 'هل تريد تسجيل الخروج ليوم امس؟');
+      checkTimeState.value = RequestState.success;
+      if (!confirm) return;
+      //تسجيل الخروج ليوم امس فقط دون تسجيل دخول لليوم الحالي
+      final result = await _usersRepo.save(updated);
+
+      result.fold(
+        (failure) async {
+          checkTimeState.value = RequestState.error;
+          await _updateLastTimes();
+          AppUIUtils.onFailure(failure.message);
+        },
+        (_) async {
+          checkTimeState.value = RequestState.success;
+          await _updateLastTimes();
+          AppUIUtils.onSuccess('تم تسجيل الخروج ليوم امس بنجاح');
+        },
+      );
       return;
     }
 
-    checkTimeState.value = RequestState.loading;
+    if ((loginTodayList.length == logoutTodayList.length) &&
+        !_userTimeServices.validateLoginTime(shifts)) {
+      checkTimeState.value = RequestState.error;
+      AppUIUtils.onFailure(
+          " يجب تسجيل الدخول قبل بداية الشفت الحالي بـ 15 دقيقة أو أقل");
+      return;
+    } else {
+      final confirm = await _confirmAction(
+          message: (loginTodayList.length == logoutTodayList.length)
+              ? 'هل تريد تسجيل الدخول لليوم الحالي؟'
+              : 'هل تريد تسجيل الخروج لليوم الحالي؟');
+      checkTimeState.value = RequestState.success;
+      if (!confirm) return;
+      //تسجيل الدخول لليوم الحالي مع تسجيل الخروج ليوم امس اذا  كان بحاجة
+      final result = await _usersRepo.save(updated);
 
-    final updated = onUpdate(getUserById);
-    final result = await _usersRepo.save(updated);
-    result.fold(
-      (failure) async {
-        checkTimeState.value = RequestState.error;
-        await _updateLastTimes();
-        AppUIUtils.onFailure(failure.message);
-      },
-      (_) async {
-        checkTimeState.value = RequestState.success;
-        await _updateLastTimes();
-        AppUIUtils.onSuccess(userStatus.value == UserWorkStatus.online
-            ? 'تم تسجيل الدخول بنجاح'
-            : 'تم تسجيل الخروج بنجاح');
-      },
+      result.fold(
+        (failure) async {
+          checkTimeState.value = RequestState.error;
+          await _updateLastTimes();
+          AppUIUtils.onFailure(failure.message);
+        },
+        (_) async {
+          checkTimeState.value = RequestState.success;
+          await _updateLastTimes();
+          AppUIUtils.onSuccess(userStatus.value == UserWorkStatus.online
+              ? 'تم تسجيل الدخول بنجاح'
+              : 'تم تسجيل الخروج بنجاح');
+        },
+      );
+      return;
+    }
+  }
+
+  Future<bool> _confirmAction(
+      {String message = "هل أنت متأكد من تنفيذ العملية؟"}) async {
+    final result = await Get.dialog<bool>(
+      AlertDialog(
+        title: const Text("تأكيد العملية"),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Get.back(result: false);
+            },
+            child: const Text("إلغاء"),
+          ),
+          ElevatedButton(
+            onPressed: () => Get.back(result: true),
+            child: const Text("تأكيد"),
+          ),
+        ],
+      ),
     );
+
+    return result ?? false;
   }
 
   Future<bool> _validateLog(UserModel u) async {
@@ -129,7 +206,6 @@ class UserTimeController extends GetxController {
   Future<void> _updateLastTimes() async {
     await read<UserManagementController>().refreshLoggedInUser();
     final today = _userTimeServices.todayKey;
-    print("today: $today");
     final loginList = getUserById.userTimeModel?[today]?.logInDateList ?? [];
     final logoutList = getUserById.userTimeModel?[today]?.logOutDateList ?? [];
     userStatus.value = getUserById.userWorkStatus ?? UserWorkStatus.away;

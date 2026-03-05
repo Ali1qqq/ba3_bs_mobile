@@ -184,7 +184,9 @@ class CustomAlertDialog {
                         ),
                         child: ElevatedButton(
                           onPressed: () {
-                            Get.back();
+                            // Navigator.pop(context);
+                            Navigator.of(Get.context!).pop();
+
                             onConfirmBtnTap?.call();
                           },
                           style: ElevatedButton.styleFrom(

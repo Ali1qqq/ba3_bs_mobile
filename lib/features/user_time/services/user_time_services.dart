@@ -5,10 +5,11 @@ import 'package:ba3_bs_mobile/core/helper/enums/enums.dart';
 import '../../users_management/data/models/user_model.dart';
 
 class UserTimeServices {
-  static const Duration gracePeriod = Duration(minutes: 10);
+  static const Duration gracePeriod = Duration(minutes: 15);
   // static const Duration autoLogoutAfter = Duration(hours: 3); // خروج تلقائي
 
-  DateTime get now => DateTime.now();
+  DateTime get now => DateTime(
+      DateTime.now().year, DateTime.now().month, DateTime.now().day + 1, 0, 0);
 
   String get todayKey => DateFormat('yyyy-MM-dd').format(now);
   String get yesterdayKey =>
@@ -27,6 +28,7 @@ class UserTimeServices {
   // =============================================================
   UserModel _autoCloseYesterday(UserModel user) {
     final yesterdayModel = user.userTimeModel?[yesterdayKey];
+
     // 1.إغلاق اليوم السابق تلقائياً إذا لزم الأمر
     if (yesterdayModel == null) return user;
 
@@ -37,7 +39,7 @@ class UserTimeServices {
 
     final lastLogin = logIns.last;
 
-    final shifts = _getSortedShifts(user);
+    final shifts = getSortedShifts(user);
 
     final normalizedLogin = _normalizeLoginTime(shifts, lastLogin);
 
@@ -50,50 +52,38 @@ class UserTimeServices {
       lastLogin.month,
       lastLogin.day + 1,
       2,
-      0,
+      10,
     );
 
     DateTime logoutTime;
     int extraMinutes = yesterdayModel.totalExtraMinutes ?? 0;
     final activeIndexShift =
         shifts.indexWhere((shift) => shift.enterTime == activeShift.enterTime);
-    print("activeIndexShift: $activeIndexShift");
 
     // الحالة 1: قبل 2 فجراً
-    if (now.isBefore(maxAllowedTime) && activeIndexShift == shifts.length - 1) {
+    if (now.isBefore(maxAllowedTime)) {
       logoutTime = now;
-
-      if (logoutTime.isAfter(scheduledOut)) {
+      if (logoutTime.isAfter(scheduledOut) &&
+          activeIndexShift == shifts.length - 1) {
         final lastoutTime = _getScheduledOutTime(shifts.last, normalizedLogin);
 
-        extraMinutes += logoutTime.difference(lastoutTime).inMinutes;
+        extraMinutes +=
+            secondsToMinutesCeil(logoutTime.difference(lastoutTime).inSeconds);
       }
     }
     // الحالة 2: نسي تسجيل خروج
     else {
       logoutTime = scheduledOut;
     }
-    var workedMinutes = 0;
 
-    if (now.isAfter(scheduledOut)) {
-      workedMinutes = scheduledOut.difference(normalizedLogin).inMinutes;
-    } else {
-      workedMinutes = now.difference(normalizedLogin).inMinutes;
-    }
+    var workedMinutes = 0;
+    workedMinutes = secondsToMinutesCeil(
+        scheduledOut.difference(normalizedLogin).inSeconds);
     int newOutEarlier = yesterdayModel.totalOutEarlier ?? 0;
 
     if (workedMinutes > 0) {
       newOutEarlier -= workedMinutes;
       if (newOutEarlier < 0) newOutEarlier = 0;
-    }
-    //السماح بالخروج المبكر قبل 10 دقايق من وقت الخروج النهائي
-    if (now.isAfter(_parseTimeOfDay(shifts.last.outTime!, now)
-        .subtract(const Duration(minutes: 11)))) {
-      if (newOutEarlier >= 10) {
-        newOutEarlier -= 10;
-      } else {
-        newOutEarlier = 0;
-      }
     }
 
     final updatedYesterday = yesterdayModel.copyWith(
@@ -109,7 +99,8 @@ class UserTimeServices {
 
   UserModel _processToday(UserModel user) {
     final dayModel = user.userTimeModel?[todayKey];
-    final shifts = _getSortedShifts(user);
+    final shifts = getSortedShifts(user);
+
     // تسجيل دخول لاول مرة خلال اليوم
     if (dayModel == null) {
       return _firstLogin(user, shifts);
@@ -125,6 +116,9 @@ class UserTimeServices {
 
   //أول دخول
   UserModel _firstLogin(UserModel user, List<UserWorkingHours> shifts) {
+    if (!validateLoginTime(shifts)) {
+      return user;
+    }
     // حساب وقت الدوام الكامل لليوم
     final totalShiftMinutes = _getTotalScheduledMinutes(shifts);
 
@@ -192,6 +186,9 @@ class UserTimeServices {
 
   UserModel _doCheckin(
       UserModel user, UserTimeModel dayModel, List<UserWorkingHours> shifts) {
+    if (!validateLoginTime(shifts)) {
+      return user;
+    }
     final normalizedLogin = _normalizeLoginTime(shifts, now);
     final activeShift = _getShiftForLogin(shifts, normalizedLogin);
 
@@ -240,9 +237,11 @@ class UserTimeServices {
     var workedMinutes = 0;
     //حساب وقت الحضور الفعلي بين اخر تسجيل للدخول والوقت الحالي
     if (now.isAfter(scheduledOut)) {
-      workedMinutes = scheduledOut.difference(normalizedLogin).inMinutes;
+      workedMinutes = secondsToMinutesCeil(
+          scheduledOut.difference(normalizedLogin).inSeconds);
     } else {
-      workedMinutes = now.difference(normalizedLogin).inMinutes;
+      workedMinutes =
+          secondsToMinutesCeil(now.difference(normalizedLogin).inSeconds);
     }
     int newOutEarlier = dayModel.totalOutEarlier ?? 0;
 
@@ -252,9 +251,9 @@ class UserTimeServices {
     }
     //السماح بالخروج المبكر قبل 10 دقايق من وقت الخروج النهائي
     if (now.isAfter(_parseTimeOfDay(shifts.last.outTime!, now)
-        .subtract(const Duration(minutes: 11)))) {
-      if (newOutEarlier >= 10) {
-        newOutEarlier -= 10;
+        .subtract(const Duration(minutes: 16)))) {
+      if (newOutEarlier >= 15) {
+        newOutEarlier -= 15;
       } else {
         newOutEarlier = 0;
       }
@@ -334,6 +333,31 @@ class UserTimeServices {
     return loginTime;
   }
 
+  int secondsToMinutesCeil(int seconds) {
+    return (seconds / 60).ceil();
+  }
+
+  //دالة التحقق من وقت الدخول
+  bool validateLoginTime(List<UserWorkingHours> shifts) {
+    DateTime loginTime = now;
+    for (var shift in shifts) {
+      final start = _parseTimeOfDay(shift.enterTime!, loginTime);
+      final end = _getScheduledOutTime(shift, loginTime);
+
+      final allowedBefore = start.subtract(const Duration(minutes: 15));
+
+      if (loginTime.isBefore(allowedBefore)) {
+        return false;
+      }
+
+      if (loginTime.isAfter(allowedBefore) && loginTime.isBefore(end)) {
+        return true; // مسموح
+      }
+    }
+
+    return false;
+  }
+
   // تحديد ساعات العمل (جمعة أو باقي الأيام)
   List<UserWorkingHours> _getWorkTimeModel(UserModel userModel) {
     return DateTime.now().weekday == DateTime.friday
@@ -358,7 +382,7 @@ class UserTimeServices {
   }
 
   DateTime _getScheduledOutTime(UserWorkingHours shift, DateTime base) {
-    final outStr = (shift.outTime ?? "11:59 PM").trim().toUpperCase();
+    final outStr = (shift.outTime!).trim().toUpperCase();
 
     // حالة خاصة واضحة
     if (outStr == "12:00 AM" || outStr == "12:00AM") {
@@ -376,7 +400,7 @@ class UserTimeServices {
     return outTime;
   }
 
-  List<UserWorkingHours> _getSortedShifts(UserModel user) {
+  List<UserWorkingHours> getSortedShifts(UserModel user) {
     final shifts = _getWorkTimeModel(user);
     shifts.sort(
         (a, b) => _parseTime(a.enterTime!).compareTo(_parseTime(b.enterTime!)));
