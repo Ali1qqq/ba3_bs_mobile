@@ -71,6 +71,7 @@ dependencies:
   vector_math: ^2.1.4
   firebase_storage: ^12.4.10
   mobile_scanner: ^6.0.2
+  ntp: ^2.0.0
 
 
 dev_dependencies:

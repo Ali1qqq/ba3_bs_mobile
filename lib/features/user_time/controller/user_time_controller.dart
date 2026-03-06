@@ -30,9 +30,10 @@ class UserTimeController extends GetxController {
   Rx<RequestState> logOutState = RequestState.initial.obs;
 
   @override
-  void onInit() {
+  void onInit() async {
     super.onInit();
     _userTimeServices = UserTimeServices();
+    await _userTimeServices.init();
     debugPrint(getUserById.toJson().toString(), wrapWidth: 1024);
     _updateLastTimes();
   }
@@ -84,14 +85,15 @@ class UserTimeController extends GetxController {
     required BuildContext context,
     required UserModel Function(UserModel) onUpdate,
   }) async {
-    await read<UserManagementController>().refreshLoggedInUser();
-    // bool isValid = await _validateLog(getUserById);
-    // if (!isValid) {
-    //   AppUIUtils.onFailure("يجب ان تكون ضمن منطقة العمل");
-    //   return;
-    // }
-
     checkTimeState.value = RequestState.loading;
+
+    await read<UserManagementController>().refreshLoggedInUser();
+    bool isValid = await _validateLog(getUserById);
+    if (!isValid) {
+      AppUIUtils.onFailure("يجب ان تكون ضمن منطقة العمل");
+      return;
+    }
+
     final shifts = _userTimeServices.getSortedShifts(getUserById);
     final yesterday = _userTimeServices.yesterdayKey;
     final today = _userTimeServices.todayKey;

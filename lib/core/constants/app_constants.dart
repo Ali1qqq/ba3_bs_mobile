@@ -461,7 +461,7 @@ abstract class AppConstants {
   static List<UserWorkingHours> fridayWorkingHours = [
     UserWorkingHours(
       id: '0',
-      enterTime: "04:45 AM",
+      enterTime: "04:45 PM",
       outTime: "12:00 AM",
     )
   ];

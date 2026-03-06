@@ -2,14 +2,34 @@ import 'package:ba3_bs_mobile/core/constants/app_constants.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:intl/intl.dart';
 import 'package:ba3_bs_mobile/core/helper/enums/enums.dart';
+import 'package:ntp/ntp.dart';
 import '../../users_management/data/models/user_model.dart';
 
 class UserTimeServices {
   static const Duration gracePeriod = Duration(minutes: 15);
   // static const Duration autoLogoutAfter = Duration(hours: 3); // خروج تلقائي
 
-  DateTime get now => DateTime(
-      DateTime.now().year, DateTime.now().month, DateTime.now().day + 1, 0, 0);
+  DateTime? _networkNow;
+
+  Future<void> init() async {
+    final now = await NTP.now();
+    final utc = now.toUtc().add(const Duration(hours: 4));
+    DateTime result = DateTime(
+      utc.year,
+      utc.month,
+      utc.day,
+      utc.hour,
+      utc.minute,
+      utc.second,
+      utc.millisecond,
+      utc.microsecond,
+    );
+
+    print("Network now: $result");
+    _networkNow = result;
+  }
+
+  DateTime get now => _networkNow ?? DateTime.now();
 
   String get todayKey => DateFormat('yyyy-MM-dd').format(now);
   String get yesterdayKey =>
@@ -77,8 +97,10 @@ class UserTimeServices {
     }
 
     var workedMinutes = 0;
-    workedMinutes = secondsToMinutesCeil(
-        scheduledOut.difference(normalizedLogin).inSeconds);
+    if (now.isAfter(lastLogin)) {
+      workedMinutes = secondsToMinutesCeil(
+          scheduledOut.difference(normalizedLogin).inSeconds);
+    }
     int newOutEarlier = yesterdayModel.totalOutEarlier ?? 0;
 
     if (workedMinutes > 0) {
@@ -141,11 +163,14 @@ class UserTimeServices {
       final alreadyExists = newMap.containsKey(key);
 
       if (!isHoliday && !alreadyExists) {
+        List<UserWorkingHours> shiftsToday =
+            _getWorkTimeModel(user, isFriday: day.weekday == DateTime.friday);
+        final totalShiftMinutesToday = _getTotalScheduledMinutes(shiftsToday);
         newMap[key] = UserTimeModel(
           dayName: key,
           logInDateList: [],
           logOutDateList: [],
-          totalLogInDelay: totalShiftMinutes, // تأخير كامل
+          totalLogInDelay: totalShiftMinutesToday, // تأخير كامل
           totalOutEarlier: 0,
           totalExtraMinutes: 0,
         );
@@ -236,12 +261,15 @@ class UserTimeServices {
 
     var workedMinutes = 0;
     //حساب وقت الحضور الفعلي بين اخر تسجيل للدخول والوقت الحالي
-    if (now.isAfter(scheduledOut)) {
-      workedMinutes = secondsToMinutesCeil(
-          scheduledOut.difference(normalizedLogin).inSeconds);
-    } else {
-      workedMinutes =
-          secondsToMinutesCeil(now.difference(normalizedLogin).inSeconds);
+    if (now.isAfter(lastLogin)) {
+      // لضمان عدم التلاعب بالوقت
+      if (now.isAfter(scheduledOut)) {
+        workedMinutes = secondsToMinutesCeil(
+            scheduledOut.difference(normalizedLogin).inSeconds);
+      } else {
+        workedMinutes =
+            secondsToMinutesCeil(now.difference(normalizedLogin).inSeconds);
+      }
     }
     int newOutEarlier = dayModel.totalOutEarlier ?? 0;
 
@@ -293,10 +321,10 @@ class UserTimeServices {
   //نحسب كامل وقت الدوام لليوم
   int _getTotalScheduledMinutes(List<UserWorkingHours> shifts) {
     int total = 0;
-
     for (var shift in shifts) {
       final start = _parseTimeOfDay(shift.enterTime!, now);
       final end = _getScheduledOutTime(shift, now);
+
       total += end.difference(start).inMinutes;
     }
 
@@ -340,26 +368,34 @@ class UserTimeServices {
   //دالة التحقق من وقت الدخول
   bool validateLoginTime(List<UserWorkingHours> shifts) {
     DateTime loginTime = now;
-    for (var shift in shifts) {
-      final start = _parseTimeOfDay(shift.enterTime!, loginTime);
-      final end = _getScheduledOutTime(shift, loginTime);
+    final normalizedLogin = _normalizeLoginTime(shifts, loginTime);
 
-      final allowedBefore = start.subtract(const Duration(minutes: 15));
+    final activeShift = _getShiftForLogin(shifts, normalizedLogin);
 
-      if (loginTime.isBefore(allowedBefore)) {
-        return false;
-      }
+    final start = _parseTimeOfDay(activeShift.enterTime!, loginTime);
+    final end = _getScheduledOutTime(activeShift, loginTime);
 
-      if (loginTime.isAfter(allowedBefore) && loginTime.isBefore(end)) {
-        return true; // مسموح
-      }
+    final allowedBefore = start.subtract(const Duration(minutes: 15));
+
+    if (loginTime.isBefore(allowedBefore)) {
+      return false;
+    }
+
+    if (loginTime.isAfter(allowedBefore) && loginTime.isBefore(end)) {
+      return true; // مسموح
     }
 
     return false;
   }
 
   // تحديد ساعات العمل (جمعة أو باقي الأيام)
-  List<UserWorkingHours> _getWorkTimeModel(UserModel userModel) {
+  List<UserWorkingHours> _getWorkTimeModel(UserModel userModel,
+      {bool? isFriday}) {
+    if (isFriday != null) {
+      return isFriday
+          ? AppConstants.fridayWorkingHours
+          : userModel.userWorkingHours!.values.toList();
+    }
     return DateTime.now().weekday == DateTime.friday
         ? AppConstants.fridayWorkingHours
         : userModel.userWorkingHours!.values.toList();
