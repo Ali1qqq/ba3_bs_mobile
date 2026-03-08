@@ -14,6 +14,7 @@ class UserTimeServices {
   Future<void> init() async {
     final now = await NTP.now();
     final utc = now.toUtc().add(const Duration(hours: 4));
+
     DateTime result = DateTime(
       utc.year,
       utc.month,
@@ -47,6 +48,8 @@ class UserTimeServices {
 
   // =============================================================
   UserModel _autoCloseYesterday(UserModel user) {
+    print(now);
+
     final yesterdayModel = user.userTimeModel?[yesterdayKey];
 
     // 1.إغلاق اليوم السابق تلقائياً إذا لزم الأمر

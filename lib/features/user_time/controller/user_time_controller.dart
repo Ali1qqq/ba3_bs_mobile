@@ -86,7 +86,6 @@ class UserTimeController extends GetxController {
     required UserModel Function(UserModel) onUpdate,
   }) async {
     checkTimeState.value = RequestState.loading;
-
     await read<UserManagementController>().refreshLoggedInUser();
     bool isValid = await _validateLog(getUserById);
     if (!isValid) {
@@ -112,8 +111,13 @@ class UserTimeController extends GetxController {
         !_userTimeServices.validateLoginTime(shifts)) {
       final confirm =
           await _confirmAction(message: 'هل تريد تسجيل الخروج ليوم امس؟');
-      checkTimeState.value = RequestState.success;
-      if (!confirm) return;
+
+      if (!confirm) {
+        checkTimeState.value = RequestState.success;
+        return;
+      }
+      await _userTimeServices.init();
+
       //تسجيل الخروج ليوم امس فقط دون تسجيل دخول لليوم الحالي
       final result = await _usersRepo.save(updated);
 
@@ -143,8 +147,12 @@ class UserTimeController extends GetxController {
           message: (loginTodayList.length == logoutTodayList.length)
               ? 'هل تريد تسجيل الدخول لليوم الحالي؟'
               : 'هل تريد تسجيل الخروج لليوم الحالي؟');
-      checkTimeState.value = RequestState.success;
-      if (!confirm) return;
+      if (!confirm) {
+        checkTimeState.value = RequestState.success;
+        return;
+      }
+      await _userTimeServices.init();
+
       //تسجيل الدخول لليوم الحالي مع تسجيل الخروج ليوم امس اذا  كان بحاجة
       final result = await _usersRepo.save(updated);
 

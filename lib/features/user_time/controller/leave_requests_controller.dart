@@ -138,8 +138,8 @@ class LeaveController extends GetxController {
       );
       return;
     }
-    final start = DateTime.parse(startDate.value).add(const Duration(days: 1));
-    final end = DateTime.parse(endDate.value);
+    final start = DateTime.parse(startDate.value);
+    final end = DateTime.parse(endDate.value).add(const Duration(days: 1));
 
     if (start.isAfter(end)) {
       AppUIUtils.onFailure(
@@ -269,118 +269,3 @@ class LeaveController extends GetxController {
     }
   }
 }
-
-// import 'package:ba3_bs_mobile/core/constants/app_constants.dart';
-// import 'package:ba3_bs_mobile/core/services/get_x/shared_preferences_service.dart';
-// import 'package:ba3_bs_mobile/features/user_time/data/models/leave_requests_model.dart';
-// import 'package:firebase_core/firebase_core.dart';
-// import 'package:get/get.dart';
-// import 'package:cloud_firestore/cloud_firestore.dart';
-// import 'package:uuid/uuid.dart';
-
-// class LeaveController extends GetxController {
-//   final firebaseApp = Firebase.app();
-//   late FirebaseFirestore firestoreInstance;
-
-//   RxList<LeaveRequestModel> userLeaves = <LeaveRequestModel>[].obs;
-//   final sharedPreferencesService = Get.find<SharedPreferencesService>();
-//   late String userId;
-
-//   @override
-//   void onInit() {
-//     super.onInit();
-//     firestoreInstance =
-//         FirebaseFirestore.instanceFor(app: firebaseApp, databaseId: "test-eu");
-//     userId = sharedPreferencesService.getString(AppConstants.userIdKey) ?? "";
-//     fetchUserLeaves();
-//   }
-
-//   Future<void> fetchUserLeaves() async {
-//     final doc = await firestoreInstance.collection('users').doc(userId).get();
-
-//     final data = doc.data();
-
-//     if (data == null || data['userLeaveRequests'] == null) {
-//       userLeaves.clear();
-//       return;
-//     }
-
-//     List list = data['userLeaveRequests'];
-
-//     userLeaves.value = list.map((e) => LeaveRequestModel.fromJson(e)).toList();
-//   }
-
-//   Future<void> addLeave({
-//     required String startDate,
-//     required String endDate,
-//     required String leaveType,
-//   }) async {
-//     final leaveId = const Uuid().v4();
-
-//     final leave = LeaveRequestModel(
-//       id: leaveId,
-//       userId: userId,
-//       startDate: startDate,
-//       endDate: endDate,
-//       leaveType: leaveType,
-//       status: 'pending',
-//     );
-
-//     final leaveRef =
-//         firestoreInstance.collection('leave_requests').doc(leaveId);
-
-//     final userRef = firestoreInstance.collection('users').doc(userId);
-
-//     WriteBatch batch = firestoreInstance.batch();
-
-//     batch.set(leaveRef, leave.toJson());
-
-//     batch.update(userRef, {
-//       'userLeaveRequests': FieldValue.arrayUnion([
-//         {
-//           'id': leave.id,
-//           'startDate': leave.startDate,
-//           'endDate': leave.endDate,
-//           'leaveType': leave.leaveType,
-//           'status': leave.status,
-//         }
-//       ])
-//     });
-
-//     await batch.commit();
-
-//     fetchUserLeaves();
-//   }
-
-//   Future<void> updateStatus({
-//     required String leaveId,
-//     required String newStatus,
-//   }) async {
-//     final leaveRef =
-//         firestoreInstance.collection('leave_requests').doc(leaveId);
-
-//     final userRef = firestoreInstance.collection('users').doc(userId);
-
-//     final snapshot = await userRef.get();
-//     final data = snapshot.data();
-
-//     if (data == null) return;
-
-//     List leaves = List.from(data['userLeaveRequests']);
-
-//     int index = leaves.indexWhere((e) => e['id'] == leaveId);
-
-//     if (index == -1) return;
-
-//     leaves[index]['status'] = newStatus;
-
-//     WriteBatch batch = firestoreInstance.batch();
-
-//     batch.update(leaveRef, {'status': newStatus});
-//     batch.update(userRef, {'userLeaveRequests': leaves});
-
-//     await batch.commit();
-
-//     fetchUserLeaves();
-//   }
-// }
