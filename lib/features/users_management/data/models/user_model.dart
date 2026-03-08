@@ -2,6 +2,7 @@ import 'package:ba3_bs_mobile/core/constants/app_strings.dart';
 import 'package:ba3_bs_mobile/core/helper/extensions/task_status_extension.dart';
 import 'package:ba3_bs_mobile/core/utils/app_service_utils.dart';
 import 'package:ba3_bs_mobile/features/pluto/data/models/pluto_adaptable.dart';
+import 'package:ba3_bs_mobile/features/user_loan_requests/data/model/user_loan_request_model.dart';
 import 'package:ba3_bs_mobile/features/user_time/data/models/leave_requests_model.dart';
 import 'package:ba3_bs_mobile/features/users_management/data/models/target_model.dart';
 import 'package:flutter/material.dart';
@@ -27,6 +28,7 @@ class UserModel implements PlutoAdaptable {
   final List<String>? userHolidays;
   final List<String>? userJetourWork;
   final List<UserLeaveRequestModel>? userLeaveRequests;
+  final List<UserLoanRequestModel>? userLoanRequests;
   final List<UserTaskModel>? userTaskList;
   final Map<String, UserWorkingHours>? userWorkingHours;
   bool hasGroupTarget;
@@ -60,6 +62,7 @@ class UserModel implements PlutoAdaptable {
     this.userJetourWork,
     this.hasGroupTarget = false,
     this.userLeaveRequests,
+    this.userLoanRequests,
     // this.groupTarget,
   });
 
@@ -100,6 +103,14 @@ class UserModel implements PlutoAdaptable {
                     (e) => e.toJson(),
                   )
                   .toList(),
+      'userLoanRequests':
+          (userLoanRequests == null || (userLoanRequests?.isEmpty ?? true))
+              ? []
+              : userLoanRequests
+                  ?.map(
+                    (e) => e.toJson(),
+                  )
+                  .toList(),
     };
   }
 
@@ -133,6 +144,11 @@ class UserModel implements PlutoAdaptable {
           ? []
           : (json['userLeaveRequests'] as List<dynamic>?)
               ?.map((e) => UserLeaveRequestModel.fromJson(e))
+              .toList(),
+      userLoanRequests: json['userLoanRequests'] == null
+          ? []
+          : (json['userAdvanceRequests'] as List<dynamic>?)
+              ?.map((e) => UserLoanRequestModel.fromJson(e))
               .toList(),
 
       userId: json['docId'],
@@ -180,33 +196,35 @@ class UserModel implements PlutoAdaptable {
       final MaterialGroupModel? groupForTarget,
       final double? userSalaryRatio,
       final TargetModel? groupTarget,
-      final List<UserLeaveRequestModel>? userLeaveRequests}) {
+      final List<UserLeaveRequestModel>? userLeaveRequests,
+      final List<UserLoanRequestModel>? userLoanRequests}) {
     for (var e in userLeaveRequests ?? []) {
       print('e.toJson()');
       print(e.toJson());
     }
     return UserModel(
-        userId: userId ?? this.userId,
-        userName: userName ?? this.userName,
-        userPassword: userPassword ?? this.userPassword,
-        userRoleId: userRoleId ?? this.userRoleId,
-        userSellerId: userSellerId ?? this.userSellerId,
-        userTimeModel: userTimeModel ?? this.userTimeModel,
-        userWorkStatus: userWorkStatus ?? this.userWorkStatus,
-        userActiveStatus: userActiveStatus ?? this.userActiveStatus,
-        userHolidays: userHolidays ?? this.userHolidays,
-        userJetourWork: userJetourWork ?? this.userJetourWork,
-        userWorkingHours: userWorkingHours ?? this.userWorkingHours,
-        loginDelay: loginDelay ?? this.loginDelay,
-        logoutDelay: logoutDelay ?? this.logoutDelay,
-        haveHoliday: haveHoliday ?? this.haveHoliday,
-        userTaskList: userTaskList ?? this.userTaskList,
-        groupForTarget: groupForTarget ?? this.groupForTarget,
-        userSalaryRatio: userSalaryRatio ?? this.userSalaryRatio,
-        userSalary: userSalary ?? this.userSalary,
-        userLeaveRequests: userLeaveRequests ?? this.userLeaveRequests
-        // groupTarget: groupTarget ?? this.groupTarget,
-        );
+      userId: userId ?? this.userId,
+      userName: userName ?? this.userName,
+      userPassword: userPassword ?? this.userPassword,
+      userRoleId: userRoleId ?? this.userRoleId,
+      userSellerId: userSellerId ?? this.userSellerId,
+      userTimeModel: userTimeModel ?? this.userTimeModel,
+      userWorkStatus: userWorkStatus ?? this.userWorkStatus,
+      userActiveStatus: userActiveStatus ?? this.userActiveStatus,
+      userHolidays: userHolidays ?? this.userHolidays,
+      userJetourWork: userJetourWork ?? this.userJetourWork,
+      userWorkingHours: userWorkingHours ?? this.userWorkingHours,
+      loginDelay: loginDelay ?? this.loginDelay,
+      logoutDelay: logoutDelay ?? this.logoutDelay,
+      haveHoliday: haveHoliday ?? this.haveHoliday,
+      userTaskList: userTaskList ?? this.userTaskList,
+      groupForTarget: groupForTarget ?? this.groupForTarget,
+      userSalaryRatio: userSalaryRatio ?? this.userSalaryRatio,
+      userSalary: userSalary ?? this.userSalary,
+      userLeaveRequests: userLeaveRequests ?? this.userLeaveRequests,
+      userLoanRequests: userLoanRequests ?? this.userLoanRequests,
+      // groupTarget: groupTarget ?? this.groupTarget,
+    );
   }
 
   @override

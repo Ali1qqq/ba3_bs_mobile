@@ -43,6 +43,9 @@ import 'package:ba3_bs_mobile/features/sellers/controllers/seller_sales_controll
 import 'package:ba3_bs_mobile/features/sellers/controllers/sellers_controller.dart';
 import 'package:ba3_bs_mobile/features/sellers/data/datasources/remote/sellers_data_source.dart';
 import 'package:ba3_bs_mobile/features/sellers/data/models/seller_model.dart';
+import 'package:ba3_bs_mobile/features/user_loan_requests/controller/loan_request_controller.dart';
+import 'package:ba3_bs_mobile/features/user_loan_requests/data/datasources/loan_request_data_source.dart';
+import 'package:ba3_bs_mobile/features/user_loan_requests/data/model/loan_request_model.dart';
 import 'package:ba3_bs_mobile/features/user_time/controller/leave_requests_controller.dart';
 import 'package:ba3_bs_mobile/features/user_time/data/models/leave_requests_model.dart';
 import 'package:ba3_bs_mobile/features/user_time/data/remote_data_source/leave_remote_datasource.dart';
@@ -239,85 +242,85 @@ class AppBindings extends Bindings {
     required ListenDataSourceRepository<ChangesModel> changesRepo,
   }) {
     return _Repositories(
-      translationRepo: TranslationRepository(translationService),
-      patternsRepo: RemoteDataSourceRepository(
-          PatternsDatasource(databaseService: remoteDatabaseService)),
-      migrationRepo: RemoteDataSourceRepository(
-          MigrationRemoteDatasource(databaseService: remoteDatabaseService)),
-      billsRepo: CompoundDatasourceRepository(BillCompoundDatasource(
-          compoundDatabaseService: remoteCompoundDataBaseService)),
-      serialNumbersRepo: QueryableSavableRepository(
-          MaterialsSerialsDataSource(databaseService: remoteDatabaseService)),
-      bondsRepo: CompoundDatasourceRepository(BondCompoundDatasource(
-          compoundDatabaseService: remoteCompoundDataBaseService)),
-      chequesRepo: CompoundDatasourceRepository(ChequesCompoundDatasource(
-          compoundDatabaseService: remoteCompoundDataBaseService)),
-      entryBondsRepo: BulkSavableDatasourceRepository(
-          EntryBondsDatasource(databaseService: remoteDatabaseService)),
-      accountsStatementsRepo: CompoundDatasourceRepository(
-          AccountsStatementsDatasource(
-              compoundDatabaseService: remoteCompoundDataBaseService)),
-      billImportExportRepo:
-          ImportExportRepository(billImportService, billExportService),
-      chequesImportExportRepo:
-          ImportExportRepository(chequesImportService, chequesExportService),
-      userTimeRepo: UserTimeRepository(),
-      sellersRepo: BulkSavableDatasourceRepository(
-          SellersDatasource(databaseService: remoteDatabaseService)),
-      materialsRemoteDatasourceRepo: QueryableSavableRepository(
-          MaterialsRemoteDatasource(databaseService: remoteDatabaseService)),
-      accountsRep: BulkSavableDatasourceRepository(
-          AccountsDatasource(databaseService: remoteDatabaseService)),
-      bondImportExportRepo:
-          ImportExportRepository(bondImportService, bondExportService),
-      materialImportExportRepo:
-          ImportExportRepository(materialImportService, materialExportService),
-      accountImportExportRepo:
-          ImportExportRepository(accountImportService, accountExportService),
-      sellerImportRepo: ImportRepository(sellersImportService),
-      materialsLocalDatasourceRepo: LocalDatasourceRepository(
-        localDatasource: MaterialsLocalDatasource(materialsHiveService),
-        remoteDatasource:
-            MaterialsRemoteDatasource(databaseService: remoteDatabaseService),
-      ),
-      listenableDatasourceRepo: changesRepo,
-      importMaterialRepository: ImportRepository(importMaterialGroupService),
-      materialGroupDataSource: QueryableSavableRepository(
-          MaterialsGroupsDataSource(databaseService: remoteDatabaseService)),
-      customerImportRepo: ImportRepository(customerImportService),
-      customersRepo: BulkSavableDatasourceRepository(
-          CustomersDatasource(databaseService: remoteDatabaseService)),
-      matStatementsRepo: CompoundDatasourceRepository(
-        MaterialsStatementsDatasource(
-            compoundDatabaseService: remoteCompoundDataBaseService),
-      ),
-      storeCartRepo: ListenDataSourceRepository(
-          StoreCartDataSource(databaseService: remoteDatabaseService)),
-      dashboardAccountRepo: LocalDatasourceRepository(
-        localDatasource: DashboardAccountDataSource(dashboardHiveService),
-        remoteDatasource:
-            RemoteDashboardDataSource(databaseService: remoteDatabaseService),
-      ),
+        translationRepo: TranslationRepository(translationService),
+        patternsRepo: RemoteDataSourceRepository(
+            PatternsDatasource(databaseService: remoteDatabaseService)),
+        migrationRepo: RemoteDataSourceRepository(
+            MigrationRemoteDatasource(databaseService: remoteDatabaseService)),
+        billsRepo: CompoundDatasourceRepository(BillCompoundDatasource(
+            compoundDatabaseService: remoteCompoundDataBaseService)),
+        serialNumbersRepo: QueryableSavableRepository(
+            MaterialsSerialsDataSource(databaseService: remoteDatabaseService)),
+        bondsRepo: CompoundDatasourceRepository(BondCompoundDatasource(
+            compoundDatabaseService: remoteCompoundDataBaseService)),
+        chequesRepo: CompoundDatasourceRepository(ChequesCompoundDatasource(
+            compoundDatabaseService: remoteCompoundDataBaseService)),
+        entryBondsRepo: BulkSavableDatasourceRepository(
+            EntryBondsDatasource(databaseService: remoteDatabaseService)),
+        accountsStatementsRepo: CompoundDatasourceRepository(
+            AccountsStatementsDatasource(
+                compoundDatabaseService: remoteCompoundDataBaseService)),
+        billImportExportRepo:
+            ImportExportRepository(billImportService, billExportService),
+        chequesImportExportRepo:
+            ImportExportRepository(chequesImportService, chequesExportService),
+        userTimeRepo: UserTimeRepository(),
+        sellersRepo: BulkSavableDatasourceRepository(
+            SellersDatasource(databaseService: remoteDatabaseService)),
+        materialsRemoteDatasourceRepo: QueryableSavableRepository(
+            MaterialsRemoteDatasource(databaseService: remoteDatabaseService)),
+        accountsRep: BulkSavableDatasourceRepository(
+            AccountsDatasource(databaseService: remoteDatabaseService)),
+        bondImportExportRepo:
+            ImportExportRepository(bondImportService, bondExportService),
+        materialImportExportRepo: ImportExportRepository(
+            materialImportService, materialExportService),
+        accountImportExportRepo:
+            ImportExportRepository(accountImportService, accountExportService),
+        sellerImportRepo: ImportRepository(sellersImportService),
+        materialsLocalDatasourceRepo: LocalDatasourceRepository(
+          localDatasource: MaterialsLocalDatasource(materialsHiveService),
+          remoteDatasource:
+              MaterialsRemoteDatasource(databaseService: remoteDatabaseService),
+        ),
+        listenableDatasourceRepo: changesRepo,
+        importMaterialRepository: ImportRepository(importMaterialGroupService),
+        materialGroupDataSource: QueryableSavableRepository(
+            MaterialsGroupsDataSource(databaseService: remoteDatabaseService)),
+        customerImportRepo: ImportRepository(customerImportService),
+        customersRepo: BulkSavableDatasourceRepository(
+            CustomersDatasource(databaseService: remoteDatabaseService)),
+        matStatementsRepo: CompoundDatasourceRepository(
+          MaterialsStatementsDatasource(
+              compoundDatabaseService: remoteCompoundDataBaseService),
+        ),
+        storeCartRepo: ListenDataSourceRepository(
+            StoreCartDataSource(databaseService: remoteDatabaseService)),
+        dashboardAccountRepo: LocalDatasourceRepository(
+          localDatasource: DashboardAccountDataSource(dashboardHiveService),
+          remoteDatasource:
+              RemoteDashboardDataSource(databaseService: remoteDatabaseService),
+        ),
+        tasksRepo: UploaderStorageQueryableRepo(
+          UserTaskDataSource(
+              databaseService: remoteDatabaseService,
+              databaseStorageService: remoteStorageService),
+        ),
 
-      tasksRepo: UploaderStorageQueryableRepo(
-        UserTaskDataSource(
-            databaseService: remoteDatabaseService,
-            databaseStorageService: remoteStorageService),
-      ),
+        // tasksRepo: UploaderStorageQueryableRepo(UserTaskDataSource(databaseService: remoteDatabaseService)),
 
-      // tasksRepo: UploaderStorageQueryableRepo(UserTaskDataSource(databaseService: remoteDatabaseService)),
-
-      logsRepo: FilterableDataSourceRepository(
-          LogDataSource(databaseService: remoteDatabaseService)),
-
-      leavesRepo: FilterableDataSourceRepository(
-        LeaveRemoteDatasource(databaseService: remoteDatabaseService),
-      ),
-      usersRepo: RemoteDataSourceRepository(
-        UserLeaveRequestsRemoteDatasource(
-            databaseService: remoteDatabaseService),
-      ),
-    );
+        logsRepo:
+            FilterableDataSourceRepository(LogDataSource(databaseService: remoteDatabaseService)),
+        leavesRepo: FilterableDataSourceRepository(
+          LeaveRemoteDatasource(databaseService: remoteDatabaseService),
+        ),
+        usersRepo: RemoteDataSourceRepository(
+          UserLeaveRequestsRemoteDatasource(
+              databaseService: remoteDatabaseService),
+        ),
+        loansRepo: FilterableDataSourceRepository(
+          LoanRequestRemoteDatasource(databaseService: remoteDatabaseService),
+        ));
   }
 
   // Permanent Controllers Initialization
@@ -402,6 +405,9 @@ class AppBindings extends Bindings {
     lazyPut(
       LeaveController(repositories.leavesRepo, repositories.usersRepo),
     );
+    lazyPut(
+      LoanController(repositories.loansRepo, repositories.usersRepo),
+    );
   }
 }
 
@@ -442,6 +448,7 @@ class _Repositories {
   final FilterableDataSourceRepository<LogModel> logsRepo;
   final FilterableDataSourceRepository<LeaveRequestModel> leavesRepo;
   final RemoteDataSourceRepository<UserModel> usersRepo;
+  final FilterableDataSourceRepository<LoanRequestModel> loansRepo;
   _Repositories(
       {required this.translationRepo,
       required this.patternsRepo,
@@ -474,5 +481,6 @@ class _Repositories {
       required this.tasksRepo,
       required this.logsRepo,
       required this.leavesRepo,
-      required this.usersRepo});
+      required this.usersRepo,
+      required this.loansRepo});
 }

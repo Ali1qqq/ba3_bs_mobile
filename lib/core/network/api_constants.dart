@@ -85,4 +85,5 @@ class ApiConstants {
   static String userTask = 'user_task';
 
   static const String leaveRequests = "leave_requests";
+  static const loanRequests = "loan_requests";
 }
