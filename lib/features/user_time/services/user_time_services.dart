@@ -25,7 +25,6 @@ class UserTimeServices {
       utc.millisecond,
       utc.microsecond,
     );
-
     print("Network now: $result");
     _networkNow = result;
     now = _networkNow ?? DateTime.now();

@@ -1,3 +1,4 @@
+import 'package:ba3_bs_mobile/core/constants/app_strings.dart';
 import 'package:ba3_bs_mobile/core/helper/enums/enums.dart';
 import 'package:ba3_bs_mobile/features/user_loan_requests/controller/loan_request_controller.dart';
 import 'package:ba3_bs_mobile/features/user_loan_requests/data/model/loan_request_model.dart';
@@ -67,17 +68,17 @@ class LoanRequestsPage extends GetView<LoanController> {
               case LoanStatus.approved:
                 statusColor = Colors.green;
                 statusIcon = Icons.check_circle;
-                statusText = 'مقبولة';
+                statusText = AppStrings.approved.tr;
                 break;
               case LoanStatus.rejected:
                 statusColor = Colors.red;
                 statusIcon = Icons.cancel;
-                statusText = 'مرفوضة';
+                statusText = AppStrings.rejected.tr;
                 break;
               default:
                 statusColor = Colors.orange;
                 statusIcon = Icons.pending;
-                statusText = 'قيد الانتظار';
+                statusText = AppStrings.pending.tr;
             }
 
             return LoanCardWidget(
@@ -93,7 +94,7 @@ class LoanRequestsPage extends GetView<LoanController> {
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _showAddLoanDialog(context),
         icon: const Icon(Icons.add),
-        label: const Text("طلب سلفة"),
+        label: Text(AppStrings.addLoanRequest.tr),
         backgroundColor: Colors.blue,
       ),
     );

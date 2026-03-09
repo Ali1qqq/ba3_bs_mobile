@@ -115,7 +115,7 @@ class UserTimeController extends GetxController {
     if ((loginYesterdayList.length > logoutYesterdayList.length) &&
         !_userTimeServices.validateLoginTime(shifts)) {
       final confirm =
-          await _confirmAction(message: 'هل تريد تسجيل الخروج ليوم امس؟');
+          await _confirmAction(message: AppStrings.confirmLogoutYesterday);
 
       if (!confirm) {
         checkTimeState.value = RequestState.success;
@@ -134,7 +134,7 @@ class UserTimeController extends GetxController {
         (_) async {
           checkTimeState.value = RequestState.success;
           await _updateLastTimes();
-          AppUIUtils.onSuccess('تم تسجيل الخروج ليوم امس بنجاح');
+          AppUIUtils.onSuccess(AppStrings.logoutSuccess.tr);
         },
       );
       return;
@@ -143,14 +143,13 @@ class UserTimeController extends GetxController {
     if ((loginTodayList.length == logoutTodayList.length) &&
         !_userTimeServices.validateLoginTime(shifts)) {
       checkTimeState.value = RequestState.error;
-      AppUIUtils.onFailure(
-          " يجب تسجيل الدخول قبل بداية الشفت الحالي بـ 15 دقيقة أو أقل");
+      AppUIUtils.onFailure(AppStrings.mustLoginBeforeShift.tr);
       return;
     } else {
       final confirm = await _confirmAction(
           message: (loginTodayList.length == logoutTodayList.length)
-              ? 'هل تريد تسجيل الدخول لليوم الحالي؟'
-              : 'هل تريد تسجيل الخروج لليوم الحالي؟');
+              ? AppStrings.confirmLoginToday.tr
+              : AppStrings.confirmLogoutToday.tr);
       if (!confirm) {
         checkTimeState.value = RequestState.success;
         return;
@@ -168,8 +167,8 @@ class UserTimeController extends GetxController {
           checkTimeState.value = RequestState.success;
           await _updateLastTimes();
           AppUIUtils.onSuccess(userStatus.value == UserWorkStatus.online
-              ? 'تم تسجيل الدخول بنجاح'
-              : 'تم تسجيل الخروج بنجاح');
+              ? AppStrings.loginSuccess.tr
+              : AppStrings.logoutSuccess.tr);
         },
       );
       return;
@@ -180,18 +179,18 @@ class UserTimeController extends GetxController {
       {String message = "هل أنت متأكد من تنفيذ العملية؟"}) async {
     final result = await Get.dialog<bool>(
       AlertDialog(
-        title: const Text("تأكيد العملية"),
+        title: Text(AppStrings.confirmAction.tr),
         content: Text(message),
         actions: [
           TextButton(
             onPressed: () {
               Get.back(result: false);
             },
-            child: const Text("إلغاء"),
+            child: Text(AppStrings.cancel.tr),
           ),
           ElevatedButton(
             onPressed: () => Get.back(result: true),
-            child: const Text("تأكيد"),
+            child: Text(AppStrings.confirm.tr),
           ),
         ],
       ),
@@ -229,7 +228,7 @@ class UserTimeController extends GetxController {
       lastOutTime.value = AppServiceUtils.formatDateTime(logoutList.last);
     }
     if (logoutList.length < loginList.length) {
-      lastOutTime.value = "لم يتم تسجيل خروج بعد";
+      lastOutTime.value = AppStrings.notLoggedOutYet.tr;
     }
   }
 

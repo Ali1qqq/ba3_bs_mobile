@@ -1,3 +1,4 @@
+import 'package:ba3_bs_mobile/core/constants/app_strings.dart';
 import 'package:ba3_bs_mobile/core/helper/extensions/role_item_type_extension.dart';
 import 'package:ba3_bs_mobile/features/profile/ui/screens/seller_profile.dart';
 import 'package:ba3_bs_mobile/features/user_loan_requests/ui/loan_requests_screen.dart';
@@ -112,13 +113,13 @@ class MainLayoutController extends GetxController {
       unSelectedIcon: AppAssets.profileUnselectedIcon,
     ),
     AppLayoutItemModel(
-      name: 'طلبات الاجازات',
+      name: AppStrings.leaveRequests,
       layout: LeavePage(),
       icon: AppAssets.usersTimeIcon,
       unSelectedIcon: AppAssets.usersTimeUnselectedIcon,
     ),
     AppLayoutItemModel(
-      name: 'طلبات السلفة',
+      name: AppStrings.loanRequests,
       layout: LoanRequestsPage(),
       icon: AppAssets.usersTimeIcon,
       unSelectedIcon: AppAssets.usersTimeUnselectedIcon,

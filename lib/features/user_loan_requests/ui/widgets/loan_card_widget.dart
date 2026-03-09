@@ -1,6 +1,8 @@
+import 'package:ba3_bs_mobile/core/constants/app_strings.dart';
 import 'package:ba3_bs_mobile/features/user_loan_requests/controller/loan_request_controller.dart';
 import 'package:ba3_bs_mobile/features/user_loan_requests/data/model/loan_request_model.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
 class LoanCardWidget extends StatelessWidget {
@@ -95,7 +97,7 @@ class LoanCardWidget extends StatelessWidget {
                   child: Row(
                     children: [
                       Text(
-                        'المبلغ: ',
+                        '${AppStrings.amount.tr}: ',
                         style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
@@ -130,8 +132,8 @@ class LoanCardWidget extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'السبب:',
+                  Text(
+                    '${AppStrings.reason.tr}:',
                     style: TextStyle(
                       fontSize: 12,
                       color: Colors.black45,
@@ -210,16 +212,16 @@ class LoanCardWidget extends StatelessWidget {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('تأكيد الحذف'),
-          content: const Text('هل أنت متأكد من حذف طلب السلفة؟'),
+          title: Text(AppStrings.confirmDeleteLoan.tr),
+          content: Text(AppStrings.confirmDeleteLoanMessage.tr),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text(
-                'إلغاء',
+              child: Text(
+                AppStrings.cancel.tr,
                 style: TextStyle(color: Colors.grey),
               ),
             ),
@@ -235,7 +237,7 @@ class LoanCardWidget extends StatelessWidget {
                   borderRadius: BorderRadius.circular(8),
                 ),
               ),
-              child: const Text('حذف'),
+              child: Text(AppStrings.delete.tr),
             ),
           ],
         );

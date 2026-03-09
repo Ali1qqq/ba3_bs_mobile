@@ -1,3 +1,4 @@
+import 'package:ba3_bs_mobile/core/constants/app_strings.dart';
 import 'package:ba3_bs_mobile/core/helper/enums/enums.dart';
 import 'package:ba3_bs_mobile/features/user_time/controller/leave_requests_controller.dart';
 import 'package:ba3_bs_mobile/features/user_time/data/models/leave_requests_model.dart';
@@ -39,8 +40,8 @@ class ContentAddLeaveDialog extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 12),
-                const Text(
-                  'طلب إجازة جديد',
+                Text(
+                  AppStrings.addLeaveRequest.tr,
                   style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
@@ -92,16 +93,16 @@ class ContentAddLeaveDialog extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
-                            'تاريخ البداية',
-                            style: TextStyle(
+                          Text(
+                            AppStrings.startDate.tr,
+                            style: const TextStyle(
                               fontSize: 12,
                               color: Colors.grey,
                             ),
                           ),
                           Text(
                             controller.startDate.value.isEmpty
-                                ? 'اختر التاريخ'
+                                ? AppStrings.selectDate.tr
                                 : controller.startDate.value,
                             style: TextStyle(
                               fontSize: 16,
@@ -164,16 +165,16 @@ class ContentAddLeaveDialog extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
-                            'تاريخ النهاية',
-                            style: TextStyle(
+                          Text(
+                            AppStrings.endDate.tr,
+                            style: const TextStyle(
                               fontSize: 12,
                               color: Colors.grey,
                             ),
                           ),
                           Text(
                             controller.endDate.value.isEmpty
-                                ? 'اختر التاريخ'
+                                ? AppStrings.selectDate.tr
                                 : controller.endDate.value,
                             style: TextStyle(
                               fontSize: 16,
@@ -207,14 +208,15 @@ class ContentAddLeaveDialog extends StatelessWidget {
                   value: controller.selectedType.value,
                   isExpanded: true,
                   icon: const Icon(Icons.arrow_drop_down),
-                  items: const [
+                  items: [
                     DropdownMenuItem(
                       value: LeaveType.sick,
                       child: Row(
                         children: [
-                          Icon(Icons.sick, color: Colors.orange, size: 20),
-                          SizedBox(width: 8),
-                          Text('مرضية'),
+                          const Icon(Icons.sick,
+                              color: Colors.orange, size: 20),
+                          const SizedBox(width: 8),
+                          Text(AppStrings.sickLeave.tr),
                         ],
                       ),
                     ),
@@ -222,10 +224,10 @@ class ContentAddLeaveDialog extends StatelessWidget {
                       value: LeaveType.paid,
                       child: Row(
                         children: [
-                          Icon(Icons.attach_money,
+                          const Icon(Icons.attach_money,
                               color: Colors.green, size: 20),
-                          SizedBox(width: 8),
-                          Text('مدفوعة'),
+                          const SizedBox(width: 8),
+                          Text(AppStrings.paidLeave.tr),
                         ],
                       ),
                     ),
@@ -233,9 +235,10 @@ class ContentAddLeaveDialog extends StatelessWidget {
                       value: LeaveType.unpaid,
                       child: Row(
                         children: [
-                          Icon(Icons.money_off, color: Colors.red, size: 20),
-                          SizedBox(width: 8),
-                          Text('غير مدفوعة'),
+                          const Icon(Icons.money_off,
+                              color: Colors.red, size: 20),
+                          const SizedBox(width: 8),
+                          Text(AppStrings.unpaidLeave.tr),
                         ],
                       ),
                     ),
@@ -257,8 +260,8 @@ class ContentAddLeaveDialog extends StatelessWidget {
                 Expanded(
                   child: TextButton(
                     onPressed: () => Navigator.pop(context),
-                    child: const Text(
-                      'إلغاء',
+                    child: Text(
+                      AppStrings.cancel.tr,
                       style: TextStyle(color: Colors.grey),
                     ),
                   ),
@@ -288,7 +291,7 @@ class ContentAddLeaveDialog extends StatelessWidget {
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
-                      child: const Text('إرسال الطلب'),
+                      child: Text(AppStrings.add.tr),
                     );
                   }),
                 ),

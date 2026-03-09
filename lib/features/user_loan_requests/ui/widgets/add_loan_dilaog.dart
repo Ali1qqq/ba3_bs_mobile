@@ -1,3 +1,4 @@
+import 'package:ba3_bs_mobile/core/constants/app_strings.dart';
 import 'package:ba3_bs_mobile/core/helper/enums/enums.dart';
 import 'package:ba3_bs_mobile/features/user_loan_requests/controller/loan_request_controller.dart';
 import 'package:flutter/material.dart';
@@ -35,9 +36,9 @@ class AddLoanDialog extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 12),
-              const Text(
-                'طلب سلفة جديد',
-                style: TextStyle(
+              Text(
+                AppStrings.loanRequest.tr,
+                style: const TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
                 ),
@@ -57,7 +58,7 @@ class AddLoanDialog extends StatelessWidget {
               controller: amountController,
               keyboardType: TextInputType.number,
               decoration: InputDecoration(
-                labelText: "المبلغ",
+                labelText: AppStrings.amount.tr,
                 hintText: "أدخل المبلغ المطلوب",
                 prefixIcon: const Icon(Icons.attach_money, color: Colors.blue),
                 border: InputBorder.none,
@@ -81,7 +82,7 @@ class AddLoanDialog extends StatelessWidget {
               controller: reasonController,
               maxLines: 3,
               decoration: InputDecoration(
-                labelText: "السبب",
+                labelText: AppStrings.reason.tr,
                 hintText: "أدخل سبب طلب السلفة",
                 prefixIcon: const Icon(Icons.description, color: Colors.blue),
                 border: InputBorder.none,
@@ -107,8 +108,8 @@ class AddLoanDialog extends StatelessWidget {
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
-                  child: const Text(
-                    'إلغاء',
+                  child: Text(
+                    AppStrings.cancel.tr,
                     style: TextStyle(color: Colors.grey),
                   ),
                 ),
@@ -153,7 +154,7 @@ class AddLoanDialog extends StatelessWidget {
                         borderRadius: BorderRadius.circular(12),
                       ),
                     ),
-                    child: const Text('إرسال الطلب'),
+                    child: Text(AppStrings.add.tr),
                   );
                 }),
               ),

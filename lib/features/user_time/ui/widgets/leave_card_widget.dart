@@ -1,6 +1,8 @@
+import 'package:ba3_bs_mobile/core/constants/app_strings.dart';
 import 'package:ba3_bs_mobile/features/user_time/controller/leave_requests_controller.dart';
 import 'package:ba3_bs_mobile/features/user_time/data/models/leave_requests_model.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get_utils/src/extensions/internacionalization.dart';
 
 class LeaveCardWidget extends StatelessWidget {
   const LeaveCardWidget({
@@ -121,8 +123,8 @@ class LeaveCardWidget extends StatelessWidget {
                     ),
                     child: Column(
                       children: [
-                        const Text(
-                          'من',
+                        Text(
+                          AppStrings.from.tr,
                           style: TextStyle(
                             fontSize: 12,
                             color: Colors.black45,
@@ -156,8 +158,8 @@ class LeaveCardWidget extends StatelessWidget {
                     ),
                     child: Column(
                       children: [
-                        const Text(
-                          'إلى',
+                        Text(
+                          AppStrings.to.tr,
                           style: TextStyle(
                             fontSize: 12,
                             color: Colors.black45,

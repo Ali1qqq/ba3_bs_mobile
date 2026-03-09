@@ -91,7 +91,8 @@ class AppStrings {
   static const String panel = 'لوحة';
 
   static const String controlPanel = 'لوحة التحكم';
-  static const String areYouSureYouWantToCloseTheProgram = 'هل انت متأكد انك تريد إغلاق البرنامج';
+  static const String areYouSureYouWantToCloseTheProgram =
+      'هل انت متأكد انك تريد إغلاق البرنامج';
   static const String exit = 'خروج';
   static const String cancel = 'الغاء';
   static const String user = 'المستخدم';
@@ -409,7 +410,8 @@ class AppStrings {
   static var viewProducts = 'عرض المنتجات';
   static var billProductView = 'عرض منتجات الفاتورة';
 
-  static var areYouSureContinueWithoutSeller = 'هل تريد المتابعة بدون تحديد البائع؟';
+  static var areYouSureContinueWithoutSeller =
+      'هل تريد المتابعة بدون تحديد البائع؟';
 
   static var firstPay = 'الدفعة الاولى';
 
@@ -443,4 +445,64 @@ class AppStrings {
   static var searchMaterial = 'بحث عن مادة';
 
   static var search = 'بحث';
+
+  static var loanRequests = 'طلبات السلفة';
+
+  static var leaveRequests = 'طلبات الاجازة';
+
+  static var pending = 'قيد الانتظار';
+
+  static var approved = 'موافقة';
+
+  static var rejected = 'مرفوض';
+
+  static var repaid = 'تم السداد';
+
+  static var loanRequest = 'طلب سلفة';
+
+  static var leaveRequest = 'طلب اجازة';
+
+  static var sickLeave = 'اجازة مرضية';
+  static var paidLeave = 'اجازة مدفوعة';
+  static var unpaidLeave = 'اجازة غير مدفوعة';
+
+  static var addLoanRequest = 'اضافة طلب سلفة';
+
+  static var addLeaveRequest = 'اضافة طلب اجازة';
+
+  static var endDate = 'تاريخ الانتهاء';
+
+  static var selectDate = 'اختر التاريخ';
+
+  static var startDate = 'تاريخ البداية';
+
+  static var reason = 'السبب';
+
+  static var leaveType = 'نوع الاجازة';
+
+  static var loanType = 'نوع السلفة';
+
+  static var loanAmount = 'قيمة السلفة';
+
+  static var confirmAction = 'هل أنت متأكد من تنفيذ العملية؟';
+
+  static var confirmOperation = 'تأكيد العملية';
+
+  static var confirmLogoutYesterday = 'هل تريد تسجيل الخروج ليوم أمس؟';
+  static var logoutYesterdaySuccess = 'تم تسجيل الخروج ليوم أمس بنجاح';
+
+  static var confirmLoginToday = 'هل تريد تسجيل الدخول لليوم الحالي؟';
+  static var confirmLogoutToday = 'هل تريد تسجيل الخروج لليوم الحالي؟';
+
+  static var loginSuccess = 'تم تسجيل الدخول بنجاح';
+  static var logoutSuccess = 'تم تسجيل الخروج بنجاح';
+
+  static var mustLoginBeforeShift =
+      'يجب تسجيل الدخول قبل بداية الشفت الحالي بـ 15 دقيقة أو أقل';
+
+  static var notLoggedOutYet = 'لم يتم تسجيل خروج بعد';
+
+  static var confirmDeleteLoan = 'هل تريد حذف السلفة؟';
+
+  static var confirmDeleteLoanMessage = 'هل تريد حذف السلفة؟';
 }

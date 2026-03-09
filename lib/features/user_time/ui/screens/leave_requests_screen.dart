@@ -1,3 +1,4 @@
+import 'package:ba3_bs_mobile/core/constants/app_strings.dart';
 import 'package:ba3_bs_mobile/core/helper/enums/enums.dart';
 import 'package:ba3_bs_mobile/features/user_time/controller/leave_requests_controller.dart';
 import 'package:ba3_bs_mobile/features/user_time/data/models/leave_requests_model.dart';
@@ -71,17 +72,17 @@ class LeavePage extends StatelessWidget {
               case LeaveStatus.approved:
                 statusColor = Colors.green;
                 statusIcon = Icons.check_circle;
-                statusText = 'مقبولة';
+                statusText = AppStrings.approved.tr;
                 break;
               case LeaveStatus.rejected:
                 statusColor = Colors.red;
                 statusIcon = Icons.cancel;
-                statusText = 'مرفوضة';
+                statusText = AppStrings.rejected.tr;
                 break;
               default:
                 statusColor = Colors.orange;
                 statusIcon = Icons.pending;
-                statusText = 'قيد الانتظار';
+                statusText = AppStrings.pending.tr;
             }
 
             // تحديد أيقونة نوع الإجازة
@@ -91,15 +92,15 @@ class LeavePage extends StatelessWidget {
             switch (leave.leaveType) {
               case LeaveType.sick:
                 typeIcon = Icons.sick;
-                typeText = 'مرضية';
+                typeText = AppStrings.sickLeave.tr;
                 break;
               case LeaveType.paid:
                 typeIcon = Icons.attach_money;
-                typeText = 'مدفوعة';
+                typeText = AppStrings.paidLeave.tr;
                 break;
               case LeaveType.unpaid:
                 typeIcon = Icons.money_off;
-                typeText = 'غير مدفوعة';
+                typeText = AppStrings.unpaidLeave.tr;
                 break;
             }
 
@@ -117,7 +118,7 @@ class LeavePage extends StatelessWidget {
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _showAddLeaveDialog(context),
         icon: const Icon(Icons.add),
-        label: const Text("طلب إجازة"),
+        label: Text(AppStrings.leaveRequest.tr),
         backgroundColor: Colors.blue,
       ),
     );
