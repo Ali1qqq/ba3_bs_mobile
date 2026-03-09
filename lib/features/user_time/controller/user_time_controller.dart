@@ -76,6 +76,10 @@ class UserTimeController extends GetxController {
       read<UserManagementController>().loggedInUserModel!;
 
   Future<void> checkTime(BuildContext context) async {
+    await _userTimeServices.init();
+
+    if (!context.mounted) return;
+
     await _handleLog(
         context: context,
         onUpdate: (user) => _userTimeServices.toggleCheckInOut(user));
@@ -87,11 +91,12 @@ class UserTimeController extends GetxController {
   }) async {
     checkTimeState.value = RequestState.loading;
     await read<UserManagementController>().refreshLoggedInUser();
-    bool isValid = await _validateLog(getUserById);
-    if (!isValid) {
-      AppUIUtils.onFailure("يجب ان تكون ضمن منطقة العمل");
-      return;
-    }
+    // bool isValid = await _validateLog(getUserById);
+    // if (!isValid) {
+    //   AppUIUtils.onFailure("يجب ان تكون ضمن منطقة العمل");
+    // checkTimeState.value = RequestState.success;
+    //   return;
+    // }
 
     final shifts = _userTimeServices.getSortedShifts(getUserById);
     final yesterday = _userTimeServices.yesterdayKey;
@@ -116,7 +121,6 @@ class UserTimeController extends GetxController {
         checkTimeState.value = RequestState.success;
         return;
       }
-      await _userTimeServices.init();
 
       //تسجيل الخروج ليوم امس فقط دون تسجيل دخول لليوم الحالي
       final result = await _usersRepo.save(updated);
@@ -151,8 +155,6 @@ class UserTimeController extends GetxController {
         checkTimeState.value = RequestState.success;
         return;
       }
-      await _userTimeServices.init();
-
       //تسجيل الدخول لليوم الحالي مع تسجيل الخروج ليوم امس اذا  كان بحاجة
       final result = await _usersRepo.save(updated);
 
@@ -233,6 +235,7 @@ class UserTimeController extends GetxController {
 
   Future<bool> isWithinRegion() async {
     final result = await _timeRepo.getCurrentLocation();
+    print(result);
     bool isWithinRegion = false;
     result.fold(
       (failure) {

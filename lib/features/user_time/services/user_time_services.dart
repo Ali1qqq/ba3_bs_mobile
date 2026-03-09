@@ -12,8 +12,8 @@ class UserTimeServices {
   DateTime? _networkNow;
 
   Future<void> init() async {
-    final now = await NTP.now();
-    final utc = now.toUtc().add(const Duration(hours: 4));
+    final nowNtp = await NTP.now();
+    final utc = nowNtp.toUtc().add(const Duration(hours: 4));
 
     DateTime result = DateTime(
       utc.year,
@@ -28,9 +28,14 @@ class UserTimeServices {
 
     print("Network now: $result");
     _networkNow = result;
+    now = _networkNow ?? DateTime.now();
   }
 
-  DateTime get now => _networkNow ?? DateTime.now();
+  late DateTime now;
+
+  UserTimeServices() {
+    now = _networkNow ?? DateTime.now();
+  }
 
   String get todayKey => DateFormat('yyyy-MM-dd').format(now);
   String get yesterdayKey =>
@@ -266,7 +271,8 @@ class UserTimeServices {
     //حساب وقت الحضور الفعلي بين اخر تسجيل للدخول والوقت الحالي
     if (now.isAfter(lastLogin)) {
       // لضمان عدم التلاعب بالوقت
-      if (now.isAfter(scheduledOut)) {
+      //السماح بالخروج المبكر قبل 15 دقايق من وقت الخروج النهائي
+      if (now.isAfter(scheduledOut.subtract(const Duration(minutes: 16)))) {
         workedMinutes = secondsToMinutesCeil(
             scheduledOut.difference(normalizedLogin).inSeconds);
       } else {
@@ -279,15 +285,6 @@ class UserTimeServices {
     if (workedMinutes > 0) {
       newOutEarlier -= workedMinutes;
       if (newOutEarlier < 0) newOutEarlier = 0;
-    }
-    //السماح بالخروج المبكر قبل 10 دقايق من وقت الخروج النهائي
-    if (now.isAfter(_parseTimeOfDay(shifts.last.outTime!, now)
-        .subtract(const Duration(minutes: 16)))) {
-      if (newOutEarlier >= 15) {
-        newOutEarlier -= 15;
-      } else {
-        newOutEarlier = 0;
-      }
     }
 
     final updatedDay = dayModel.copyWith(

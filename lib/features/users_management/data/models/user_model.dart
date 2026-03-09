@@ -147,7 +147,7 @@ class UserModel implements PlutoAdaptable {
               .toList(),
       userLoanRequests: json['userLoanRequests'] == null
           ? []
-          : (json['userAdvanceRequests'] as List<dynamic>?)
+          : (json['userLoanRequests'] as List<dynamic>?)
               ?.map((e) => UserLoanRequestModel.fromJson(e))
               .toList(),
 
