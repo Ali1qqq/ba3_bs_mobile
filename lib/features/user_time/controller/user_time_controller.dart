@@ -91,12 +91,12 @@ class UserTimeController extends GetxController {
   }) async {
     checkTimeState.value = RequestState.loading;
     await read<UserManagementController>().refreshLoggedInUser();
-    // bool isValid = await _validateLog(getUserById);
-    // if (!isValid) {
-    //   AppUIUtils.onFailure("يجب ان تكون ضمن منطقة العمل");
-    // checkTimeState.value = RequestState.success;
-    //   return;
-    // }
+    bool isValid = await _validateLog(getUserById);
+    if (!isValid) {
+      AppUIUtils.onFailure("يجب ان تكون ضمن منطقة العمل");
+      checkTimeState.value = RequestState.success;
+      return;
+    }
 
     final shifts = _userTimeServices.getSortedShifts(getUserById);
     final yesterday = _userTimeServices.yesterdayKey;
