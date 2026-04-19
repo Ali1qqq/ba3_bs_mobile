@@ -95,7 +95,7 @@ void setupDatabaseServices() {
 
   final firebaseApp = Firebase.app();
   FirebaseFirestore firestoreInstance =
-      FirebaseFirestore.instanceFor(app: firebaseApp, databaseId: "test-eu");
+      FirebaseFirestore.instanceFor(app: firebaseApp);
   // databaseId: AppConstants.getDatabaseAppName == AppConstants.defaultFirebaseAppName
   //      ? null
   //      : AppConstants.getDatabaseAppName);

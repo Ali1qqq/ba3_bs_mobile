@@ -234,7 +234,6 @@ class UserTimeController extends GetxController {
 
   Future<bool> isWithinRegion() async {
     final result = await _timeRepo.getCurrentLocation();
-    print(result);
     bool isWithinRegion = false;
     result.fold(
       (failure) {

@@ -1,16 +1,11 @@
 // ignore_for_file: deprecated_member_use
 
 import 'dart:async';
-import 'package:ba3_bs_mobile/core/constants/app_strings.dart';
+
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
-import '../models/custom_alert_anim_type.dart';
-import '../models/custom_alert_options.dart';
 import '../models/custom_alert_type.dart';
-import '../utils/custom_alert_animate.dart';
-import 'custom_alert_container.dart';
 
 class CustomAlertDialog {
   static Future<void> show({

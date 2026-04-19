@@ -1,12 +1,14 @@
 import 'package:ba3_bs_mobile/core/constants/app_constants.dart';
+import 'package:ba3_bs_mobile/core/helper/enums/enums.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:intl/intl.dart';
-import 'package:ba3_bs_mobile/core/helper/enums/enums.dart';
 import 'package:ntp/ntp.dart';
+
 import '../../users_management/data/models/user_model.dart';
 
 class UserTimeServices {
   static const Duration gracePeriod = Duration(minutes: 15);
+
   // static const Duration autoLogoutAfter = Duration(hours: 3); // خروج تلقائي
 
   DateTime? _networkNow;
@@ -25,7 +27,6 @@ class UserTimeServices {
       utc.millisecond,
       utc.microsecond,
     );
-    print("Network now: $result");
     _networkNow = result;
     now = _networkNow ?? DateTime.now();
   }
@@ -37,6 +38,7 @@ class UserTimeServices {
   }
 
   String get todayKey => DateFormat('yyyy-MM-dd').format(now);
+
   String get yesterdayKey =>
       DateFormat('yyyy-MM-dd').format(now.subtract(const Duration(days: 1)));
 
@@ -52,8 +54,6 @@ class UserTimeServices {
 
   // =============================================================
   UserModel _autoCloseYesterday(UserModel user) {
-    print(now);
-
     final yesterdayModel = user.userTimeModel?[yesterdayKey];
 
     // 1.إغلاق اليوم السابق تلقائياً إذا لزم الأمر
@@ -177,7 +177,8 @@ class UserTimeServices {
           dayName: key,
           logInDateList: [],
           logOutDateList: [],
-          totalLogInDelay: totalShiftMinutesToday, // تأخير كامل
+          totalLogInDelay: totalShiftMinutesToday,
+          // تأخير كامل
           totalOutEarlier: 0,
           totalExtraMinutes: 0,
         );
@@ -333,7 +334,7 @@ class UserTimeServices {
   /*
   دالة تضبط وقت الدخول إذا كان
 
-  قبل بداية الشفت  -    
+  قبل بداية الشفت  -
 
   أو ضمن فترة السماح  -
   */
@@ -412,7 +413,8 @@ class UserTimeServices {
       return DateTime(base.year, base.month, base.day + 1, 0, 0);
     }
 
-    final dt = DateFormat("hh:mm a").parse(timeStr);
+    final dt = DateFormat("hh:mm a").tryParse(timeStr) ??
+        DateFormat("a hh:mm").parse(timeStr);
     return DateTime(base.year, base.month, base.day, dt.hour, dt.minute);
   }
 
@@ -443,6 +445,7 @@ class UserTimeServices {
   }
 
   DateTime _parseTime(String time) => DateFormat("hh:mm a").parse(time);
+
   bool isWithinRegion(Position location, double targetLatitude,
       double targetLongitude, double radiusInMeters) {
     double distanceInMeters = Geolocator.distanceBetween(

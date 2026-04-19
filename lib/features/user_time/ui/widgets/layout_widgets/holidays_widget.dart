@@ -18,7 +18,6 @@ class HolidaysWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print("-------${userTimeController.userHolidaysLength}");
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: OrganizedWidget(
